@@ -2,13 +2,13 @@
 
 #include "defs.h"
 
-#define Range_Size(self) \
+#define Range_size(self) \
     ((self)->end - (self)->start)        
-#define Range_IsEmpty(self) \
+#define Range_isEmpty(self) \
     ((self)->end == (self)->start)
-#define Range_Contains(self, value) \
+#define Range_contains(self, value) \
     ((value) >= (self)->start && (value) < (self)->end)
-#define Range_Shift(self, delta) \
+#define Range_shift(self, delta) \
     { (self)->start += (delta); (self)->end += (delta); }
 
 struct Rangei_Impl {

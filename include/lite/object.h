@@ -10,11 +10,11 @@ LITE_DECLARE_OPAQUE(Object);
  * Objects get deleted only after all references have been removed.
  */
 
-Object *    Object_New          (void);
-void        Object_Release      (SELF);
+Object *    Object_new          (void);
+void        Object_release      (SELF);
 
-void        Object_SetParent    (SELF, Object *parent);
+void        Object_setParent    (SELF, Object *parent);
 
-Object *    Object_Parent       (const SELF);
+Object *    Object_parent       (const SELF);
 
 #undef SELF

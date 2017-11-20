@@ -4,97 +4,129 @@
 #include <string.h>
 
 #define LIST_MIN_ALLOC 16
-#define SELF List *d
 
-static void _List_Shift(SELF, int delta) {
+#define _List_element(d, index) (&(d)->data[(d)->elementSize * (index)])
+
+static void _List_move(List *d, const Ranges *moved, int delta) {
+    char *ptr = _List_element(d, moved->start);
+    memmove(ptr + delta * d->elementSize, ptr, d->elementSize * Range_size(moved));    
+}
+
+static void _List_shift(List *d, int delta) {
     LITE_ASSERT(d->range.start + delta >= 0);
-    LITE_ASSERT(d->range.end   + delta <= d->alloc_size);
-    char *front = List_Front(d);
-    memmove(front + d->element_size * delta, front, d->element_size * List_Size(d));
-    Range_Shift(&d->range, delta);
+    LITE_ASSERT(d->range.end   + delta <= d->allocSize);
+    _List_move(d, &d->range, delta);    
+    Range_shift(&d->range, delta);
 }
 
 /// Calculates the shift required to balance the list elements.
-static int _List_Imbalance(const SELF) {
+static int _List_imbalance(const List *d) {
     const int left  = d->range.start;
-    const int right = d->alloc_size - d->range.end;
+    const int right = d->allocSize - d->range.end;
     return (right - left) / 2;
 }
 
-static void _List_Rebalance(SELF) {
-    const int imbalance = _List_Imbalance(d);
-    if (abs(imbalance) > d->alloc_size / 2) {
-        _List_Shift(d, imbalance);
+static void _List_rebalance(List *d) {
+    const int imbalance = _List_imbalance(d);
+    if (abs(imbalance) > d->allocSize / 2) {
+        _List_shift(d, imbalance);
     }
 }
 
-List *List_New(size_t element_size) {
+List *List_new(size_t elementSize) {
     List *d = calloc(sizeof(List), 1);
-    d->element_size = element_size;
+    d->elementSize = elementSize;
     return d;
 }
 
-void List_Delete(SELF) {
+void List_delete(List *d) {
     free(d);
 }
 
-void *List_Data(const SELF) {
-    if (List_IsEmpty(d)) return NULL;    
-    return &d->data[d->element_size * d->range.start];
+void *List_data(const List *d) {
+    if (List_isEmpty(d)) return NULL;    
+    return _List_element(d, d->range.start);
 }
 
-void *List_At(const SELF, size_t pos) {
-    LITE_ASSERT(pos < Range_Size(&d->range));
-    return &d->data[d->element_size * (d->range.start + pos)];
+void *List_at(const List *d, size_t pos) {
+    LITE_ASSERT(pos < Range_size(&d->range));
+    return _List_element(d, d->range.start + pos);
 }
 
-void List_Reserve(SELF, size_t reserved_size) {
-    size_t new_size = (d->alloc_size == 0? LIST_MIN_ALLOC : d->alloc_size);
-    while (new_size < reserved_size) {
+void List_reserve(List *d, size_t reservedSize) {
+    size_t new_size = (d->allocSize == 0? LIST_MIN_ALLOC : d->allocSize);
+    while (new_size < reservedSize) {
         new_size *= 2;
     }
-    if (new_size > d->alloc_size) {
-        d->data = realloc(d->data, d->element_size * new_size);
-        d->alloc_size = new_size;
+    if (new_size > d->allocSize) {
+        d->data = realloc(d->data, d->elementSize * new_size);
+        d->allocSize = new_size;
     }
 }
 
-void List_Resize(SELF, size_t size) {
-    List_Reserve(d, size);
-    _List_Rebalance(d);
+void List_resize(List *d, size_t size) {
+    List_reserve(d, size);
+    _List_rebalance(d);
 }
 
-void List_PushBack(SELF, const void *value) {
-    List_Insert(d, List_Size(d), value);
+void List_pushBack(List *d, const void *value) {
+    List_insert(d, List_size(d), value);
 }
 
-void List_PushFront(SELF, const void *value) {
-    List_Insert(d, 0, value);
+void List_pushFront(List *d, const void *value) {
+    List_insert(d, 0, value);
 }
 
-void List_PopBack(SELF) {
-    LITE_ASSERT(!List_IsEmpty(d));
-    return List_Remove(d, List_Size(d) - 1);
+void List_popBack(List *d) {
+    LITE_ASSERT(!List_isEmpty(d));
+    return List_remove(d, List_size(d) - 1);
 }
 
-void List_PopFront(SELF) {
-    LITE_ASSERT(!List_IsEmpty(d));
-    return List_Remove(d, 0);
+void List_popFront(List *d) {
+    LITE_ASSERT(!List_isEmpty(d));
+    return List_remove(d, 0);
 }
 
-void List_Take(SELF, size_t pos, void *out_taken) {
-    memcpy(out_taken, List_At(d, pos), d->element_size);
-    List_Remove(d, pos);
+void List_take(List *d, size_t pos, void *outTaken) {
+    memcpy(outTaken, List_at(d, pos), d->elementSize);
+    List_remove(d, pos);
 }
 
-void List_Insert(SELF, size_t pos, const void *value) {
-    LITE_ASSERT(pos <= List_Size(d));
-    
-    _List_Rebalance(d);    
+void List_insert(List *d, size_t pos, const void *value) {
+    LITE_ASSERT(pos <= List_size(d));
+    List_reserve(d, List_size(d) + 1);
+    pos += d->range.start;
+    // Easy insertions.
+    if (pos == d->range.end && d->range.end < d->allocSize) { // At the end.
+        memcpy(_List_element(d, pos), value, d->elementSize);
+        d->range.end++;
+    }
+    else if (pos == d->range.start && d->range.start > 0) { // At the beginning.
+        memcpy(_List_element(d, pos), value, d->elementSize);
+        d->range.start--;
+    }
+    else {
+        // Need to make some room.
+        if (pos - d->range.start < d->range.end - pos && d->range.start > 0) { // Move the start?
+            const Ranges moved = { d->range.start, pos };
+            _List_move(d, &moved, -1);
+            d->range.start--;
+            memcpy(_List_element(d, pos), value, d->elementSize);            
+        }
+        else {
+            LITE_ASSERT(d->range.end < d->allocSize);
+            const Ranges moved = { pos, d->range.end };
+            _List_move(d, &moved, +1);
+            d->range.end++;
+            memcpy(_List_element(d, pos), value, d->elementSize);
+        }
+    }
+    _List_rebalance(d);    
 }
 
-void List_Remove(SELF, size_t pos) {
-    LITE_ASSERT(pos < List_Size(d));
+void List_remove(List *d, size_t pos) {
+    LITE_ASSERT(pos < List_size(d));
+    pos += d->range.start;
     if (pos == d->range.end - 1) {
         d->range.end--;
     }
@@ -102,14 +134,14 @@ void List_Remove(SELF, size_t pos) {
         d->range.start++;        
     }
     else if (pos - d->range.start > d->range.end - pos) {
-        char *ptr = List_At(d, pos);
-        memmove(ptr, ptr + d->element_size, d->element_size * (d->range.end - pos - 1));
+        const Ranges moved = { pos + 1, d->range.end };
+        _List_move(d, &moved, -1);
         d->range.end--;
     }
-    else if (pos > d->range.start) {
-        char *ptr = List_Data(d);
-        memmove(ptr + d->element_size, ptr, d->element_size * (pos - d->range.start - 1));
+    else {
+        const Ranges moved = { d->range.start, pos };
+        _List_move(d, &moved, +1);
         d->range.start++;
     }
-    _List_Rebalance(d);
+    _List_rebalance(d);
 }

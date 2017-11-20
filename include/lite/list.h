@@ -5,34 +5,31 @@
 
 struct List_Impl {
     Ranges range;
-    size_t alloc_size;
-    size_t element_size;
+    size_t allocSize;
+    size_t elementSize;
     char *data;
 };
 
 LITE_DECLARE_OPAQUE(List);
-#define SELF List *
 
-List *      List_New(size_t element_size);
-void        List_Delete(SELF);
+List *      List_new(size_t elementSize);
+void        List_delete(List *);
 
-#define     List_IsEmpty(SELF)  Range_IsEmpty(&(SELF)->range)
-#define     List_Size(SELF)     Range_Size(&(SELF)->range)
-#define     List_Front(SELF)    List_At(SELF, 0)
-#define     List_Back(SELF)     List_At(SELF, List_Size(SELF) - 1)
+#define     List_isEmpty(d)  Range_isEmpty(&(d)->range)
+#define     List_size(d)     Range_size(&(d)->range)
+#define     List_front(d)    List_at(d, 0)
+#define     List_back(d)     List_at(d, List_size(d) - 1)
 
-void *      List_Data(const SELF);
-void *      List_At(const SELF, size_t pos);
+void *      List_data(const List *);
+void *      List_at(const List *, size_t pos);
 
-void        List_Reserve(SELF, size_t reserved_size);
-void        List_Resize(SELF, size_t size);
-void        List_PushBack(SELF, const void *value);
-void        List_PushFront(SELF, const void *value);
-void        List_PopBack(SELF);
-void        List_PopFront(SELF);
-void        List_Take(SELF, size_t pos, void *out_taken);
-void        List_Insert(SELF, size_t pos, const void *value);
-void        List_Remove(SELF, size_t pos);
-
-#undef SELF
+void        List_reserve(List *, size_t reservedSize);
+void        List_resize(List *, size_t size);
+void        List_pushBack(List *, const void *value);
+void        List_pushFront(List *, const void *value);
+void        List_popBack(List *);
+void        List_popFront(List *);
+void        List_take(List *, size_t pos, void *outTaken);
+void        List_insert(List *, size_t pos, const void *value);
+void        List_remove(List *, size_t pos);
 
