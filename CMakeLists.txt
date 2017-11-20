@@ -12,6 +12,8 @@ set (HEADERS
     include/lite/defs.h
     include/lite/list.h
     include/lite/object.h
+    include/lite/range.h
 )
 add_executable (cplus ${SOURCES} ${HEADERS})
+set_property (TARGET cplus PROPERTY C_STANDARD 11)
 target_include_directories (cplus PUBLIC include)

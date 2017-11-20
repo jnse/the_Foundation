@@ -3,6 +3,7 @@
 #include "lite/defs.h"
 
 LITE_DECLARE_OPAQUE(Object);
+#define SELF Object *
 
 /**
  * Reference-counted object that owns child objects and may have a parent.
@@ -10,8 +11,10 @@ LITE_DECLARE_OPAQUE(Object);
  */
 
 Object *    Object_New          (void);
-void        Object_Release      (Object *this);
+void        Object_Release      (SELF);
 
-void        Object_SetParent    (Object *this, Object *parent);
+void        Object_SetParent    (SELF, Object *parent);
 
-Object *    Object_Parent       (const Object *this);
+Object *    Object_Parent       (const SELF);
+
+#undef SELF
