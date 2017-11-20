@@ -1,9 +1,8 @@
+#include "lite/object.h"
 #include <stdio.h>
-#include "object.h"
 
 int main(int argc, char *argv[]) {
-    Object *obj = Object_New(12345);    
-    printf("Simple code is great: %i\n", CObject.member(obj));
-    CObject.delete(obj);
+    Object *obj = Object_New();    
+    Object_Release(obj);
     return 0;
 }

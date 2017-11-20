@@ -1,4 +1,4 @@
-# C+
+# Lite: "C+"
 
 Simplicity of C11, power of OO!
 
