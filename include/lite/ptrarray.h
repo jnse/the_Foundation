@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/defs.h  General definitions.
+/** @file lite/ptrarray.h  Array of pointers.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,23 +26,18 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include <assert.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
+#include "array.h"
 
-#define LITE_ASSERT(cond) assert(cond)
+typedef iArray iPtrArray;
+typedef void * iPointer;
 
-#define LITE_CONST_CAST(type, ptr) ((type) (intptr_t) (ptr))
+iPtrArray * iPtrArray_new(void);
+void        iPtrArray_delete(iPtrArray *);
 
-#define LITE_DECLARE_IMPL(className) \
-    typedef struct i_##className##_Impl i##className
+iPointer *  iPtrArray_data  (const iPtrArray *);
+iPointer    iPtrArray_at    (const iPtrArray *, size_t pos);
 
-#define iFalse  0
-#define iTrue   1
-
-// Types.
-typedef int             iBool;
-typedef uint8_t         iByte;
-typedef uint16_t        iChar16;
-typedef unsigned int    iUInt;
+void        iPtrArray_pushBack  (iPtrArray *, const iPointer ptr);
+void        iPtrArray_pushFront (iPtrArray *, const iPointer ptr);
+iBool       iPtrArray_take      (iPtrArray *, size_t pos, iPointer *outPtr);
+void        iPtrArray_insert    (iPtrArray *, size_t pos, const iPointer ptr);

@@ -27,7 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "lite/array.h"
 #include <stdio.h>
 
-void printArray(const iArray *list) {
+void printArray(const iArray *list)
+{
     printf("%4lu %4lu -> %-4lu : %4lu [", iArray_size(list), list->range.start, list->range.end, list->allocSize);
     for (int i = 0; i < list->allocSize * list->elementSize; ++i) {
         if (i/list->elementSize < list->range.start || i/list->elementSize >= list->range.end)
@@ -38,9 +39,10 @@ void printArray(const iArray *list) {
     printf(" ]\n");
 }
 
-int main(int argc, char *argv[]) {
-    /* Test list insertion and removal. */ {
-        char c;
+int main(int argc, char *argv[])
+{
+    /* Test list insertion and removal. */
+    {
         iArray *list = iArray_new(2);
         printArray(list);
 

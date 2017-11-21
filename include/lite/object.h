@@ -1,3 +1,5 @@
+#pragma once
+
 /** @file lite/object.h  Object base class.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
@@ -24,8 +26,6 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#pragma once
-
 #include "lite/defs.h"
 
 /**
@@ -35,6 +35,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 LITE_DECLARE_IMPL(Object);
 
 iObject *   iObject_new         (void);
+
+iObject *   iObject_ref         (const iObject *);
 void        iObject_release     (iObject *);
 
 void        iObject_setParent   (iObject *, iObject *parent);

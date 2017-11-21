@@ -1,6 +1,4 @@
-#pragma once
-
-/** @file lite/defs.h  General definitions.
+/** @file ptrarray.c  Array of pointers.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,23 +24,46 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include <assert.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
+#include "lite/ptrarray.h"
 
-#define LITE_ASSERT(cond) assert(cond)
+iPtrArray * iPtrArray_new(void)
+{
+    return iArray_new(sizeof(iPointer));
+}
 
-#define LITE_CONST_CAST(type, ptr) ((type) (intptr_t) (ptr))
+void iPtrArray_delete(iPtrArray *d)
+{
+    iArray_delete(d);
+}
 
-#define LITE_DECLARE_IMPL(className) \
-    typedef struct i_##className##_Impl i##className
+iPointer *iPtrArray_data(const iPtrArray *d)
+{
+    return iArray_data(d);
+}
 
-#define iFalse  0
-#define iTrue   1
+iPointer iPtrArray_at(const iPtrArray *d, size_t pos)
+{
+    iPointer ptr;
+    memcpy(&ptr, iArray_at(d, pos), sizeof(iPointer));
+    return ptr;
+}
 
-// Types.
-typedef int             iBool;
-typedef uint8_t         iByte;
-typedef uint16_t        iChar16;
-typedef unsigned int    iUInt;
+void iPtrArray_pushBack(iPtrArray *d, const iPointer ptr)
+{
+    iArray_pushBack(d, &ptr);
+}
+
+void iPtrArray_pushFront(iPtrArray *d, const iPointer ptr)
+{
+    iArray_pushFront(d, &ptr);
+}
+
+iBool iPtrArray_take(iPtrArray *d, size_t pos, iPointer *outPtr)
+{
+    return iArray_take(d, pos, &outPtr);
+}
+
+void iPtrArray_insert(iPtrArray *d, size_t pos, const iPointer ptr)
+{
+    iArray_insert(d, pos, &ptr);
+}

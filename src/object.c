@@ -35,20 +35,23 @@ struct i_Object_Impl {
     iObject *parent;
 };
 
-static void _Object_delete(iObject *d) {
+static void _Object_delete(iObject *d)
+{
     LITE_ASSERT(d->parent == NULL);
     printf("deleting Object %p\n", d);
     free(d);
 }
 
-iObject *iObject_new(void) {
+iObject *iObject_new(void)
+{
     iObject *d = calloc(sizeof(iObject), 1);
     d->refCount = 1;
     printf("constructed Object %p\n", d);
     return d;
 }
 
-void iObject_addRef(iObject *d, int ref) {
+static void i_Object_addRef(iObject *d, int ref)
+{
     d->refCount += ref;
     LITE_ASSERT(d->refCount >= 0);
     if (d->refCount <= 0) {
@@ -56,10 +59,19 @@ void iObject_addRef(iObject *d, int ref) {
     }
 }
 
-void iObject_release(iObject *d) {
-    iObject_addRef(d, -1);
+iObject *iObject_ref(const iObject *d)
+{
+    iObject *o = LITE_CONST_CAST(iObject *, d);
+    o->refCount++;
+    return o;
 }
 
-void iObject_setParent(iObject *d, iObject *parent) {
+void iObject_release(iObject *d)
+{
+    i_Object_addRef(d, -1);
+}
+
+void iObject_setParent(iObject *d, iObject *parent)
+{
 
 }
