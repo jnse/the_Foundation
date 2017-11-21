@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 typedef iArray iPtrArray;
 typedef void * iPointer;
 
-iPtrArray * iPtrArray_new(void);
+iPtrArray * iPtrArray_new   (void);
 void        iPtrArray_delete(iPtrArray *);
 
 iPointer *  iPtrArray_data  (const iPtrArray *);

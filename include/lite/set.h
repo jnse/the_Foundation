@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/defs.h  General definitions.
+/** @file lite/set.h  Set of unique integer values.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,25 +26,29 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include <assert.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
+#include "array.h"
 
-#define LITE_ASSERT(cond) assert(cond)
+struct i_Set_Impl {
+    iArray values;
+};
 
-#define LITE_UNUSED(var) ((void)(var))
+LITE_DECLARE_IMPL(Set);
 
-#define LITE_CONST_CAST(type, ptr) ((type) (intptr_t) (ptr))
+typedef intptr_t iSetValue;
 
-#define LITE_DECLARE_IMPL(className) \
-    typedef struct i_##className##_Impl i##className
+iSet *  iSet_new(void);
+void    iSet_delete(iSet *);
 
-#define iFalse  0
-#define iTrue   1
+void    iSet_init(iSet *d);
+void    iSet_deinit(iSet *d);
 
-// Types.
-typedef int             iBool;
-typedef uint8_t         iByte;
-typedef uint16_t        iChar16;
-typedef unsigned int    iUInt;
+#define iSet_isEmpty(d) iArray_isEmpty(&(d)->values)
+
+size_t  iSet_size(const iSet *);
+iBool   iSet_contains(const iSet *, iSetValue value);
+iBool   iSet_locate(const iSet *, iSetValue value, iRanges *outLoc);
+iSetValue iSet_at(const iSet *, size_t pos);
+
+void    iSet_clear(iSet *);
+iBool   iSet_insert(iSet *, iSetValue value);
+iBool   iSet_remove(iSet *, iSetValue value);

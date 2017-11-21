@@ -25,53 +25,52 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "lite/object.h"
+#include "lite/ptrarray.h"
+#include "lite/ptrset.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-struct i_Object_Impl {
-    int refCount;
-    // Ownership hierarchy (not affected by reference counts).
-    iObject *parent;
-};
-
-static void _Object_delete(iObject *d)
-{
-    LITE_ASSERT(d->parent == NULL);
-    printf("deleting Object %p\n", d);
-    free(d);
-}
-
-iObject *iObject_new(void)
-{
-    iObject *d = calloc(sizeof(iObject), 1);
-    d->refCount = 1;
-    printf("constructed Object %p\n", d);
+iObject *iObject_new(size_t size, iDeinitFunc deinit) {
+    LITE_ASSERT(size >= sizeof(iObject));
+    iObject *d = calloc(size, 1);
+    d->deinit = deinit;
+    iPtrSet_init(&d->children);
+    printf("new Object %p\n", d);
     return d;
 }
 
-static void i_Object_addRef(iObject *d, int ref)
-{
-    d->refCount += ref;
-    LITE_ASSERT(d->refCount >= 0);
-    if (d->refCount <= 0) {
-        _Object_delete(d);
+void iObject_delete(iObject *d) {
+    iObject_setParent(d, NULL);
+    // Destroy children, who will remove themselves.
+    while (!iPtrSet_isEmpty(&d->children)) {
+        iObject_delete(iPtrSet_at(&d->children, 0));
+    }
+    iPtrSet_deinit(&d->children);
+    if (d->deinit) {
+        d->deinit(d);
+    }
+    free(d);
+    printf("deleted Object %p\n", d);
+}
+
+void iObject_setParent(iObject *d, iObject *parent) {
+    if (d->parent == parent) return;
+    if (d->parent) {
+        // Remove from old parent.
+        iPtrSet_remove(&d->parent->children, d);
+    }
+    d->parent = parent;
+    if (parent) {
+        LITE_ASSERT(!iPtrSet_contains(&d->parent->children, d));
+        iPtrSet_insert(&d->parent->children, d);
     }
 }
 
-iObject *iObject_ref(const iObject *d)
-{
-    iObject *o = LITE_CONST_CAST(iObject *, d);
-    o->refCount++;
-    return o;
+iObject *iObject_parent(const iObject *d) {
+    return d->parent;
 }
 
-void iObject_release(iObject *d)
-{
-    i_Object_addRef(d, -1);
-}
-
-void iObject_setParent(iObject *d, iObject *parent)
-{
-
+const iPtrSet *iObject_children(const iObject *d) {
+    return &d->children;
 }

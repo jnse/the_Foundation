@@ -27,22 +27,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "lite/array.h"
 
 #include <stdlib.h>
-#include <string.h>
 
 #define LITE_ARRAY_MIN_ALLOC 16
 
 #define i_Array_element(d, index) (&(d)->data[(d)->elementSize * (index)])
 
-static void i_Array_move(iArray *d, const iRanges *moved, int delta)
-{
+static void i_Array_move(iArray *d, const iRanges *moved, int delta) {
     if (delta != 0) {
         char *ptr = i_Array_element(d, moved->start);
         memmove(ptr + delta * d->elementSize, ptr, d->elementSize * iRange_size(moved));
     }
 }
 
-static void i_Array_shift(iArray *d, int delta)
-{
+static void i_Array_shift(iArray *d, int delta) {
     if (delta != 0) {
         LITE_ASSERT(d->range.start + delta >= 0);
         LITE_ASSERT(d->range.end   + delta <= d->allocSize);
@@ -52,47 +49,51 @@ static void i_Array_shift(iArray *d, int delta)
 }
 
 /// Calculates the shift required to balance the list elements.
-static int i_Array_imbalance(const iArray *d)
-{
+static int i_Array_imbalance(const iArray *d) {
     const int left  = d->range.start;
     const int right = d->allocSize - d->range.end;
     return (right - left) / 2;
 }
 
-static void i_Array_rebalance(iArray *d)
-{
+static void i_Array_rebalance(iArray *d) {
     const int imbalance = i_Array_imbalance(d);
     if (d->range.end == d->allocSize || d->range.start == 0) {
         i_Array_shift(d, imbalance);
     }
 }
 
-iArray *iArray_new(size_t elementSize)
-{
+iArray *iArray_new(size_t elementSize) {
     iArray *d = calloc(sizeof(iArray), 1);
     d->elementSize = elementSize;
     return d;
 }
 
-void iArray_delete(iArray *d)
-{
+void iArray_delete(iArray *d) {
+    iArray_deinit(d);
     free(d);
 }
 
-void *iArray_data(const iArray *d)
-{
+void iArray_init(iArray *d, size_t elementSize) {
+    d->elementSize = elementSize;
+    LITE_ASSERT(d->data == NULL);
+}
+
+void iArray_deinit(iArray *d) {
+    free(d->data);
+    memset(d, 0, sizeof(*d));
+}
+
+void *iArray_data(const iArray *d) {
     if (iArray_isEmpty(d)) return NULL;
     return i_Array_element(d, d->range.start);
 }
 
-void *iArray_at(const iArray *d, size_t pos)
-{
+void *iArray_at(const iArray *d, size_t pos) {
     LITE_ASSERT(pos < iRange_size(&d->range));
     return i_Array_element(d, d->range.start + pos);
 }
 
-void iArray_reserve(iArray *d, size_t reservedSize)
-{
+void iArray_reserve(iArray *d, size_t reservedSize) {
     size_t newSize = (d->allocSize == 0? LITE_ARRAY_MIN_ALLOC : d->allocSize);
     while (newSize < reservedSize) {
         newSize *= 2;
@@ -103,19 +104,20 @@ void iArray_reserve(iArray *d, size_t reservedSize)
     }
 }
 
-void iArray_resize(iArray *d, size_t size)
-{
+void iArray_clear(iArray *d) {
+    d->range.start = d->range.end = d->allocSize / 2;
+}
+
+void iArray_resize(iArray *d, size_t size) {
     iArray_reserve(d, size);
     i_Array_rebalance(d);
 }
 
-void iArray_pushBack(iArray *d, const void *value)
-{
+void iArray_pushBack(iArray *d, const void *value) {
     iArray_insert(d, iArray_size(d), value);
 }
 
-void iArray_pushFront(iArray *d, const void *value)
-{
+void iArray_pushFront(iArray *d, const void *value) {
     iArray_insert(d, 0, value);
 }
 
@@ -126,15 +128,13 @@ iBool iArray_popBack(iArray *d)
     return iTrue;
 }
 
-iBool iArray_popFront(iArray *d)
-{
+iBool iArray_popFront(iArray *d) {
     if (iArray_isEmpty(d)) return iFalse;
     iArray_remove(d, 0);
     return iTrue;
 }
 
-iBool iArray_take(iArray *d, size_t pos, void *outValue)
-{
+iBool iArray_take(iArray *d, size_t pos, void *outValue) {
     if (pos < iArray_size(d)) {
         memcpy(outValue, iArray_at(d, pos), d->elementSize);
         iArray_remove(d, pos);
@@ -143,8 +143,7 @@ iBool iArray_take(iArray *d, size_t pos, void *outValue)
     return iFalse;
 }
 
-void iArray_insert(iArray *d, size_t pos, const void *value)
-{
+void iArray_insert(iArray *d, size_t pos, const void *value) {
     LITE_ASSERT(pos <= iArray_size(d));
     iArray_reserve(d, iArray_size(d) + 1);
     i_Array_rebalance(d);
@@ -176,8 +175,7 @@ void iArray_insert(iArray *d, size_t pos, const void *value)
     }
 }
 
-void iArray_remove(iArray *d, size_t pos)
-{
+void iArray_remove(iArray *d, size_t pos) {
     LITE_ASSERT(pos < iArray_size(d));
     pos += d->range.start;
     if (pos == d->range.end - 1) {
@@ -196,4 +194,8 @@ void iArray_remove(iArray *d, size_t pos)
         i_Array_move(d, &moved, +1);
         d->range.start++;
     }
+}
+
+void iArray_sort(iArray *d, int (*cmp)(const void *, const void *)) {
+    qsort(iArray_front(d), iArray_size(d), d->elementSize, cmp);
 }

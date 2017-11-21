@@ -27,18 +27,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "lite/defs.h"
+#include "lite/ptrset.h"
 
 /**
- * Reference-counted object that owns child objects and may have a parent.
- * Objects get deleted only after all references have been removed.
+ * Object that owns child objects and may have a parent.
  */
 LITE_DECLARE_IMPL(Object);
 
-iObject *   iObject_new         (void);
+typedef void (*iDeinitFunc)(void *);
 
-iObject *   iObject_ref         (const iObject *);
-void        iObject_release     (iObject *);
+struct i_Object_Impl {
+    iDeinitFunc deinit;
+    iObject *parent;
+    iPtrSet children;
+};
+
+iObject *   iObject_new(size_t size, iDeinitFunc deinit);
+void        iObject_delete(iObject *);
+
+//void        iObject_init(iObject *);
+//void        iObject_deinit(iObject *);
 
 void        iObject_setParent   (iObject *, iObject *parent);
 
 iObject *   iObject_parent      (const iObject *);
+const iPtrSet * iObject_children(const iObject *);

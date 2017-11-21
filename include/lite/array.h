@@ -41,6 +41,9 @@ LITE_DECLARE_IMPL(Array);
 iArray *    iArray_new      (size_t elementSize);
 void        iArray_delete   (iArray *);
 
+void        iArray_init     (iArray *, size_t elementSize);
+void        iArray_deinit   (iArray *);
+
 #define     iArray_isEmpty(d)   iRange_isEmpty(&(d)->range)
 #define     iArray_size(d)      iRange_size(&(d)->range)
 #define     iArray_front(d)     iArray_at(d, 0)
@@ -50,6 +53,7 @@ void *      iArray_data (const iArray *);
 void *      iArray_at   (const iArray *, size_t pos);
 
 void        iArray_reserve      (iArray *, size_t reservedSize);
+void        iArray_clear        (iArray *);
 void        iArray_resize       (iArray *, size_t size);
 void        iArray_pushBack     (iArray *, const void *value);
 void        iArray_pushFront    (iArray *, const void *value);
@@ -58,3 +62,4 @@ iBool       iArray_popFront     (iArray *);
 iBool       iArray_take         (iArray *, size_t pos, void *outValue);
 void        iArray_insert       (iArray *, size_t pos, const void *value);
 void        iArray_remove       (iArray *, size_t pos);
+void        iArray_sort         (iArray *, int (*cmp)(const void *, const void *));
