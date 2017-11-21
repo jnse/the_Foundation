@@ -28,16 +28,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "lite/defs.h"
 
+/**
+ * Reference-counted object that gets deleted only after all references are gone.
+ */
+LITE_DECLARE_IMPL(Counted);
+
 struct i_Counted_Impl {
+    iDeinitFunc deinit;
     int refCount;
 };
 
-LITE_DECLARE_IMPL(Counted);
+typedef void iAnyCounted;
 
-iCounted *  iCounted_new    (void);
+iAnyCounted *   iCounted_new    (size_t size, iDeinitFunc deinit);
 
-void        iCounted_init   (iCounted *);
-void        iCounted_deinit (iCounted *);
+void            iCounted_deinit (iAnyCounted *);
 
-iCounted *  iCounted_ref    (const iCounted *);
-void        iCounted_deref  (iCounted *);
+iAnyCounted *   iCounted_ref    (const iAnyCounted *);
+void            iCounted_deref  (iAnyCounted *);

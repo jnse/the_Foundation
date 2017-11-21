@@ -49,8 +49,8 @@ void        iArray_deinit   (iArray *);
 #define     iArray_front(d)     iArray_at(d, 0)
 #define     iArray_back(d)      iArray_at(d, iArray_size(d) - 1)
 
-void *      iArray_data (const iArray *);
-void *      iArray_at   (const iArray *, size_t pos);
+void *      iArray_data         (const iArray *);
+void *      iArray_at           (const iArray *, size_t pos);
 
 void        iArray_reserve      (iArray *, size_t reservedSize);
 void        iArray_clear        (iArray *);

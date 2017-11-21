@@ -29,41 +29,44 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <stdlib.h>
 
+iAnyObject *iCounted_new(size_t size, iDeinitFunc deinit) {
+    LITE_ASSERT(size >= sizeof(iCounted));
+    iCounted *d = calloc(size, 1);
+    d->deinit = deinit;
+    d->refCount = 1;
+    printf("constructed Counted %p\n", d);
+    return d;
+}
+
 static void i_Counted_delete(iCounted *d) {
     iCounted_deinit(d);
     printf("deleting Counted %p\n", d);
     free(d);
 }
 
-static void i_Counted_addRef(iCounted *d, int ref) {
-    d->refCount += ref;
-    LITE_ASSERT(d->refCount >= 0);
-    if (d->refCount <= 0) {
-        i_Counted_delete(d);
+void iCounted_deinit(iAnyCounted *any) {
+    iCounted *d = (iCounted *) any;
+    LITE_ASSERT(d->refCount == 0);
+    if (d->deinit) {
+        d->deinit(d);
     }
 }
 
-iCounted *iCounted_new(void) {
-    iCounted *d = calloc(sizeof(iCounted), 1);
-    iCounted_init(d);
-    printf("constructed Counted %p\n", d);
-    return d;
+iAnyCounted *iCounted_ref(const iAnyCounted *any) {
+    if (any) {
+        iCounted *i = LITE_CONST_CAST(iCounted *, any);
+        i->refCount++;
+        return i;
+    }
+    return NULL;
 }
 
-void iCounted_init(iCounted *d) {
-    d->refCount = 1;
-}
-
-void iCounted_deinit(iCounted *d) {
-    LITE_ASSERT(d->refCount == 0);
-}
-
-iCounted *iCounted_ref(const iCounted *d) {
-    iCounted *i = LITE_CONST_CAST(iCounted *, d);
-    i->refCount++;
-    return i;
-}
-
-void iCounted_deref(iCounted *d) {
-    i_Counted_addRef(d, -1);
+void iCounted_deref(iAnyCounted *any) {
+    if (any) {
+        iCounted *d = (iCounted *) any;
+        LITE_ASSERT(d->refCount > 0);
+        if (--d->refCount <= 0) {
+            i_Counted_delete(d);
+        }
+    }
 }

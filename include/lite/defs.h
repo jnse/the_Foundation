@@ -48,3 +48,7 @@ typedef int             iBool;
 typedef uint8_t         iByte;
 typedef uint16_t        iChar16;
 typedef unsigned int    iUInt;
+
+typedef void iAnyObject;
+typedef void (*iDeinitFunc)(iAnyObject *);
+

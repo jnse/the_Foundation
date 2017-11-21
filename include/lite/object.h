@@ -30,12 +30,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "lite/ptrset.h"
 
 /**
- * Object that owns child objects and may have a parent.
+ * Object that owns child objects and may have a parent. When a parent is deleted,
+ * all its children are deleted first.
  */
 LITE_DECLARE_IMPL(Object);
-
-typedef void iAnyObject;
-typedef void (*iDeinitFunc)(iAnyObject *);
 
 struct i_Object_Impl {
     iDeinitFunc deinit;

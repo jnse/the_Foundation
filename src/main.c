@@ -23,8 +23,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/object.h"
 #include "lite/array.h"
+#include "lite/object.h"
+#include "lite/counted.h"
 #include <stdio.h>
 
 //---------------------------------------------------------------------------------------
@@ -62,16 +63,35 @@ void SuperObject_init(SuperObject *d, int member) {
     d->member = member;
 }
 
-void SuperObject_deinit(iAnyObject *obj) {
-    SuperObject *d = (SuperObject *) obj;
+void SuperObject_deinit(iAnyObject *any) {
+    SuperObject *d = (SuperObject *) any;
     printf("deinit SuperObject: %i\n", d->member);
-    TestObject_deinit(obj);
+    TestObject_deinit(any);
 }
 
 SuperObject *SuperObject_new(int value, int member) {
     SuperObject *d = iObject_new(sizeof(SuperObject), SuperObject_deinit);
     TestObject_init(&d->base, value);
     SuperObject_init(d, member);
+    return d;
+}
+
+//---------------------------------------------------------------------------------------
+
+typedef struct TestCounted_Impl {
+    iCounted base;
+    int value;
+}
+TestCounted;
+
+void TestCounted_deinit(iAnyCounted *any) {
+    TestCounted *d = (TestCounted *) any;
+    printf("deinit TestCounted: %i\n", d->value);
+}
+
+TestCounted *TestCounted_new(int value) {
+    TestCounted *d = iCounted_new(sizeof(TestCounted), TestCounted_deinit);
+    d->value = value;
     return d;
 }
 
@@ -139,6 +159,12 @@ int main(int argc, char *argv[]) {
         iObject_setParent(b, a);
         iObject_setParent(c, a);
         iObject_delete(a);
+    }
+    /* Test reference-counting. */ {
+        TestCounted *a = TestCounted_new(123);
+        TestCounted *b = iCounted_ref(a);
+        printf("deref a...\n"); iCounted_deref(a);
+        printf("deref b...\n"); iCounted_deref(b);
     }
     return 0;
 }
