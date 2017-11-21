@@ -4,10 +4,10 @@
 #include "range.h"
 
 struct i_Array_Impl {
-    iRanges range;
-    size_t allocSize;
-    size_t elementSize;
     char *data;
+    iRanges range;
+    size_t elementSize;
+    size_t allocSize;
 };
 
 LITE_DECLARE_IMPL(Array);
