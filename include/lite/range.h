@@ -2,26 +2,26 @@
 
 #include "defs.h"
 
-#define lRange_size(self) \
-    ((self)->end - (self)->start)        
-#define lRange_isEmpty(self) \
+#define iRange_size(self) \
+    ((self)->end - (self)->start)
+#define iRange_isEmpty(self) \
     ((self)->end == (self)->start)
-#define lRange_contains(self, value) \
+#define iRange_contains(self, value) \
     ((value) >= (self)->start && (value) < (self)->end)
-#define lRange_shift(self, delta) \
+#define iRange_shift(self, delta) \
     { (self)->start += (delta); (self)->end += (delta); }
 
-struct lRangei_Impl {
+struct i_Rangei_Impl {
     int start;
     int end;
 };
 
-struct lRangeui_Impl {
+struct i_Rangeui_Impl {
     uint start;
-    uint end;    
+    uint end;
 };
 
-struct lRanges_Impl {
+struct i_Ranges_Impl {
     size_t start;
     size_t end;
 };

@@ -9,9 +9,9 @@ LITE_DECLARE_IMPL(Object);
  * Objects get deleted only after all references have been removed.
  */
 
-lObject *   lObject_new         (void);
-void        lObject_release     (lObject *);
+iObject *   iObject_new         (void);
+void        iObject_release     (iObject *);
 
-void        lObject_setParent   (lObject *, lObject *parent);
+void        iObject_setParent   (iObject *, iObject *parent);
 
-lObject *   lObject_parent      (const lObject *);
+iObject *   iObject_parent      (const iObject *);

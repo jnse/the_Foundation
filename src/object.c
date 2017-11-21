@@ -3,37 +3,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct lObject_Impl {
+struct i_Object_Impl {
     int refCount;
     // Ownership hierarchy (not affected by reference counts).
-    lObject *parent;
+    iObject *parent;
 };
 
-static void _Object_delete(lObject *self) {
-    LITE_ASSERT(self->parent == NULL);
-    printf("deleting Object %p\n", self);
-    free(self);    
+static void _Object_delete(iObject *d) {
+    LITE_ASSERT(d->parent == NULL);
+    printf("deleting Object %p\n", d);
+    free(d);
 }
 
-lObject *lObject_new(void) {
-    lObject *self = calloc(sizeof(lObject), 1);
-    self->refCount = 1;
-    printf("constructed Object %p\n", self);
-    return self;
+iObject *iObject_new(void) {
+    iObject *d = calloc(sizeof(iObject), 1);
+    d->refCount = 1;
+    printf("constructed Object %p\n", d);
+    return d;
 }
 
-void lObject_addRef(lObject *self, int ref) {
-    self->refCount += ref;
-    LITE_ASSERT(self->refCount >= 0);
-    if (self->refCount <= 0) {
-        _Object_delete(self);
+void iObject_addRef(iObject *d, int ref) {
+    d->refCount += ref;
+    LITE_ASSERT(d->refCount >= 0);
+    if (d->refCount <= 0) {
+        _Object_delete(d);
     }
 }
 
-void lObject_release(lObject *self) {
-    lObject_addRef(self, -1);
+void iObject_release(iObject *d) {
+    iObject_addRef(d, -1);
 }
 
-void lObject_setParent(lObject *self, lObject *parent) {
-    
+void iObject_setParent(iObject *d, iObject *parent) {
+
 }

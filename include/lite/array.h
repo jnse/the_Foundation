@@ -1,10 +1,10 @@
 #pragma once
 
 #include "defs.h"
-#include "range.h" 
+#include "range.h"
 
-struct lArray_Impl {
-    lRanges range;
+struct i_Array_Impl {
+    iRanges range;
     size_t allocSize;
     size_t elementSize;
     char *data;
@@ -12,24 +12,23 @@ struct lArray_Impl {
 
 LITE_DECLARE_IMPL(Array);
 
-lArray *    lArray_new(size_t elementSize);
-void        lArray_delete(lArray *);
+iArray *    iArray_new(size_t elementSize);
+void        iArray_delete(iArray *);
 
-#define     lArray_isEmpty(d)   lRange_isEmpty(&(d)->range)
-#define     lArray_size(d)      lRange_size(&(d)->range)
-#define     lArray_front(d)     lArray_at(d, 0)
-#define     lArray_back(d)      lArray_at(d, lArray_size(d) - 1)
+#define     iArray_isEmpty(d)   iRange_isEmpty(&(d)->range)
+#define     iArray_size(d)      iRange_size(&(d)->range)
+#define     iArray_front(d)     iArray_at(d, 0)
+#define     iArray_back(d)      iArray_at(d, iArray_size(d) - 1)
 
-void *      lArray_data(const lArray *);
-void *      lArray_at(const lArray *, size_t pos);
+void *      iArray_data(const iArray *);
+void *      iArray_at(const iArray *, size_t pos);
 
-void        lArray_reserve(lArray *, size_t reservedSize);
-void        lArray_resize(lArray *, size_t size);
-void        lArray_pushBack(lArray *, const void *value);
-void        lArray_pushFront(lArray *, const void *value);
-void        lArray_popBack(lArray *);
-void        lArray_popFront(lArray *);
-void        lArray_take(lArray *, size_t pos, void *outTaken);
-void        lArray_insert(lArray *, size_t pos, const void *value);
-void        lArray_remove(lArray *, size_t pos);
-
+void        iArray_reserve(iArray *, size_t reservedSize);
+void        iArray_resize(iArray *, size_t size);
+void        iArray_pushBack(iArray *, const void *value);
+void        iArray_pushFront(iArray *, const void *value);
+void        iArray_popBack(iArray *);
+void        iArray_popFront(iArray *);
+void        iArray_take(iArray *, size_t pos, void *outTaken);
+void        iArray_insert(iArray *, size_t pos, const void *value);
+void        iArray_remove(iArray *, size_t pos);
