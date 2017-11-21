@@ -39,9 +39,9 @@ void        iPtrSet_delete(iPtrSet *);
 #define iPtrSet_isEmpty(d)  iSet_isEmpty(d)
 #define iPtrSet_size(d)     iSet_size(d)
 
-iBool       iPtrSet_contains(const iPtrSet *, void *value);
-iBool       iPtrSet_locate(const iPtrSet *, void *value, iRanges *outLoc);
+iBool       iPtrSet_contains(const iPtrSet *, void *ptr);
+iBool       iPtrSet_locate(const iPtrSet *, void *ptr, iRanges *outLoc);
 void *      iPtrSet_at(const iSet *, size_t pos);
 
-iBool       iPtrSet_insert(iPtrSet *, void *value);
-iBool       iPtrSet_remove(iPtrSet *, void *value);
+iBool       iPtrSet_insert(iPtrSet *, void *ptr);
+iBool       iPtrSet_remove(iPtrSet *, void *ptr);

@@ -34,20 +34,20 @@ void iPtrSet_delete(iPtrSet *d) {
     iSet_delete(d);
 }
 
-iBool iPtrSet_contains(const iPtrSet *d, void *value) {
-    return iSet_contains(d, (iSetValue) value);
+iBool iPtrSet_contains(const iPtrSet *d, void *ptr) {
+    return iSet_contains(d, (iSetValue) ptr);
 }
 
-iBool iPtrSet_locate(const iPtrSet *d, void *value, iRanges *outLoc) {
-    return iSet_locate(d, (iSetValue) value, outLoc);
+iBool iPtrSet_locate(const iPtrSet *d, void *ptr, iRanges *outLoc) {
+    return iSet_locate(d, (iSetValue) ptr, outLoc);
 }
 
-iBool iPtrSet_insert(iPtrSet *d, void *value) {
-    return iSet_insert(d, (iSetValue) value);
+iBool iPtrSet_insert(iPtrSet *d, void *ptr) {
+    return iSet_insert(d, (iSetValue) ptr);
 }
 
-iBool iPtrSet_remove(iPtrSet *d, void *value) {
-    return iSet_remove(d, (iSetValue) value);
+iBool iPtrSet_remove(iPtrSet *d, void *ptr) {
+    return iSet_remove(d, (iSetValue) ptr);
 }
 
 void *iPtrSet_at(const iSet *d, size_t pos) {
