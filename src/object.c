@@ -3,26 +3,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Object_Impl {
+struct lObject_Impl {
     int refCount;
     // Ownership hierarchy (not affected by reference counts).
-    Object *parent;
+    lObject *parent;
 };
 
-static void _Object_delete(Object *self) {
+static void _Object_delete(lObject *self) {
     LITE_ASSERT(self->parent == NULL);
     printf("deleting Object %p\n", self);
     free(self);    
 }
 
-Object *Object_new(void) {
-    Object *self = calloc(sizeof(Object), 1);
+lObject *lObject_new(void) {
+    lObject *self = calloc(sizeof(lObject), 1);
     self->refCount = 1;
     printf("constructed Object %p\n", self);
     return self;
 }
 
-void Object_addRef(Object *self, int ref) {
+void lObject_addRef(lObject *self, int ref) {
     self->refCount += ref;
     LITE_ASSERT(self->refCount >= 0);
     if (self->refCount <= 0) {
@@ -30,10 +30,10 @@ void Object_addRef(Object *self, int ref) {
     }
 }
 
-void Object_release(Object *self) {
-    Object_addRef(self, -1);
+void lObject_release(lObject *self) {
+    lObject_addRef(self, -1);
 }
 
-void Object_setParent(Object *self, Object *parent) {
+void lObject_setParent(lObject *self, lObject *parent) {
     
 }

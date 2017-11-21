@@ -4,13 +4,13 @@ project (CPLUS
     LANGUAGES C
 )
 set (SOURCES 
-    src/list.c
+    src/array.c
     src/main.c
     src/object.c
 )
 set (HEADERS
+    include/lite/array.h
     include/lite/defs.h
-    include/lite/list.h
     include/lite/object.h
     include/lite/range.h
 )

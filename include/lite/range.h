@@ -2,29 +2,30 @@
 
 #include "defs.h"
 
-#define Range_size(self) \
+#define lRange_size(self) \
     ((self)->end - (self)->start)        
-#define Range_isEmpty(self) \
+#define lRange_isEmpty(self) \
     ((self)->end == (self)->start)
-#define Range_contains(self, value) \
+#define lRange_contains(self, value) \
     ((value) >= (self)->start && (value) < (self)->end)
-#define Range_shift(self, delta) \
+#define lRange_shift(self, delta) \
     { (self)->start += (delta); (self)->end += (delta); }
 
-struct Rangei_Impl {
+struct lRangei_Impl {
     int start;
     int end;
 };
-LITE_DECLARE_OPAQUE(Rangei);
 
-struct Rangeui_Impl {
+struct lRangeui_Impl {
     uint start;
     uint end;    
 };
-LITE_DECLARE_OPAQUE(Rangeui);
 
-struct Ranges_Impl {
+struct lRanges_Impl {
     size_t start;
     size_t end;
 };
-LITE_DECLARE_OPAQUE(Ranges);
+
+LITE_DECLARE_IMPL(Rangei);
+LITE_DECLARE_IMPL(Rangeui);
+LITE_DECLARE_IMPL(Ranges);
