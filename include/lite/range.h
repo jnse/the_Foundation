@@ -2,14 +2,10 @@
 
 #include "defs.h"
 
-#define iRange_size(self) \
-    ((self)->end - (self)->start)
-#define iRange_isEmpty(self) \
-    ((self)->end == (self)->start)
-#define iRange_contains(self, value) \
-    ((value) >= (self)->start && (value) < (self)->end)
-#define iRange_shift(self, delta) \
-    { (self)->start += (delta); (self)->end += (delta); }
+#define iRange_size(self)               ((self)->end - (self)->start)
+#define iRange_isEmpty(self)            ((self)->end == (self)->start)
+#define iRange_contains(self, value)    ((value) >= (self)->start && (value) < (self)->end)
+#define iRange_shift(self, delta)       {(self)->start += (delta); (self)->end += (delta);}
 
 struct i_Rangei_Impl {
     int start;
@@ -17,8 +13,8 @@ struct i_Rangei_Impl {
 };
 
 struct i_Rangeui_Impl {
-    uint start;
-    uint end;
+    unsigned int start;
+    unsigned int end;
 };
 
 struct i_Ranges_Impl {

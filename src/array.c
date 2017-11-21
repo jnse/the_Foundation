@@ -82,19 +82,25 @@ void iArray_pushFront(iArray *d, const void *value) {
     iArray_insert(d, 0, value);
 }
 
-void iArray_popBack(iArray *d) {
-    LITE_ASSERT(!iArray_isEmpty(d));
+iBool iArray_popBack(iArray *d) {
+    if (iArray_isEmpty(d)) return iFalse;
     iArray_remove(d, iArray_size(d) - 1);
+    return iTrue;
 }
 
-void iArray_popFront(iArray *d) {
-    LITE_ASSERT(!iArray_isEmpty(d));
+iBool iArray_popFront(iArray *d) {
+    if (iArray_isEmpty(d)) return iFalse;
     iArray_remove(d, 0);
+    return iTrue;
 }
 
-void iArray_take(iArray *d, size_t pos, void *outTaken) {
-    memcpy(outTaken, iArray_at(d, pos), d->elementSize);
-    iArray_remove(d, pos);
+iBool iArray_take(iArray *d, size_t pos, void *outTaken) {
+    if (pos < iArray_size(d)) {
+        memcpy(outTaken, iArray_at(d, pos), d->elementSize);
+        iArray_remove(d, pos);
+        return iTrue;
+    }
+    return iFalse;
 }
 
 void iArray_insert(iArray *d, size_t pos, const void *value) {
