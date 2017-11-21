@@ -1,3 +1,29 @@
+/** @file array.c  Array of sequential fixed-size elements.
+
+@authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+<small>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
+*/
+
 #include "lite/array.h"
 
 #include <stdlib.h>
@@ -32,8 +58,7 @@ static int i_Array_imbalance(const iArray *d) {
 
 static void i_Array_rebalance(iArray *d) {
     const int imbalance = i_Array_imbalance(d);
-    if (abs(imbalance) >= d->allocSize / 4 || d->range.end == d->allocSize ||
-            d->range.start == 0) {
+    if (d->range.end == d->allocSize || d->range.start == 0) {
         i_Array_shift(d, imbalance);
     }
 }
@@ -106,6 +131,7 @@ iBool iArray_take(iArray *d, size_t pos, void *outTaken) {
 void iArray_insert(iArray *d, size_t pos, const void *value) {
     LITE_ASSERT(pos <= iArray_size(d));
     iArray_reserve(d, iArray_size(d) + 1);
+    i_Array_rebalance(d);
     pos += d->range.start;
     // Easy insertions.
     if (pos == d->range.end && d->range.end < d->allocSize) { // At the end.
@@ -132,7 +158,6 @@ void iArray_insert(iArray *d, size_t pos, const void *value) {
             memcpy(i_Array_element(d, pos), value, d->elementSize);
         }
     }
-    i_Array_rebalance(d);
 }
 
 void iArray_remove(iArray *d, size_t pos) {
@@ -154,5 +179,4 @@ void iArray_remove(iArray *d, size_t pos) {
         i_Array_move(d, &moved, +1);
         d->range.start++;
     }
-    i_Array_rebalance(d);
 }
