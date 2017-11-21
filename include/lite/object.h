@@ -34,7 +34,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
  */
 LITE_DECLARE_IMPL(Object);
 
-typedef void (*iDeinitFunc)(void *);
+typedef void iAnyObject;
+typedef void (*iDeinitFunc)(iAnyObject *);
 
 struct i_Object_Impl {
     iDeinitFunc deinit;
@@ -42,13 +43,11 @@ struct i_Object_Impl {
     iPtrSet children;
 };
 
-iObject *   iObject_new(size_t size, iDeinitFunc deinit);
-void        iObject_delete(iObject *);
+iAnyObject *    iObject_new(size_t size, iDeinitFunc deinit);
+void            iObject_delete(iAnyObject *);
 
-//void        iObject_init(iObject *);
-//void        iObject_deinit(iObject *);
+iAnyObject *    iObject_parent  (const iAnyObject *);
+const iPtrSet * iObject_children(const iAnyObject *);
 
-void        iObject_setParent   (iObject *, iObject *parent);
+void            iObject_setParent(iAnyObject *, iAnyObject *parent);
 
-iObject *   iObject_parent      (const iObject *);
-const iPtrSet * iObject_children(const iObject *);

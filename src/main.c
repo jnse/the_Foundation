@@ -27,6 +27,56 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "lite/array.h"
 #include <stdio.h>
 
+//---------------------------------------------------------------------------------------
+
+typedef struct TestObject_Impl {
+    iObject object;
+    int value;
+}
+TestObject;
+
+void TestObject_init(TestObject *d, int value) {
+    d->value = value;
+}
+
+void TestObject_deinit(iAnyObject *obj) {
+    TestObject *d = (TestObject *) obj;
+    printf("deinit TestObject: %i\n", d->value);
+}
+
+TestObject *TestObject_new(int value) {
+    TestObject *d = iObject_new(sizeof(TestObject), TestObject_deinit);
+    TestObject_init(d, value);
+    return d;
+}
+
+//---------------------------------------------------------------------------------------
+
+typedef struct SuperObject_Impl {
+    TestObject base;
+    int member;
+}
+SuperObject;
+
+void SuperObject_init(SuperObject *d, int member) {
+    d->member = member;
+}
+
+void SuperObject_deinit(iAnyObject *obj) {
+    SuperObject *d = (SuperObject *) obj;
+    printf("deinit SuperObject: %i\n", d->member);
+    TestObject_deinit(obj);
+}
+
+SuperObject *SuperObject_new(int value, int member) {
+    SuperObject *d = iObject_new(sizeof(SuperObject), SuperObject_deinit);
+    TestObject_init(&d->base, value);
+    SuperObject_init(d, member);
+    return d;
+}
+
+//---------------------------------------------------------------------------------------
+
 void printArray(const iArray *list) {
     printf("%4lu %4lu -> %-4lu : %4lu [", iArray_size(list), list->range.start, list->range.end, list->allocSize);
     for (int i = 0; i < list->allocSize * list->elementSize; ++i) {
@@ -83,9 +133,9 @@ int main(int argc, char *argv[]) {
         iArray_delete(list);
     }
     /* Test objects. */ {
-        iObject *a = iObject_new(sizeof(iObject), NULL);
-        iObject *b = iObject_new(sizeof(iObject), NULL);
-        iObject *c = iObject_new(sizeof(iObject), NULL);
+        TestObject *a = TestObject_new(1);
+        TestObject *b = TestObject_new(2);
+        SuperObject *c = SuperObject_new(3, 100);
         iObject_setParent(b, a);
         iObject_setParent(c, a);
         iObject_delete(a);

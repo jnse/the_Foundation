@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <stdlib.h>
 
-iObject *iObject_new(size_t size, iDeinitFunc deinit) {
+void *iObject_new(size_t size, iDeinitFunc deinit) {
     LITE_ASSERT(size >= sizeof(iObject));
     iObject *d = calloc(size, 1);
     d->deinit = deinit;
@@ -40,7 +40,8 @@ iObject *iObject_new(size_t size, iDeinitFunc deinit) {
     return d;
 }
 
-void iObject_delete(iObject *d) {
+void iObject_delete(iAnyObject *any) {
+    iObject *d = (iObject *) any;
     iObject_setParent(d, NULL);
     // Destroy children, who will remove themselves.
     while (!iPtrSet_isEmpty(&d->children)) {
@@ -54,7 +55,8 @@ void iObject_delete(iObject *d) {
     printf("deleted Object %p\n", d);
 }
 
-void iObject_setParent(iObject *d, iObject *parent) {
+void iObject_setParent(iAnyObject *any, iAnyObject *parent) {
+    iObject *d = (iObject *) any;
     if (d->parent == parent) return;
     if (d->parent) {
         // Remove from old parent.
@@ -67,10 +69,10 @@ void iObject_setParent(iObject *d, iObject *parent) {
     }
 }
 
-iObject *iObject_parent(const iObject *d) {
-    return d->parent;
+iAnyObject *iObject_parent(const iAnyObject *d) {
+    return ((const iObject *) d)->parent;
 }
 
-const iPtrSet *iObject_children(const iObject *d) {
-    return &d->children;
+const iPtrSet *iObject_children(const iAnyObject *d) {
+    return &((const iObject *) d)->children;
 }
