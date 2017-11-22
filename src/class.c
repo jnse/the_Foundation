@@ -1,4 +1,6 @@
-/** @file counted.c  Reference-counted object.
+#pragma once
+
+/** @file class.c  Class object.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -24,48 +26,12 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/counted.h"
+#include "lite/class.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-
-iAnyObject *iCounted_new(const iClass *class) {
-    LITE_ASSERT(class != NULL);
-    LITE_ASSERT(class->instanceSize >= sizeof(iCounted));
-    iCounted *d = calloc(class->instanceSize, 1);
-    d->class = class;
-    d->refCount = 1;
-    printf("constructed Counted %p\n", d);
-    return d;
-}
-
-static void i_Counted_delete(iCounted *d) {
-    iCounted_deinit(d);
-    printf("deleting Counted %p\n", d);
-    free(d);
-}
-
-void iCounted_deinit(iAnyCounted *any) {
-    iCounted *d = (iCounted *) any;
-    LITE_ASSERT(d->refCount == 0);
-    iClass_deinit(d->class, d);
-}
-
-iAnyCounted *iCounted_ref(const iAnyCounted *any) {
-    if (any) {
-        iCounted *i = LITE_CONST_CAST(iCounted *, any);
-        i->refCount++;
-        return i;
-    }
-    return NULL;
-}
-
-void iCounted_deref(iAnyCounted *any) {
-    if (any) {
-        iCounted *d = (iCounted *) any;
-        LITE_ASSERT(d->refCount > 0);
-        if (--d->refCount <= 0) {
-            i_Counted_delete(d);
+void iClass_deinit(const iClass *d, void *object) {
+    for (; d; d = d->super) {
+        if (d->deinit) {
+            d->deinit(object);
         }
     }
 }

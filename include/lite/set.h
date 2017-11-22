@@ -36,19 +36,19 @@ LITE_DECLARE_IMPL(Set);
 
 typedef intptr_t iSetValue;
 
-iSet *  iSet_new(void);
-void    iSet_delete(iSet *);
+iSet *      iSet_new(void);
+void        iSet_delete(iSet *);
 
-void    iSet_init(iSet *d);
-void    iSet_deinit(iSet *d);
+void        iSet_init(iSet *d);
+void        iSet_deinit(iSet *d);
 
-#define iSet_isEmpty(d) iArray_isEmpty(&(d)->values)
+#define     iSet_isEmpty(d) iArray_isEmpty(&(d)->values)
 
-size_t  iSet_size(const iSet *);
-iBool   iSet_contains(const iSet *, iSetValue value);
-iBool   iSet_locate(const iSet *, iSetValue value, iRanges *outLoc);
-iSetValue iSet_at(const iSet *, size_t pos);
+size_t      iSet_size(const iSet *);
+iBool       iSet_contains(const iSet *, iSetValue value);
+iBool       iSet_locate(const iSet *, iSetValue value, iRanges *outLoc);
+iSetValue   iSet_at(const iSet *, size_t pos);
 
-void    iSet_clear(iSet *);
-iBool   iSet_insert(iSet *, iSetValue value);
-iBool   iSet_remove(iSet *, iSetValue value);
+void        iSet_clear(iSet *);
+iBool       iSet_insert(iSet *, iSetValue value);
+iBool       iSet_remove(iSet *, iSetValue value);

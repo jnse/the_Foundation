@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "lite/defs.h"
+#include "lite/class.h"
 #include "lite/ptrset.h"
 
 /**
@@ -36,12 +37,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 LITE_DECLARE_IMPL(Object);
 
 struct i_Object_Impl {
-    iDeinitFunc deinit;
+    const iClass *class;
     iObject *parent;
     iPtrSet children;
 };
 
-iAnyObject *    iObject_new(size_t size, iDeinitFunc deinit);
+iAnyObject *    iObject_new(const iClass *class);
 void            iObject_delete(iAnyObject *);
 
 iAnyObject *    iObject_parent  (const iAnyObject *);

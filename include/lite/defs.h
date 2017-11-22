@@ -37,8 +37,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #define LITE_CONST_CAST(type, ptr) ((type) (intptr_t) (ptr))
 
-#define LITE_DECLARE_IMPL(className) \
-    typedef struct i_##className##_Impl i##className
+#define LITE_DECLARE_IMPL(typeName) \
+    typedef struct i_##typeName##_Impl i##typeName
 
 #define iFalse  0
 #define iTrue   1
@@ -51,4 +51,3 @@ typedef unsigned int    iUInt;
 
 typedef void iAnyObject;
 typedef void (*iDeinitFunc)(iAnyObject *);
-

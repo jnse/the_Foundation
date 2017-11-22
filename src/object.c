@@ -31,10 +31,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <stdlib.h>
 
-void *iObject_new(size_t size, iDeinitFunc deinit) {
-    LITE_ASSERT(size >= sizeof(iObject));
-    iObject *d = calloc(size, 1);
-    d->deinit = deinit;
+void *iObject_new(const iClass *class) {
+    LITE_ASSERT(class != NULL);
+    LITE_ASSERT(class->instanceSize >= sizeof(iObject));
+    iObject *d = calloc(class->instanceSize, 1);
+    d->class = class;
     iPtrSet_init(&d->children);
     printf("new Object %p\n", d);
     return d;
@@ -48,9 +49,7 @@ void iObject_delete(iAnyObject *any) {
         iObject_delete(iPtrSet_at(&d->children, 0));
     }
     iPtrSet_deinit(&d->children);
-    if (d->deinit) {
-        d->deinit(d);
-    }
+    iClass_deinit(d->class, d);
     free(d);
     printf("deleted Object %p\n", d);
 }

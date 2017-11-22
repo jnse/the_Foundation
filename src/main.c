@@ -24,6 +24,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "lite/array.h"
+#include "lite/class.h"
 #include "lite/object.h"
 #include "lite/counted.h"
 #include <stdio.h>
@@ -45,8 +46,10 @@ void TestObject_deinit(iAnyObject *obj) {
     printf("deinit TestObject: %i\n", d->value);
 }
 
+static LITE_DEFINE_CLASS(TestObject);
+
 TestObject *TestObject_new(int value) {
-    TestObject *d = iObject_new(sizeof(TestObject), TestObject_deinit);
+    TestObject *d = iObject_new(&TestObject_Class);
     TestObject_init(d, value);
     return d;
 }
@@ -66,11 +69,12 @@ void SuperObject_init(SuperObject *d, int member) {
 void SuperObject_deinit(iAnyObject *any) {
     SuperObject *d = (SuperObject *) any;
     printf("deinit SuperObject: %i\n", d->member);
-    TestObject_deinit(any);
 }
 
+static LITE_DEFINE_SUBCLASS(SuperObject, TestObject);
+
 SuperObject *SuperObject_new(int value, int member) {
-    SuperObject *d = iObject_new(sizeof(SuperObject), SuperObject_deinit);
+    SuperObject *d = iObject_new(&SuperObject_Class);
     TestObject_init(&d->base, value);
     SuperObject_init(d, member);
     return d;
@@ -89,8 +93,10 @@ void TestCounted_deinit(iAnyCounted *any) {
     printf("deinit TestCounted: %i\n", d->value);
 }
 
+static LITE_DEFINE_CLASS(TestCounted);
+
 TestCounted *TestCounted_new(int value) {
-    TestCounted *d = iCounted_new(sizeof(TestCounted), TestCounted_deinit);
+    TestCounted *d = iCounted_new(&TestCounted_Class);
     d->value = value;
     return d;
 }
@@ -160,7 +166,7 @@ int main(int argc, char *argv[]) {
         iObject_setParent(c, a);
         iObject_delete(a);
     }
-    /* Test reference-counting. */ {
+    /* Test reference counting. */ {
         TestCounted *a = TestCounted_new(123);
         TestCounted *b = iCounted_ref(a);
         printf("deref a...\n"); iCounted_deref(a);

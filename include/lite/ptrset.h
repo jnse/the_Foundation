@@ -33,11 +33,11 @@ typedef iSet iPtrSet;
 iPtrSet *   iPtrSet_new(void);
 void        iPtrSet_delete(iPtrSet *);
 
-#define iPtrSet_init(d)     iSet_init(d)
-#define iPtrSet_deinit(d)   iSet_deinit(d)
+#define     iPtrSet_init(d)     iSet_init(d)
+#define     iPtrSet_deinit(d)   iSet_deinit(d)
 
-#define iPtrSet_isEmpty(d)  iSet_isEmpty(d)
-#define iPtrSet_size(d)     iSet_size(d)
+#define     iPtrSet_isEmpty(d)  iSet_isEmpty(d)
+#define     iPtrSet_size(d)     iSet_size(d)
 
 iBool       iPtrSet_contains(const iPtrSet *, void *ptr);
 iBool       iPtrSet_locate(const iPtrSet *, void *ptr, iRanges *outLoc);
