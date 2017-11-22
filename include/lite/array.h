@@ -64,21 +64,15 @@ void        iArray_insert       (iArray *, size_t pos, const void *value);
 void        iArray_remove       (iArray *, size_t pos);
 void        iArray_sort         (iArray *, int (*cmp)(const void *, const void *));
 
-LITE_DECLARE_IMPL(ArrayIterator);
-LITE_DECLARE_IMPL(ArrayConstIterator);
+LITE_DECLARE_ITERATOR(iArray, iArray *);
+LITE_DECLARE_ITERATOR(iArrayConst, const iArray *);
 
-struct i_ArrayIterator_Impl {
+struct iArray_Iterator {
     void *value;
     iArray *array;
 };
-
-struct i_ArrayConstIterator_Impl {
+struct iArrayConst_Iterator {
     const void *value;
     const iArray *array;
 };
 
-void        iArrayIterator_init     (iArrayIterator *, iArray *);
-void        iArrayIterator_next     (iArrayIterator *);
-
-void        iArrayConstIterator_init     (iArrayConstIterator *, const iArray *);
-void        iArrayConstIterator_next     (iArrayConstIterator *);

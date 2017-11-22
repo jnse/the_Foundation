@@ -40,6 +40,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define LITE_DECLARE_IMPL(typeName) \
     typedef struct i_##typeName##_Impl i##typeName
 
+#define LITE_DECLARE_ITERATOR(typeName, container) \
+    typedef struct typeName##_Iterator typeName##Iterator; \
+    void typeName##Iterator_init(typeName##Iterator *, container); \
+    void typeName##Iterator_next(typeName##Iterator *)
+
 #define LITE_FOREACH(typeName, iterName, container) \
     typeName##Iterator iterName; \
     for (typeName##Iterator_init(&iterName, container); \
