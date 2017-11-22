@@ -29,9 +29,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <stdlib.h>
 
-iAnyObject *iCounted_new(const iClass *class) {
-    LITE_ASSERT(class != NULL);
-    LITE_ASSERT(class->instanceSize >= sizeof(iCounted));
+iAnyObject *new_Counted(const iClass *class) {
+    iAssert(class != NULL);
+    iAssert(class->instanceSize >= sizeof(iCounted));
     iCounted *d = calloc(class->instanceSize, 1);
     d->class = class;
     d->refCount = 1;
@@ -39,33 +39,33 @@ iAnyObject *iCounted_new(const iClass *class) {
     return d;
 }
 
-static void i_Counted_delete(iCounted *d) {
-    iCounted_deinit(d);
+static void delete_Counted_(iCounted *d) {
+    deinit_Counted(d);
     printf("deleting Counted %p\n", d);
     free(d);
 }
 
-void iCounted_deinit(iAnyCounted *any) {
+void deinit_Counted(iAnyCounted *any) {
     iCounted *d = (iCounted *) any;
-    LITE_ASSERT(d->refCount == 0);
-    iClass_deinit(d->class, d);
+    iAssert(d->refCount == 0);
+    deinit_Class(d->class, d);
 }
 
-iAnyCounted *iCounted_ref(const iAnyCounted *any) {
+iAnyCounted *ref_Counted(const iAnyCounted *any) {
     if (any) {
-        iCounted *i = LITE_CONST_CAST(iCounted *, any);
+        iCounted *i = iConstCast(iCounted *, any);
         i->refCount++;
         return i;
     }
     return NULL;
 }
 
-void iCounted_deref(iAnyCounted *any) {
+void deref_Counted(iAnyCounted *any) {
     if (any) {
         iCounted *d = (iCounted *) any;
-        LITE_ASSERT(d->refCount > 0);
+        iAssert(d->refCount > 0);
         if (--d->refCount <= 0) {
-            i_Counted_delete(d);
+            delete_Counted_(d);
         }
     }
 }

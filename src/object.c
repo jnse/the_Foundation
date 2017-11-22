@@ -31,47 +31,47 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <stdlib.h>
 
-void *iObject_new(const iClass *class) {
-    LITE_ASSERT(class != NULL);
-    LITE_ASSERT(class->instanceSize >= sizeof(iObject));
+void *new_Object(const iClass *class) {
+    iAssert(class != NULL);
+    iAssert(class->instanceSize >= sizeof(iObject));
     iObject *d = calloc(class->instanceSize, 1);
     d->class = class;
-    iPtrSet_init(&d->children);
+    init_PtrSet(&d->children);
     printf("new Object %p\n", d);
     return d;
 }
 
-void iObject_delete(iAnyObject *any) {
+void delete_Object(iAnyObject *any) {
     iObject *d = (iObject *) any;
-    iObject_setParent(d, NULL);
+    setParent_Object(d, NULL);
     // Destroy children, who will remove themselves.
-    while (!iPtrSet_isEmpty(&d->children)) {
-        iObject_delete(iPtrSet_at(&d->children, 0));
+    while (!isEmpty_PtrSet(&d->children)) {
+        delete_Object(at_PtrSet(&d->children, 0));
     }
-    iPtrSet_deinit(&d->children);
-    iClass_deinit(d->class, d);
+    deinit_PtrSet(&d->children);
+    deinit_Class(d->class, d);
     free(d);
     printf("deleted Object %p\n", d);
 }
 
-void iObject_setParent(iAnyObject *any, iAnyObject *parent) {
+void setParent_Object(iAnyObject *any, iAnyObject *parent) {
     iObject *d = (iObject *) any;
     if (d->parent == parent) return;
     if (d->parent) {
         // Remove from old parent.
-        iPtrSet_remove(&d->parent->children, d);
+        remove_PtrSet(&d->parent->children, d);
     }
     d->parent = parent;
     if (parent) {
-        LITE_ASSERT(!iPtrSet_contains(&d->parent->children, d));
-        iPtrSet_insert(&d->parent->children, d);
+        iAssert(!contains_PtrSet(&d->parent->children, d));
+        insert_PtrSet(&d->parent->children, d);
     }
 }
 
-iAnyObject *iObject_parent(const iAnyObject *d) {
+iAnyObject *parent_Object(const iAnyObject *d) {
     return ((const iObject *) d)->parent;
 }
 
-const iPtrSet *iObject_children(const iAnyObject *d) {
+const iPtrSet *children_Object(const iAnyObject *d) {
     return &((const iObject *) d)->children;
 }

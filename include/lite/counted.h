@@ -32,18 +32,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 /**
  * Reference-counted object that gets deleted only after all references are gone.
  */
-LITE_DECLARE_IMPL(Counted);
+iDeclareImpl(Counted);
 
-struct i_Counted_Impl {
+struct Impl_Counted {
     const iClass *class;
     int refCount;
 };
 
 typedef void iAnyCounted;
 
-iAnyCounted *   iCounted_new    (const iClass *class);
+iAnyCounted *   new_Counted     (const iClass *class);
 
-void            iCounted_deinit (iAnyCounted *);
+void            deinit_Counted  (iAnyCounted *);
 
-iAnyCounted *   iCounted_ref    (const iAnyCounted *);
-void            iCounted_deref  (iAnyCounted *);
+iAnyCounted *   ref_Counted     (const iAnyCounted *);
+void            deref_Counted   (iAnyCounted *);

@@ -26,30 +26,30 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "lite/ptrset.h"
 
-iPtrSet *iPtrSet_new(void) {
-    return iSet_new();
+iPtrSet *new_PtrSet(void) {
+    return new_Set();
 }
 
-void iPtrSet_delete(iPtrSet *d) {
-    iSet_delete(d);
+void delete_PtrSet(iPtrSet *d) {
+    delete_Set(d);
 }
 
-iBool iPtrSet_contains(const iPtrSet *d, void *ptr) {
-    return iSet_contains(d, (iSetValue) ptr);
+iBool contains_PtrSet(const iPtrSet *d, void *ptr) {
+    return contains_Set(d, (iSetValue) ptr);
 }
 
-iBool iPtrSet_locate(const iPtrSet *d, void *ptr, iRanges *outLoc) {
-    return iSet_locate(d, (iSetValue) ptr, outLoc);
+iBool locate_PtrSet(const iPtrSet *d, void *ptr, iRanges *outLoc) {
+    return locate_Set(d, (iSetValue) ptr, outLoc);
 }
 
-iBool iPtrSet_insert(iPtrSet *d, void *ptr) {
-    return iSet_insert(d, (iSetValue) ptr);
+iBool insert_PtrSet(iPtrSet *d, void *ptr) {
+    return insert_Set(d, (iSetValue) ptr);
 }
 
-iBool iPtrSet_remove(iPtrSet *d, void *ptr) {
-    return iSet_remove(d, (iSetValue) ptr);
+iBool remove_PtrSet(iPtrSet *d, void *ptr) {
+    return remove_Set(d, (iSetValue) ptr);
 }
 
-void *iPtrSet_at(const iSet *d, size_t pos) {
-    return (void *) iSet_at(d, pos);
+void *at_PtrSet(const iSet *d, size_t pos) {
+    return (void *) at_Set(d, pos);
 }

@@ -5,6 +5,7 @@ project (CPLUS
 )
 set (SOURCES
     src/array.c
+    src/block.c
     src/class.c
     src/counted.c
     src/main.c
@@ -15,6 +16,7 @@ set (SOURCES
 )
 set (HEADERS
     include/lite/array.h
+    include/lite/block.h
     include/lite/class.h
     include/lite/counted.h
     include/lite/defs.h

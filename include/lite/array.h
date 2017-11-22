@@ -29,50 +29,50 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "range.h"
 
-struct i_Array_Impl {
+struct Impl_Array {
     char *data;
     iRanges range;
     size_t elementSize;
     size_t allocSize;
 };
 
-LITE_DECLARE_IMPL(Array);
+iDeclareImpl(Array);
 
-iArray *    iArray_new      (size_t elementSize);
-void        iArray_delete   (iArray *);
+iArray *    new_Array      (size_t elementSize);
+void        delete_Array   (iArray *);
 
-void        iArray_init     (iArray *, size_t elementSize);
-void        iArray_deinit   (iArray *);
+void        init_Array     (iArray *, size_t elementSize);
+void        deinit_Array   (iArray *);
 
-#define     iArray_isEmpty(d)   iRange_isEmpty(&(d)->range)
-#define     iArray_size(d)      iRange_size(&(d)->range)
-#define     iArray_front(d)     iArray_at(d, 0)
-#define     iArray_back(d)      iArray_at(d, iArray_size(d) - 1)
+#define     isEmpty_Array(d)   isEmpty_Range(&(d)->range)
+#define     size_Array(d)      size_Range(&(d)->range)
+#define     front_Array(d)     at_Array(d, 0)
+#define     back_Array(d)      at_Array(d, size_Array(d) - 1)
 
-void *      iArray_data         (const iArray *);
-void *      iArray_at           (const iArray *, size_t pos);
+void *      data_Array         (const iArray *);
+void *      at_Array           (const iArray *, size_t pos);
 
-void        iArray_reserve      (iArray *, size_t reservedSize);
-void        iArray_clear        (iArray *);
-void        iArray_resize       (iArray *, size_t size);
-void        iArray_pushBack     (iArray *, const void *value);
-void        iArray_pushFront    (iArray *, const void *value);
-iBool       iArray_popBack      (iArray *);
-iBool       iArray_popFront     (iArray *);
-iBool       iArray_take         (iArray *, size_t pos, void *outValue);
-void        iArray_insert       (iArray *, size_t pos, const void *value);
-void        iArray_remove       (iArray *, size_t pos);
-void        iArray_sort         (iArray *, int (*cmp)(const void *, const void *));
+void        reserve_Array      (iArray *, size_t reservedSize);
+void        clear_Array        (iArray *);
+void        resize_Array       (iArray *, size_t size);
+void        pushBack_Array     (iArray *, const void *value);
+void        pushFront_Array    (iArray *, const void *value);
+iBool       popBack_Array      (iArray *);
+iBool       popFront_Array     (iArray *);
+iBool       take_Array         (iArray *, size_t pos, void *outValue);
+void        insert_Array       (iArray *, size_t pos, const void *value);
+void        remove_Array       (iArray *, size_t pos);
+void        sort_Array         (iArray *, int (*cmp)(const void *, const void *));
 
-LITE_DECLARE_ITERATOR(iArray, iArray *);
-LITE_DECLARE_ITERATOR(iArrayConst, const iArray *);
+iDeclareIterator(Array, iArray *);
+iDeclareIterator(ArrayConst, const iArray *);
 
-struct iArray_Iterator {
-    void *value;
+struct Iterator_Array {
     iArray *array;
+    void *value;
 };
-struct iArrayConst_Iterator {
-    const void *value;
+struct Iterator_ArrayConst {
     const iArray *array;
+    const void *value;
 };
 

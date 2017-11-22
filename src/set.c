@@ -28,50 +28,50 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 
-iSet *iSet_new(void) {
+iSet *new_Set(void) {
     iSet *d = calloc(sizeof(iSet), 1);
-    iSet_init(d);
+    init_Set(d);
     return d;
 }
 
-void iSet_delete(iSet *d) {
-    iSet_deinit(d);
+void delete_Set(iSet *d) {
+    deinit_Set(d);
     free(d);
 }
 
-void iSet_init(iSet *d) {
-    iArray_init(&d->values, sizeof(iSetValue));
+void init_Set(iSet *d) {
+    init_Array(&d->values, sizeof(iSetValue));
 }
 
-void iSet_deinit(iSet *d) {
-    iArray_deinit(&d->values);
+void deinit_Set(iSet *d) {
+    deinit_Array(&d->values);
 }
 
-size_t iSet_size(const iSet *d) {
-    return iArray_size(&d->values);
+size_t size_Set(const iSet *d) {
+    return size_Array(&d->values);
 }
 
-iBool iSet_contains(const iSet *d, iSetValue value) {
-    return iSet_locate(d, value, NULL);
+iBool contains_Set(const iSet *d, iSetValue value) {
+    return locate_Set(d, value, NULL);
 }
 
-iBool iSet_locate(const iSet *d, iSetValue value, iRanges *span) {
+iBool locate_Set(const iSet *d, iSetValue value, iRanges *span) {
     iRanges loc;
     if (!span) span = &loc;
 
     // We will narrow down the span until the pointer is found or we'll know where
     // it would be if it were inserted.
     span->start = 0;
-    span->end = iArray_size(&d->values);
+    span->end = size_Array(&d->values);
 
-    while (!iRange_isEmpty(span)) {
+    while (!isEmpty_Range(span)) {
         // Arrived at a single item?
-        if (iRange_size(span) == 1) {
-            if (iSet_at(d, span->start) == value) {
+        if (size_Range(span) == 1) {
+            if (at_Set(d, span->start) == value) {
                 return iTrue; // Found it.
             }
             // Then the value would go before or after this position.
-            if (value < iSet_at(d, span->start)) {
+            if (value < at_Set(d, span->start)) {
                 span->end = span->start;
             }
             else {
@@ -81,7 +81,7 @@ iBool iSet_locate(const iSet *d, iSetValue value, iRanges *span) {
         }
         // Narrow down the search by a half.
         const size_t rightHalf = (span->start + span->end + 1) / 2;
-        const iSetValue mid = iSet_at(d, rightHalf);
+        const iSetValue mid = at_Set(d, rightHalf);
         if (value == mid) {
             // Oh, it's here.
             span->start = rightHalf;
@@ -98,30 +98,30 @@ iBool iSet_locate(const iSet *d, iSetValue value, iRanges *span) {
     return iFalse;
 }
 
-iSetValue iSet_at(const iSet *d, size_t pos) {
+iSetValue at_Set(const iSet *d, size_t pos) {
     iSetValue value;
-    memcpy(&value, iArray_at(&d->values, pos), sizeof(value));
+    memcpy(&value, at_Array(&d->values, pos), sizeof(value));
     return value;
 }
 
-void iSet_clear(iSet *d) {
-    iArray_clear(&d->values);
+void clear_Set(iSet *d) {
+    clear_Array(&d->values);
 }
 
-iBool iSet_insert(iSet *d, iSetValue value) {
+iBool insert_Set(iSet *d, iSetValue value) {
     iRanges loc;
-    if (iSet_locate(d, value, &loc)) {
+    if (locate_Set(d, value, &loc)) {
         // The value already exists in the set.
         return iFalse;
     }
-    iArray_insert(&d->values, loc.start, &value);
+    insert_Array(&d->values, loc.start, &value);
     return iTrue;
 }
 
-iBool iSet_remove(iSet *d, iSetValue value) {
+iBool remove_Set(iSet *d, iSetValue value) {
     iRanges loc;
-    if (iSet_locate(d, value, &loc)) {
-        iArray_remove(&d->values, loc.start);
+    if (locate_Set(d, value, &loc)) {
+        remove_Array(&d->values, loc.start);
         return iTrue;
     }
     return iFalse;

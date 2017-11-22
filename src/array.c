@@ -28,73 +28,73 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 
-#define LITE_ARRAY_MIN_ALLOC 4
+#define iArrayMinAlloc 4
 
-#define i_Array_element(d, index) (&(d)->data[(d)->elementSize * (index)])
+#define element_Array_(d, index) (&(d)->data[(d)->elementSize * (index)])
 
-static void i_Array_move(iArray *d, const iRanges *moved, int delta) {
+static void move_Array_(iArray *d, const iRanges *moved, int delta) {
     if (delta != 0) {
-        char *ptr = i_Array_element(d, moved->start);
-        memmove(ptr + delta * d->elementSize, ptr, d->elementSize * iRange_size(moved));
+        char *ptr = element_Array_(d, moved->start);
+        memmove(ptr + delta * d->elementSize, ptr, d->elementSize * size_Range(moved));
     }
 }
 
-static void i_Array_shift(iArray *d, int delta) {
+static void shift_Array_(iArray *d, int delta) {
     if (delta != 0) {
-        LITE_ASSERT(d->range.start + delta >= 0);
-        LITE_ASSERT(d->range.end   + delta <= d->allocSize);
-        i_Array_move(d, &d->range, delta);
-        iRange_shift(&d->range, delta);
+        iAssert(d->range.start + delta >= 0);
+        iAssert(d->range.end   + delta <= d->allocSize);
+        move_Array_(d, &d->range, delta);
+        shift_Range(&d->range, delta);
     }
 }
 
 /// Calculates the shift required to balance the list elements.
-static int i_Array_imbalance(const iArray *d) {
+static int imbalance_Array_(const iArray *d) {
     const int left  = d->range.start;
     const int right = d->allocSize - d->range.end;
     return (right - left) / 2;
 }
 
-static void i_Array_rebalance(iArray *d) {
-    const int imbalance = i_Array_imbalance(d);
+static void rebalance_Array_(iArray *d) {
+    const int imbalance = imbalance_Array_(d);
     if (d->range.end == d->allocSize || d->range.start == 0) {
-        i_Array_shift(d, imbalance);
+        shift_Array_(d, imbalance);
     }
 }
 
-iArray *iArray_new(size_t elementSize) {
+iArray *new_Array(size_t elementSize) {
     iArray *d = calloc(sizeof(iArray), 1);
     d->elementSize = elementSize;
     return d;
 }
 
-void iArray_delete(iArray *d) {
-    iArray_deinit(d);
+void delete_Array(iArray *d) {
+    deinit_Array(d);
     free(d);
 }
 
-void iArray_init(iArray *d, size_t elementSize) {
+void init_Array(iArray *d, size_t elementSize) {
     d->elementSize = elementSize;
-    LITE_ASSERT(d->data == NULL);
+    iAssert(d->data == NULL);
 }
 
-void iArray_deinit(iArray *d) {
+void deinit_Array(iArray *d) {
     free(d->data);
     memset(d, 0, sizeof(*d));
 }
 
-void *iArray_data(const iArray *d) {
-    if (iArray_isEmpty(d)) return NULL;
-    return i_Array_element(d, d->range.start);
+void *data_Array(const iArray *d) {
+    if (isEmpty_Array(d)) return NULL;
+    return element_Array_(d, d->range.start);
 }
 
-void *iArray_at(const iArray *d, size_t pos) {
-    LITE_ASSERT(pos < iRange_size(&d->range));
-    return i_Array_element(d, d->range.start + pos);
+void *at_Array(const iArray *d, size_t pos) {
+    iAssert(pos < size_Range(&d->range));
+    return element_Array_(d, d->range.start + pos);
 }
 
-void iArray_reserve(iArray *d, size_t reservedSize) {
-    size_t newSize = (d->allocSize == 0? LITE_ARRAY_MIN_ALLOC : d->allocSize);
+void reserve_Array(iArray *d, size_t reservedSize) {
+    size_t newSize = (d->allocSize == 0? iArrayMinAlloc : d->allocSize);
     while (newSize < reservedSize) {
         newSize *= 2;
     }
@@ -104,79 +104,79 @@ void iArray_reserve(iArray *d, size_t reservedSize) {
     }
 }
 
-void iArray_clear(iArray *d) {
+void clear_Array(iArray *d) {
     d->range.start = d->range.end = d->allocSize / 2;
 }
 
-void iArray_resize(iArray *d, size_t size) {
-    iArray_reserve(d, size);
-    i_Array_rebalance(d);
+void resize_Array(iArray *d, size_t size) {
+    reserve_Array(d, size);
+    rebalance_Array_(d);
 }
 
-void iArray_pushBack(iArray *d, const void *value) {
-    iArray_insert(d, iArray_size(d), value);
+void pushBack_Array(iArray *d, const void *value) {
+    insert_Array(d, size_Array(d), value);
 }
 
-void iArray_pushFront(iArray *d, const void *value) {
-    iArray_insert(d, 0, value);
+void pushFront_Array(iArray *d, const void *value) {
+    insert_Array(d, 0, value);
 }
 
-iBool iArray_popBack(iArray *d)
+iBool popBack_Array(iArray *d)
 {
-    if (iArray_isEmpty(d)) return iFalse;
-    iArray_remove(d, iArray_size(d) - 1);
+    if (isEmpty_Array(d)) return iFalse;
+    remove_Array(d, size_Array(d) - 1);
     return iTrue;
 }
 
-iBool iArray_popFront(iArray *d) {
-    if (iArray_isEmpty(d)) return iFalse;
-    iArray_remove(d, 0);
+iBool popFront_Array(iArray *d) {
+    if (isEmpty_Array(d)) return iFalse;
+    remove_Array(d, 0);
     return iTrue;
 }
 
-iBool iArray_take(iArray *d, size_t pos, void *outValue) {
-    if (pos < iArray_size(d)) {
-        memcpy(outValue, iArray_at(d, pos), d->elementSize);
-        iArray_remove(d, pos);
+iBool take_Array(iArray *d, size_t pos, void *outValue) {
+    if (pos < size_Array(d)) {
+        memcpy(outValue, at_Array(d, pos), d->elementSize);
+        remove_Array(d, pos);
         return iTrue;
     }
     return iFalse;
 }
 
-void iArray_insert(iArray *d, size_t pos, const void *value) {
-    LITE_ASSERT(pos <= iArray_size(d));
-    iArray_reserve(d, iArray_size(d) + 1);
-    i_Array_rebalance(d);
+void insert_Array(iArray *d, size_t pos, const void *value) {
+    iAssert(pos <= size_Array(d));
+    reserve_Array(d, size_Array(d) + 1);
+    rebalance_Array_(d);
     pos += d->range.start;
     // Easy insertions.
     if (pos == d->range.end && d->range.end < d->allocSize) { // At the end.
-        memcpy(i_Array_element(d, pos), value, d->elementSize);
+        memcpy(element_Array_(d, pos), value, d->elementSize);
         d->range.end++;
     }
     else if (pos == d->range.start && d->range.start > 0) { // At the beginning.
-        memcpy(i_Array_element(d, --pos), value, d->elementSize);
+        memcpy(element_Array_(d, --pos), value, d->elementSize);
         d->range.start--;
     }
     else {
         // Need to make some room. Shift backward?
         if (d->range.end == d->allocSize || pos - d->range.start < d->range.end - pos) {
-            LITE_ASSERT(d->range.start > 0);
+            iAssert(d->range.start > 0);
             const iRanges moved = { d->range.start, pos-- };
-            i_Array_move(d, &moved, -1);
+            move_Array_(d, &moved, -1);
             d->range.start--;
-            memcpy(i_Array_element(d, pos), value, d->elementSize);
+            memcpy(element_Array_(d, pos), value, d->elementSize);
         }
         else { // Shift forward.
             const iRanges moved = { pos, d->range.end };
-            i_Array_move(d, &moved, +1);
+            move_Array_(d, &moved, +1);
             d->range.end++;
-            memcpy(i_Array_element(d, pos), value, d->elementSize);
+            memcpy(element_Array_(d, pos), value, d->elementSize);
         }
     }
 }
 
-void iArray_remove(iArray *d, size_t pos) {
-    LITE_ASSERT(pos < iArray_size(d));
+void remove_Array(iArray *d, size_t pos) {
+    iAssert(pos < size_Array(d));
     pos += d->range.start;
     if (pos == d->range.end - 1) {
         d->range.end--;
@@ -186,44 +186,44 @@ void iArray_remove(iArray *d, size_t pos) {
     }
     else if (pos - d->range.start > d->range.end - pos) {
         const iRanges moved = { pos + 1, d->range.end };
-        i_Array_move(d, &moved, -1);
+        move_Array_(d, &moved, -1);
         d->range.end--;
     }
     else {
         const iRanges moved = { d->range.start, pos };
-        i_Array_move(d, &moved, +1);
+        move_Array_(d, &moved, +1);
         d->range.start++;
     }
 }
 
-void iArray_sort(iArray *d, int (*cmp)(const void *, const void *)) {
-    qsort(iArray_front(d), iArray_size(d), d->elementSize, cmp);
+void sort_Array(iArray *d, int (*cmp)(const void *, const void *)) {
+    qsort(front_Array(d), size_Array(d), d->elementSize, cmp);
 }
 
 //---------------------------------------------------------------------------------------
 
-void iArrayIterator_init(iArrayIterator *d, iArray *array) {
+void init_ArrayIterator(iArrayIterator *d, iArray *array) {
     d->array = array;
-    d->value = (!iArray_isEmpty(array)? iArray_at(array, 0) : NULL);
+    d->value = (!isEmpty_Array(array)? at_Array(array, 0) : NULL);
 }
 
-void iArrayIterator_next(iArrayIterator *d) {
-    LITE_ASSERT(d->value);
+void next_ArrayIterator(iArrayIterator *d) {
+    iAssert(d->value);
     d->value = (char *) d->value + d->array->elementSize;
-    if ((char *) d->value >= i_Array_element(d->array, d->array->range.end)) {
+    if ((char *) d->value >= element_Array_(d->array, d->array->range.end)) {
         d->value = NULL;
     }
 }
 
-void iArrayConstIterator_init(iArrayConstIterator *d, const iArray *array) {
+void init_ArrayConstIterator(iArrayConstIterator *d, const iArray *array) {
     d->array = array;
-    d->value = (!iArray_isEmpty(array)? iArray_at(array, 0) : NULL);
+    d->value = (!isEmpty_Array(array)? at_Array(array, 0) : NULL);
 }
 
-void iArrayConstIterator_next(iArrayConstIterator *d) {
-    LITE_ASSERT(d->value);
+void next_ArrayConstIterator(iArrayConstIterator *d) {
+    iAssert(d->value);
     d->value = (const char *) d->value + d->array->elementSize;
-    if ((const char *) d->value >= i_Array_element(d->array, d->array->range.end)) {
+    if ((const char *) d->value >= element_Array_(d->array, d->array->range.end)) {
         d->value = NULL;
     }
 }

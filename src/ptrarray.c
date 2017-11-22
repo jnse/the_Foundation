@@ -26,36 +26,36 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "lite/ptrarray.h"
 
-iPtrArray *iPtrArray_new(void) {
-    return iArray_new(sizeof(iPointer));
+iPtrArray *new_PtrArray(void) {
+    return new_Array(sizeof(iPointer));
 }
 
-void iPtrArray_delete(iPtrArray *d) {
-    iArray_delete(d);
+void delete_PtrArray(iPtrArray *d) {
+    delete_Array(d);
 }
 
-iPointer *iPtrArray_data(const iPtrArray *d) {
-    return iArray_data(d);
+iPointer *data_PtrArray(const iPtrArray *d) {
+    return data_Array(d);
 }
 
-iPointer iPtrArray_at(const iPtrArray *d, size_t pos) {
+iPointer at_PtrArray(const iPtrArray *d, size_t pos) {
     iPointer ptr;
-    memcpy(&ptr, iArray_at(d, pos), sizeof(iPointer));
+    memcpy(&ptr, at_Array(d, pos), sizeof(iPointer));
     return ptr;
 }
 
-void iPtrArray_pushBack(iPtrArray *d, const iPointer ptr) {
-    iArray_pushBack(d, &ptr);
+void pushBack_PtrArray(iPtrArray *d, const iPointer ptr) {
+    pushBack_Array(d, &ptr);
 }
 
-void iPtrArray_pushFront(iPtrArray *d, const iPointer ptr) {
-    iArray_pushFront(d, &ptr);
+void pushFront_PtrArray(iPtrArray *d, const iPointer ptr) {
+    pushFront_Array(d, &ptr);
 }
 
-iBool iPtrArray_take(iPtrArray *d, size_t pos, iPointer *outPtr) {
-    return iArray_take(d, pos, &outPtr);
+iBool take_PtrArray(iPtrArray *d, size_t pos, iPointer *outPtr) {
+    return take_Array(d, pos, &outPtr);
 }
 
-void iPtrArray_insert(iPtrArray *d, size_t pos, const iPointer ptr) {
-    iArray_insert(d, pos, &ptr);
+void insert_PtrArray(iPtrArray *d, size_t pos, const iPointer ptr) {
+    insert_Array(d, pos, &ptr);
 }

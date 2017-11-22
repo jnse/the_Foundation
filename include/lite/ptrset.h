@@ -30,18 +30,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 typedef iSet iPtrSet;
 
-iPtrSet *   iPtrSet_new(void);
-void        iPtrSet_delete(iPtrSet *);
+iPtrSet *   new_PtrSet(void);
+void        delete_PtrSet(iPtrSet *);
 
-#define     iPtrSet_init(d)     iSet_init(d)
-#define     iPtrSet_deinit(d)   iSet_deinit(d)
+#define     init_PtrSet(d)      init_Set(d)
+#define     deinit_PtrSet(d)    deinit_Set(d)
 
-#define     iPtrSet_isEmpty(d)  iSet_isEmpty(d)
-#define     iPtrSet_size(d)     iSet_size(d)
+#define     isEmpty_PtrSet(d)   isEmpty_Set(d)
+#define     size_PtrSet(d)      size_Set(d)
 
-iBool       iPtrSet_contains(const iPtrSet *, void *ptr);
-iBool       iPtrSet_locate(const iPtrSet *, void *ptr, iRanges *outLoc);
-void *      iPtrSet_at(const iSet *, size_t pos);
+iBool       contains_PtrSet(const iPtrSet *, void *ptr);
+iBool       locate_PtrSet(const iPtrSet *, void *ptr, iRanges *outLoc);
+void *      at_PtrSet(const iSet *, size_t pos);
 
-iBool       iPtrSet_insert(iPtrSet *, void *ptr);
-iBool       iPtrSet_remove(iPtrSet *, void *ptr);
+iBool       insert_PtrSet(iPtrSet *, void *ptr);
+iBool       remove_PtrSet(iPtrSet *, void *ptr);

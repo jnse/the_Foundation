@@ -28,27 +28,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "array.h"
 
-struct i_Set_Impl {
+struct Impl_Set {
     iArray values;
 };
 
-LITE_DECLARE_IMPL(Set);
+iDeclareImpl(Set);
 
 typedef intptr_t iSetValue;
 
-iSet *      iSet_new(void);
-void        iSet_delete(iSet *);
+iSet *      new_Set(void);
+void        delete_Set(iSet *);
 
-void        iSet_init(iSet *d);
-void        iSet_deinit(iSet *d);
+void        init_Set(iSet *d);
+void        deinit_Set(iSet *d);
 
-#define     iSet_isEmpty(d) iArray_isEmpty(&(d)->values)
+#define     isEmpty_Set(d) isEmpty_Array(&(d)->values)
 
-size_t      iSet_size(const iSet *);
-iBool       iSet_contains(const iSet *, iSetValue value);
-iBool       iSet_locate(const iSet *, iSetValue value, iRanges *outLoc);
-iSetValue   iSet_at(const iSet *, size_t pos);
+size_t      size_Set(const iSet *);
+iBool       contains_Set(const iSet *, iSetValue value);
+iBool       locate_Set(const iSet *, iSetValue value, iRanges *outLoc);
+iSetValue   at_Set(const iSet *, size_t pos);
 
-void        iSet_clear(iSet *);
-iBool       iSet_insert(iSet *, iSetValue value);
-iBool       iSet_remove(iSet *, iSetValue value);
+void        clear_Set(iSet *);
+iBool       insert_Set(iSet *, iSetValue value);
+iBool       remove_Set(iSet *, iSetValue value);

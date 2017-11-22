@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/object.h  Object base class.
+/** @file lite/atomic.h  Atomic operations.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,27 +26,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/defs.h"
-#include "lite/class.h"
-#include "lite/ptrset.h"
+#include <stdatomic.h>
 
-/**
- * Object that owns child objects and may have a parent. When a parent is deleted,
- * all its children are deleted first.
- */
-iDeclareImpl(Object);
+typedef atomic_int iAtomicInt;
 
-struct Impl_Object {
-    const iClass *class;
-    iObject *parent;
-    iPtrSet children;
-};
-
-iAnyObject *    new_Object(const iClass *class);
-void            delete_Object(iAnyObject *);
-
-iAnyObject *    parent_Object(const iAnyObject *);
-const iPtrSet * children_Object(const iAnyObject *);
-
-void            setParent_Object(iAnyObject *, iAnyObject *parent);
-
+#define value_Atomic(a)         atomic_load(a)
+#define set_Atomic(a, value)    atomic_store(a, value)
+#define add_Atomic(a, value)    atomic_fetch_add(a, value)

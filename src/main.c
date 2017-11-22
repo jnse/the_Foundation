@@ -24,6 +24,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "lite/array.h"
+#include "lite/block.h"
 #include "lite/class.h"
 #include "lite/object.h"
 #include "lite/counted.h"
@@ -31,72 +32,72 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 //---------------------------------------------------------------------------------------
 
-typedef struct TestObject_Impl {
+typedef struct Impl_TestObject {
     iObject object;
     int value;
 }
 TestObject;
 
-void TestObject_init(TestObject *d, int value) {
+void init_TestObject(TestObject *d, int value) {
     d->value = value;
 }
 
-void TestObject_deinit(iAnyObject *obj) {
+void deinit_TestObject(iAnyObject *obj) {
     TestObject *d = (TestObject *) obj;
     printf("deinit TestObject: %i\n", d->value);
 }
 
-static LITE_DEFINE_CLASS(iClass, TestObject);
+static iDefineClass(iClass, TestObject);
 
-TestObject *TestObject_new(int value) {
-    TestObject *d = iObject_new(&TestObject_Class);
-    TestObject_init(d, value);
+TestObject *new_TestObject(int value) {
+    TestObject *d = new_Object(&Class_TestObject);
+    init_TestObject(d, value);
     return d;
 }
 
 //---------------------------------------------------------------------------------------
 
-typedef struct SuperObject_Impl {
+typedef struct Impl_SuperObject {
     TestObject base;
     int member;
 }
 SuperObject;
 
-void SuperObject_init(SuperObject *d, int member) {
+void init_SuperObject(SuperObject *d, int member) {
     d->member = member;
 }
 
-void SuperObject_deinit(iAnyObject *any) {
+void deinit_SuperObject(iAnyObject *any) {
     SuperObject *d = (SuperObject *) any;
     printf("deinit SuperObject: %i\n", d->member);
 }
 
-static LITE_DEFINE_SUBCLASS(iClass, SuperObject, TestObject);
+static iDefineSubclass(iClass, SuperObject, TestObject);
 
-SuperObject *SuperObject_new(int value, int member) {
-    SuperObject *d = iObject_new(&SuperObject_Class);
-    TestObject_init(&d->base, value);
-    SuperObject_init(d, member);
+SuperObject *new_SuperObject(int value, int member) {
+    SuperObject *d = new_Object(&Class_SuperObject);
+    init_TestObject(&d->base, value);
+    init_SuperObject(d, member);
     return d;
 }
 
 //---------------------------------------------------------------------------------------
 
-typedef struct TestCounted_Impl {
+typedef struct Impl_TestCounted {
     iCounted base;
     int value;
 }
 TestCounted;
 
-void TestCounted_deinit(iAnyCounted *any) {
+void deinit_TestCounted(iAnyCounted *any) {
     TestCounted *d = (TestCounted *) any;
     printf("deinit TestCounted: %i\n", d->value);
 }
 
-static LITE_DEFINE_CLASS(iClass, TestCounted);
+static iDefineClass(iClass, TestCounted);
 
-TestCounted *TestCounted_new(int value) {
-    TestCounted *d = iCounted_new(&TestCounted_Class);
+TestCounted *new_TestCounted(int value) {
+    TestCounted *d = new_Counted(&Class_TestCounted);
     d->value = value;
     return d;
 }
@@ -104,7 +105,7 @@ TestCounted *TestCounted_new(int value) {
 //---------------------------------------------------------------------------------------
 
 void printArray(const iArray *list) {
-    printf("%4lu %4lu -> %-4lu : %4lu [", iArray_size(list), list->range.start, list->range.end, list->allocSize);
+    printf("%4lu %4lu -> %-4lu : %4lu [", size_Array(list), list->range.start, list->range.end, list->allocSize);
     for (int i = 0; i < list->allocSize * list->elementSize; ++i) {
         if (i/list->elementSize < list->range.start || i/list->elementSize >= list->range.end)
             printf(" __");
@@ -119,72 +120,81 @@ static int compareElements(const void *a, const void *b) {
 }
 
 int main(int argc, char *argv[]) {
-    LITE_UNUSED(argc);
-    LITE_UNUSED(argv);
+    iUnused(argc);
+    iUnused(argv);
     /* Test list insertion and removal. */ {
         printf("Array insertions/removals:\n");
-        iArray *list = iArray_new(2);
+        iArray *list = new_Array(2);
         printArray(list);
         {
             printf("Iterating the empty list:\n");
-            LITE_FOREACH(iArrayConst, i, list) {
+            iForEach(ArrayConst, i, list) {
                 printf("- %p\n", i.value);
             }
         }
-        iArray_pushBack(list, "00"); printArray(list);
-        iArray_pushBack(list, "11"); printArray(list);
-        iArray_pushBack(list, "22"); printArray(list);
-        iArray_pushBack(list, "33"); printArray(list);
-        iArray_pushBack(list, "44"); printArray(list);
-        iArray_pushBack(list, "55"); printArray(list);
-        iArray_pushBack(list, "66"); printArray(list);
-        iArray_pushBack(list, "77"); printArray(list);
-        iArray_pushBack(list, "88"); printArray(list);
-        iArray_pushBack(list, "99"); printArray(list);
-        iArray_insert(list, 7, "XX"); printArray(list);
-        iArray_insert(list, 7, "YY"); printArray(list);
-        iArray_insert(list, 8, "ZZ"); printArray(list);
-        iArray_pushFront(list, "aa"); printArray(list);
-        iArray_pushBack(list, "bb"); printArray(list);
-        iArray_pushBack(list, "cc"); printArray(list);
-        iArray_sort(list, compareElements); printArray(list);
-        iArray_popBack(list); printArray(list);
-        iArray_popBack(list); printArray(list);
-        iArray_popBack(list); printArray(list);
-        iArray_popBack(list); printArray(list);
-        iArray_popBack(list); printArray(list);
-        iArray_popBack(list); printArray(list);
-        iArray_popFront(list); printArray(list);
-        iArray_remove(list, 6); printArray(list);
-        iArray_remove(list, 5); printArray(list);
-        iArray_remove(list, 4); printArray(list);
-        iArray_remove(list, 3); printArray(list);
-        iArray_remove(list, 2); printArray(list);
+        pushBack_Array(list, "00"); printArray(list);
+        pushBack_Array(list, "11"); printArray(list);
+        pushBack_Array(list, "22"); printArray(list);
+        pushBack_Array(list, "33"); printArray(list);
+        pushBack_Array(list, "44"); printArray(list);
+        pushBack_Array(list, "55"); printArray(list);
+        pushBack_Array(list, "66"); printArray(list);
+        pushBack_Array(list, "77"); printArray(list);
+        pushBack_Array(list, "88"); printArray(list);
+        pushBack_Array(list, "99"); printArray(list);
+        insert_Array(list, 7, "XX"); printArray(list);
+        insert_Array(list, 7, "YY"); printArray(list);
+        insert_Array(list, 8, "ZZ"); printArray(list);
+        pushFront_Array(list, "aa"); printArray(list);
+        pushBack_Array(list, "bb"); printArray(list);
+        pushBack_Array(list, "cc"); printArray(list);
+        sort_Array(list, compareElements); printArray(list);
+        popBack_Array(list); printArray(list);
+        popBack_Array(list); printArray(list);
+        popBack_Array(list); printArray(list);
+        popBack_Array(list); printArray(list);
+        popBack_Array(list); printArray(list);
+        popBack_Array(list); printArray(list);
+        popFront_Array(list); printArray(list);
+        remove_Array(list, 6); printArray(list);
+        remove_Array(list, 5); printArray(list);
+        remove_Array(list, 4); printArray(list);
+        remove_Array(list, 3); printArray(list);
+        remove_Array(list, 2); printArray(list);
         {
             printf("Iterating the list:\n");
-            LITE_FOREACH(iArrayConst, i, list) {
+            iForEach(ArrayConst, i, list) {
                 printf("- %p\n", i.value);
             }
         }
-        iArray_delete(list);
+        delete_Array(list);
     }
     /* Test objects. */ {
-        TestObject *a = TestObject_new(1);
-        TestObject *b = TestObject_new(2);
-        SuperObject *c = SuperObject_new(3, 100);
-        iObject_setParent(b, a);
-        iObject_setParent(c, a);
+        TestObject *a = new_TestObject(1);
+        TestObject *b = new_TestObject(2);
+        SuperObject *c = new_SuperObject(3, 100);
+        setParent_Object(b, a);
+        setParent_Object(c, a);
         printf("Children:\n");
-        LITE_FOREACH(iArrayConst, i, &a->object.children.values) {
+        iForEach(ArrayConst, i, &a->object.children.values) {
             printf("- %p\n", *(const void * const *)i.value);
         }
-        iObject_delete(a);
+        delete_Object(a);
     }
     /* Test reference counting. */ {
-        TestCounted *a = TestCounted_new(123);
-        TestCounted *b = iCounted_ref(a);
-        printf("deref a...\n"); iCounted_deref(a);
-        printf("deref b...\n"); iCounted_deref(b);
+        TestCounted *a = new_TestCounted(123);
+        TestCounted *b = ref_Counted(a);
+        printf("deref a...\n"); deref_Counted(a);
+        printf("deref b...\n"); deref_Counted(b);
+    }
+    /* Test blocks. */ {
+        iBlock *a = new_Block(0);
+        appendCStr_Block(a, "Hello World");
+        appendCStr_Block(a, "!\n");
+        clear_Block(a);
+        printf_Block(a, "Hello %i World!\n", 123);
+        printf("Block: %s", constData_Block(a));
+        delete_Block(a);
     }
     return 0;
 }

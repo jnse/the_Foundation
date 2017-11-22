@@ -31,13 +31,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 typedef iArray iPtrArray;
 typedef void * iPointer;
 
-iPtrArray * iPtrArray_new   (void);
-void        iPtrArray_delete(iPtrArray *);
+iPtrArray * new_PtrArray    (void);
+void        delete_PtrArray (iPtrArray *);
 
-iPointer *  iPtrArray_data  (const iPtrArray *);
-iPointer    iPtrArray_at    (const iPtrArray *, size_t pos);
+iPointer *  data_PtrArray   (const iPtrArray *);
+iPointer    at_PtrArray     (const iPtrArray *, size_t pos);
 
-void        iPtrArray_pushBack  (iPtrArray *, const iPointer ptr);
-void        iPtrArray_pushFront (iPtrArray *, const iPointer ptr);
-iBool       iPtrArray_take      (iPtrArray *, size_t pos, iPointer *outPtr);
-void        iPtrArray_insert    (iPtrArray *, size_t pos, const iPointer ptr);
+void        pushBack_PtrArray   (iPtrArray *, const iPointer ptr);
+void        pushFront_PtrArray  (iPtrArray *, const iPointer ptr);
+iBool       take_PtrArray       (iPtrArray *, size_t pos, iPointer *outPtr);
+void        insert_PtrArray     (iPtrArray *, size_t pos, const iPointer ptr);

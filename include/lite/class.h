@@ -28,34 +28,34 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
-LITE_DECLARE_IMPL(Class);
+iDeclareImpl(Class);
 
-struct i_Class_Impl {
+struct Impl_Class {
     const iClass *super;
     const char *name;
     size_t instanceSize;
     void (*deinit)(void *);
 };
 
-#define LITE_DECLARE_CLASS(className) \
-    extern iClass className##_Class;
+#define iDeclareClass(className) \
+    extern iClass Class_##className;
 
-#define LITE_BEGIN_CLASS(classType, className) \
-    classType className##_Class = { \
+#define iBeginClass(classType, className) \
+    classType Class_##className = { \
 
-#define LITE_END_CLASS(className) \
+#define iEndClass(className) \
     .name = #className, \
     .instanceSize = sizeof(className), \
-    .deinit = className##_deinit, }
+    .deinit = deinit_##className, }
 
-#define LITE_DEFINE_CLASS(classType, className) \
-    LITE_BEGIN_CLASS(classType, className) \
+#define iDefineClass(classType, className) \
+    iBeginClass(classType, className) \
         .super = NULL, \
-    LITE_END_CLASS(className)
+    iEndClass(className)
 
-#define LITE_DEFINE_SUBCLASS(classType, className, superClass) \
-    LITE_BEGIN_CLASS(classType, className) \
-        .super = &superClass##_Class, \
-    LITE_END_CLASS(className)
+#define iDefineSubclass(classType, className, superClass) \
+    iBeginClass(classType, className) \
+        .super = &Class_##superClass, \
+    iEndClass(className)
 
-void iClass_deinit(const iClass *, void *object);
+void deinit_Class(const iClass *, void *object);

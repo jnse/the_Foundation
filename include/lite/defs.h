@@ -31,30 +31,38 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdint.h>
 #include <string.h>
 
-#define LITE_ASSERT(cond) assert(cond)
+#if defined (NDEBUG)
+#   define iAssert(cond)
+#else
+#   define iAssert(cond) assert(cond)
+#endif
 
-#define LITE_UNUSED(var) ((void)(var))
+#define iUnused(var) ((void)(var))
 
-#define LITE_CONST_CAST(type, ptr) ((type) (intptr_t) (ptr))
+#define iConstCast(type, ptr) ((type) (intptr_t) (ptr))
 
-#define LITE_DECLARE_IMPL(typeName) \
-    typedef struct i_##typeName##_Impl i##typeName
+#define iDeclareImpl(typeName) \
+    typedef struct Impl_##typeName i##typeName
 
-#define LITE_DECLARE_ITERATOR(typeName, container) \
-    typedef struct typeName##_Iterator typeName##Iterator; \
-    void typeName##Iterator_init(typeName##Iterator *, container); \
-    void typeName##Iterator_next(typeName##Iterator *)
+#define iDeclareIterator(typeName, container) \
+    typedef struct Iterator_##typeName i##typeName##Iterator; \
+    void init_##typeName##Iterator(i##typeName##Iterator *, container); \
+    void next_##typeName##Iterator(i##typeName##Iterator *)
 
-#define LITE_FOREACH(typeName, iterName, container) \
-    typeName##Iterator iterName; \
-    for (typeName##Iterator_init(&iterName, container); \
+#define iForEach(typeName, iterName, container) \
+    i##typeName##Iterator iterName; \
+    for (init_##typeName##Iterator(&iterName, container); \
          iterName.value != NULL; \
-         typeName##Iterator_next(&iterName))
+         next_##typeName##Iterator(&iterName))
 
-#define LITE_INVALID_SIZE   ((size_t)-1)
+#define iInvalidSize   ((size_t)-1)
 
 #define iFalse  0
 #define iTrue   1
+
+#define iMin(a, b)              ((a) < (b)? (a) : (b))
+#define iMax(a, b)              ((a) > (b)? (a) : (b))
+#define iClamp(i, low, high)    ((i) < (low)? (low) : (i) > (high)? (high) : (i))
 
 // Types.
 typedef int             iBool;

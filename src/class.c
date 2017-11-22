@@ -26,7 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "lite/class.h"
 
-void iClass_deinit(const iClass *d, void *object) {
+void deinit_Class(const iClass *d, void *object) {
     for (; d; d = d->super) {
         if (d->deinit) {
             d->deinit(object);
