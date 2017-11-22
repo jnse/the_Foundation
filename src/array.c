@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 
-#define LITE_ARRAY_MIN_ALLOC 16
+#define LITE_ARRAY_MIN_ALLOC 4
 
 #define i_Array_element(d, index) (&(d)->data[(d)->elementSize * (index)])
 
@@ -198,4 +198,32 @@ void iArray_remove(iArray *d, size_t pos) {
 
 void iArray_sort(iArray *d, int (*cmp)(const void *, const void *)) {
     qsort(iArray_front(d), iArray_size(d), d->elementSize, cmp);
+}
+
+//---------------------------------------------------------------------------------------
+
+void iArrayIterator_init(iArrayIterator *d, iArray *array) {
+    d->array = array;
+    d->value = (!iArray_isEmpty(array)? iArray_at(array, 0) : NULL);
+}
+
+void iArrayIterator_next(iArrayIterator *d) {
+    LITE_ASSERT(d->value);
+    d->value = (char *) d->value + d->array->elementSize;
+    if ((char *) d->value >= i_Array_element(d->array, d->array->range.end)) {
+        d->value = NULL;
+    }
+}
+
+void iArrayConstIterator_init(iArrayConstIterator *d, const iArray *array) {
+    d->array = array;
+    d->value = (!iArray_isEmpty(array)? iArray_at(array, 0) : NULL);
+}
+
+void iArrayConstIterator_next(iArrayConstIterator *d) {
+    LITE_ASSERT(d->value);
+    d->value = (const char *) d->value + d->array->elementSize;
+    if ((const char *) d->value >= i_Array_element(d->array, d->array->range.end)) {
+        d->value = NULL;
+    }
 }

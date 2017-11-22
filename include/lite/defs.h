@@ -40,6 +40,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define LITE_DECLARE_IMPL(typeName) \
     typedef struct i_##typeName##_Impl i##typeName
 
+#define LITE_FOREACH(typeName, iterName, container) \
+    typeName##Iterator iterName; \
+    for (typeName##Iterator_init(&iterName, container); \
+         iterName.value != NULL; \
+         typeName##Iterator_next(&iterName))
+
+#define LITE_INVALID_SIZE   ((size_t)-1)
+
 #define iFalse  0
 #define iTrue   1
 

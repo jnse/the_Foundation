@@ -46,7 +46,7 @@ void TestObject_deinit(iAnyObject *obj) {
     printf("deinit TestObject: %i\n", d->value);
 }
 
-static LITE_DEFINE_CLASS(TestObject);
+static LITE_DEFINE_CLASS(iClass, TestObject);
 
 TestObject *TestObject_new(int value) {
     TestObject *d = iObject_new(&TestObject_Class);
@@ -71,7 +71,7 @@ void SuperObject_deinit(iAnyObject *any) {
     printf("deinit SuperObject: %i\n", d->member);
 }
 
-static LITE_DEFINE_SUBCLASS(SuperObject, TestObject);
+static LITE_DEFINE_SUBCLASS(iClass, SuperObject, TestObject);
 
 SuperObject *SuperObject_new(int value, int member) {
     SuperObject *d = iObject_new(&SuperObject_Class);
@@ -93,7 +93,7 @@ void TestCounted_deinit(iAnyCounted *any) {
     printf("deinit TestCounted: %i\n", d->value);
 }
 
-static LITE_DEFINE_CLASS(TestCounted);
+static LITE_DEFINE_CLASS(iClass, TestCounted);
 
 TestCounted *TestCounted_new(int value) {
     TestCounted *d = iCounted_new(&TestCounted_Class);
@@ -125,7 +125,12 @@ int main(int argc, char *argv[]) {
         printf("Array insertions/removals:\n");
         iArray *list = iArray_new(2);
         printArray(list);
-
+        {
+            printf("Iterating the empty list:\n");
+            LITE_FOREACH(iArrayConst, i, list) {
+                printf("- %p\n", i.value);
+            }
+        }
         iArray_pushBack(list, "00"); printArray(list);
         iArray_pushBack(list, "11"); printArray(list);
         iArray_pushBack(list, "22"); printArray(list);
@@ -155,7 +160,12 @@ int main(int argc, char *argv[]) {
         iArray_remove(list, 4); printArray(list);
         iArray_remove(list, 3); printArray(list);
         iArray_remove(list, 2); printArray(list);
-
+        {
+            printf("Iterating the list:\n");
+            LITE_FOREACH(iArrayConst, i, list) {
+                printf("- %p\n", i.value);
+            }
+        }
         iArray_delete(list);
     }
     /* Test objects. */ {
@@ -164,6 +174,10 @@ int main(int argc, char *argv[]) {
         SuperObject *c = SuperObject_new(3, 100);
         iObject_setParent(b, a);
         iObject_setParent(c, a);
+        printf("Children:\n");
+        LITE_FOREACH(iArrayConst, i, &a->object.children.values) {
+            printf("- %p\n", *(const void * const *)i.value);
+        }
         iObject_delete(a);
     }
     /* Test reference counting. */ {

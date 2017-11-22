@@ -1,5 +1,3 @@
-#pragma once
-
 /** @file class.c  Class object.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>

@@ -40,20 +40,22 @@ struct i_Class_Impl {
 #define LITE_DECLARE_CLASS(className) \
     extern iClass className##_Class;
 
-#define LITE_DEFINE_CLASS(className) \
-    iClass className##_Class = { \
-        .super = NULL, \
-        .name = #className, \
-        .instanceSize = sizeof(className), \
-        .deinit = className##_deinit, \
-    }
+#define LITE_BEGIN_CLASS(classType, className) \
+    classType className##_Class = { \
 
-#define LITE_DEFINE_SUBCLASS(className, superClass) \
-    iClass className##_Class = { \
+#define LITE_END_CLASS(className) \
+    .name = #className, \
+    .instanceSize = sizeof(className), \
+    .deinit = className##_deinit, }
+
+#define LITE_DEFINE_CLASS(classType, className) \
+    LITE_BEGIN_CLASS(classType, className) \
+        .super = NULL, \
+    LITE_END_CLASS(className)
+
+#define LITE_DEFINE_SUBCLASS(classType, className, superClass) \
+    LITE_BEGIN_CLASS(classType, className) \
         .super = &superClass##_Class, \
-        .name = #className, \
-        .instanceSize = sizeof(className), \
-        .deinit = className##_deinit, \
-    }
+    LITE_END_CLASS(className)
 
 void iClass_deinit(const iClass *, void *object);
