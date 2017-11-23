@@ -35,7 +35,7 @@ struct Impl_String {
     iBlock chars;
 };
 
-iString *       new_String();
+iString *       new_String(void);
 iString *       newUndefined_String(size_t len);
 iString *       copy_String(const iString *);
 void            delete_String(iString *);
@@ -46,6 +46,7 @@ iString *       fromLatin1_String(const char *cstr);
 iString *       fromLatin1N_String(const char *cstr, size_t len);
 iString *       fromUtf8_String(const char *utf8);
 iString *       fromUtf8N_String(const char *utf8, size_t len);
+iString *       fromBlock_String(const iBlock *data);
 
 size_t          size_String(const iString *);
 iChar           at_String(const iString *, size_t pos);

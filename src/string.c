@@ -40,6 +40,16 @@ iString *newUndefined_String(size_t len) {
     return d;
 }
 
+iString *new_String(void) {
+    return newUndefined_String(0);
+}
+
+iString *fromBlock_String(const iBlock *data) {
+    iString *d = new_String();
+    set_Block(&d->chars, data);
+    return d;
+}
+
 void delete_String(iString *d) {
     deinit_Block(&d->chars);
     free(d);
