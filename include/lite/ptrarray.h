@@ -29,15 +29,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "array.h"
 
 typedef iArray iPtrArray;
-typedef void * iPointer;
+typedef void * iPtr;
 
 iPtrArray * new_PtrArray    (void);
 void        delete_PtrArray (iPtrArray *);
 
-iPointer *  data_PtrArray   (const iPtrArray *);
-iPointer    at_PtrArray     (const iPtrArray *, size_t pos);
+iPtr *      data_PtrArray   (const iPtrArray *);
+iPtr        at_PtrArray     (const iPtrArray *, size_t pos);
 
-void        pushBack_PtrArray   (iPtrArray *, const iPointer ptr);
-void        pushFront_PtrArray  (iPtrArray *, const iPointer ptr);
-iBool       take_PtrArray       (iPtrArray *, size_t pos, iPointer *outPtr);
-void        insert_PtrArray     (iPtrArray *, size_t pos, const iPointer ptr);
+void        pushBack_PtrArray   (iPtrArray *, const iPtr ptr);
+void        pushFront_PtrArray  (iPtrArray *, const iPtr ptr);
+iBool       take_PtrArray       (iPtrArray *, size_t pos, iPtr *outPtr);
+void        insert_PtrArray     (iPtrArray *, size_t pos, const iPtr ptr);

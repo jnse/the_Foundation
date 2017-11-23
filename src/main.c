@@ -193,15 +193,17 @@ int main(int argc, char *argv[]) {
     /* Test blocks and garbage collector. */ {
         iBlock *a = collect_Block(new_Block(0));
         appendCStr_Block(a, "Hello World");
-        appendCStr_Block(a, "!\n");
+        appendCStr_Block(a, "!");
         iBlock *b = collect_Block(copy_Block(a));
-        iBlock *c = collect_Block(copy_Block(b));
+        iBlock *c = collect_Block(concat_Block(a, b));
         clear_Block(a);
-        printf_Block(a, "Hello %i World!\n", 123);
-        printf("Block: %s", constData_Block(a));
+        printf_Block(a, "Hello %i World!", 123);
+        printf("Block: %s\n", constData_Block(a));
         printf_Block(a, "What");
         pushBack_Block(a, '?');
-        printf("Block: %s %s", constData_Block(a), constData_Block(b));
+        printf("Block: %s %s\n", constData_Block(a), constData_Block(b));
+        printf("c-Block: %s\n", constData_Block(c));
+        printf("mid: %s\n", constData_Block(collect_Block(mid_Block(b, 3, 4))));
         iRecycle();
     }
     return 0;

@@ -49,9 +49,10 @@ iBlock *        concat_Block    (const iBlock *, const iBlock *other);
 const char *    constData_Block (const iBlock *);
 
 int             cmp_Block           (const iBlock *, const iBlock *other);
+int             cmpData_Block       (const iBlock *, const char *data, size_t size);
+
 int             cmpCase_Block       (const iBlock *, const iBlock *other);
 int             cmpCaseN_Block      (const iBlock *, const iBlock *other, size_t size);
-int             cmpData_Block       (const iBlock *, const char *data, size_t size);
 int             cmpCStr_Block       (const iBlock *, const char *cstr);
 int             cmpCStrN_Block      (const iBlock *, const char *cstr, size_t len);
 int             cmpCaseCStr_Block   (const iBlock *, const char *cstr);

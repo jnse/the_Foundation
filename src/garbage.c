@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <stdlib.h>
 
+static iList *collected; // Should be thread-local...
+
 iDeclareType(Collected);
 struct Impl_Collected {
     iListElement elem;
@@ -37,7 +39,18 @@ struct Impl_Collected {
     iDeleteFunc del;
 };
 
-static iList *collected; // Should be thread-local...
+static iCollected *new_Collected_(void *ptr, iDeleteFunc del) {
+    iCollected *col = malloc(sizeof(iCollected));
+    col->ptr = ptr;
+    col->del = del;
+    return col;
+}
+
+static void delete_Collected_(iCollected *d) {
+    printf("...recycling %p\n", d->ptr);
+    d->del(d->ptr);
+    free(d);
+}
 
 static void deinit_Garbage(void) {
     recycle_Garbage();
@@ -54,20 +67,14 @@ static iList *init_Garbage(void) {
 }
 
 void *collect_Garbage(void *ptr, iDeleteFunc del) {
-    iCollected *col = malloc(sizeof(iCollected));
-    col->ptr = ptr;
-    col->del = del;
-    pushBack_List(init_Garbage(), col);
+    pushBack_List(init_Garbage(), new_Collected_(ptr, del));
     return ptr;
 }
 
 void recycle_Garbage(void) {
     if (collected) {
         iReverseForEach(List, i, collected) {
-            iCollected *c = (iCollected *) i.value;
-            printf("...recycling %p\n", c->ptr);
-            c->del(c->ptr);
-            free(c);
+            delete_Collected_((iCollected *) i.value);
         }
         clear_List(collected);
     }
