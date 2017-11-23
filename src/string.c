@@ -34,14 +34,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define constCharPtr_String_(d, pos) \
     (((const iChar *) constData_Block(&(d)->chars)) + pos)
 
+iString *new_String(void) {
+    return newUndefined_String(0);
+}
+
 iString *newUndefined_String(size_t len) {
     iString *d = calloc(sizeof(iString), 1);
     init_Block(&d->chars, iCharSize(len));
     return d;
-}
-
-iString *new_String(void) {
-    return newUndefined_String(0);
 }
 
 iString *fromBlock_String(const iBlock *data) {
@@ -59,10 +59,24 @@ void truncate_String(iString *d, size_t len) {
     truncate_Block(&d->chars, iCharSize(len));
 }
 
+size_t size_String(const iString *d) {
+    return size_Block(&d->chars) / iCharSize(1);
+}
+
+iChar at_String(const iString *d, size_t pos) {
+    iChar ch;
+    memcpy(&ch, constCharPtr_String_(d, pos), iCharSize(1));
+    return ch;
+}
+
 iString *mid_String(const iString *d, size_t start, size_t count) {
     iString *out = newUndefined_String(count);
     setData_Block(&out->chars, constCharPtr_String_(d, start), iCharSize(count));
     return out;
+}
+
+void set_String(iString *d, const iString *other) {
+    set_Block(&d->chars, &other->chars);
 }
 
 //---------------------------------------------------------------------------------------

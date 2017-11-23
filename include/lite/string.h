@@ -50,6 +50,7 @@ iString *       fromBlock_String(const iBlock *data);
 
 size_t          size_String(const iString *);
 iChar           at_String(const iString *, size_t pos);
+iString *       mid_String(const iString *, size_t start, size_t count);
 
 void            set_String(iString *, const iString *other);
 void            setLatin1_String(iString *, const char *cstr);
@@ -62,7 +63,6 @@ size_t          lastIndexOf_String(const iString *, const iString *other);
 size_t          lastIndexOfChar_String(const iString *, iChar ch);
 
 void            truncate_String(iString *, size_t len);
-iString *       mid_String(const iString *, size_t start, size_t count);
 
 #define         iCmpStr(a, b)       strcmp(a, b)
 #define         iCmpStrN(a, b, len) strncmp(a, b, len)
