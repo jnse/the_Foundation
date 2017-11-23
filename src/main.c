@@ -163,7 +163,7 @@ int main(int argc, char *argv[]) {
         remove_Array(list, 2); printArray(list);
         {
             printf("Iterating the list:\n");
-            iForEach(ArrayConst, i, list) {
+            iConstForEach(Array, i, list) {
                 printf("- %p\n", i.value);
             }
         }
@@ -176,8 +176,8 @@ int main(int argc, char *argv[]) {
         setParent_Object(b, a);
         setParent_Object(c, a);
         printf("Children:\n");
-        iForEach(ArrayConst, i, &a->object.children.values) {
-            printf("- %p\n", *(const void * const *)i.value);
+        iConstForEach(List, i, a->object.children) {
+            printf("- %p\n", i.value);
         }
         delete_Object(a);
     }
@@ -191,10 +191,17 @@ int main(int argc, char *argv[]) {
         iBlock *a = new_Block(0);
         appendCStr_Block(a, "Hello World");
         appendCStr_Block(a, "!\n");
+        iBlock *b = copy_Block(a);
+        iBlock *c = copy_Block(b);
         clear_Block(a);
         printf_Block(a, "Hello %i World!\n", 123);
         printf("Block: %s", constData_Block(a));
+        printf_Block(a, "What");
+        pushBack_Block(a, '?');
+        printf("Block: %s %s", constData_Block(a), constData_Block(b));
         delete_Block(a);
+        delete_Block(b);
+        delete_Block(c);
     }
     return 0;
 }

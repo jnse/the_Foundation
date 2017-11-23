@@ -31,12 +31,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <stdlib.h>
 
+iList *children_Object_(iObject *d) {
+    if (!d->children) {
+        d->children = new_List();
+    }
+    return d->children;
+}
+
 void *new_Object(const iClass *class) {
     iAssert(class != NULL);
     iAssert(class->instanceSize >= sizeof(iObject));
     iObject *d = calloc(class->instanceSize, 1);
     d->class = class;
-    init_PtrSet(&d->children);
     printf("new Object %p\n", d);
     return d;
 }
@@ -45,10 +51,10 @@ void delete_Object(iAnyObject *any) {
     iObject *d = (iObject *) any;
     setParent_Object(d, NULL);
     // Destroy children, who will remove themselves.
-    while (!isEmpty_PtrSet(&d->children)) {
-        delete_Object(at_PtrSet(&d->children, 0));
+    while (!isEmpty_List(d->children)) {
+        delete_Object(front_List(d->children));
     }
-    deinit_PtrSet(&d->children);
+    delete_List(d->children);
     deinit_Class(d->class, d);
     free(d);
     printf("deleted Object %p\n", d);
@@ -59,12 +65,12 @@ void setParent_Object(iAnyObject *any, iAnyObject *parent) {
     if (d->parent == parent) return;
     if (d->parent) {
         // Remove from old parent.
-        remove_PtrSet(&d->parent->children, d);
+        iAssert(d->parent->children);
+        remove_List(d->parent->children, d);
     }
     d->parent = parent;
     if (parent) {
-        iAssert(!contains_PtrSet(&d->parent->children, d));
-        insert_PtrSet(&d->parent->children, d);
+        pushBack_List(children_Object_(d->parent), d);
     }
 }
 
@@ -72,6 +78,6 @@ iAnyObject *parent_Object(const iAnyObject *d) {
     return ((const iObject *) d)->parent;
 }
 
-const iPtrSet *children_Object(const iAnyObject *d) {
-    return &((const iObject *) d)->children;
+const iList *children_Object(const iAnyObject *d) {
+    return children_Object_(iConstCast(iObject *, d));
 }

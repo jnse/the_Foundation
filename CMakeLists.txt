@@ -8,11 +8,14 @@ set (SOURCES
     src/block.c
     src/class.c
     src/counted.c
+    src/garbage.c
+    src/list.c
     src/main.c
     src/object.c
     src/ptrarray.c
     src/ptrset.c
     src/set.c
+    src/string.c
 )
 set (HEADERS
     include/lite/array.h
@@ -20,11 +23,14 @@ set (HEADERS
     include/lite/class.h
     include/lite/counted.h
     include/lite/defs.h
+    include/lite/garbage.h
+    include/lite/list.h
     include/lite/object.h
     include/lite/ptrarray.h
     include/lite/ptrset.h
     include/lite/range.h
     include/lite/set.h
+    include/lite/string.h
 )
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wpedantic -Wno-format-pedantic")
 add_executable (cplus ${SOURCES} ${HEADERS})

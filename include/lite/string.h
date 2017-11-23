@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/object.h  Object base class.
+/** @file lite/string.h  Wide-char text strings with copy-on-write semantics.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,28 +26,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/defs.h"
-#include "lite/class.h"
-#include "lite/list.h"
+#include "defs.h"
 
-/**
- * Object that owns child objects and may have a parent. When a parent is deleted,
- * all its children are deleted first.
- */
-iDeclareType(Object);
+#define         iCmpStr(a, b)       strcmp(a, b)
+#define         iCmpStrN(a, b, len) strncmp(a, b, len)
 
-struct Impl_Object {
-    iListElement elem;
-    const iClass *class;
-    iObject *parent;
-    iList *children;
-};
-
-iAnyObject *    new_Object(const iClass *class);
-void            delete_Object(iAnyObject *);
-
-iAnyObject *    parent_Object(const iAnyObject *);
-const iList *   children_Object(const iAnyObject *);
-
-void            setParent_Object(iAnyObject *, iAnyObject *parent);
-
+int             iCmpStrCase (const char *a, const char *b);
+int             iCmpStrNCase(const char *a, const char *b, size_t len);

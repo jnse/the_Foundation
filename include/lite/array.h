@@ -36,7 +36,7 @@ struct Impl_Array {
     size_t allocSize;
 };
 
-iDeclareImpl(Array);
+iDeclareType(Array);
 
 iArray *    new_Array      (size_t elementSize);
 void        delete_Array   (iArray *);

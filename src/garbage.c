@@ -1,6 +1,4 @@
-#pragma once
-
-/** @file lite/object.h  Object base class.
+/** @file garbage.c  Garbage collector.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,28 +24,53 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/defs.h"
-#include "lite/class.h"
+#include "lite/garbage.h"
 #include "lite/list.h"
 
-/**
- * Object that owns child objects and may have a parent. When a parent is deleted,
- * all its children are deleted first.
- */
-iDeclareType(Object);
+#include <stdlib.h>
 
-struct Impl_Object {
+iDeclareType(Collected);
+struct Impl_Collected {
     iListElement elem;
-    const iClass *class;
-    iObject *parent;
-    iList *children;
+    void *ptr;
+    void (*dealloc)(void *);
 };
 
-iAnyObject *    new_Object(const iClass *class);
-void            delete_Object(iAnyObject *);
+static iList *collected; // Should be thread-local...
 
-iAnyObject *    parent_Object(const iAnyObject *);
-const iList *   children_Object(const iAnyObject *);
+static void deinit_Garbage(void) {
+    iRecycle();
+    delete_List(collected);
+    collected = NULL;
+}
 
-void            setParent_Object(iAnyObject *, iAnyObject *parent);
+static iList *init_Garbage(void) {
+    if (!collected) {
+        collected = new_List();
+        atexit(deinit_Garbage);
+    }
+    return collected;
+}
 
+void *iCollect(void *ptr) {
+    return iCollectDel(ptr, free);
+}
+
+void *iCollectDel(void *ptr, void (*dealloc)(void *)) {
+    iCollected *col = malloc(sizeof(iCollected));
+    col->ptr = ptr;
+    col->dealloc = dealloc;
+    pushBack_List(init_Garbage(), col);
+    return ptr;
+}
+
+void iRecycle(void) {
+    if (collected) {
+        iReverseForEach(List, i, collected) {
+            iCollected *c = (iCollected *) i.value;
+            c->dealloc(c->ptr);
+            free(c);
+        }
+        clear_List(collected);
+    }
+}

@@ -48,6 +48,6 @@ struct Impl_Ranges {
     size_t end;
 };
 
-iDeclareImpl(Rangei);
-iDeclareImpl(Rangeui);
-iDeclareImpl(Ranges);
+iDeclareType(Rangei);
+iDeclareType(Rangeui);
+iDeclareType(Ranges);

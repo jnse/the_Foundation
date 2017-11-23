@@ -26,10 +26,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "lite/block.h"
 #include "lite/atomic.h"
+#include "lite/string.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <strings.h>
 
 struct Impl_BlockData {
     iAtomicInt refCount;
@@ -37,7 +39,7 @@ struct Impl_BlockData {
     size_t size;
     size_t allocSize;
 };
-iDeclareImpl(BlockData);
+iDeclareType(BlockData);
 
 struct Impl_Block {
     iBlockData *i;
@@ -113,6 +115,16 @@ iBlock *newData_Block(const void *data, size_t size) {
     return d;
 }
 
+iBlock *copy_Block(const iBlock *d) {
+    if (d) {
+        iBlock *dupl = malloc(sizeof(iBlock));
+        dupl->i = d->i;
+        add_Atomic(&d->i->refCount, 1);
+        return dupl;
+    }
+    return NULL;
+}
+
 void delete_Block(iBlock *d) {
     deref_BlockData_(d->i);
     free(d);
@@ -133,16 +145,6 @@ char front_Block(const iBlock *d) {
 
 char back_Block(const iBlock *d) {
     return d->i->data[d->i->size - 1];
-}
-
-iBlock *duplicate_Block(const iBlock *d) {
-    if (d) {
-        iBlock *dupl = malloc(sizeof(iBlock));
-        dupl->i = d->i;
-        add_Atomic(&d->i->refCount, 1);
-        return dupl;
-    }
-    return NULL;
 }
 
 const char *constData_Block(const iBlock *d) {
@@ -256,4 +258,36 @@ iBlock *concat_Block(const iBlock *d, const iBlock *other) {
     memcpy(cat->i->data + d->i->size, other->i->data, other->i->size);
     cat->i->data[cat->i->size] = 0;
     return cat;
+}
+
+int cmp_Block(const iBlock *d, const iBlock *other) {
+    return cmpData_Block(d, other->i->data, other->i->size);
+}
+
+int cmpCase_Block(const iBlock *d, const iBlock *other) {
+    return iCmpStrCase(d->i->data, other->i->data);
+}
+
+int cmpCaseN_Block(const iBlock *d, const iBlock *other, size_t size) {
+    return iCmpStrNCase(d->i->data, other->i->data, size);
+}
+
+int cmpData_Block(const iBlock *d, const char *data, size_t size) {
+    return memcmp(d->i->data, data, iMin(size, d->i->size));
+}
+
+int cmpCStr_Block(const iBlock *d, const char *cstr) {
+    return iCmpStr(d->i->data, cstr);
+}
+
+int cmpCStrN_Block(const iBlock *d, const char *cstr, size_t len) {
+    return iCmpStrN(d->i->data, cstr, len);
+}
+
+int cmpCaseCStr_Block(const iBlock *d, const char *cstr) {
+    return iCmpStrCase(d->i->data, cstr);
+}
+
+int cmpCaseCStrN_Block(const iBlock *d, const char *cstr, size_t len) {
+    return iCmpStrNCase(d->i->data, cstr, len);
 }

@@ -32,7 +32,7 @@ struct Impl_Set {
     iArray values;
 };
 
-iDeclareImpl(Set);
+iDeclareType(Set);
 
 typedef intptr_t iSetValue;
 

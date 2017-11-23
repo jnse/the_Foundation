@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
-iDeclareImpl(Class);
+iDeclareType(Class);
 
 struct Impl_Class {
     const iClass *super;

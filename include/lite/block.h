@@ -28,11 +28,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
-iDeclareImpl(Block);
+iDeclareType(Block);
 
 iBlock *        new_Block       (size_t size);
 iBlock *        newCStr_Block   (const char *cstr);
 iBlock *        newData_Block   (const void *data, size_t size);
+iBlock *        copy_Block      (const iBlock *);
 void            delete_Block    (iBlock *);
 
 #define         isEmpty_Block(d)    (size_Block(d) == 0)
@@ -41,10 +42,18 @@ size_t          size_Block      (const iBlock *);
 char            at_Block        (const iBlock *, size_t pos);
 char            front_Block     (const iBlock *);
 char            back_Block      (const iBlock *);
-iBlock *        duplicate_Block (const iBlock *);
 iBlock *        mid_Block       (const iBlock *, size_t start, size_t count);
 iBlock *        concat_Block    (const iBlock *, const iBlock *other);
 const char *    constData_Block (const iBlock *);
+
+int             cmp_Block           (const iBlock *, const iBlock *other);
+int             cmpCase_Block       (const iBlock *, const iBlock *other);
+int             cmpCaseN_Block      (const iBlock *, const iBlock *other, size_t size);
+int             cmpData_Block       (const iBlock *, const char *data, size_t size);
+int             cmpCStr_Block       (const iBlock *, const char *cstr);
+int             cmpCStrN_Block      (const iBlock *, const char *cstr, size_t len);
+int             cmpCaseCStr_Block   (const iBlock *, const char *cstr);
+int             cmpCaseCStrN_Block  (const iBlock *, const char *cstr, size_t len);
 
 char *          data_Block      (iBlock *);
 void            fill_Block      (iBlock *, char value);

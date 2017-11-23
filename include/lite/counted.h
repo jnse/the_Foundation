@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 /**
  * Reference-counted object that gets deleted only after all references are gone.
  */
-iDeclareImpl(Counted);
+iDeclareType(Counted);
 
 struct Impl_Counted {
     const iClass *class;

@@ -31,34 +31,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdint.h>
 #include <string.h>
 
-#if defined (NDEBUG)
-#   define iAssert(cond)
-#else
-#   define iAssert(cond) assert(cond)
-#endif
-
-#define iUnused(var) ((void)(var))
-
-#define iConstCast(type, ptr) ((type) (intptr_t) (ptr))
-
-#define iDeclareImpl(typeName) \
-    typedef struct Impl_##typeName i##typeName
-
-#define iDeclareIterator(typeName, container) \
-    typedef struct Iterator_##typeName i##typeName##Iterator; \
-    void init_##typeName##Iterator(i##typeName##Iterator *, container); \
-    void next_##typeName##Iterator(i##typeName##Iterator *)
-
-#define iForEach(typeName, iterName, container) \
-    i##typeName##Iterator iterName; \
-    for (init_##typeName##Iterator(&iterName, container); \
-         iterName.value != NULL; \
-         next_##typeName##Iterator(&iterName))
-
-#define iInvalidSize   ((size_t)-1)
-
 #define iFalse  0
 #define iTrue   1
+
+#define iInvalidSize   ((size_t) -1)
 
 #define iMin(a, b)              ((a) < (b)? (a) : (b))
 #define iMax(a, b)              ((a) > (b)? (a) : (b))
@@ -70,5 +46,54 @@ typedef uint8_t         iByte;
 typedef uint16_t        iChar16;
 typedef unsigned int    iUInt;
 
+typedef void iAny;
 typedef void iAnyObject;
 typedef void (*iDeinitFunc)(iAnyObject *);
+
+#define iUnused(var) ((void)(var))
+
+#define iConstCast(type, ptr) ((type) (intptr_t) (ptr))
+
+#define iDeclareType(typeName) \
+    typedef struct Impl_##typeName i##typeName
+
+#define iDeclareIterator_(iterType, typeName, container) \
+    typedef struct iterType##_##typeName i##typeName##iterType; \
+    void init_##typeName##iterType(i##typeName##iterType *, container); \
+    void next_##typeName##iterType(i##typeName##iterType *)
+
+#define iDeclareIterator(typeName, container) \
+    iDeclareIterator_(Iterator, typeName, container)
+
+#define iDeclareReverseIterator(typeName, container) \
+    iDeclareIterator_(ReverseIterator, typeName, container)
+
+#define iDeclareConstIterator(typeName, container) \
+    iDeclareIterator_(ConstIterator, typeName, container)
+
+#define iDeclareReverseConstIterator(typeName, container) \
+    iDeclareIterator_(ReverseConstIterator, typeName, container)
+
+#define iForEach(typeName, iterName, container) \
+    i##typeName##Iterator iterName; \
+    for (init_##typeName##Iterator(&iterName, container); \
+         iterName.value != NULL; \
+         next_##typeName##Iterator(&iterName))
+
+#define iReverseForEach(typeName, iterName, container) \
+    i##typeName##ReverseIterator iterName; \
+    for (init_##typeName##ReverseIterator(&iterName, container); \
+         iterName.value != NULL; \
+         next_##typeName##ReverseIterator(&iterName))
+
+#define iConstForEach(typeName, iterName, container) \
+    iForEach(typeName##Const, iterName, container)
+
+#define iConstReverseForEach(typeName, iterName, container) \
+    iForEachReverse(typeName##Const, iterName, container)
+
+#if defined (NDEBUG)
+#   define iAssert(cond)
+#else
+#   define iAssert(cond) assert(cond)
+#endif
