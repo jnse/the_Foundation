@@ -46,6 +46,8 @@ struct Impl_Object {
 iAnyObject *    new_Object(const iClass *class);
 void            delete_Object(iAnyObject *);
 
+#define         collect_Object(d) iCollectDel(d, delete_Object)
+
 iAnyObject *    parent_Object(const iAnyObject *);
 const iList *   children_Object(const iAnyObject *);
 

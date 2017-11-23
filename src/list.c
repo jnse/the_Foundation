@@ -40,6 +40,11 @@ static iListElement *nextElement_List_(const iList *d, const iListElement *elem)
     return elem->next;
 }
 
+static iListElement *prevElement_List_(const iList *d, const iListElement *elem) {
+    if (!elem || elem->prev == &d->root) return NULL;
+    return elem->prev;
+}
+
 iList *new_List(void) {
     iList *d = malloc(sizeof(iList));
     clear_List(d);
@@ -122,32 +127,54 @@ iAny *remove_List(iList *d, iAny *elem) {
 
 //---------------------------------------------------------------------------------------
 
+#define init_ListIterator_(d, list) \
+    { d->list  = list; \
+      d->value = nextElement_List_(list, &list->root); \
+      d->next  = nextElement_List_(list, d->value); }
+
+#define next_ListIterator_(d) \
+    { d->value = d->next; \
+      d->next  = nextElement_List_(d->list, d->value); }
+
 void init_ListIterator(iListIterator *d, iList *list) {
-    d->list = list;
-    d->value = nextElement_List_(list, &list->root);
-    d->next  = nextElement_List_(list, d->value);
+    init_ListIterator_(d, list);
 }
 
 void next_ListIterator(iListIterator *d) {
-    d->value = d->next;
-    d->next  = nextElement_List_(d->list, d->value);
-}
-
-void init_ListReverseIterator(iListReverseIterator *d, iList *list) {
-
-}
-
-void next_ListReverseIterator(iListReverseIterator *d) {
-
+    next_ListIterator_(d);
 }
 
 void init_ListConstIterator(iListConstIterator *d, const iList *list) {
-    d->list = list;
-    d->value = nextElement_List_(list, &list->root);
-    d->next  = nextElement_List_(list, d->value);
+    init_ListIterator_(d, list);
 }
 
 void next_ListConstIterator(iListConstIterator *d) {
-    d->value = d->next;
-    d->next  = nextElement_List_(d->list, d->value);
+    next_ListIterator_(d);
+}
+
+//---------------------------------------------------------------------------------------
+
+#define init_ListReverseIterator_(d, list) \
+    { d->list  = list; \
+      d->value = prevElement_List_(list, &list->root); \
+      d->next  = prevElement_List_(list, d->value); }
+
+#define next_ListReverseIterator_(d) \
+    { d->value = d->next; \
+      d->next  = prevElement_List_(d->list, d->value); }
+
+void init_ListReverseIterator(iListReverseIterator *d, iList *list) {
+    init_ListReverseIterator_(d, list);
+}
+
+void next_ListReverseIterator(iListReverseIterator *d) {
+    next_ListReverseIterator_(d);
+}
+
+void init_ListReverseConstIterator(iListReverseConstIterator *d, const iList *list) {
+    init_ListReverseIterator_(d, list);
+}
+
+void next_ListReverseConstIterator(iListReverseConstIterator *d) {
+    next_ListReverseIterator_(d);
 }

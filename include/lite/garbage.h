@@ -28,7 +28,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
-void *  iCollect(void *ptr);
-void *  iCollectDel(void *ptr, void (*dealloc)(void *));
+typedef void (*iDeleteFunc)(iAny *);
 
-void    iRecycle(void);
+#define     iCollect(ptr)           collect_Garbage(ptr, free)
+#define     iCollectDel(ptr, del)   collect_Garbage(ptr, (iDeleteFunc) del)
+#define     iRecycle()              recycle_Garbage()
+
+iAny *      collect_Garbage(iAny *ptr, iDeleteFunc del);
+void        recycle_Garbage(void);

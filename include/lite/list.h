@@ -62,15 +62,12 @@ iAny *      popBack_List    (iList *);
 
 iDeclareIterator(List, iList *);
 iDeclareConstIterator(List, const iList *);
-iDeclareReverseIterator(List, iList *);
-iDeclareReverseConstIterator(List, const iList *);
 
 struct Iterator_List {
     iList *list;
     iListElement *value;
     iListElement *next;
 };
-typedef struct Iterator_List ReverseIterator_List;
 struct ConstIterator_List {
     const iList *list;
     const iListElement *value;

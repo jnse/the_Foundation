@@ -36,6 +36,8 @@ iBlock *        newData_Block   (const void *data, size_t size);
 iBlock *        copy_Block      (const iBlock *);
 void            delete_Block    (iBlock *);
 
+#define         collect_Block(d)    iCollectDel(d, delete_Block)
+
 #define         isEmpty_Block(d)    (size_Block(d) == 0)
 
 size_t          size_Block      (const iBlock *);

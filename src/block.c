@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "lite/block.h"
 #include "lite/atomic.h"
+#include "lite/garbage.h"
 #include "lite/string.h"
 
 #include <stdio.h>

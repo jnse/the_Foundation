@@ -26,8 +26,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "lite/array.h"
 #include "lite/block.h"
 #include "lite/class.h"
-#include "lite/object.h"
 #include "lite/counted.h"
+#include "lite/garbage.h"
+#include "lite/object.h"
+
 #include <stdio.h>
 
 //---------------------------------------------------------------------------------------
@@ -179,6 +181,7 @@ int main(int argc, char *argv[]) {
         iConstForEach(List, i, a->object.children) {
             printf("- %p\n", i.value);
         }
+        delete_Object(b);
         delete_Object(a);
     }
     /* Test reference counting. */ {
@@ -187,21 +190,19 @@ int main(int argc, char *argv[]) {
         printf("deref a...\n"); deref_Counted(a);
         printf("deref b...\n"); deref_Counted(b);
     }
-    /* Test blocks. */ {
-        iBlock *a = new_Block(0);
+    /* Test blocks and garbage collector. */ {
+        iBlock *a = collect_Block(new_Block(0));
         appendCStr_Block(a, "Hello World");
         appendCStr_Block(a, "!\n");
-        iBlock *b = copy_Block(a);
-        iBlock *c = copy_Block(b);
+        iBlock *b = collect_Block(copy_Block(a));
+        iBlock *c = collect_Block(copy_Block(b));
         clear_Block(a);
         printf_Block(a, "Hello %i World!\n", 123);
         printf("Block: %s", constData_Block(a));
         printf_Block(a, "What");
         pushBack_Block(a, '?');
         printf("Block: %s %s", constData_Block(a), constData_Block(b));
-        delete_Block(a);
-        delete_Block(b);
-        delete_Block(c);
+        iRecycle();
     }
     return 0;
 }

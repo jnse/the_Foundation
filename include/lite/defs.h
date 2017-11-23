@@ -59,38 +59,35 @@ typedef void (*iDeinitFunc)(iAnyObject *);
 
 #define iDeclareIterator_(iterType, typeName, container) \
     typedef struct iterType##_##typeName i##typeName##iterType; \
+    typedef struct iterType##_##typeName i##typeName##Reverse##iterType; \
     void init_##typeName##iterType(i##typeName##iterType *, container); \
-    void next_##typeName##iterType(i##typeName##iterType *)
+    void next_##typeName##iterType(i##typeName##iterType *); \
+    void init_##typeName##Reverse##iterType(i##typeName##Reverse##iterType *, container); \
+    void next_##typeName##Reverse##iterType(i##typeName##Reverse##iterType *)
 
 #define iDeclareIterator(typeName, container) \
     iDeclareIterator_(Iterator, typeName, container)
 
-#define iDeclareReverseIterator(typeName, container) \
-    iDeclareIterator_(ReverseIterator, typeName, container)
-
 #define iDeclareConstIterator(typeName, container) \
     iDeclareIterator_(ConstIterator, typeName, container)
 
-#define iDeclareReverseConstIterator(typeName, container) \
-    iDeclareIterator_(ReverseConstIterator, typeName, container)
+#define iIterate(typeName, iterType, iterName, container) \
+    i##typeName##iterType iterName; \
+    for (init_##typeName##iterType(&iterName, container); \
+         iterName.value != NULL; \
+         next_##typeName##iterType(&iterName))
 
 #define iForEach(typeName, iterName, container) \
-    i##typeName##Iterator iterName; \
-    for (init_##typeName##Iterator(&iterName, container); \
-         iterName.value != NULL; \
-         next_##typeName##Iterator(&iterName))
+    iIterate(typeName, Iterator, iterName, container)
 
 #define iReverseForEach(typeName, iterName, container) \
-    i##typeName##ReverseIterator iterName; \
-    for (init_##typeName##ReverseIterator(&iterName, container); \
-         iterName.value != NULL; \
-         next_##typeName##ReverseIterator(&iterName))
+    iIterate(typeName, ReverseIterator, iterName, container)
 
 #define iConstForEach(typeName, iterName, container) \
-    iForEach(typeName##Const, iterName, container)
+    iIterate(typeName, ConstIterator, iterName, container)
 
 #define iConstReverseForEach(typeName, iterName, container) \
-    iForEachReverse(typeName##Const, iterName, container)
+    iIterate(typeName, ReverseConstIterator, iterName, container)
 
 #if defined (NDEBUG)
 #   define iAssert(cond)

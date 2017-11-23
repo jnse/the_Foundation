@@ -27,19 +27,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "lite/garbage.h"
 #include "lite/list.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 iDeclareType(Collected);
 struct Impl_Collected {
     iListElement elem;
     void *ptr;
-    void (*dealloc)(void *);
+    iDeleteFunc del;
 };
 
 static iList *collected; // Should be thread-local...
 
 static void deinit_Garbage(void) {
-    iRecycle();
+    recycle_Garbage();
     delete_List(collected);
     collected = NULL;
 }
@@ -52,23 +53,20 @@ static iList *init_Garbage(void) {
     return collected;
 }
 
-void *iCollect(void *ptr) {
-    return iCollectDel(ptr, free);
-}
-
-void *iCollectDel(void *ptr, void (*dealloc)(void *)) {
+void *collect_Garbage(void *ptr, iDeleteFunc del) {
     iCollected *col = malloc(sizeof(iCollected));
     col->ptr = ptr;
-    col->dealloc = dealloc;
+    col->del = del;
     pushBack_List(init_Garbage(), col);
     return ptr;
 }
 
-void iRecycle(void) {
+void recycle_Garbage(void) {
     if (collected) {
         iReverseForEach(List, i, collected) {
             iCollected *c = (iCollected *) i.value;
-            c->dealloc(c->ptr);
+            printf("...recycling %p\n", c->ptr);
+            c->del(c->ptr);
             free(c);
         }
         clear_List(collected);
