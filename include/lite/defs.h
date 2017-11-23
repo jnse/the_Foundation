@@ -44,7 +44,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 // Types.
 typedef int             iBool;
 typedef uint8_t         iByte;
-typedef wchar_t         iChar;
 typedef unsigned int    iUInt;
 
 typedef void iAny;
@@ -52,6 +51,8 @@ typedef void iAnyObject;
 typedef void (*iDeinitFunc)(iAnyObject *);
 
 #define iUnused(var) ((void)(var))
+
+#define iZap(var)   memset(&(var), 0, sizeof(var));
 
 #define iConstCast(type, ptr) ((type) (intptr_t) (ptr))
 
@@ -75,7 +76,7 @@ typedef void (*iDeinitFunc)(iAnyObject *);
 #define iIterate(typeName, iterType, iterName, container) \
     i##typeName##iterType iterName; \
     for (init_##typeName##iterType(&iterName, container); \
-         iterName.value != NULL; \
+         iterName.value; \
          next_##typeName##iterType(&iterName))
 
 #define iForEach(typeName, iterName, container) \

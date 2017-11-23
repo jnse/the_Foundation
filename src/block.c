@@ -157,6 +157,14 @@ const void *constData_Block(const iBlock *d) {
     return d->i->data;
 }
 
+const char *constBegin_Block(const iBlock *d) {
+    return d->i->data;
+}
+
+const char *constEnd_Block(const iBlock *d) {
+    return d->i->data + d->i->size;
+}
+
 iBlock *mid_Block(const iBlock *d, size_t start, size_t count) {
     if (start >= d->i->size) {
         return new_Block(0);

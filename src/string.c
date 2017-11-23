@@ -28,19 +28,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 #include <strings.h>
-
-#define iCharSize(n) (sizeof(iChar) * (n))
-
-#define constCharPtr_String_(d, pos) \
-    (((const iChar *) constData_Block(&(d)->chars)) + pos)
+#include <limits.h>
+#include <wchar.h>
 
 iString *new_String(void) {
-    return newUndefined_String(0);
+    iString *d = calloc(sizeof(iString), 1);
+    init_Block(&d->chars, 0);
+    return d;
 }
 
-iString *newUndefined_String(size_t len) {
+//iString *newUndefined_String(size_t len) {
+//    iString *d = calloc(sizeof(iString), 1);
+//    init_Block(&d->chars, len);
+//    return d;
+//}
+
+iString *fromCStr_String(const char *cstr) {
+    return fromCStrN_String(cstr, strlen(cstr));
+}
+
+iString *fromCStrN_String(const char *cstr, size_t len) {
     iString *d = calloc(sizeof(iString), 1);
-    init_Block(&d->chars, iCharSize(len));
+    init_Block(&d->chars, len);
+    setData_Block(&d->chars, cstr, len);
     return d;
 }
 
@@ -50,33 +60,100 @@ iString *fromBlock_String(const iBlock *data) {
     return d;
 }
 
+const char *cstr_String(const iString *d) {
+    return constData_Block(&d->chars);
+}
+
 void delete_String(iString *d) {
     deinit_Block(&d->chars);
     free(d);
 }
 
 void truncate_String(iString *d, size_t len) {
-    truncate_Block(&d->chars, iCharSize(len));
+
 }
 
 size_t size_String(const iString *d) {
-    return size_Block(&d->chars) / iCharSize(1);
-}
-
-iChar at_String(const iString *d, size_t pos) {
-    iChar ch;
-    memcpy(&ch, constCharPtr_String_(d, pos), iCharSize(1));
-    return ch;
+    return size_Block(&d->chars);
 }
 
 iString *mid_String(const iString *d, size_t start, size_t count) {
-    iString *out = newUndefined_String(count);
-    setData_Block(&out->chars, constCharPtr_String_(d, start), iCharSize(count));
-    return out;
+
 }
 
 void set_String(iString *d, const iString *other) {
     set_Block(&d->chars, &other->chars);
+}
+
+//---------------------------------------------------------------------------------------
+
+static size_t decodeMultibyte_StringConstIterator_(iStringConstIterator *d) {
+    wchar_t out = 0;
+    const size_t result = mbrtowc(&out, d->pos, d->remaining, &d->mbs);
+    if (result == 0) {
+        // Finished.
+        d->value = out;
+    }
+    else if (result == (size_t) -1 || result == (size_t) -2) {
+        // Invalid or incomplete.
+        d->value = 0;
+        return 0;
+    }
+    else {
+        d->value = out;
+        d->remaining -= result;
+    }
+    return result;
+}
+
+static iBool stepBackward_StringConstIterator_(iStringConstIterator *d) {
+    const char *first = constData_Block(&d->str->chars);
+    if (d->pos == first) return iFalse;
+    const char *prevStartsAt = d->pos - 1;
+    for (int i = iMin(MB_LEN_MAX, d->remaining); i > 1; --i) {
+        const iByte c = d->pos[-i];
+        if (c >= 192 && c <= 253) {
+            prevStartsAt = d->pos - i;
+        }
+    }
+    d->remaining -= d->pos - prevStartsAt;
+    d->pos = prevStartsAt;
+    return iTrue;
+}
+
+void init_StringConstIterator(iStringConstIterator *d, const iString *str) {
+    d->str = str;
+    d->value = 0;
+    d->pos = constData_Block(&str->chars);
+    d->remaining = size_Block(&str->chars);
+    iZap(d->mbs);
+    // Decode the first character.
+    d->pos += decodeMultibyte_StringConstIterator_(d);
+}
+
+void next_StringConstIterator(iStringConstIterator *d) {
+    d->pos += decodeMultibyte_StringConstIterator_(d);
+}
+
+void init_StringReverseConstIterator(iStringConstIterator *d, const iString *str) {
+    d->str = str;
+    d->value = 0;
+    d->pos = constEnd_Block(&str->chars);
+    d->remaining = size_Block(&str->chars);
+    iZap(d->mbs);
+    // Decode the first (last) character.
+    if (stepBackward_StringConstIterator_(d)) {
+        decodeMultibyte_StringConstIterator_(d);
+    }
+}
+
+void next_StringReverseConstIterator(iStringConstIterator *d) {
+    if (stepBackward_StringConstIterator_(d)) {
+        decodeMultibyte_StringConstIterator_(d);
+    }
+    else {
+        d->value = 0;
+    }
 }
 
 //---------------------------------------------------------------------------------------

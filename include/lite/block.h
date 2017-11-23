@@ -55,6 +55,8 @@ char            back_Block      (const iBlock *);
 iBlock *        mid_Block       (const iBlock *, size_t start, size_t count);
 iBlock *        concat_Block    (const iBlock *, const iBlock *other);
 const void *    constData_Block (const iBlock *);
+const char *    constBegin_Block(const iBlock *);
+const char *    constEnd_Block  (const iBlock *);
 
 int             cmp_Block           (const iBlock *, const iBlock *other);
 int             cmpData_Block       (const iBlock *, const char *data, size_t size);

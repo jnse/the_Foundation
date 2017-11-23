@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "lite/counted.h"
 #include "lite/garbage.h"
 #include "lite/object.h"
+#include "lite/string.h"
 
 #include <stdio.h>
 
@@ -204,6 +205,14 @@ int main(int argc, char *argv[]) {
         printf("Block: %s %s\n", constData_Block(a), constData_Block(b));
         printf("c-Block: %s\n", constData_Block(c));
         printf("mid: %s\n", constData_Block(collect_Block(mid_Block(b, 3, 4))));
+        iRecycle();
+    }
+    /* Strings. */ {
+        iString *s = collect_String(fromCStr_String(u8"Jaakko Keränen"));
+        printf("String: %s\n", cstr_String(s));
+        iConstForEach(String, i, s) {
+            printf(" char: %04x\n", i.value);
+        }
         iRecycle();
     }
     return 0;
