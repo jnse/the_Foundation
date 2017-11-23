@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/string.h  Wide-char text strings with copy-on-write semantics.
+/** @file lite/string.h  Wide-char text string with copy-on-write semantics.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -27,9 +27,45 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
+#include "block.h"
+
+iDeclareType(String);
+
+struct Impl_String {
+    iBlock chars;
+};
+
+iString *       new_String();
+iString *       newUndefined_String(size_t len);
+iString *       copy_String(const iString *);
+void            delete_String(iString *);
+
+#define         collect_String(d)   iCollectDel(d, delete_String)
+
+iString *       fromLatin1_String(const char *cstr);
+iString *       fromLatin1N_String(const char *cstr, size_t len);
+iString *       fromUtf8_String(const char *utf8);
+iString *       fromUtf8N_String(const char *utf8, size_t len);
+
+size_t          size_String(const iString *);
+iChar           at_String(const iString *, size_t pos);
+
+void            set_String(iString *, const iString *other);
+void            setLatin1_String(iString *, const char *cstr);
+void            setUtf8_String(iString *, const char *utf8);
+void            setChar_String(iString *, size_t pos, iChar ch);
+
+size_t          indexOf_String(const iString *, const iString *other);
+size_t          indexOfChar_String(const iString *, iChar ch);
+size_t          lastIndexOf_String(const iString *, const iString *other);
+size_t          lastIndexOfChar_String(const iString *, iChar ch);
+
+void            truncate_String(iString *, size_t len);
+iString *       mid_String(const iString *, size_t start, size_t count);
 
 #define         iCmpStr(a, b)       strcmp(a, b)
 #define         iCmpStrN(a, b, len) strncmp(a, b, len)
 
 int             iCmpStrCase (const char *a, const char *b);
 int             iCmpStrNCase(const char *a, const char *b, size_t len);
+

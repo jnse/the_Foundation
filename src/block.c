@@ -40,11 +40,6 @@ struct Impl_BlockData {
     size_t size;
     size_t allocSize;
 };
-iDeclareType(BlockData);
-
-struct Impl_Block {
-    iBlockData *i;
-};
 
 static iBlockData emptyBlockData = { 1, "", 0, 1 };
 
@@ -72,15 +67,6 @@ static void deref_BlockData_(iBlockData *d) {
     }
 }
 
-static void detach_Block_(iBlock *d, size_t allocSize) {
-    if (value_Atomic(&d->i->refCount) > 1) {
-        iBlockData *detached = duplicate_BlockData_(d->i, allocSize);
-        deref_BlockData_(d->i);
-        d->i = detached;
-    }
-    iAssert(value_Atomic(&d->i->refCount) == 1);
-}
-
 static void reserve_BlockData_(iBlockData *d, size_t size) {
     size++;
     if (d->allocSize >= size) return;
@@ -90,15 +76,20 @@ static void reserve_BlockData_(iBlockData *d, size_t size) {
     d->data = realloc(d->data, d->allocSize);
 }
 
+//---------------------------------------------------------------------------------------
+
+static void detach_Block_(iBlock *d, size_t allocSize) {
+    if (value_Atomic(&d->i->refCount) > 1) {
+        iBlockData *detached = duplicate_BlockData_(d->i, allocSize);
+        deref_BlockData_(d->i);
+        d->i = detached;
+    }
+    iAssert(value_Atomic(&d->i->refCount) == 1);
+}
+
 iBlock *new_Block(size_t size) {
     iBlock *d = malloc(sizeof(iBlock));
-    if (size == 0) {
-        d->i = &emptyBlockData;
-        add_Atomic(&emptyBlockData.refCount, 1);
-    }
-    else {
-        d->i = new_BlockData_(size, 0);
-    }
+    init_Block(d, size);
     return d;
 }
 
@@ -127,8 +118,22 @@ iBlock *copy_Block(const iBlock *d) {
 }
 
 void delete_Block(iBlock *d) {
-    deref_BlockData_(d->i);
+    deinit_Block(d);
     free(d);
+}
+
+void init_Block(iBlock *d, size_t size) {
+    if (size == 0) {
+        d->i = &emptyBlockData;
+        add_Atomic(&emptyBlockData.refCount, 1);
+    }
+    else {
+        d->i = new_BlockData_(size, 0);
+    }
+}
+
+void deinit_Block(iBlock *d) {
+    deref_BlockData_(d->i);
 }
 
 size_t size_Block(const iBlock *d) {
@@ -148,7 +153,7 @@ char back_Block(const iBlock *d) {
     return d->i->data[d->i->size - 1];
 }
 
-const char *constData_Block(const iBlock *d) {
+const void *constData_Block(const iBlock *d) {
     return d->i->data;
 }
 
@@ -162,7 +167,7 @@ iBlock *mid_Block(const iBlock *d, size_t start, size_t count) {
     return mid;
 }
 
-char *data_Block(iBlock *d) {
+void *data_Block(iBlock *d) {
     detach_Block_(d, 0);
     return d->i->data;
 }
@@ -183,6 +188,11 @@ void resize_Block(iBlock *d, size_t size) {
     const size_t oldSize = d->i->size;
     d->i->size = size;
     memset(d->i->data + oldSize, 0, d->i->size - oldSize + 1);
+}
+
+void truncate_Block(iBlock *d, size_t size) {
+    detach_Block_(d, 0);
+    d->i->size = iMin(d->i->size, size);
 }
 
 void printf_Block(iBlock *d, const char *format, ...) {
@@ -215,16 +225,16 @@ void popBack_Block(iBlock *d) {
     }
 }
 
-void set_Block(iBlock *d, size_t pos, char value) {
-    detach_Block_(d, 0);
-    iAssert(pos < d->i->size);
-    d->i->data[pos] = value;
-}
-
-void setBlock_Block(iBlock *d, const iBlock *other) {
+void set_Block(iBlock *d, const iBlock *other) {
     deref_BlockData_(d->i);
     d->i = other->i;
     add_Atomic(&d->i->refCount, 1);
+}
+
+void setByte_Block(iBlock *d, size_t pos, char value) {
+    detach_Block_(d, 0);
+    iAssert(pos < d->i->size);
+    d->i->data[pos] = value;
 }
 
 void setData_Block(iBlock *d, const void *data, size_t size) {

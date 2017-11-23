@@ -25,7 +25,37 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "lite/string.h"
+
+#include <stdlib.h>
 #include <strings.h>
+
+#define iCharSize(n) (sizeof(iChar) * (n))
+
+#define constCharPtr_String_(d, pos) \
+    (((const iChar *) constData_Block(&(d)->chars)) + pos)
+
+iString *newUndefined_String(size_t len) {
+    iString *d = calloc(sizeof(iString), 1);
+    init_Block(&d->chars, iCharSize(len));
+    return d;
+}
+
+void delete_String(iString *d) {
+    deinit_Block(&d->chars);
+    free(d);
+}
+
+void truncate_String(iString *d, size_t len) {
+    truncate_Block(&d->chars, iCharSize(len));
+}
+
+iString *mid_String(const iString *d, size_t start, size_t count) {
+    iString *out = newUndefined_String(count);
+    setData_Block(&out->chars, constCharPtr_String_(d, start), iCharSize(count));
+    return out;
+}
+
+//---------------------------------------------------------------------------------------
 
 int iCmpStrCase(const char *a, const char *b) {
     return strcasecmp(a, b);

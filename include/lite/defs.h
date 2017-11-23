@@ -34,7 +34,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define iFalse  0
 #define iTrue   1
 
-#define iInvalidSize   ((size_t) -1)
+#define iInvalidPos     ((size_t) -1)
+#define iInvalidSize    ((size_t) -1)
 
 #define iMin(a, b)              ((a) < (b)? (a) : (b))
 #define iMax(a, b)              ((a) > (b)? (a) : (b))
@@ -43,7 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 // Types.
 typedef int             iBool;
 typedef uint8_t         iByte;
-typedef uint16_t        iChar16;
+typedef wchar_t         iChar;
 typedef unsigned int    iUInt;
 
 typedef void iAny;

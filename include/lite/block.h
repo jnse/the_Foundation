@@ -29,12 +29,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 
 iDeclareType(Block);
+iDeclareType(BlockData);
+
+struct Impl_Block {
+    iBlockData *i;
+};
 
 iBlock *        new_Block       (size_t size);
 iBlock *        newCStr_Block   (const char *cstr);
 iBlock *        newData_Block   (const void *data, size_t size);
 iBlock *        copy_Block      (const iBlock *);
 void            delete_Block    (iBlock *);
+
+void            init_Block      (iBlock *, size_t size);
+void            deinit_Block    (iBlock *);
 
 #define         collect_Block(d)    iCollectDel(d, delete_Block)
 
@@ -46,7 +54,7 @@ char            front_Block     (const iBlock *);
 char            back_Block      (const iBlock *);
 iBlock *        mid_Block       (const iBlock *, size_t start, size_t count);
 iBlock *        concat_Block    (const iBlock *, const iBlock *other);
-const char *    constData_Block (const iBlock *);
+const void *    constData_Block (const iBlock *);
 
 int             cmp_Block           (const iBlock *, const iBlock *other);
 int             cmpData_Block       (const iBlock *, const char *data, size_t size);
@@ -58,18 +66,19 @@ int             cmpCStrN_Block      (const iBlock *, const char *cstr, size_t le
 int             cmpCaseCStr_Block   (const iBlock *, const char *cstr);
 int             cmpCaseCStrN_Block  (const iBlock *, const char *cstr, size_t len);
 
-char *          data_Block      (iBlock *);
+void *          data_Block      (iBlock *);
 void            fill_Block      (iBlock *, char value);
 void            clear_Block     (iBlock *);
 void            reserve_Block   (iBlock *, size_t reservedSize);
 void            resize_Block    (iBlock *, size_t size);
+void            truncate_Block  (iBlock *, size_t size);
 void            printf_Block    (iBlock *, const char *format, ...);
 
 void            pushBack_Block  (iBlock *, char value);
 void            popBack_Block   (iBlock *);
 
-void            set_Block       (iBlock *, size_t pos, char value);
-void            setBlock_Block  (iBlock *, const iBlock *other);
+void            set_Block       (iBlock *, const iBlock *other);
+void            setByte_Block   (iBlock *, size_t pos, char value);
 void            setData_Block   (iBlock *, const void *data, size_t size);
 void            setCStr_Block   (iBlock *, const char *cstr);
 
