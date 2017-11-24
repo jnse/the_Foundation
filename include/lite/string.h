@@ -50,7 +50,6 @@ struct Impl_String {
 };
 
 iString *       new_String(void);
-//iString *       newUndefined_String(size_t len);
 iString *       copy_String(const iString *);
 void            delete_String(iString *);
 
@@ -61,17 +60,17 @@ iString *       fromCStrN_String(const char *cstr, size_t len);
 iString *       fromBlock_String(const iBlock *data);
 
 const char *    cstr_String(const iString *);
-size_t          charCount_String(const iString *);
+size_t          length_String(const iString *);
 size_t          size_String(const iString *);
 iString *       mid_String(const iString *, size_t start, size_t count);
 
 void            set_String(iString *, const iString *other);
 
-size_t          indexOf_String(const iString *, const iString *other);
+size_t          indexOf_String(const iString *, iChar ch);
 size_t          indexOfCStr_String(const iString *, const char *cstr);
-size_t          indexOfChar_String(const iString *, iChar ch);
-size_t          lastIndexOf_String(const iString *, const iString *other);
-size_t          lastIndexOfChar_String(const iString *, iChar ch);
+size_t          indexOfString_String(const iString *, const iString *other);
+size_t          lastIndexOf_String(const iString *, iChar ch);
+size_t          lastIndexOfString_String(const iString *, const iString *other);
 
 void            truncate_String(iString *, size_t len);
 
@@ -81,6 +80,7 @@ struct ConstIterator_String {
     const iString *str;
     iChar value;
     const char *pos;
+    const char *next;
     size_t remaining;
     mbstate_t mbs;
 };

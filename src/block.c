@@ -201,6 +201,7 @@ void resize_Block(iBlock *d, size_t size) {
 void truncate_Block(iBlock *d, size_t size) {
     detach_Block_(d, 0);
     d->i->size = iMin(d->i->size, size);
+    d->i->data[d->i->size] = 0;
 }
 
 void printf_Block(iBlock *d, const char *format, ...) {

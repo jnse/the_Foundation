@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
+#include "range.h"
 
 iDeclareType(Block);
 iDeclareType(BlockData);
@@ -44,9 +45,9 @@ void            delete_Block    (iBlock *);
 void            init_Block      (iBlock *, size_t size);
 void            deinit_Block    (iBlock *);
 
-#define         collect_Block(d)    iCollectDel(d, delete_Block)
-
-#define         isEmpty_Block(d)    (size_Block(d) == 0)
+#define         collect_Block(d)        iCollectDel(d, delete_Block)
+#define         isEmpty_Block(d)        (size_Block(d) == 0)
+#define         midRange_Block(d, rng)  mid_Block(d, (rng)->start, size_Range(rng))
 
 size_t          size_Block      (const iBlock *);
 char            at_Block        (const iBlock *, size_t pos);

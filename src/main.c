@@ -212,7 +212,7 @@ int main(int argc, char *argv[]) {
     }
     /* Strings. */ {
         iString *s = collect_String(fromCStr_String("_Äö\U0001f698a"));
-        printf("String: %s\n", cstr_String(s)); {
+        printf("String: %s length: %zu size: %zu\n", cstr_String(s), length_String(s), size_String(s)); {
             iConstForEach(String, i, s) {
                 printf(" char: %04x [%lc]\n", i.value, i.value);
             }
@@ -222,7 +222,10 @@ int main(int argc, char *argv[]) {
                 printf(" char: %04x [%lc]\n", i.value, i.value);
             }
         }
-        printf("ö is at: %zu %zu\n", indexOfCStr_String(s, "ö"), indexOfChar_String(s, u'ö'));
+        printf("Mid: %s\n", cstr_String(collect_String(mid_String(s, 3, 1))));
+        truncate_String(s, 3);
+        printf("Truncated: %s\n", cstr_String(s));
+        printf("ö is at: %zu %zu\n", indexOfCStr_String(s, "ö"), indexOf_String(s, u'ö'));
     }
     return 0;
 }

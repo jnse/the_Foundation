@@ -25,6 +25,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "lite/string.h"
+#include "lite/range.h"
 
 #include <stdlib.h>
 #include <strings.h>
@@ -68,7 +69,19 @@ void delete_String(iString *d) {
 }
 
 void truncate_String(iString *d, size_t len) {
+    const char *start = constData_Block(&d->chars);
+    const char *pos = start;
+    iConstForEach(String, i, d) {
+        if (len-- == 0) break;
+        pos = i.next;
+    }
+    truncate_Block(&d->chars, pos - start);
+}
 
+size_t length_String(const iString *d) {
+    size_t len = 0;
+    iConstForEach(String, i, d) len++;
+    return len;
 }
 
 size_t size_String(const iString *d) {
@@ -76,14 +89,32 @@ size_t size_String(const iString *d) {
 }
 
 iString *mid_String(const iString *d, size_t start, size_t count) {
-
+    if (count == 0) return new_String();
+    const char *chars = constData_Block(&d->chars);
+    iRanges range = { 0, size_Block(&d->chars) };
+    size_t pos = 0;
+    iConstForEach(String, i, d) {
+        if (pos == start) {
+            range.start = i.pos - chars;
+            if (count == iInvalidSize) break;
+        }
+        else if (pos > start && pos == start + count) {
+            range.end = i.pos - chars;
+            break;
+        }
+        pos++;
+    }
+    iBlock *midChars = midRange_Block(&d->chars, &range);
+    iString *mid = fromBlock_String(midChars);
+    delete_Block(midChars);
+    return mid;
 }
 
 void set_String(iString *d, const iString *other) {
     set_Block(&d->chars, &other->chars);
 }
 
-size_t indexOfChar_String(const iString *d, iChar ch) {
+size_t indexOf_String(const iString *d, iChar ch) {
     iMultibyteChar mb;
     init_MultibyteChar(&mb, ch);
     return indexOfCStr_String(d, mb.bytes);
@@ -100,27 +131,26 @@ size_t indexOfCStr_String(const iString *d, const char *cstr) {
 
 //---------------------------------------------------------------------------------------
 
-static size_t decodeNextMultibyte_StringConstIterator_(iStringConstIterator *d) {
-    const size_t result = mbrtowc(&d->value, d->pos, d->remaining, &d->mbs);
-    if (result == (size_t) -1 || result == (size_t) -2) {
-        // Invalid or incomplete.
-        d->value = 0;
-        return 0;
+static void decodeNextMultibyte_StringConstIterator_(iStringConstIterator *d) {
+    const int rc = mbrtowc(&d->value, d->next, d->remaining, &d->mbs);
+    if (rc >= 0) {
+        d->remaining -= rc;
+        d->next += rc;
     }
     else {
-        d->remaining -= result;
+        // Invalid or incomplete.
+        d->value = 0;
     }
-    return result;
 }
 
 static iBool decodePrecedingMultibyte_StringConstIterator_(iStringConstIterator *d) {
     if (!d->remaining) return iFalse;
     for (int i = 1; i <= iMin(MB_LEN_MAX, d->remaining); i++) {
-        const int rc = mbrtowc(&d->value, d->pos - i, i, &d->mbs);
+        const int rc = mbrtowc(&d->value, d->next - i, i, &d->mbs);
         if (rc >= 0) {
             // Single-byte character.
             d->remaining -= rc;
-            d->pos -= rc;
+            d->next -= rc;
             break;
         }
     }
@@ -130,21 +160,22 @@ static iBool decodePrecedingMultibyte_StringConstIterator_(iStringConstIterator 
 void init_StringConstIterator(iStringConstIterator *d, const iString *str) {
     d->str = str;
     d->value = 0;
-    d->pos = constData_Block(&str->chars);
+    d->pos = d->next = constData_Block(&str->chars);
     d->remaining = size_Block(&str->chars);
     iZap(d->mbs);
     // Decode the first character.
-    d->pos += decodeNextMultibyte_StringConstIterator_(d);
+    decodeNextMultibyte_StringConstIterator_(d);
 }
 
 void next_StringConstIterator(iStringConstIterator *d) {
-    d->pos += decodeNextMultibyte_StringConstIterator_(d);
+    d->pos = d->next;
+    decodeNextMultibyte_StringConstIterator_(d);
 }
 
 void init_StringReverseConstIterator(iStringConstIterator *d, const iString *str) {
     d->str = str;
     d->value = 0;
-    d->pos = constEnd_Block(&str->chars);
+    d->pos = d->next = constEnd_Block(&str->chars);
     d->remaining = size_Block(&str->chars);
     iZap(d->mbs);
     // Decode the first (last) character.
@@ -152,6 +183,7 @@ void init_StringReverseConstIterator(iStringConstIterator *d, const iString *str
 }
 
 void next_StringReverseConstIterator(iStringConstIterator *d) {
+    d->pos = d->next;
     if (!decodePrecedingMultibyte_StringConstIterator_(d)) {
         d->value = 0;
     }
