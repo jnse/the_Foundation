@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "lite/garbage.h"
 #include "lite/object.h"
 #include "lite/string.h"
+#include "lite/regexp.h"
 
 #include <stdio.h>
 #include <locale.h>
@@ -227,6 +228,11 @@ int main(int argc, char *argv[]) {
         truncate_String(s, 3);
         printf("Truncated: %s\n", cstr_String(s));
         printf("ö is at: %zu %zu\n", indexOfCStr_String(s, "ö"), indexOf_String(s, u'ö'));
+    }
+    /* Regular expressions. */ {
+        iRegExp *regex = new_RegExp("\\b(\\w+)\\b", 0);
+
+        delete_RegExp(regex);
     }
     return 0;
 }
