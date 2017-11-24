@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "block.h"
 #include <wchar.h>
 
-typedef int iChar32;
+typedef wchar_t iChar;
 
 iDeclareType(String);
 
@@ -57,9 +57,9 @@ iString *       mid_String(const iString *, size_t start, size_t count);
 void            set_String(iString *, const iString *other);
 
 size_t          indexOf_String(const iString *, const iString *other);
-size_t          indexOfChar_String(const iString *, iChar32 ch);
+size_t          indexOfChar_String(const iString *, iChar ch);
 size_t          lastIndexOf_String(const iString *, const iString *other);
-size_t          lastIndexOfChar_String(const iString *, iChar32 ch);
+size_t          lastIndexOfChar_String(const iString *, iChar ch);
 
 void            truncate_String(iString *, size_t len);
 
@@ -67,7 +67,7 @@ iDeclareConstIterator(String, const iString *);
 
 struct ConstIterator_String {
     const iString *str;
-    iChar32 value;
+    iChar value;
     const char *pos;
     size_t remaining;
     mbstate_t mbs;

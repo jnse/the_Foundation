@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "lite/string.h"
 
 #include <stdio.h>
+#include <locale.h>
 
 //---------------------------------------------------------------------------------------
 
@@ -125,6 +126,8 @@ static int compareElements(const void *a, const void *b) {
 int main(int argc, char *argv[]) {
     iUnused(argc);
     iUnused(argv);
+    //setlocale(LC_ALL, "en_US.UTF-8");
+    setlocale(LC_CTYPE, "UTF-8");
     /* Test list insertion and removal. */ {
         printf("Array insertions/removals:\n");
         iArray *list = new_Array(2);
@@ -208,12 +211,14 @@ int main(int argc, char *argv[]) {
         iRecycle();
     }
     /* Strings. */ {
-        iString *s = collect_String(fromCStr_String(u8"Jaakko Keränen"));
+        iString *s = collect_String(fromCStr_String("_Äöa"));
         printf("String: %s\n", cstr_String(s));
         iConstForEach(String, i, s) {
-            printf(" char: %04x\n", i.value);
+            printf(" char: %04x [%lc]\n", i.value, i.value);
         }
-        iRecycle();
+        iConstReverseForEach(String, j , s) {
+            printf(" char: %04x [%lc]\n", j.value, j.value);
+        }
     }
     return 0;
 }

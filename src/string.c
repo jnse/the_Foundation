@@ -1,4 +1,4 @@
-/** @file string.c  Text strings.
+/** @file string.c  UTF-8 text string with copy-on-write semantics.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -87,37 +87,30 @@ void set_String(iString *d, const iString *other) {
 
 //---------------------------------------------------------------------------------------
 
-static size_t decodeMultibyte_StringConstIterator_(iStringConstIterator *d) {
-    wchar_t out = 0;
-    const size_t result = mbrtowc(&out, d->pos, d->remaining, &d->mbs);
-    if (result == 0) {
-        // Finished.
-        d->value = out;
-    }
-    else if (result == (size_t) -1 || result == (size_t) -2) {
+static size_t decodeNextMultibyte_StringConstIterator_(iStringConstIterator *d) {
+    const size_t result = mbrtowc(&d->value, d->pos, d->remaining, &d->mbs);
+    if (result == (size_t) -1 || result == (size_t) -2) {
         // Invalid or incomplete.
         d->value = 0;
         return 0;
     }
     else {
-        d->value = out;
         d->remaining -= result;
     }
     return result;
 }
 
-static iBool stepBackward_StringConstIterator_(iStringConstIterator *d) {
-    const char *first = constData_Block(&d->str->chars);
-    if (d->pos == first) return iFalse;
-    const char *prevStartsAt = d->pos - 1;
-    for (int i = iMin(MB_LEN_MAX, d->remaining); i > 1; --i) {
-        const iByte c = d->pos[-i];
-        if (c >= 192 && c <= 253) {
-            prevStartsAt = d->pos - i;
+static iBool decodePrecedingMultibyte_StringConstIterator_(iStringConstIterator *d) {
+    if (!d->remaining) return iFalse;
+    for (int i = 1; i <= iMin(MB_LEN_MAX, d->remaining); i++) {
+        const int rc = mbrtowc(&d->value, d->pos - i, i, &d->mbs);
+        if (rc >= 0) {
+            // Single-byte character.
+            d->remaining -= rc;
+            d->pos -= rc;
+            break;
         }
     }
-    d->remaining -= d->pos - prevStartsAt;
-    d->pos = prevStartsAt;
     return iTrue;
 }
 
@@ -128,11 +121,11 @@ void init_StringConstIterator(iStringConstIterator *d, const iString *str) {
     d->remaining = size_Block(&str->chars);
     iZap(d->mbs);
     // Decode the first character.
-    d->pos += decodeMultibyte_StringConstIterator_(d);
+    d->pos += decodeNextMultibyte_StringConstIterator_(d);
 }
 
 void next_StringConstIterator(iStringConstIterator *d) {
-    d->pos += decodeMultibyte_StringConstIterator_(d);
+    d->pos += decodeNextMultibyte_StringConstIterator_(d);
 }
 
 void init_StringReverseConstIterator(iStringConstIterator *d, const iString *str) {
@@ -142,16 +135,11 @@ void init_StringReverseConstIterator(iStringConstIterator *d, const iString *str
     d->remaining = size_Block(&str->chars);
     iZap(d->mbs);
     // Decode the first (last) character.
-    if (stepBackward_StringConstIterator_(d)) {
-        decodeMultibyte_StringConstIterator_(d);
-    }
+    decodePrecedingMultibyte_StringConstIterator_(d);
 }
 
 void next_StringReverseConstIterator(iStringConstIterator *d) {
-    if (stepBackward_StringConstIterator_(d)) {
-        decodeMultibyte_StringConstIterator_(d);
-    }
-    else {
+    if (!decodePrecedingMultibyte_StringConstIterator_(d)) {
         d->value = 0;
     }
 }
