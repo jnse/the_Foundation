@@ -211,13 +211,16 @@ int main(int argc, char *argv[]) {
         iRecycle();
     }
     /* Strings. */ {
-        iString *s = collect_String(fromCStr_String("_Äöa"));
-        printf("String: %s\n", cstr_String(s));
-        iConstForEach(String, i, s) {
-            printf(" char: %04x [%lc]\n", i.value, i.value);
+        iString *s = collect_String(fromCStr_String("_Äö\U0001f698a"));
+        printf("String: %s\n", cstr_String(s)); {
+            iConstForEach(String, i, s) {
+                printf(" char: %04x [%lc]\n", i.value, i.value);
+            }
         }
-        iConstReverseForEach(String, j , s) {
-            printf(" char: %04x [%lc]\n", j.value, j.value);
+        printf("Backwards:\n"); {
+            iConstReverseForEach(String, i , s) {
+                printf(" char: %04x [%lc]\n", i.value, i.value);
+            }
         }
     }
     return 0;
