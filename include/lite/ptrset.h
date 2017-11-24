@@ -36,12 +36,12 @@ void        delete_PtrSet(iPtrSet *);
 #define     init_PtrSet(d)      init_Set(d)
 #define     deinit_PtrSet(d)    deinit_Set(d)
 
-#define     isEmpty_PtrSet(d)   isEmpty_Set(d)
-#define     size_PtrSet(d)      size_Set(d)
-
 iBool       contains_PtrSet(const iPtrSet *, void *ptr);
 iBool       locate_PtrSet(const iPtrSet *, void *ptr, iRanges *outLoc);
 void *      at_PtrSet(const iSet *, size_t pos);
+
+#define     isEmpty_PtrSet(d)   isEmpty_Set(d)
+#define     size_PtrSet(d)      size_Set(d)
 
 iBool       insert_PtrSet(iPtrSet *, void *ptr);
 iBool       remove_PtrSet(iPtrSet *, void *ptr);

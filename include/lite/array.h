@@ -67,11 +67,11 @@ void        sort_Array         (iArray *, int (*cmp)(const void *, const void *)
 iDeclareIterator(Array, iArray *);
 iDeclareIterator(ArrayConst, const iArray *);
 
-struct Iterator_Array {
+struct IteratorImpl_Array {
     iArray *array;
     void *value;
 };
-struct Iterator_ArrayConst {
+struct IteratorImpl_ArrayConst {
     const iArray *array;
     const void *value;
 };

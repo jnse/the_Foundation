@@ -44,11 +44,11 @@ struct Impl_ListElement {
 iList *     new_List    (void);
 void        delete_List (iList *);
 
-#define     isEmpty_List(d)     (size_List(d) == 0)
-
 size_t      size_List   (const iList *);
 iAny *      front_List  (const iList *);
 iAny *      back_List   (const iList *);
+
+#define     isEmpty_List(d)     (size_List(d) == 0)
 
 void        clear_List      (iList *);
 
@@ -63,12 +63,12 @@ iAny *      popBack_List    (iList *);
 iDeclareIterator(List, iList *);
 iDeclareConstIterator(List, const iList *);
 
-struct Iterator_List {
+struct IteratorImpl_List {
     iList *list;
     iListElement *value;
     iListElement *next;
 };
-struct ConstIterator_List {
+struct ConstIteratorImpl_List {
     const iList *list;
     const iListElement *value;
     const iListElement *next;

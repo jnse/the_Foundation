@@ -30,9 +30,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 typedef void (*iDeleteFunc)(iAny *);
 
+iAny *      collect_Garbage(iAny *ptr, iDeleteFunc del);
+
 #define     iCollect(ptr)           collect_Garbage(ptr, free)
 #define     iCollectDel(ptr, del)   collect_Garbage(ptr, (iDeleteFunc) del)
-#define     iRecycle()              recycle_Garbage()
 
-iAny *      collect_Garbage(iAny *ptr, iDeleteFunc del);
 void        recycle_Garbage(void);
+
+#define     iRecycle()              recycle_Garbage()

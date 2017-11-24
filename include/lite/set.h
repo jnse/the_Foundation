@@ -36,19 +36,19 @@ iDeclareType(Set);
 
 typedef intptr_t iSetValue;
 
-iSet *      new_Set(void);
-void        delete_Set(iSet *);
+iSet *      new_Set     (void);
+void        delete_Set  (iSet *);
 
-void        init_Set(iSet *d);
-void        deinit_Set(iSet *d);
+void        init_Set    (iSet *d);
+void        deinit_Set  (iSet *d);
+
+size_t      size_Set    (const iSet *);
+iBool       contains_Set(const iSet *, iSetValue value);
+iBool       locate_Set  (const iSet *, iSetValue value, iRanges *outLoc);
+iSetValue   at_Set      (const iSet *, size_t pos);
 
 #define     isEmpty_Set(d) isEmpty_Array(&(d)->values)
 
-size_t      size_Set(const iSet *);
-iBool       contains_Set(const iSet *, iSetValue value);
-iBool       locate_Set(const iSet *, iSetValue value, iRanges *outLoc);
-iSetValue   at_Set(const iSet *, size_t pos);
-
-void        clear_Set(iSet *);
-iBool       insert_Set(iSet *, iSetValue value);
-iBool       remove_Set(iSet *, iSetValue value);
+void        clear_Set   (iSet *);
+iBool       insert_Set  (iSet *, iSetValue value);
+iBool       remove_Set  (iSet *, iSetValue value);

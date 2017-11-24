@@ -60,8 +60,8 @@ typedef void (*iDeinitFunc)(iAnyObject *);
     typedef struct Impl_##typeName i##typeName
 
 #define iDeclareIterator_(iterType, typeName, container) \
-    typedef struct iterType##_##typeName i##typeName##iterType; \
-    typedef struct iterType##_##typeName i##typeName##Reverse##iterType; \
+    typedef struct iterType##Impl_##typeName i##typeName##iterType; \
+    typedef struct iterType##Impl_##typeName i##typeName##Reverse##iterType; \
     void init_##typeName##iterType(i##typeName##iterType *, container); \
     void next_##typeName##iterType(i##typeName##iterType *); \
     void init_##typeName##Reverse##iterType(i##typeName##Reverse##iterType *, container); \
@@ -93,6 +93,8 @@ typedef void (*iDeinitFunc)(iAnyObject *);
 
 #if defined (NDEBUG)
 #   define iAssert(cond)
+#   define iDebug(...)
 #else
-#   define iAssert(cond) assert(cond)
+#   define iAssert(cond)    assert(cond)
+#   define iDebug(...)      fprintf(stderr, __VA_ARGS__)
 #endif

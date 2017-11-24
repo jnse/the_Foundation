@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define size_Range(self)               ((self)->end - (self)->start)
 #define isEmpty_Range(self)            ((self)->end == (self)->start)
 #define contains_Range(self, value)    ((value) >= (self)->start && (value) < (self)->end)
+
 #define shift_Range(self, delta)       {(self)->start += (delta); (self)->end += (delta);}
 
 struct Impl_Rangei {

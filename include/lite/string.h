@@ -51,6 +51,12 @@ struct Impl_StringComparison {
 extern iStringComparison iCaseSensitive;
 extern iStringComparison iCaseInsensitive;
 
+#define         iCmpStr(a, b)       strcmp(a, b)
+#define         iCmpStrN(a, b, len) strncmp(a, b, len)
+
+int             iCmpStrCase (const char *a, const char *b);
+int             iCmpStrNCase(const char *a, const char *b, size_t len);
+
 //---------------------------------------------------------------------------------------
 
 struct Impl_String {
@@ -72,34 +78,37 @@ size_t          length_String   (const iString *);
 size_t          size_String     (const iString *);
 iString *       mid_String      (const iString *, size_t start, size_t count);
 
+int             cmpSc_String        (const iString *, const char *cstr, const iStringComparison *);
+
 #define         cmp_String(d, cstr)             cmpSc_String(d, cstr, &iCaseSensitive)
 #define         cmpCase_String(d, cstr)         cmpSc_String(d, cstr, &iCaseInsensitive)
-#define         cmpString_String(d, string)     cmpSc_String(d, cstr_String(string), &iCaseSensitive)
-#define         cmpStringCase_String(d, string) cmpSc_String(d, cstr_String(string), &iCaseInsensitive)
+#define         cmpString_String(d, s)          cmpSc_String(d, cstr_String(s), &iCaseSensitive)
+#define         cmpStringCase_String(d, s)      cmpSc_String(d, cstr_String(s), &iCaseInsensitive)
+
+iBool           startsWithSc_String (const iString *, const char *cstr, const iStringComparison *);
+iBool           endsWithSc_String   (const iString *, const char *cstr, const iStringComparison *);
 
 #define         startsWith_String(d, cstr)      startsWithSc_String(d, cstr, &iCaseSensitive)
 #define         startsWithCase_String(d, cstr)  startsWithSc_String(d, cstr, &iCaseInsensitive)
 #define         endsWith_String(d, cstr)        endsWithSc_String  (d, cstr, &iCaseSensitive)
 #define         endsWithCase_String(d, cstr)    endsWithSc_String  (d, cstr, &iCaseInsensitive)
 
-int             cmpSc_String        (const iString *, const char *cstr, const iStringComparison *);
-iBool           startsWithSc_String (const iString *, const char *cstr, const iStringComparison *);
-iBool           endsWithSc_String   (const iString *, const char *cstr, const iStringComparison *);
-
-void            set_String(iString *, const iString *other);
-
 size_t          indexOf_String              (const iString *, iChar ch);
 size_t          indexOfCStr_String          (const iString *, const char *cstr);
-size_t          indexOfString_String        (const iString *, const iString *other);
 size_t          lastIndexOf_String          (const iString *, iChar ch);
 size_t          lastIndexOfCStr_String      (const iString *, const char *cstr);
-size_t          lastIndexOfString_String    (const iString *, const iString *other);
 
-void            truncate_String(iString *, size_t len);
+#define         indexOfString_String(d, s)      indexOfCStr_String(d, cstr_String(s))
+#define         lastIndexOfString_String(d, s)  lastIndexOfCStr_String(d, cstr_String(s))
+
+void            set_String      (iString *, const iString *other);
+void            setCStr_String  (iString *, const char *cstr);
+
+void            truncate_String (iString *, size_t len);
 
 iDeclareConstIterator(String, const iString *);
 
-struct ConstIterator_String {
+struct ConstIteratorImpl_String {
     const iString *str;
     iChar value;
     const char *pos;
@@ -107,11 +116,3 @@ struct ConstIterator_String {
     size_t remaining;
     mbstate_t mbs;
 };
-
-//---------------------------------------------------------------------------------------
-
-#define         iCmpStr(a, b)       strcmp(a, b)
-#define         iCmpStrN(a, b, len) strncmp(a, b, len)
-
-int             iCmpStrCase (const char *a, const char *b);
-int             iCmpStrNCase(const char *a, const char *b, size_t len);

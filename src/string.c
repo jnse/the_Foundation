@@ -130,6 +130,10 @@ void set_String(iString *d, const iString *other) {
     set_Block(&d->chars, &other->chars);
 }
 
+void setCStr_String(iString *d, const char *cstr) {
+    setCStr_Block(&d->chars, cstr);
+}
+
 size_t indexOf_String(const iString *d, iChar ch) {
     iMultibyteChar mb;
     init_MultibyteChar(&mb, ch);

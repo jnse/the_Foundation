@@ -42,12 +42,10 @@ iBlock *        newData_Block   (const void *data, size_t size);
 iBlock *        copy_Block      (const iBlock *);
 void            delete_Block    (iBlock *);
 
+#define         collect_Block(d)        iCollectDel(d, delete_Block)
+
 void            init_Block      (iBlock *, size_t size);
 void            deinit_Block    (iBlock *);
-
-#define         collect_Block(d)        iCollectDel(d, delete_Block)
-#define         isEmpty_Block(d)        (size_Block(d) == 0)
-#define         midRange_Block(d, rng)  mid_Block(d, (rng)->start, size_Range(rng))
 
 size_t          size_Block      (const iBlock *);
 char            at_Block        (const iBlock *, size_t pos);
@@ -58,6 +56,9 @@ iBlock *        concat_Block    (const iBlock *, const iBlock *other);
 const void *    constData_Block (const iBlock *);
 const char *    constBegin_Block(const iBlock *);
 const char *    constEnd_Block  (const iBlock *);
+
+#define         isEmpty_Block(d)        (size_Block(d) == 0)
+#define         midRange_Block(d, rng)  mid_Block(d, (rng)->start, size_Range(rng))
 
 int             cmp_Block           (const iBlock *, const iBlock *other);
 int             cmpData_Block       (const iBlock *, const char *data, size_t size);
