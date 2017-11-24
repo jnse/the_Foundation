@@ -222,6 +222,7 @@ int main(int argc, char *argv[]) {
                 printf(" char: %04x [%lc]\n", i.value, i.value);
             }
         }
+        printf("ö is at: %zu %zu\n", indexOfCStr_String(s, "ö"), indexOfChar_String(s, u'ö'));
     }
     return 0;
 }

@@ -28,9 +28,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 #include "block.h"
+#include <limits.h>
 #include <wchar.h>
 
 typedef wchar_t iChar;
+
+iDeclareType(MultibyteChar);
+
+struct Impl_MultibyteChar {
+    char bytes[MB_LEN_MAX + 1];
+};
+
+void init_MultibyteChar(iMultibyteChar *d, iChar ch);
+
+//---------------------------------------------------------------------------------------
 
 iDeclareType(String);
 
@@ -57,6 +68,7 @@ iString *       mid_String(const iString *, size_t start, size_t count);
 void            set_String(iString *, const iString *other);
 
 size_t          indexOf_String(const iString *, const iString *other);
+size_t          indexOfCStr_String(const iString *, const char *cstr);
 size_t          indexOfChar_String(const iString *, iChar ch);
 size_t          lastIndexOf_String(const iString *, const iString *other);
 size_t          lastIndexOfChar_String(const iString *, iChar ch);
@@ -72,6 +84,8 @@ struct ConstIterator_String {
     size_t remaining;
     mbstate_t mbs;
 };
+
+//---------------------------------------------------------------------------------------
 
 #define         iCmpStr(a, b)       strcmp(a, b)
 #define         iCmpStrN(a, b, len) strncmp(a, b, len)

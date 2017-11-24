@@ -28,8 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 #include <strings.h>
-#include <limits.h>
-#include <wchar.h>
 
 iString *new_String(void) {
     iString *d = calloc(sizeof(iString), 1);
@@ -83,6 +81,21 @@ iString *mid_String(const iString *d, size_t start, size_t count) {
 
 void set_String(iString *d, const iString *other) {
     set_Block(&d->chars, &other->chars);
+}
+
+size_t indexOfChar_String(const iString *d, iChar ch) {
+    iMultibyteChar mb;
+    init_MultibyteChar(&mb, ch);
+    return indexOfCStr_String(d, mb.bytes);
+}
+
+size_t indexOfCStr_String(const iString *d, const char *cstr) {
+    const char *chars = constData_Block(&d->chars);
+    const char *found = strstr(chars, cstr);
+    if (found) {
+        return found - chars;
+    }
+    return iInvalidPos;
 }
 
 //---------------------------------------------------------------------------------------
@@ -142,6 +155,15 @@ void next_StringReverseConstIterator(iStringConstIterator *d) {
     if (!decodePrecedingMultibyte_StringConstIterator_(d)) {
         d->value = 0;
     }
+}
+
+//---------------------------------------------------------------------------------------
+
+void init_MultibyteChar(iMultibyteChar *d, iChar ch) {
+    mbstate_t mbs;
+    iZap(mbs);
+    iZap(d->bytes);
+    wcrtomb(d->bytes, ch, &mbs);
 }
 
 //---------------------------------------------------------------------------------------
