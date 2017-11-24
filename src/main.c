@@ -126,7 +126,6 @@ static int compareElements(const void *a, const void *b) {
 int main(int argc, char *argv[]) {
     iUnused(argc);
     iUnused(argv);
-    //setlocale(LC_ALL, "en_US.UTF-8");
     setlocale(LC_CTYPE, "UTF-8");
     /* Test list insertion and removal. */ {
         printf("Array insertions/removals:\n");
@@ -211,7 +210,7 @@ int main(int argc, char *argv[]) {
         iRecycle();
     }
     /* Strings. */ {
-        iString *s = collect_String(fromCStr_String("_Äö\U0001f698a"));
+        iString *s = collect_String(fromCStr_String("A_Äö\U0001f698a"));
         printf("String: %s length: %zu size: %zu\n", cstr_String(s), length_String(s), size_String(s)); {
             iConstForEach(String, i, s) {
                 printf(" char: %04x [%lc]\n", i.value, i.value);
@@ -222,6 +221,8 @@ int main(int argc, char *argv[]) {
                 printf(" char: %04x [%lc]\n", i.value, i.value);
             }
         }
+        printf("Starts with: %i %i\n", startsWith_String(s, "a"), startsWithCase_String(s, "a"));
+        printf("Ends with: %i %i\n", endsWith_String(s, "a"), endsWithCase_String(s, "A"));
         printf("Mid: %s\n", cstr_String(collect_String(mid_String(s, 3, 1))));
         truncate_String(s, 3);
         printf("Truncated: %s\n", cstr_String(s));

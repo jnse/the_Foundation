@@ -59,10 +59,6 @@ iString *fromBlock_String(const iBlock *data) {
     return d;
 }
 
-const char *cstr_String(const iString *d) {
-    return constData_Block(&d->chars);
-}
-
 void delete_String(iString *d) {
     deinit_Block(&d->chars);
     free(d);
@@ -76,6 +72,10 @@ void truncate_String(iString *d, size_t len) {
         pos = i.next;
     }
     truncate_Block(&d->chars, pos - start);
+}
+
+const char *cstr_String(const iString *d) {
+    return constData_Block(&d->chars);
 }
 
 size_t length_String(const iString *d) {
@@ -108,6 +108,22 @@ iString *mid_String(const iString *d, size_t start, size_t count) {
     iString *mid = fromBlock_String(midChars);
     delete_Block(midChars);
     return mid;
+}
+
+int cmpSc_String(const iString *d, const char *cstr, const iStringComparison *cs) {
+    return cs->cmp(constData_Block(&d->chars), cstr);
+}
+
+iBool startsWithSc_String(const iString *d, const char *cstr, const iStringComparison *cs) {
+    const size_t len = strlen(cstr);
+    if (size_String(d) < len) return iFalse;
+    return !cs->cmpN(cstr_String(d), cstr, len);
+}
+
+iBool endsWithSc_String(const iString *d, const char *cstr, const iStringComparison *cs) {
+    const size_t len = strlen(cstr);
+    if (size_String(d) < len) return iFalse;
+    return !cs->cmp(constEnd_Block(&d->chars) - len, cstr);
 }
 
 void set_String(iString *d, const iString *other) {
@@ -207,3 +223,13 @@ int iCmpStrCase(const char *a, const char *b) {
 int iCmpStrNCase(const char *a, const char *b, size_t len) {
     return strncasecmp(a, b, len);
 }
+
+iStringComparison iCaseSensitive = {
+    .cmp  = strcmp,
+    .cmpN = strncmp,
+};
+
+iStringComparison iCaseInsensitive = {
+    .cmp  = iCmpStrCase,
+    .cmpN = iCmpStrNCase,
+};

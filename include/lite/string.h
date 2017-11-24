@@ -34,6 +34,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 typedef wchar_t iChar;
 
 iDeclareType(MultibyteChar);
+iDeclareType(StringComparison);
+iDeclareType(String);
 
 struct Impl_MultibyteChar {
     char bytes[MB_LEN_MAX + 1];
@@ -41,36 +43,57 @@ struct Impl_MultibyteChar {
 
 void init_MultibyteChar(iMultibyteChar *d, iChar ch);
 
-//---------------------------------------------------------------------------------------
+struct Impl_StringComparison {
+    int (*cmp)(const char *, const char *);
+    int (*cmpN)(const char *, const char *, size_t);
+};
 
-iDeclareType(String);
+extern iStringComparison iCaseSensitive;
+extern iStringComparison iCaseInsensitive;
+
+//---------------------------------------------------------------------------------------
 
 struct Impl_String {
     iBlock chars;
 };
 
-iString *       new_String(void);
-iString *       copy_String(const iString *);
-void            delete_String(iString *);
+iString *       new_String      (void);
+iString *       copy_String     (const iString *);
+void            delete_String   (iString *);
 
 #define         collect_String(d)   iCollectDel(d, delete_String)
 
-iString *       fromCStr_String(const char *cstr);
+iString *       fromCStr_String (const char *cstr);
 iString *       fromCStrN_String(const char *cstr, size_t len);
 iString *       fromBlock_String(const iBlock *data);
 
-const char *    cstr_String(const iString *);
-size_t          length_String(const iString *);
-size_t          size_String(const iString *);
-iString *       mid_String(const iString *, size_t start, size_t count);
+const char *    cstr_String     (const iString *);
+size_t          length_String   (const iString *);
+size_t          size_String     (const iString *);
+iString *       mid_String      (const iString *, size_t start, size_t count);
+
+#define         cmp_String(d, cstr)             cmpSc_String(d, cstr, &iCaseSensitive)
+#define         cmpCase_String(d, cstr)         cmpSc_String(d, cstr, &iCaseInsensitive)
+#define         cmpString_String(d, string)     cmpSc_String(d, cstr_String(string), &iCaseSensitive)
+#define         cmpStringCase_String(d, string) cmpSc_String(d, cstr_String(string), &iCaseInsensitive)
+
+#define         startsWith_String(d, cstr)      startsWithSc_String(d, cstr, &iCaseSensitive)
+#define         startsWithCase_String(d, cstr)  startsWithSc_String(d, cstr, &iCaseInsensitive)
+#define         endsWith_String(d, cstr)        endsWithSc_String  (d, cstr, &iCaseSensitive)
+#define         endsWithCase_String(d, cstr)    endsWithSc_String  (d, cstr, &iCaseInsensitive)
+
+int             cmpSc_String        (const iString *, const char *cstr, const iStringComparison *);
+iBool           startsWithSc_String (const iString *, const char *cstr, const iStringComparison *);
+iBool           endsWithSc_String   (const iString *, const char *cstr, const iStringComparison *);
 
 void            set_String(iString *, const iString *other);
 
-size_t          indexOf_String(const iString *, iChar ch);
-size_t          indexOfCStr_String(const iString *, const char *cstr);
-size_t          indexOfString_String(const iString *, const iString *other);
-size_t          lastIndexOf_String(const iString *, iChar ch);
-size_t          lastIndexOfString_String(const iString *, const iString *other);
+size_t          indexOf_String              (const iString *, iChar ch);
+size_t          indexOfCStr_String          (const iString *, const char *cstr);
+size_t          indexOfString_String        (const iString *, const iString *other);
+size_t          lastIndexOf_String          (const iString *, iChar ch);
+size_t          lastIndexOfCStr_String      (const iString *, const char *cstr);
+size_t          lastIndexOfString_String    (const iString *, const iString *other);
 
 void            truncate_String(iString *, size_t len);
 
