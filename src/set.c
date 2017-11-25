@@ -28,19 +28,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 
-iSet *new_Set(void) {
+iSet *new_Set(size_t elementSize, iSetCmpElem cmp) {
     iSet *d = calloc(sizeof(iSet), 1);
-    init_Set(d);
+    init_Set(d, elementSize, cmp);
     return d;
 }
 
 void delete_Set(iSet *d) {
-    deinit_Set(d);
-    free(d);
+    if (d) {
+        deinit_Set(d);
+        free(d);
+    }
 }
 
-void init_Set(iSet *d) {
-    init_Array(&d->values, sizeof(iSetValue));
+void init_Set(iSet *d, size_t elementSize, iSetCmpElem cmp) {
+    init_Array(&d->values, elementSize);
+    d->cmp = cmp;
 }
 
 void deinit_Set(iSet *d) {
@@ -51,11 +54,11 @@ size_t size_Set(const iSet *d) {
     return size_Array(&d->values);
 }
 
-iBool contains_Set(const iSet *d, iSetValue value) {
+iBool contains_Set(const iSet *d, const void *value) {
     return locate_Set(d, value, NULL);
 }
 
-iBool locate_Set(const iSet *d, iSetValue value, iRanges *span) {
+iBool locate_Set(const iSet *d, const void *value, iRanges *span) {
     iRanges loc;
     if (!span) span = &loc;
 
@@ -71,7 +74,7 @@ iBool locate_Set(const iSet *d, iSetValue value, iRanges *span) {
                 return iTrue; // Found it.
             }
             // Then the value would go before or after this position.
-            if (value < at_Set(d, span->start)) {
+            if (d->cmp(value, at_Set(d, span->start)) < 0) {
                 span->end = span->start;
             }
             else {
@@ -81,14 +84,14 @@ iBool locate_Set(const iSet *d, iSetValue value, iRanges *span) {
         }
         // Narrow down the search by a half.
         const size_t rightHalf = (span->start + span->end + 1) / 2;
-        const iSetValue mid = at_Set(d, rightHalf);
-        if (value == mid) {
+        const void *mid = at_Set(d, rightHalf);
+        if (d->cmp(value, mid) == 0) {
             // Oh, it's here.
             span->start = rightHalf;
             span->end   = rightHalf + 1;
             return iTrue;
         }
-        else if (value > mid) {
+        else if (d->cmp(value, mid) > 0) {
             span->start = rightHalf;
         }
         else {
@@ -98,27 +101,21 @@ iBool locate_Set(const iSet *d, iSetValue value, iRanges *span) {
     return iFalse;
 }
 
-iSetValue at_Set(const iSet *d, size_t pos) {
-    iSetValue value;
-    memcpy(&value, at_Array(&d->values, pos), sizeof(value));
-    return value;
-}
-
 void clear_Set(iSet *d) {
     clear_Array(&d->values);
 }
 
-iBool insert_Set(iSet *d, iSetValue value) {
+iBool insert_Set(iSet *d, const void *value) {
     iRanges loc;
     if (locate_Set(d, value, &loc)) {
         // The value already exists in the set.
         return iFalse;
     }
-    insert_Array(&d->values, loc.start, &value);
+    insert_Array(&d->values, loc.start, value);
     return iTrue;
 }
 
-iBool remove_Set(iSet *d, iSetValue value) {
+iBool remove_Set(iSet *d, const void *value) {
     iRanges loc;
     if (locate_Set(d, value, &loc)) {
         remove_Array(&d->values, loc.start);

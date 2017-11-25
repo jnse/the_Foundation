@@ -94,14 +94,15 @@ iString *mid_String(const iString *d, size_t start, size_t count) {
     iRanges range = { 0, size_Block(&d->chars) };
     size_t pos = 0;
     iConstForEach(String, i, d) {
-        if (pos == start) {
-            range.start = i.pos - chars;
-            if (count == iInvalidSize) break;
-        }
-        else if (pos > start && pos == start + count) {
+        if (pos > start && pos == start + count) {
             range.end = i.pos - chars;
             break;
         }
+        else if (pos == start) {
+            range.start = i.pos - chars;
+            if (count == iInvalidSize) break;
+        }
+        else
         pos++;
     }
     iBlock *midChars = midRange_Block(&d->chars, &range);

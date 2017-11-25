@@ -41,8 +41,16 @@ struct Impl_ListElement {
     iListElement *prev;
 };
 
+struct Impl_List {
+    iListElement root;
+    size_t size;
+};
+
 iList *     new_List    (void);
 void        delete_List (iList *);
+
+void        init_List   (iList *);
+void        deinit_List (iList *);
 
 size_t      size_List   (const iList *);
 iAny *      front_List  (const iList *);

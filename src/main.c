@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "lite/object.h"
 #include "lite/string.h"
 #include "lite/regexp.h"
+#include "lite/ptrarray.h"
 
 #include <stdio.h>
 #include <locale.h>
@@ -134,8 +135,8 @@ int main(int argc, char *argv[]) {
         iArray *list = new_Array(2);
         printArray(list);
         {
-            printf("Iterating the empty list:\n");
-            iForEach(ArrayConst, i, list) {
+            printf("Iterating the empty array:\n");
+            iForEach(Array, i, list) {
                 printf("- %p\n", i.value);
             }
         }
@@ -169,12 +170,20 @@ int main(int argc, char *argv[]) {
         remove_Array(list, 3); printArray(list);
         remove_Array(list, 2); printArray(list);
         {
-            printf("Iterating the list:\n");
+            printf("Iterating the array:\n");
             iConstForEach(Array, i, list) {
                 printf("- %p\n", i.value);
             }
         }
         delete_Array(list);
+    }
+    /* Array of pointers. */ {
+        iPtrArray *par = newPointers_PtrArray("Entry One", "Entry Two", 0);
+        printf("Iterating the pointer array:\n");
+        iForEach(PtrArray, i, par) {
+            printf("- %s\n", i.value);
+        }
+        delete_PtrArray(par);
     }
     /* Test objects. */ {
         TestObject *a = new_TestObject(1);

@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define iMin(a, b)              ((a) < (b)? (a) : (b))
 #define iMax(a, b)              ((a) > (b)? (a) : (b))
 #define iClamp(i, low, high)    ((i) < (low)? (low) : (i) > (high)? (high) : (i))
+#define iCmp(a, b)              ((a) == (b)? 0 : (a) < (b)? -1 : 1)
 
 // Types.
 typedef int             iBool;

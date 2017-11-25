@@ -30,11 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #define iListElement_(ptr) ((iListElement *)(ptr))
 
-struct Impl_List {
-    iListElement root;
-    size_t size;
-};
-
 static iListElement *nextElement_List_(const iList *d, const iListElement *elem) {
     if (!elem || elem->next == &d->root) return NULL;
     return elem->next;
@@ -52,10 +47,15 @@ iList *new_List(void) {
 }
 
 void delete_List(iList *d) {
-    if (d) {
-        clear_List(d);
-        free(d);
-    }
+    free(d);
+}
+
+void init_List(iList *d) {
+    clear_List(d);
+}
+
+void deinit_List(iList *d) {
+    clear_List(d);
 }
 
 size_t size_List(const iList *d) {

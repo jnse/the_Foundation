@@ -26,36 +26,84 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "lite/ptrarray.h"
 
+#include <stdarg.h>
+
 iPtrArray *new_PtrArray(void) {
-    return new_Array(sizeof(iPtr));
+    return new_Array(sizeof(void *));
+}
+
+iPtrArray *newPointers_PtrArray(void *ptr, ...) {
+    iPtrArray *d = new_PtrArray();
+    pushBack_PtrArray(d, ptr);
+    va_list args;
+    va_start(args, ptr);
+    void *next;
+    while ((next = va_arg(args, void *)) != NULL) {
+        pushBack_PtrArray(d, next);
+    }
+    va_end(args);
+    return d;
 }
 
 void delete_PtrArray(iPtrArray *d) {
     delete_Array(d);
 }
 
-iPtr *data_PtrArray(const iPtrArray *d) {
+void **data_PtrArray(const iPtrArray *d) {
     return data_Array(d);
 }
 
-iPtr at_PtrArray(const iPtrArray *d, size_t pos) {
-    iPtr ptr;
-    memcpy(&ptr, at_Array(d, pos), sizeof(iPtr));
+void *at_PtrArray(const iPtrArray *d, size_t pos) {
+    void *ptr;
+    memcpy(&ptr, at_Array(d, pos), sizeof(void *));
     return ptr;
 }
 
-void pushBack_PtrArray(iPtrArray *d, const iPtr ptr) {
+void pushBack_PtrArray(iPtrArray *d, const void *ptr) {
     pushBack_Array(d, &ptr);
 }
 
-void pushFront_PtrArray(iPtrArray *d, const iPtr ptr) {
+void pushFront_PtrArray(iPtrArray *d, const void *ptr) {
     pushFront_Array(d, &ptr);
 }
 
-iBool take_PtrArray(iPtrArray *d, size_t pos, iPtr *outPtr) {
+iBool take_PtrArray(iPtrArray *d, size_t pos, void **outPtr) {
     return take_Array(d, pos, &outPtr);
 }
 
-void insert_PtrArray(iPtrArray *d, size_t pos, const iPtr ptr) {
+void insert_PtrArray(iPtrArray *d, size_t pos, const void *ptr) {
     insert_Array(d, pos, &ptr);
+}
+
+//---------------------------------------------------------------------------------------
+
+void init_PtrArrayIterator(iPtrArrayIterator *d, iPtrArray *array) {
+    d->array = array;
+    d->pos = 0;
+    d->value = (!isEmpty_PtrArray(array)? at_PtrArray(array, 0) : NULL);
+}
+
+void next_PtrArrayIterator(iPtrArrayIterator *d) {
+    if (++d->pos < size_Array(d->array)) {
+        d->value = at_PtrArray(d->array, d->pos);
+    }
+    else {
+        d->value = NULL;
+    }
+}
+
+void init_PtrArrayConstIterator(iPtrArrayConstIterator *d, const iPtrArray *array) {
+    d->array = array;
+    const size_t size = size_Array(array);
+    d->value = (size > 0? at_PtrArray(array, 0) : NULL); // element
+    d->next  = (size > 1? at_Array   (array, 1) : NULL); // pointer to next element
+}
+
+void next_PtrArrayConstIterator(iPtrArrayConstIterator *d) {
+    if (d->next >= (const void * const *) constEnd_Array(d->array)) {
+        d->value = NULL;
+    }
+    else {
+        d->value = *d->next++;
+    }
 }

@@ -93,6 +93,10 @@ void *at_Array(const iArray *d, size_t pos) {
     return element_Array_(d, d->range.start + pos);
 }
 
+const void *constEnd_Array(const iArray *d) {
+    return element_Array_(d, d->range.end);
+}
+
 void reserve_Array(iArray *d, size_t reservedSize) {
     size_t newSize = (d->allocSize == 0? iArrayMinAlloc : d->allocSize);
     while (newSize < reservedSize) {
@@ -196,6 +200,10 @@ void remove_Array(iArray *d, size_t pos) {
     }
 }
 
+void fill_Array(iArray *d, char value) {
+    memset(front_Array(d), value, size_Array(d));
+}
+
 void sort_Array(iArray *d, int (*cmp)(const void *, const void *)) {
     qsort(front_Array(d), size_Array(d), d->elementSize, cmp);
 }
@@ -204,13 +212,15 @@ void sort_Array(iArray *d, int (*cmp)(const void *, const void *)) {
 
 void init_ArrayIterator(iArrayIterator *d, iArray *array) {
     d->array = array;
+    d->pos = 0;
     d->value = (!isEmpty_Array(array)? at_Array(array, 0) : NULL);
 }
 
 void next_ArrayIterator(iArrayIterator *d) {
-    iAssert(d->value);
-    d->value = (char *) d->value + d->array->elementSize;
-    if ((char *) d->value >= element_Array_(d->array, d->array->range.end)) {
+    if (d->pos < size_Array(d->array)) {
+        d->value = at_Array(d->array, ++d->pos);
+    }
+    else {
         d->value = NULL;
     }
 }
@@ -218,12 +228,13 @@ void next_ArrayIterator(iArrayIterator *d) {
 void init_ArrayConstIterator(iArrayConstIterator *d, const iArray *array) {
     d->array = array;
     d->value = (!isEmpty_Array(array)? at_Array(array, 0) : NULL);
+    d->end = element_Array_(d->array, d->array->range.end);
 }
 
 void next_ArrayConstIterator(iArrayConstIterator *d) {
     iAssert(d->value);
     d->value = (const char *) d->value + d->array->elementSize;
-    if ((const char *) d->value >= element_Array_(d->array, d->array->range.end)) {
+    if (d->value >= d->end) {
         d->value = NULL;
     }
 }

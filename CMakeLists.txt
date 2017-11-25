@@ -25,6 +25,7 @@ set (SOURCES
     src/class.c
     src/counted.c
     src/garbage.c
+    src/hash.c
     src/list.c
     src/main.c
     src/object.c
@@ -40,6 +41,7 @@ set (HEADERS
     include/lite/class.h
     include/lite/counted.h
     include/lite/garbage.h
+    include/lite/hash.h
     include/lite/list.h
     include/lite/object.h
     include/lite/ptrarray.h

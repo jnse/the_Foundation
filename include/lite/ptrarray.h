@@ -29,15 +29,37 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "array.h"
 
 typedef iArray iPtrArray;
-typedef void * iPtr;
 
-iPtrArray * new_PtrArray    (void);
-void        delete_PtrArray (iPtrArray *);
+iPtrArray * new_PtrArray            (void);
+iPtrArray * newPointers_PtrArray    (void *ptr, ...); // NULL-terminated
+void        delete_PtrArray         (iPtrArray *);
 
-iPtr *      data_PtrArray   (const iPtrArray *);
-iPtr        at_PtrArray     (const iPtrArray *, size_t pos);
+#define     init_PtrArray(d)    init_Array(d, sizeof(void *))
+#define     deinit_PtrArray(d)  deinit_Array(d)
 
-void        pushBack_PtrArray   (iPtrArray *, const iPtr ptr);
-void        pushFront_PtrArray  (iPtrArray *, const iPtr ptr);
-iBool       take_PtrArray       (iPtrArray *, size_t pos, iPtr *outPtr);
-void        insert_PtrArray     (iPtrArray *, size_t pos, const iPtr ptr);
+#define     isEmpty_PtrArray(d) isEmpty_Array(d)
+
+void **     data_PtrArray   (const iPtrArray *);
+void *      at_PtrArray     (const iPtrArray *, size_t pos);
+
+void        pushBack_PtrArray   (iPtrArray *, const void *ptr);
+void        pushFront_PtrArray  (iPtrArray *, const void *ptr);
+iBool       take_PtrArray       (iPtrArray *, size_t pos, void **outPtr);
+void        insert_PtrArray     (iPtrArray *, size_t pos, const void *ptr);
+
+#define     resize_PtrArray(d, s)   resize_Array(d, s)
+
+iDeclareIterator(PtrArray, iPtrArray *);
+iDeclareConstIterator(PtrArray, const iPtrArray *);
+
+struct IteratorImpl_PtrArray {
+    iPtrArray *array;
+    void *value;
+    size_t pos;
+};
+struct ConstIteratorImpl_PtrArray {
+    const iPtrArray *array;
+    const iAny *value;
+    const void **next;
+};
+

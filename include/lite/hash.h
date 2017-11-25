@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/set.h  Set of unique values.
+/** @file lite/hash.h  Hash of integer values.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,33 +26,44 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "array.h"
+#include "defs.h"
+#include "lite/ptrarray.h"
+#include "lite/list.h"
 
-iDeclareType(Set);
+iDeclareType(Hash);
 
-typedef int (*iSetCmpElem)(const void *, const void *);
+#define iHashDefaultBuckets 32
 
-struct Impl_Set {
-    iArray values;
-    iSetCmpElem cmp;
+typedef uint32_t iHashKey;
+typedef intptr_t iHashValue;
+
+struct Impl_Hash {
+    iPtrArray buckets;
+    size_t size;
 };
 
-iSet *      new_Set     (size_t elementSize, iSetCmpElem cmp);
-void        delete_Set  (iSet *);
+#define     new_Hash()      newBuckets_Hash(iHashDefaultBuckets)
 
-void        init_Set    (iSet *d, size_t elementSize, iSetCmpElem cmp);
-void        deinit_Set  (iSet *d);
+iHash *     newBuckets_Hash (size_t buckets);
+void        delete_Hash     (iHash *);
 
-size_t      size_Set    (const iSet *);
-iBool       contains_Set(const iSet *, const void *value);
-iBool       locate_Set  (const iSet *, const void *value, iRanges *outLoc);
+#define     collect_Hash(d) iCollectDel(d, delete_iHash)
 
-#define     at_Set(d, pos)  at_Array(&(d)->values, pos)
-#define     isEmpty_Set(d)  isEmpty_Array(&(d)->values)
+void        init_Hash   (iHash *, size_t buckets);
+void        deinit_Hash (iHash *);
 
-void        clear_Set   (iSet *);
-iBool       insert_Set  (iSet *, const void *value);
-iBool       remove_Set  (iSet *, const void *value);
+#define     size_Hash(d)    ((d)->size)
+#define     isEmpty_Hash(d) (size_Hash(d) == 0)
 
-iDeclareIterator(Set, iSet *);
-iDeclareConstIterator(Set, const iSet *);
+iBool       contains_Hash(const iHash *, iHashKey key);
+
+#define     value_Hash(d, key)  valueDefault_Hash(d, key, 0)
+
+iHashValue  valueDefault_Hash(const iHash *, iHashKey key, iHashValue defaultValue);
+
+void        clear_Hash  (iHash *);
+void        insert_Hash (iHash *, iHashKey key, iHashValue value);
+iBool       remove_Hash (iHash *, iHashKey key);
+
+iDeclareIterator(Hash, iHash *);
+iDeclareConstIterator(Hash, const iHash *);
