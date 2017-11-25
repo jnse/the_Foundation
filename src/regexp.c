@@ -25,6 +25,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "lite/regexp.h"
+#include "lite/string.h"
+#include "lite/range.h"
 
 #include <stdio.h>
 #include <pcre.h>
@@ -34,7 +36,7 @@ struct Impl_RegExp {
 };
 
 iRegExp *new_RegExp(const char *pattern, enum iRegExpOption options) {
-    int opts = PCRE_UTF8;
+    int opts = PCRE_UTF8 | PCRE_UCP;
     if (options & caseInsensitive_RegExpOption) {
         opts |= PCRE_CASELESS;
     }
@@ -46,7 +48,7 @@ iRegExp *new_RegExp(const char *pattern, enum iRegExpOption options) {
     iRegExp *d = malloc(sizeof(iRegExp));
     d->re = pcre_compile(pattern, opts, &errorMsg, &errorOffset, NULL);
     if (!d->re) {
-        iDebug("new_RegExp: [%s] (at %i) %s\n", pattern, errorOffset, errorMsg);
+        iDebug("new_RegExp: \"%s\" %s (at offset %i)\n", pattern, errorMsg, errorOffset);
     }
     return d;
 }
@@ -56,4 +58,30 @@ void delete_RegExp(iRegExp *d) {
         pcre_free(d->re);
     }
     free(d);
+}
+
+iBool match_RegExp(const iRegExp *d, const char *subject, size_t len, iRegExpMatch *match) {
+    if (!d->re || !subject) return iFalse;
+    if (match->subject != subject) {
+        // The match object is uninitialized, so initialize it now.
+        iZap(*match);
+        match->subject = subject;
+    }
+    iAssert(match->pos <= len);
+    int rc = pcre_exec(d->re, NULL,
+                       subject, len,
+                       match->pos, 0,
+                       &match->range.start,
+                       iRegExpMaxSubstrings + 1);
+    if (rc > 0) {
+        match->pos = match->range.end;
+        return iTrue;
+    }
+    return iFalse;
+}
+
+iString *captured_RegExpMatch(const iRegExpMatch *d, int index) {
+    iAssert(index <= iRegExpMaxSubstrings);
+    const iRangei *capRange = &d->range + index;
+    return fromCStrN_String(d->subject + capRange->start, size_Range(capRange));
 }

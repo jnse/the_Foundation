@@ -127,7 +127,8 @@ static int compareElements(const void *a, const void *b) {
 int main(int argc, char *argv[]) {
     iUnused(argc);
     iUnused(argv);
-    setlocale(LC_CTYPE, "UTF-8");
+    //setlocale(LC_ALL, "fi_FI.utf-8");
+    setlocale(LC_CTYPE, "utf-8");
     /* Test list insertion and removal. */ {
         printf("Array insertions/removals:\n");
         iArray *list = new_Array(2);
@@ -225,14 +226,21 @@ int main(int argc, char *argv[]) {
         printf("Starts with: %i %i\n", startsWith_String(s, "a"), startsWithCase_String(s, "a"));
         printf("Ends with: %i %i\n", endsWith_String(s, "a"), endsWithCase_String(s, "A"));
         printf("Mid: %s\n", cstr_String(collect_String(mid_String(s, 3, 1))));
+        printf("ö is at: %zu %zu\n", indexOfCStr_String(s, "ö"), indexOf_String(s, u'ö'));
         truncate_String(s, 3);
         printf("Truncated: %s\n", cstr_String(s));
-        printf("ö is at: %zu %zu\n", indexOfCStr_String(s, "ö"), indexOf_String(s, u'ö'));
     }
     /* Regular expressions. */ {
-        iRegExp *regex = new_RegExp("\\b(\\w+)\\b", 0);
-
-        delete_RegExp(regex);
+        iString *s = fromCStr_String("Hello world Äöäö, there is a \U0001f698 out there.");
+        iRegExp *rx = new_RegExp("\\b(THERE|WORLD|äöäö)\\b", caseInsensitive_RegExpOption);
+        iRegExpMatch match;
+        while (matchString_RegExp(rx, s, &match)) {
+            iString *cap = captured_RegExpMatch(&match, 1);
+            printf("match: %i -> %i [%s]\n", match.range.start, match.range.end, cstr_String(cap));
+            delete_String(cap);
+        }
+        delete_RegExp(rx);
+        delete_String(s);
     }
     return 0;
 }

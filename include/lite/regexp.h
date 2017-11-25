@@ -29,15 +29,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "range.h"
 
+iDeclareType(String);
 iDeclareType(RegExp);
 iDeclareType(RegExpMatch);
 
-#define iRegExpMaxSubstrings    32
+#define iRegExpMaxSubstrings  32
 
 struct Impl_RegExpMatch {
-    iRanges range[iRegExpMaxSubstrings];
-    int data_[iRegExpMaxSubstrings];
+    const char *subject;
+    size_t pos;
+    iRangei range;
+    iRangei substring[iRegExpMaxSubstrings];
+    int data_[iRegExpMaxSubstrings + 1];
 };
+
+iString *   captured_RegExpMatch(const iRegExpMatch *, int index);
 
 enum iRegExpOption {
     caseSensitive_RegExpOption      = 0,

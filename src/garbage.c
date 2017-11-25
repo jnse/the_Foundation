@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <stdlib.h>
 
-static iList *collected; // Should be thread-local...
+static iList *collected_; // Should be thread-local...
 
 iDeclareType(Collected);
 struct Impl_Collected {
@@ -54,16 +54,16 @@ static void delete_Collected_(iCollected *d) {
 
 static void deinit_Garbage(void) {
     recycle_Garbage();
-    delete_List(collected);
-    collected = NULL;
+    delete_List(collected_);
+    collected_ = NULL;
 }
 
 static iList *init_Garbage(void) {
-    if (!collected) {
-        collected = new_List();
+    if (!collected_) {
+        collected_ = new_List();
         atexit(deinit_Garbage);
     }
-    return collected;
+    return collected_;
 }
 
 void *collect_Garbage(void *ptr, iDeleteFunc del) {
@@ -72,10 +72,10 @@ void *collect_Garbage(void *ptr, iDeleteFunc del) {
 }
 
 void recycle_Garbage(void) {
-    if (collected) {
-        iReverseForEach(List, i, collected) {
+    if (collected_) {
+        iReverseForEach(List, i, collected_) {
             delete_Collected_((iCollected *) i.value);
         }
-        clear_List(collected);
+        clear_List(collected_);
     }
 }
