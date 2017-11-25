@@ -74,13 +74,12 @@ void delete_Array(iArray *d) {
 }
 
 void init_Array(iArray *d, size_t elementSize) {
+    iZap(*d);
     d->elementSize = elementSize;
-    iAssert(d->data == NULL);
 }
 
 void deinit_Array(iArray *d) {
     free(d->data);
-    memset(d, 0, sizeof(*d));
 }
 
 void *data_Array(const iArray *d) {
@@ -113,8 +112,25 @@ void clear_Array(iArray *d) {
 }
 
 void resize_Array(iArray *d, size_t size) {
+    const size_t oldSize = size_Range(&d->range);
+    if (size == oldSize) return;
+    if (size < oldSize) {
+        setSize_Range(&d->range, size);
+        return;
+    }
     reserve_Array(d, size);
-    rebalance_Array_(d);
+    if (d->range.start + size > d->allocSize) {
+        // Rebalance according to the new size.
+        const int leftSide = (d->allocSize - size) / 2;
+        shift_Array_(d, leftSide - (int) d->range.start);
+    }
+    setSize_Range(&d->range, size);
+    // Zero newly added elements.
+    memset(element_Array_(d, d->range.start + oldSize), 0, d->elementSize * (size - oldSize));
+}
+
+void set_Array(iArray *d, size_t pos, const void *value) {
+    memcpy(at_Array(d, pos), value, d->elementSize);
 }
 
 void pushBack_Array(iArray *d, const void *value) {
@@ -201,7 +217,7 @@ void remove_Array(iArray *d, size_t pos) {
 }
 
 void fill_Array(iArray *d, char value) {
-    memset(front_Array(d), value, size_Array(d));
+    memset(front_Array(d), value, d->elementSize * size_Array(d));
 }
 
 void sort_Array(iArray *d, int (*cmp)(const void *, const void *)) {

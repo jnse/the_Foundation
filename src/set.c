@@ -108,8 +108,10 @@ void clear_Set(iSet *d) {
 iBool insert_Set(iSet *d, const void *value) {
     iRanges loc;
     if (locate_Set(d, value, &loc)) {
-        // The value already exists in the set.
-        return iFalse;
+        // The value already exists in the set. It is written anyway, since some
+        // contents of the element may have changed.
+        set_Array(&d->values, loc.start, value);
+        return iFalse; // No new elements.
     }
     insert_Array(&d->values, loc.start, value);
     return iTrue;

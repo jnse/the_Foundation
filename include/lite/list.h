@@ -72,12 +72,12 @@ iDeclareIterator(List, iList *);
 iDeclareConstIterator(List, const iList *);
 
 struct IteratorImpl_List {
-    iList *list;
     iListElement *value;
+    iList *list;
     iListElement *next;
 };
 struct ConstIteratorImpl_List {
-    const iList *list;
     const iListElement *value;
+    const iList *list;
     const iListElement *next;
 };

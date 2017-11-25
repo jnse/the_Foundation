@@ -35,16 +35,6 @@ iDeclareType(RegExpMatch);
 
 #define iRegExpMaxSubstrings  32
 
-struct Impl_RegExpMatch {
-    const char *subject;
-    size_t pos;
-    iRangei range;
-    iRangei substring[iRegExpMaxSubstrings];
-    int data_[iRegExpMaxSubstrings + 1];
-};
-
-iString *   captured_RegExpMatch(const iRegExpMatch *, int index);
-
 enum iRegExpOption {
     caseSensitive_RegExpOption      = 0,
     caseInsensitive_RegExpOption    = 0x1,
@@ -59,3 +49,13 @@ void        delete_RegExp(iRegExp *);
 iBool       match_RegExp(const iRegExp *, const char *subject, size_t len, iRegExpMatch *match);
 
 #define     matchString_RegExp(d, str, m)   match_RegExp(d, cstr_String(str), size_String(str), m)
+
+struct Impl_RegExpMatch {
+    const char *subject;
+    size_t pos;
+    iRangei range;
+    iRangei substring[iRegExpMaxSubstrings];
+    int data_[iRegExpMaxSubstrings + 1];
+};
+
+iString *   captured_RegExpMatch(const iRegExpMatch *, int index);

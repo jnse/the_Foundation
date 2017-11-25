@@ -31,26 +31,39 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 typedef iSet iBucket;
 
-iDeclareType(BucketElement);
-
-struct Impl_BucketElement {
-    iHashKey key;
-    iHashValue value;
-};
-
 static int cmp_Bucket_(const void *a, const void *b) {
-    return iCmp(((const iBucketElement *) a)->key, ((const iBucketElement *) b)->key);
+    return iCmp(((const iHashElement *) a)->key, ((const iHashElement *) b)->key);
 }
 
 static iBucket *new_Bucket_(void) {
-    return new_Set(sizeof(iBucketElement), cmp_Bucket_);
+    return new_Set(sizeof(iHashElement), cmp_Bucket_);
 }
 
 static void delete_Bucket_(iBucket *d) {
     delete_Set(d);
 }
 
+static iHashElement *element_Bucket_(const iBucket *d, size_t pos) {
+    return at_Set(d, pos);
+}
+
 //---------------------------------------------------------------------------------------
+
+static size_t bucketIndex_Hash_(const iHash *d, iHashKey key) {
+    return key % size_Array(&d->buckets);
+}
+
+static const iBucket *constFindBucket_Hash_(const iHash *d, iHashKey key) {
+    return at_PtrArray(&d->buckets, bucketIndex_Hash_(d, key));
+}
+
+static iBucket *findBucket_Hash_(iHash *d, iHashKey key) {
+    iBucket **bucket = at_Array(&d->buckets, bucketIndex_Hash_(d, key));
+    if (!*bucket) {
+        *bucket = new_Bucket_();
+    }
+    return *bucket;
+}
 
 iHash *newBuckets_Hash(size_t buckets) {
     iHash *d = malloc(sizeof(iHash));
@@ -67,24 +80,95 @@ void init_Hash(iHash *d, size_t buckets) {
     // Bucket sets are created as needed.
     init_PtrArray(&d->buckets);
     resize_PtrArray(&d->buckets, buckets);
-    fill_Array(&d->buckets, 0);
     d->size = 0;
 }
 
 void deinit_Hash(iHash *d) {
     // Delete all buckets.
     iForEach(PtrArray, i, &d->buckets) {
-        delete_Bucket_(i.value);
+        delete_Bucket_(i.ptr);
     }
     deinit_PtrArray(&d->buckets);
 }
 
-iBool       contains_Hash(const iHash *, iHashKey key);
+iBool contains_Hash(const iHash *d, iHashKey key) {
+    if (isEmpty_Hash(d)) return iFalse;
+    const iBucket *bucket = constFindBucket_Hash_(d, key);
+    return contains_Set(bucket, &key);
+}
 
-iHashValue  valueDefault_Hash(const iHash *, iHashKey key, iHashValue defaultValue);
+iHashValue valueDefault_Hash(const iHash *d, iHashKey key, iHashValue defaultValue) {
+    if (isEmpty_Hash(d)) return defaultValue;
+    const iBucket *bucket = constFindBucket_Hash_(d, key);
+    iRanges found;
+    if (!locate_Set(bucket, &key, &found)) {
+        return defaultValue;
+    }
+    return element_Bucket_(bucket, found.start)->value;
+}
 
-void        clear_Hash  (iHash *);
+void clear_Hash(iHash *d) {
+    iForEach(PtrArray, i, &d->buckets) {
+        delete_Bucket_(i.ptr);
+    }
+    fill_Array(&d->buckets, 0);
+    d->size = 0;
+}
 
-void        insert_Hash (iHash *, iHashKey key, iHashValue value);
+void insert_Hash(iHash *d, iHashKey key, iHashValue value) {
+    const iHashElement elem = { key, value };
+    if (insert_Set(findBucket_Hash_(d, key), &elem)) {
+        d->size++;
+    }
+}
 
-iBool       remove_Hash (iHash *, iHashKey key);
+iBool remove_Hash(iHash *d, iHashKey key) {
+    if (isEmpty_Hash(d)) return iFalse;
+    iBucket *bucket = findBucket_Hash_(d, key);
+    if (bucket && remove_Set(bucket, &key)) {
+        d->size--;
+    }
+    return iFalse;
+}
+
+//---------------------------------------------------------------------------------------
+
+#define bucket_Hash_(d, pos)                ((iBucket *) at_PtrArray(&(d)->buckets, pos))
+#define bucketElement_Hash_(d, buck, pos)   element_Bucket_(bucket_Hash_(d, buck), pos)
+
+static int findNextBucket_Hash_(const iHash *d, int buck) {
+    for (buck++; buck < size_PtrArray(&d->buckets); ++buck) {
+        const iBucket *bucket = bucket_Hash_(d, buck);
+        if (bucket && !isEmpty_Set(bucket)) return buck;
+    }
+    return -1;
+}
+
+void init_HashIterator(iHashIterator *d, iHash *hash) {
+    d->hash = hash;
+    if (hash->size > 0) {
+        d->bucket = findNextBucket_Hash_(hash, -1);
+        d->pos = 0;
+        iHashElement *elem = bucketElement_Hash_(hash, d->bucket, d->pos);
+        d->value = &elem->value;
+        d->key = elem->key;
+    }
+    else {
+        d->value = NULL;
+    }
+}
+
+void next_HashIterator(iHashIterator *d) {
+    if (++d->pos == size_Set(bucket_Hash_(d->hash, d->bucket))) {
+        d->pos = 0;
+        d->bucket = findNextBucket_Hash_(d->hash, d->bucket);
+    }
+    if (d->bucket >= 0) {
+        iHashElement *elem = bucketElement_Hash_(d->hash, d->bucket, d->pos);
+        d->value = &elem->value;
+        d->key = elem->key;
+    }
+    else {
+        d->value = NULL;
+    }
+}

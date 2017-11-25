@@ -28,11 +28,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
-#define size_Range(self)               ((self)->end - (self)->start)
-#define isEmpty_Range(self)            ((self)->end == (self)->start)
-#define contains_Range(self, value)    ((value) >= (self)->start && (value) < (self)->end)
+#define size_Range(d)               ((d)->end - (d)->start)
+#define isEmpty_Range(d)            ((d)->end == (d)->start)
+#define contains_Range(d, value)    ((value) >= (d)->start && (value) < (d)->end)
 
-#define shift_Range(self, delta)       {(self)->start += (delta); (self)->end += (delta);}
+#define shift_Range(d, delta)       {(d)->start += (delta); (d)->end += (delta);}
+#define setSize_Range(d, ns)        {(d)->end = (d)->start + (ns);}
 
 struct Impl_Rangei {
     int start;

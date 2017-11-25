@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "lite/class.h"
 #include "lite/counted.h"
 #include "lite/garbage.h"
+#include "lite/hash.h"
 #include "lite/object.h"
 #include "lite/string.h"
 #include "lite/regexp.h"
@@ -128,7 +129,6 @@ static int compareElements(const void *a, const void *b) {
 int main(int argc, char *argv[]) {
     iUnused(argc);
     iUnused(argv);
-    //setlocale(LC_ALL, "fi_FI.utf-8");
     setlocale(LC_CTYPE, "utf-8");
     /* Test list insertion and removal. */ {
         printf("Array insertions/removals:\n");
@@ -177,13 +177,22 @@ int main(int argc, char *argv[]) {
         }
         delete_Array(list);
     }
-    /* Array of pointers. */ {
+    /* Test an array of pointers. */ {
         iPtrArray *par = newPointers_PtrArray("Entry One", "Entry Two", 0);
         printf("Iterating the pointer array:\n");
-        iForEach(PtrArray, i, par) {
-            printf("- %s\n", i.value);
+        iConstForEach(PtrArray, i, par) {
+            printf("- %s\n", i.ptr);
         }
         delete_PtrArray(par);
+    }
+    /* Test a hash. */ {
+        iHash *h = new_Hash();
+        insert_Hash(h, 3, 100);
+        printf("Hash contents:\n");
+        iForEach(Hash, i, h) {
+            printf("  %i: %i\n", i.key, *i.value);
+        }
+        delete_Hash(h);
     }
     /* Test objects. */ {
         TestObject *a = new_TestObject(1);
@@ -220,7 +229,7 @@ int main(int argc, char *argv[]) {
         printf("mid: %s\n", constData_Block(collect_Block(mid_Block(b, 3, 4))));
         iRecycle();
     }
-    /* Strings. */ {
+    /* Test Unicode strings. */ {
         iString *s = collect_String(fromCStr_String("A_Äö\U0001f698a"));
         printf("String: %s length: %zu size: %zu\n", cstr_String(s), length_String(s), size_String(s)); {
             iConstForEach(String, i, s) {
@@ -239,7 +248,7 @@ int main(int argc, char *argv[]) {
         truncate_String(s, 3);
         printf("Truncated: %s\n", cstr_String(s));
     }
-    /* Regular expressions. */ {
+    /* Test regular expressions. */ {
         iString *s = fromCStr_String("Hello world Äöäö, there is a \U0001f698 out there.");
         iRegExp *rx = new_RegExp("\\b(THERE|WORLD|äöäö)\\b", caseInsensitive_RegExpOption);
         iRegExpMatch match;
@@ -251,7 +260,7 @@ int main(int argc, char *argv[]) {
         delete_RegExp(rx);
         delete_String(s);
     }
-    /* Compression. */ {
+    /* Test zlib compression. */ {
         iString *s = fromCStr_String("Hello world. "
                                      "Hello world. "
                                      "Hello world. "

@@ -87,9 +87,9 @@ void            truncate_String (iString *, size_t len);
 iDeclareConstIterator(String, const iString *);
 
 struct ConstIteratorImpl_String {
-    const iString *str;
     iChar value;
     const char *pos;
+    const iString *str;
     const char *next;
     size_t remaining;
     mbstate_t mbs;

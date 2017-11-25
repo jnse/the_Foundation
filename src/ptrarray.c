@@ -54,9 +54,11 @@ void **data_PtrArray(const iPtrArray *d) {
 }
 
 void *at_PtrArray(const iPtrArray *d, size_t pos) {
-    void *ptr;
-    memcpy(&ptr, at_Array(d, pos), sizeof(void *));
-    return ptr;
+    return *(void **) at_Array(d, pos);
+}
+
+void set_PtrArray(iPtrArray *d, size_t pos, const void *ptr) {
+    set_Array(d, pos, &ptr);
 }
 
 void pushBack_PtrArray(iPtrArray *d, const void *ptr) {
@@ -80,30 +82,32 @@ void insert_PtrArray(iPtrArray *d, size_t pos, const void *ptr) {
 void init_PtrArrayIterator(iPtrArrayIterator *d, iPtrArray *array) {
     d->array = array;
     d->pos = 0;
-    d->value = (!isEmpty_PtrArray(array)? at_PtrArray(array, 0) : NULL);
+    d->value = (!isEmpty_PtrArray(array)? at_Array(array, 0) : NULL);
+    d->ptr = (d->value? *d->value : NULL);
 }
 
 void next_PtrArrayIterator(iPtrArrayIterator *d) {
     if (++d->pos < size_Array(d->array)) {
-        d->value = at_PtrArray(d->array, d->pos);
+        d->value = at_Array(d->array, d->pos);
+        d->ptr = *d->value;
     }
     else {
-        d->value = NULL;
+        d->value = d->ptr = NULL;
     }
 }
 
 void init_PtrArrayConstIterator(iPtrArrayConstIterator *d, const iPtrArray *array) {
     d->array = array;
-    const size_t size = size_Array(array);
-    d->value = (size > 0? at_PtrArray(array, 0) : NULL); // element
-    d->next  = (size > 1? at_Array   (array, 1) : NULL); // pointer to next element
+    d->value = (!isEmpty_Array(array)? front_Array(array) : NULL); // element
+    d->ptr = (d->value? *d->value : NULL);
 }
 
 void next_PtrArrayConstIterator(iPtrArrayConstIterator *d) {
-    if (d->next >= (const void * const *) constEnd_Array(d->array)) {
-        d->value = NULL;
+    if (++d->value < (const void * const *) constEnd_Array(d->array)) {
+        d->ptr = *d->value;
     }
     else {
-        d->value = *d->next++;
+        d->value = NULL;
+        d->ptr = NULL;
     }
 }

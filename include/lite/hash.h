@@ -31,8 +31,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "lite/list.h"
 
 iDeclareType(Hash);
+iDeclareType(HashElement);
 
-#define iHashDefaultBuckets 32
+#define iHashDefaultBuckets 30
 
 typedef uint32_t iHashKey;
 typedef intptr_t iHashValue;
@@ -40,6 +41,11 @@ typedef intptr_t iHashValue;
 struct Impl_Hash {
     iPtrArray buckets;
     size_t size;
+};
+
+struct Impl_HashElement {
+    iHashKey key;
+    iHashValue value;
 };
 
 #define     new_Hash()      newBuckets_Hash(iHashDefaultBuckets)
@@ -67,3 +73,18 @@ iBool       remove_Hash (iHash *, iHashKey key);
 
 iDeclareIterator(Hash, iHash *);
 iDeclareConstIterator(Hash, const iHash *);
+
+struct IteratorImpl_Hash {
+    iHashValue *value;
+    iHashKey key;
+    int bucket;
+    size_t pos;
+    iHash *hash;
+};
+struct ConstIteratorImpl_Hash {
+    const iHashValue *value;
+    iHashKey key;
+    int bucket;
+    size_t pos;
+    const iHash *hash;
+};

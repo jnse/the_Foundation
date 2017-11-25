@@ -38,9 +38,11 @@ void        delete_PtrArray         (iPtrArray *);
 #define     deinit_PtrArray(d)  deinit_Array(d)
 
 #define     isEmpty_PtrArray(d) isEmpty_Array(d)
+#define     size_PtrArray(d)    size_Array(d)
 
 void **     data_PtrArray   (const iPtrArray *);
 void *      at_PtrArray     (const iPtrArray *, size_t pos);
+void        set_PtrArray    (iPtrArray *, size_t pos, const void *ptr);
 
 void        pushBack_PtrArray   (iPtrArray *, const void *ptr);
 void        pushFront_PtrArray  (iPtrArray *, const void *ptr);
@@ -53,13 +55,14 @@ iDeclareIterator(PtrArray, iPtrArray *);
 iDeclareConstIterator(PtrArray, const iPtrArray *);
 
 struct IteratorImpl_PtrArray {
-    iPtrArray *array;
-    void *value;
+    void **value; // address of element
+    void *ptr; // element
     size_t pos;
+    iPtrArray *array;
 };
 struct ConstIteratorImpl_PtrArray {
+    const void **value; // address of element
+    const void *ptr; // element
     const iPtrArray *array;
-    const iAny *value;
-    const void **next;
 };
 

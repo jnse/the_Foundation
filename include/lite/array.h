@@ -56,6 +56,7 @@ const void *constEnd_Array  (const iArray *);
 void        reserve_Array   (iArray *, size_t reservedSize);
 void        clear_Array     (iArray *);
 void        resize_Array    (iArray *, size_t size);
+void        set_Array       (iArray *, size_t pos, const void *value);
 void        pushBack_Array  (iArray *, const void *value);
 void        pushFront_Array (iArray *, const void *value);
 iBool       popBack_Array   (iArray *);
@@ -70,13 +71,12 @@ iDeclareIterator(Array, iArray *);
 iDeclareConstIterator(Array, const iArray *);
 
 struct IteratorImpl_Array {
+    void *value; // address of element
     iArray *array;
     size_t pos;
-    void *value;
 };
 struct ConstIteratorImpl_Array {
+    const void *value; // address of element
     const iArray *array;
-    const void *value;
     const void *end;
 };
-
