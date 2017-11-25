@@ -26,7 +26,6 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -96,6 +95,8 @@ typedef void (*iDeinitFunc)(iAnyObject *);
 #   define iAssert(cond)
 #   define iDebug(...)
 #else
+#   include <stdio.h>
+#   include <assert.h>
 #   define iAssert(cond)    assert(cond)
 #   define iDebug(...)      fprintf(stderr, __VA_ARGS__)
 #endif

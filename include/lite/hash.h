@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iDeclareType(Hash);
 iDeclareType(HashElement);
 
-#define iHashDefaultBuckets 30
+#define iHashDefaultBuckets 53
 
 typedef uint32_t iHashKey;
 typedef intptr_t iHashValue;

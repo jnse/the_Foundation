@@ -94,7 +94,7 @@ void deinit_Hash(iHash *d) {
 iBool contains_Hash(const iHash *d, iHashKey key) {
     if (isEmpty_Hash(d)) return iFalse;
     const iBucket *bucket = constFindBucket_Hash_(d, key);
-    return contains_Set(bucket, &key);
+    return bucket && contains_Set(bucket, &key);
 }
 
 iHashValue valueDefault_Hash(const iHash *d, iHashKey key, iHashValue defaultValue) {

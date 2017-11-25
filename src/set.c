@@ -70,7 +70,7 @@ iBool locate_Set(const iSet *d, const void *value, iRanges *span) {
     while (!isEmpty_Range(span)) {
         // Arrived at a single item?
         if (size_Range(span) == 1) {
-            if (at_Set(d, span->start) == value) {
+            if (d->cmp(value, at_Set(d, span->start)) == 0) {
                 return iTrue; // Found it.
             }
             // Then the value would go before or after this position.

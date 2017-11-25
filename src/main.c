@@ -188,10 +188,12 @@ int main(int argc, char *argv[]) {
     /* Test a hash. */ {
         iHash *h = new_Hash();
         insert_Hash(h, 3, 100);
+        insert_Hash(h, 1, 200);
         printf("Hash contents:\n");
         iForEach(Hash, i, h) {
             printf("  %i: %i\n", i.key, *i.value);
         }
+        printf("Contains: %i %i\n", contains_Hash(h, 3), contains_Hash(h, 5));
         delete_Hash(h);
     }
     /* Test objects. */ {
