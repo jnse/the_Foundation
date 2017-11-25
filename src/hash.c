@@ -172,3 +172,11 @@ void next_HashIterator(iHashIterator *d) {
         d->value = NULL;
     }
 }
+
+void init_HashConstIterator(iHashConstIterator *d, const iHash *hash) {
+    init_HashIterator((iHashIterator *) d, iConstCast(iHash *, hash));
+}
+
+void next_HashConstIterator(iHashConstIterator *d) {
+    next_HashIterator((iHashIterator *) d);
+}

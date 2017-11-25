@@ -190,8 +190,8 @@ int main(int argc, char *argv[]) {
         insert_Hash(h, 3, 100);
         insert_Hash(h, 1, 200);
         printf("Hash contents:\n");
-        iForEach(Hash, i, h) {
-            printf("  %i: %i\n", i.key, *i.value);
+        iConstForEach(Hash, i, h) {
+            printf("  %i: %li\n", i.key, *i.value);
         }
         printf("Contains: %i %i\n", contains_Hash(h, 3), contains_Hash(h, 5));
         delete_Hash(h);
@@ -275,7 +275,7 @@ int main(int argc, char *argv[]) {
         iBlock *compr = compress_Block(&s->chars);
         printf("Original: %zu Compressed: %zu\n", size_String(s), size_Block(compr));
         iBlock *restored = decompress_Block(compr);
-        printf("Restored %i: %s\n", size_Block(restored), constData_Block(restored));
+        printf("Restored %zu: %s\n", size_Block(restored), constData_Block(restored));
         delete_Block(restored);
         delete_Block(compr);
     }

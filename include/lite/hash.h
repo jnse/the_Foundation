@@ -74,17 +74,16 @@ iBool       remove_Hash (iHash *, iHashKey key);
 iDeclareIterator(Hash, iHash *);
 iDeclareConstIterator(Hash, const iHash *);
 
-struct IteratorImpl_Hash {
-    iHashValue *value;
-    iHashKey key;
-    int bucket;
-    size_t pos;
-    iHash *hash;
-};
-struct ConstIteratorImpl_Hash {
-    const iHashValue *value;
-    iHashKey key;
-    int bucket;
-    size_t pos;
-    const iHash *hash;
-};
+#define iHashIteratorImpl(iterType, containerType, valueType) \
+    struct iterType##Impl_Hash { \
+        valueType value; \
+        iHashKey key; \
+        int bucket; \
+        size_t pos; \
+        containerType hash; \
+    }
+
+iHashIteratorImpl(Iterator, iHash *, iHashValue *);
+iHashIteratorImpl(ConstIterator, const iHash *, const iHashValue *);
+iHashIteratorImpl(ReverseIterator, iHash *, iHashValue *);
+iHashIteratorImpl(ReverseConstIterator, const iHash *, const iHashValue *);
