@@ -33,6 +33,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <strings.h>
+#if defined (iHaveZlib)
+#   include <zlib.h>
+#endif
 
 struct Impl_BlockData {
     iAtomicInt refCount;
@@ -311,3 +314,82 @@ int cmpCaseCStr_Block(const iBlock *d, const char *cstr) {
 int cmpCaseCStrN_Block(const iBlock *d, const char *cstr, size_t len) {
     return iCmpStrNCase(d->i->data, cstr, len);
 }
+
+#if defined (iHaveZlib)
+
+iDeclareType(ZStream);
+
+struct Impl_ZStream {
+    z_stream stream;
+    iBlock *out;
+};
+
+static void init_ZStream_(iZStream *d, const iBlock *in, iBlock *out) {
+    d->out = out;
+    iZap(d->stream);
+    d->stream.avail_in  = in->i->size;
+    d->stream.next_in   = (Bytef *) in->i->data;
+    d->stream.avail_out = out->i->size;
+    d->stream.next_out  = (Bytef *) out->i->data;
+}
+
+static iBool process_ZStream_(iZStream *d, int (*process)(z_streamp, int)) {
+    int opts = Z_NO_FLUSH;
+    for (;;) {
+        int rc = process(&d->stream, opts);
+        if (rc == Z_STREAM_END) {
+            break;
+        }
+        else if (rc != Z_OK && rc != Z_BUF_ERROR) {
+            // Something went wrong.
+            return iFalse;
+        }
+        if (d->stream.avail_out == 0) {
+            // Allocate more room.
+            const size_t oldSize = size_Block(d->out);
+            resize_Block(d->out, oldSize * 2);
+            d->stream.next_out = (Bytef *) d->out->i->data + oldSize;
+            d->stream.avail_out = size_Block(d->out) - oldSize;
+        }
+        if (d->stream.avail_in == 0) {
+            opts = Z_FINISH;
+        }
+    }
+    truncate_Block(d->out, size_Block(d->out) - d->stream.avail_out);
+    return iTrue;
+}
+
+iBlock *compressLevel_Block(const iBlock *d, int level) {
+    iBlock *out = new_Block(1024);
+    iZStream z;
+    init_ZStream_(&z, d, out);
+    /*
+     * The deflation is done in raw mode. From zlib documentation:
+     *
+     * "windowBits can also be –8..–15 for raw deflate. In this case, -windowBits
+     * determines the window size. deflate() will then generate raw deflate data with no
+     * zlib header or trailer, and will not compute an adler32 check value."
+     */
+    if (deflateInit2(&z.stream, level, Z_DEFLATED, -MAX_WBITS, 8, Z_DEFAULT_STRATEGY) == Z_OK) {
+        if (!process_ZStream_(&z, deflate)) {
+            clear_Block(out);
+        }
+    }
+    deflateEnd(&z.stream);
+    return out;
+}
+
+iBlock *decompress_Block(const iBlock *d) {
+    iBlock *out = new_Block(1024);
+    iZStream z;
+    init_ZStream_(&z, d, out);
+    if (inflateInit2(&z.stream, -MAX_WBITS) == Z_OK) {
+        if (!process_ZStream_(&z, inflate)) {
+            clear_Block(out);
+        }
+    }
+    inflateEnd(&z.stream);
+    return out;
+}
+
+#endif // HaveZlib

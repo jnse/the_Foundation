@@ -242,5 +242,22 @@ int main(int argc, char *argv[]) {
         delete_RegExp(rx);
         delete_String(s);
     }
+    /* Compression. */ {
+        iString *s = fromCStr_String("Hello world. "
+                                     "Hello world. "
+                                     "Hello world. "
+                                     "Hello world. "
+                                     "Hello world. "
+                                     "Hello world. "
+                                     "Hello world. "
+                                     "Hello world. "
+                                     "Hello world.");
+        iBlock *compr = compress_Block(&s->chars);
+        printf("Original: %zu Compressed: %zu\n", size_String(s), size_Block(compr));
+        iBlock *restored = decompress_Block(compr);
+        printf("Restored %i: %s\n", size_Block(restored), constData_Block(restored));
+        delete_Block(restored);
+        delete_Block(compr);
+    }
     return 0;
 }

@@ -89,3 +89,10 @@ void            setCStr_Block   (iBlock *, const char *cstr);
 void            append_Block        (iBlock *, const iBlock *other);
 void            appendData_Block    (iBlock *, const void *data, size_t size);
 void            appendCStr_Block    (iBlock *, const char *cstr);
+
+#define iBlockDefaultCompressionLevel   6
+
+iBlock *        compressLevel_Block (const iBlock *, int level);
+iBlock *        decompress_Block    (const iBlock *);
+
+#define         compress_Block(d)   compressLevel_Block(d, iBlockDefaultCompressionLevel)

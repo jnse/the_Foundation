@@ -28,6 +28,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "lite/string.h"
 #include "lite/range.h"
 
+#if !defined (iHavePcre)
+#   error libpcre is required for regular expressions
+#endif
+
 #include <stdio.h>
 #include <pcre.h>
 
@@ -82,6 +86,6 @@ iBool match_RegExp(const iRegExp *d, const char *subject, size_t len, iRegExpMat
 
 iString *captured_RegExpMatch(const iRegExpMatch *d, int index) {
     iAssert(index <= iRegExpMaxSubstrings);
-    const iRangei *capRange = &d->range + index;
-    return fromCStrN_String(d->subject + capRange->start, size_Range(capRange));
+    const iRangei *cap = &d->range + index;
+    return fromCStrN_String(d->subject + cap->start, size_Range(cap));
 }

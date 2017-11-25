@@ -9,6 +9,13 @@ find_package (PkgConfig)
 #----------------------------------------------------------------------------------------
 
 pkg_check_modules (PCRE libpcre)
+find_package (ZLIB)
+if (PCRE_FOUND)
+    add_definitions (-DiHavePcre)
+endif ()
+if (ZLIB_FOUND)
+    add_definitions (-DiHaveZlib)
+endif ()
 
 #----------------------------------------------------------------------------------------
 
@@ -23,7 +30,6 @@ set (SOURCES
     src/object.c
     src/ptrarray.c
     src/ptrset.c
-    src/regexp.c
     src/set.c
     src/string.c
 )
@@ -39,18 +45,25 @@ set (HEADERS
     include/lite/ptrarray.h
     include/lite/ptrset.h
     include/lite/range.h
-    include/lite/regexp.h
     include/lite/set.h
     include/lite/string.h
 )
+if (PCRE_FOUND)
+    set (SOURCES ${SOURCES} src/regexp.c)
+    set (HEADERS ${HEADERS} include/lite/regexp.h)
+endif ()
+
 add_executable (cplus ${SOURCES} ${HEADERS})
 
 set_property (TARGET cplus PROPERTY C_STANDARD 11)
 target_include_directories (cplus PUBLIC include)
-target_compile_options (cplus PUBLIC -Wall -Wpedantic -Wno-format-pedantic)
+target_compile_options (cplus PRIVATE -Wall -Wpedantic -Wno-format-pedantic)
 
+if (ZLIB_FOUND)
+    target_include_directories (cplus PRIVATE ${ZLIB_INCLUDE_DIRS})
+    target_link_libraries (cplus PRIVATE ${ZLIB_LIBRARIES})
+endif ()
 if (PCRE_FOUND)
-    target_compile_definitions (cplus PUBLIC iHaveLibPcre)
-    target_include_directories (cplus PUBLIC ${PCRE_INCLUDE_DIRS})
-    target_link_libraries (cplus PUBLIC ${PCRE_LDFLAGS})
+    target_include_directories (cplus PRIVATE ${PCRE_INCLUDE_DIRS})
+    target_link_libraries (cplus PRIVATE ${PCRE_LDFLAGS})
 endif ()
