@@ -1,10 +1,10 @@
-# C+Lite
+# c_Lite
 
 Simplicity of C11, power of object-orientation! API usability is priority #1. 
 
 ## Conventions
 
-C+Lite is built on many conventions.
+c_Lite is built on many conventions.
 
 ### General
 
