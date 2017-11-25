@@ -218,8 +218,6 @@ void init_MultibyteChar(iMultibyteChar *d, iChar ch) {
     wcrtomb(d->bytes, ch, &mbs);
 }
 
-//---------------------------------------------------------------------------------------
-
 int iCmpStrCase(const char *a, const char *b) {
     return strcasecmp(a, b);
 }

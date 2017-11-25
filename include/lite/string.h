@@ -33,31 +33,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 typedef wchar_t iChar;
 
-iDeclareType(MultibyteChar);
-iDeclareType(StringComparison);
 iDeclareType(String);
-
-struct Impl_MultibyteChar {
-    char bytes[MB_LEN_MAX + 1];
-};
-
-void init_MultibyteChar(iMultibyteChar *d, iChar ch);
-
-struct Impl_StringComparison {
-    int (*cmp)(const char *, const char *);
-    int (*cmpN)(const char *, const char *, size_t);
-};
-
-extern iStringComparison iCaseSensitive;
-extern iStringComparison iCaseInsensitive;
-
-#define         iCmpStr(a, b)       strcmp(a, b)
-#define         iCmpStrN(a, b, len) strncmp(a, b, len)
-
-int             iCmpStrCase (const char *a, const char *b);
-int             iCmpStrNCase(const char *a, const char *b, size_t len);
-
-//---------------------------------------------------------------------------------------
+iDeclareType(StringComparison);
+iDeclareType(MultibyteChar);
 
 struct Impl_String {
     iBlock chars;
@@ -116,3 +94,25 @@ struct ConstIteratorImpl_String {
     size_t remaining;
     mbstate_t mbs;
 };
+
+//---------------------------------------------------------------------------------------
+
+struct Impl_MultibyteChar {
+    char bytes[MB_LEN_MAX + 1];
+};
+
+void init_MultibyteChar(iMultibyteChar *d, iChar ch);
+
+struct Impl_StringComparison {
+    int (*cmp)(const char *, const char *);
+    int (*cmpN)(const char *, const char *, size_t);
+};
+
+#define         iCmpStr(a, b)       strcmp(a, b)
+#define         iCmpStrN(a, b, len) strncmp(a, b, len)
+
+int             iCmpStrCase (const char *a, const char *b);
+int             iCmpStrNCase(const char *a, const char *b, size_t len);
+
+extern iStringComparison iCaseSensitive;
+extern iStringComparison iCaseInsensitive;
