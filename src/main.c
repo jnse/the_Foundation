@@ -210,11 +210,11 @@ int main(int argc, char *argv[]) {
             printf("  %s: %f\n",
                    cstr_String(key_StringHashIterator(&i)),
                    ((TestElement *) i.value)->member);
-            remove_StringHashIterator(&i);
-            free(i.value);
+            iCollect(i.value);
         }
         printf("Hash has %zu elements:\n", size_StringHash(h));
         //printf("Contains: %i %i\n", contains_Hash(h, 3), contains_Hash(h, 5));
+        //deleteElements_StringHash(h, free);
         delete_StringHash(h);
     }
     /* Test objects. */ {

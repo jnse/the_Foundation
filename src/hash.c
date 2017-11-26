@@ -51,12 +51,14 @@ struct Impl_HashNode {
         ((d)->child[shiftKey_HashNode_(key, depth) & iHashNodeChildMask])
 
 static void delete_HashNode_(iHashNode *d) {
-    for (int i = 0; i < iHashNodeChildCount; ++i) {
-        if (d->child[i]) {
-            delete_HashNode_(d->child[i]);
+    if (d) {
+        for (int i = 0; i < iHashNodeChildCount; ++i) {
+            if (d->child[i]) {
+                delete_HashNode_(d->child[i]);
+            }
         }
+        free(d);
     }
-    free(d);
 }
 
 static iHashNode *findNode_HashNode_(iHashNode *d, iHashKey key, int *depth) {
@@ -209,7 +211,9 @@ iHashElement *value_Hash(const iHash *d, iHashKey key) {
 }
 
 void clear_Hash(iHash *d) {
-    delete_HashNode_(d->root);
+    for (int i = 0; i < iHashNodeChildCount; ++i) {
+        delete_HashNode_(d->root->child[i]);
+    }
     iZap(*d->root);
     d->size = 0;
 }

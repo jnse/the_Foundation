@@ -30,8 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdarg.h>
 
 static void deleteKeys_StringHash_(iStringHash *d) {
-    iConstForEach(Hash, i, &d->hash) {
-        delete_String(((const iStringHashElement *) i.value)->key);
+    iConstForEach(StringHash, i, d) {
+        delete_String(i.value->key);
     }
 }
 
@@ -68,6 +68,14 @@ iAnyElement *value_StringHash(iStringHash *d, const iString *key) {
 
 void clear_StringHash(iStringHash *d) {
     deleteKeys_StringHash_(d);
+    clear_PtrHash(d);
+}
+
+void deleteElements_StringHash(iStringHash *d, void (*deleteFunc)(iAnyElement *)) {
+    iForEach(StringHash, i, d) {
+        delete_String(i.value->key); // keys are owned
+        deleteFunc(i.value);
+    }
     clear_PtrHash(d);
 }
 

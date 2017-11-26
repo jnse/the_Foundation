@@ -58,7 +58,7 @@ iAny *      back_List   (const iList *);
 
 #define     isEmpty_List(d)     (size_List(d) == 0)
 
-void        clear_List      (iList *);
+void        clear_List          (iList *);
 
 iAny *      pushBack_List   (iList *, iAny *elem);
 iAny *      pushFront_List  (iList *, iAny *elem);

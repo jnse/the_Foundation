@@ -54,6 +54,7 @@ const iAnyElement * constValue_StringHash  (const iStringHash *, const iString *
 iAnyElement *       value_StringHash       (iStringHash *, const iString *key);
 
 void            clear_StringHash        (iStringHash *);
+void            deleteElements_StringHash(iStringHash *, void (*deleteFunc)(iAnyElement *));
 
 iAnyElement *   insert_StringHash       (iStringHash *, const iString *key, iAnyElement *element);
 iAnyElement *   insertKey_StringHash    (iStringHash *, iString *key, iAnyElement *element);
