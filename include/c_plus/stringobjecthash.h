@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/counted.h  Reference-counted object.
+/** @file c_plus/stringobjecthash.h  Hash that maps Strings to Objects.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,24 +26,39 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
-#include "class.h"
+#include "stringhash.h"
+#include "object.h"
 
-/**
- * Reference-counted object that gets deleted only after all references are gone.
- */
-iDeclareType(Counted);
+iDeclareType(Dictionary);
+iDeclareType(DictionaryElement);
 
-struct Impl_Counted {
-    const iClass *class;
-    int refCount;
+struct Impl_Dictionary {
+    iObject base;
+    iStringHash dict;
 };
 
-typedef void iAnyCounted;
+struct Impl_DictionaryElement {
+    iStringHashElement base;
+    iObject *value;
+};
 
-iAnyCounted *   new_Counted     (const iClass *class);
+#if 0
+iStringObjectHash * new_StringObjectHash    (void);
+void                delete_StringObjectHash (iStringObjectHash *);
 
-void            deinit_Counted  (iAnyCounted *);
+#define         collect_PtrHash(d) iCollectDel(d, delete_PtrHash)
 
-iAnyCounted *   ref_Counted     (const iAnyCounted *);
-void            deref_Counted   (iAnyCounted *);
+void            init_PtrHash    (iPtrHash *, iPtrHashKeyFunc keyFunc);
+void            deinit_PtrHash  (iPtrHash *);
+
+#define         size_PtrHash(d)         size_Hash(&(d)->hash)
+#define         isEmpty_PtrHash(d)      isEmpty_Hash(&(d)->hash)
+
+iBool                   contains_PtrHash    (const iPtrHash *, const void *key);
+iPtrHashElement *       value_PtrHash       (iPtrHash *, const void *key);
+const iPtrHashElement * constValue_PtrHash  (const iPtrHash *, const void *key);
+
+void                clear_PtrHash   (iPtrHash *);
+iPtrHashElement *   insert_PtrHash  (iPtrHash *, iPtrHashElement *element);
+iPtrHashElement *   remove_PtrHash  (iPtrHash *, const void *key);
+#endif

@@ -23,6 +23,7 @@ set (SOURCES
     src/array.c
     src/block.c
     src/class.c
+    src/crc32.c
     src/counted.c
     src/garbage.c
     src/hash.c
@@ -30,9 +31,11 @@ set (SOURCES
     src/main.c
     src/object.c
     src/ptrarray.c
+    src/ptrhash.c
     src/ptrset.c
     src/set.c
     src/string.c
+    src/stringhash.c
 )
 set (HEADERS
     include/c_plus/defs.h
@@ -45,10 +48,13 @@ set (HEADERS
     include/c_plus/list.h
     include/c_plus/object.h
     include/c_plus/ptrarray.h
+    include/c_plus/ptrhash.h
     include/c_plus/ptrset.h
     include/c_plus/range.h
     include/c_plus/set.h
     include/c_plus/string.h
+    include/c_plus/stringhash.h
+    include/c_plus/stringobjecthash.h
 )
 if (PCRE_FOUND)
     set (SOURCES ${SOURCES} src/regexp.c)

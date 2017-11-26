@@ -45,17 +45,19 @@ void            delete_Block    (iBlock *);
 #define         collect_Block(d)        iCollectDel(d, delete_Block)
 
 void            init_Block      (iBlock *, size_t size);
+void            initData_Block  (iBlock *, const void *data, size_t size);
+void            initCopy_Block  (iBlock *, const iBlock *other);
 void            deinit_Block    (iBlock *);
 
-size_t          size_Block      (const iBlock *);
-char            at_Block        (const iBlock *, size_t pos);
-char            front_Block     (const iBlock *);
-char            back_Block      (const iBlock *);
-iBlock *        mid_Block       (const iBlock *, size_t start, size_t count);
-iBlock *        concat_Block    (const iBlock *, const iBlock *other);
-const void *    constData_Block (const iBlock *);
-const char *    constBegin_Block(const iBlock *);
-const char *    constEnd_Block  (const iBlock *);
+size_t          size_Block          (const iBlock *);
+char            at_Block            (const iBlock *, size_t pos);
+char            front_Block         (const iBlock *);
+char            back_Block          (const iBlock *);
+iBlock *        mid_Block           (const iBlock *, size_t start, size_t count);
+iBlock *        concat_Block        (const iBlock *, const iBlock *other);
+const void *    constData_Block     (const iBlock *);
+const char *    constBegin_Block    (const iBlock *);
+const char *    constEnd_Block      (const iBlock *);
 
 #define         isEmpty_Block(d)        (size_Block(d) == 0)
 #define         midRange_Block(d, rng)  mid_Block(d, (rng)->start, size_Range(rng))
@@ -96,3 +98,5 @@ iBlock *        compressLevel_Block (const iBlock *, int level);
 iBlock *        decompress_Block    (const iBlock *);
 
 #define         compress_Block(d)   compressLevel_Block(d, iBlockDefaultCompressionLevel)
+
+uint32_t        crc32_Block         (const iBlock *);

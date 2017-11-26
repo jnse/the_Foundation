@@ -1,6 +1,4 @@
-#pragma once
-
-/** @file c_plus/counted.h  Reference-counted object.
+/** @file ptrhash.c  Hash that maps pointers to pointers.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,24 +24,43 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
-#include "class.h"
+#include "c_plus/ptrhash.h"
 
-/**
- * Reference-counted object that gets deleted only after all references are gone.
- */
-iDeclareType(Counted);
+#include <stdlib.h>
 
-struct Impl_Counted {
-    const iClass *class;
-    int refCount;
-};
+iDefineTypeConstructionArgs(PtrHash, (iPtrHashKeyFunc keyFunc), keyFunc)
 
-typedef void iAnyCounted;
+void init_PtrHash(iPtrHash *d, iPtrHashKeyFunc keyFunc) {
+    init_Hash(&d->hash);
+    iAssert(keyFunc);
+    d->keyFunc = keyFunc;
+}
 
-iAnyCounted *   new_Counted     (const iClass *class);
+void deinit_PtrHash(iPtrHash *d) {
+    deinit_Hash(&d->hash);
+}
 
-void            deinit_Counted  (iAnyCounted *);
+iBool contains_PtrHash(const iPtrHash *d, const void *key) {
+    return contains_Hash(&d->hash, d->keyFunc(key));
+}
 
-iAnyCounted *   ref_Counted     (const iAnyCounted *);
-void            deref_Counted   (iAnyCounted *);
+iAnyElement *value_PtrHash(iPtrHash *d, const void *key) {
+    return value_Hash(&d->hash, d->keyFunc(key));
+}
+
+const iAnyElement *constValue_PtrHash(const iPtrHash *d, const void *key) {
+    return value_Hash(&d->hash, d->keyFunc(key));
+}
+
+void clear_PtrHash(iPtrHash *d) {
+    clear_Hash(&d->hash);
+}
+
+iAnyElement *insert_PtrHash(iPtrHash *d, iPtrHashElement *element) {
+    element->base.key = d->keyFunc(element->key);
+    return insert_Hash(&d->hash, &element->base);
+}
+
+iAnyElement *remove_PtrHash(iPtrHash *d, const void *key) {
+    return remove_Hash(&d->hash, d->keyFunc(key));
+}

@@ -50,6 +50,8 @@ typedef void iAny;
 typedef void iAnyObject;
 typedef void (*iDeinitFunc)(iAnyObject *);
 
+uint32_t iCrc32(const char *data, size_t size);
+
 #define iUnused(var) ((void)(var))
 
 #define iZap(var)   memset(&(var), 0, sizeof(var));

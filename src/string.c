@@ -31,9 +31,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <strings.h>
 
 iString *new_String(void) {
-    iString *d = calloc(sizeof(iString), 1);
+    iString *d = malloc(sizeof(iString));
     init_Block(&d->chars, 0);
     return d;
+}
+
+iString *copy_String(const iString *d) {
+    iString *copy = malloc(sizeof(iString));
+    initCopy_Block(&copy->chars, &d->chars);
+    return copy;
 }
 
 iString *fromCStr_String(const char *cstr) {
@@ -42,8 +48,7 @@ iString *fromCStr_String(const char *cstr) {
 
 iString *fromCStrN_String(const char *cstr, size_t len) {
     iString *d = calloc(sizeof(iString), 1);
-    init_Block(&d->chars, len);
-    setData_Block(&d->chars, cstr, len);
+    initData_Block(&d->chars, cstr, len);
     return d;
 }
 

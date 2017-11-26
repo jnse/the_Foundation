@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/class.h"
 #include "c_plus/counted.h"
 #include "c_plus/garbage.h"
-#include "c_plus/hash.h"
+#include "c_plus/stringhash.h"
 #include "c_plus/object.h"
 #include "c_plus/string.h"
 #include "c_plus/regexp.h"
@@ -112,6 +112,18 @@ TestCounted *new_TestCounted(int value) {
 
 //---------------------------------------------------------------------------------------
 
+typedef struct Impl_TestElement {
+    iStringHashElement base;
+    float member;
+}
+TestElement;
+
+TestElement *new_TestElement(void) {
+    TestElement *d = malloc(sizeof(TestElement));
+    d->member = 3.14159265;
+    return d;
+}
+
 void printArray(const iArray *list) {
     printf("%4lu %4lu -> %-4lu : %4lu [", size_Array(list), list->range.start, list->range.end, list->allocSize);
     for (int i = 0; i < list->allocSize * list->elementSize; ++i) {
@@ -187,21 +199,21 @@ int main(int argc, char *argv[]) {
         delete_PtrArray(par);
     }
     /* Test a hash. */ {
-        iHash *h = new_Hash();
-        for (int i = 0; i < 10; ++i) {
-            iHashElement *elem = malloc(sizeof(iHashElement));
-            elem->key = i;
-            insert_Hash(h, elem);
-        }
-        printf("Hash has %zu elements:\n", size_Hash(h));
-        iForEach(Hash, i, h) {
-            //printf("  %04x\n", i.value->key);
-            remove_HashIterator(&i);
+        iStringHash *h = new_StringHash();
+        insertElementsCStr_StringHash(h,
+              "one", new_TestElement(),
+              "two", new_TestElement(), 0);
+        printf("Hash has %zu elements:\n", size_StringHash(h));
+        iForEach(StringHash, i, h) {
+            printf("  %s: %f\n",
+                   cstr_String(key_StringHashIterator(&i)),
+                   ((TestElement *) i.value)->member);
+            remove_StringHashIterator(&i);
             free(i.value);
         }
-        printf("Hash has %zu elements:\n", size_Hash(h));
+        printf("Hash has %zu elements:\n", size_StringHash(h));
         //printf("Contains: %i %i\n", contains_Hash(h, 3), contains_Hash(h, 5));
-        delete_Hash(h);
+        delete_StringHash(h);
     }
     /* Test objects. */ {
         TestObject *a = new_TestObject(1);

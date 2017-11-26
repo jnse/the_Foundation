@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/counted.h  Reference-counted object.
+/** @file c_plus/ptrhash.h  Hash that uses pointers for keys.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,24 +26,38 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
-#include "class.h"
+#include "hash.h"
 
-/**
- * Reference-counted object that gets deleted only after all references are gone.
- */
-iDeclareType(Counted);
+iDeclareType(PtrHash);
+iDeclareType(PtrHashElement);
 
-struct Impl_Counted {
-    const iClass *class;
-    int refCount;
+typedef iHashKey (*iPtrHashKeyFunc)(const void *key);
+
+struct Impl_PtrHash {
+    iHash hash;
+    iPtrHashKeyFunc keyFunc;
 };
 
-typedef void iAnyCounted;
+struct Impl_PtrHashElement {
+    iHashElement base;
+    void *key;
+};
 
-iAnyCounted *   new_Counted     (const iClass *class);
+iPtrHash *      new_PtrHash     (iPtrHashKeyFunc keyFunc);
+void            delete_PtrHash  (iPtrHash *);
 
-void            deinit_Counted  (iAnyCounted *);
+#define         collect_PtrHash(d) iCollectDel(d, delete_PtrHash)
 
-iAnyCounted *   ref_Counted     (const iAnyCounted *);
-void            deref_Counted   (iAnyCounted *);
+void            init_PtrHash    (iPtrHash *, iPtrHashKeyFunc keyFunc);
+void            deinit_PtrHash  (iPtrHash *);
+
+#define         size_PtrHash(d)         size_Hash(&(d)->hash)
+#define         isEmpty_PtrHash(d)      isEmpty_Hash(&(d)->hash)
+
+iBool               contains_PtrHash    (const iPtrHash *, const void *key);
+iAnyElement *       value_PtrHash       (iPtrHash *, const void *key);
+const iAnyElement * constValue_PtrHash  (const iPtrHash *, const void *key);
+
+void            clear_PtrHash   (iPtrHash *);
+iAnyElement *   insert_PtrHash  (iPtrHash *, iPtrHashElement *element);
+iAnyElement *   remove_PtrHash  (iPtrHash *, const void *key);

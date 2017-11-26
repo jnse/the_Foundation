@@ -26,15 +26,14 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
+#include "defs.h"
+#include "ptrarray.h"
+#include "list.h"
+
 /**
  * Hash does not have ownership of the elements. This means the elements can be
  * any type of object as long as they are derived from HashElement.
  */
-
-#include "defs.h"
-#include "c_plus/ptrarray.h"
-#include "c_plus/list.h"
-
 iDeclareType(Hash);
 iDeclareType(HashElement);
 iDeclareType(HashNode);
@@ -52,10 +51,12 @@ struct Impl_HashElement {
     iHashKey key;
 };
 
+typedef void iAnyElement;
+
 iHash *         new_Hash    (void);
 void            delete_Hash (iHash *);
 
-#define         collect_Hash(d) iCollectDel(d, delete_iHash)
+#define         collect_Hash(d) iCollectDel(d, delete_Hash)
 
 void            init_Hash   (iHash *);
 void            deinit_Hash (iHash *);

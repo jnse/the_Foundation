@@ -28,22 +28,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 
-/*iSet *new_Set(size_t elementSize, iSetCmpElem cmp) {
-    iSet *d = calloc(sizeof(iSet), 1);
-    init_Set(d, elementSize, cmp);
-    return d;
-}
+iDefineTypeConstructionArgs(Set, (size_t elementSize, iSetCompareElemFunc cmp), elementSize, cmp)
 
-void delete_Set(iSet *d) {
-    if (d) {
-        deinit_Set(d);
-        free(d);
-    }
-}*/
-
-iDefineTypeConstructionArgs(Set, (size_t elementSize, iSetCmpElem cmp), elementSize, cmp)
-
-void init_Set(iSet *d, size_t elementSize, iSetCmpElem cmp) {
+void init_Set(iSet *d, size_t elementSize, iSetCompareElemFunc cmp) {
     init_Array(&d->values, elementSize);
     d->cmp = cmp;
 }

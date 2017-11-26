@@ -26,9 +26,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/defs.h"
-#include "c_plus/class.h"
-#include "c_plus/list.h"
+#include "defs.h"
+#include "class.h"
+#include "list.h"
 
 /**
  * Object that owns child objects and may have a parent. When a parent is deleted,
@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iDeclareType(Object);
 
 struct Impl_Object {
-    iListElement elem;
+    iListElement base;
     const iClass *class;
     iObject *parent;
     iList *children;

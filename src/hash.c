@@ -45,12 +45,10 @@ struct Impl_HashNode {
     iHashElement *element;
 };
 
-#define shiftKey_HashNode_(key, levels)   ((key) >> (iHashNodeChildShift * (levels)))
-
+#define isBranchNode_HashNode_(d)       ((d)->child[0] != NULL)
+#define shiftKey_HashNode_(key, levels) ((key) >> (iHashNodeChildShift * (levels)))
 #define childNode_HashNode_(d, key, depth) \
         ((d)->child[shiftKey_HashNode_(key, depth) & iHashNodeChildMask])
-
-#define isBranchNode_HashNode_(d)   ((d)->child[0] != NULL)
 
 static void delete_HashNode_(iHashNode *d) {
     for (int i = 0; i < iHashNodeChildCount; ++i) {
@@ -210,7 +208,7 @@ iHashElement *remove_Hash(iHash *d, iHashKey key) {
 //---------------------------------------------------------------------------------------
 
 iHashNode *firstNodePreOrder_HashNode_(const iHashNode *d) {
-    iAssert(d);
+    if (!d) return NULL;
     if (d->element) {
         iAssert(d->child[0] == NULL);
         iAssert(d->child[1] == NULL);
@@ -218,7 +216,6 @@ iHashNode *firstNodePreOrder_HashNode_(const iHashNode *d) {
         iAssert(d->child[3] == NULL);
         return iConstCast(iHashNode *, d);
     }
-    iAssert(d->child[0] && d->child[1] && d->child[2] && d->child[3]);
     iHashNode *elem = NULL;
     for (int i = 0; i < iHashNodeChildCount; ++i) {
         if ((elem = firstNodePreOrder_HashNode_(d->child[i])) != NULL) {

@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/set.h  Set of unique values.
+/** @file c_plus/set.h  Set of sorted unique values.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -30,17 +30,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iDeclareType(Set);
 
-typedef int (*iSetCmpElem)(const void *, const void *);
+typedef int (*iSetCompareElemFunc)(const void *, const void *);
 
 struct Impl_Set {
     iArray values;
-    iSetCmpElem cmp;
+    iSetCompareElemFunc cmp;
 };
 
-iSet *      new_Set     (size_t elementSize, iSetCmpElem cmp);
+iSet *      new_Set     (size_t elementSize, iSetCompareElemFunc cmp);
 void        delete_Set  (iSet *);
 
-void        init_Set    (iSet *d, size_t elementSize, iSetCmpElem cmp);
+void        init_Set    (iSet *d, size_t elementSize, iSetCompareElemFunc cmp);
 void        deinit_Set  (iSet *d);
 
 size_t      size_Set    (const iSet *);

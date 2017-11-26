@@ -79,7 +79,11 @@ static void reserve_BlockData_(iBlockData *d, size_t size) {
     d->data = realloc(d->data, d->allocSize);
 }
 
-//---------------------------------------------------------------------------------------
+static void memcpyFrom_Block_(iBlock *d, const void *data, size_t size) {
+    memcpy(d->i->data, data, size);
+    d->i->data[size] = 0;
+    d->i->size = size;
+}
 
 static void detach_Block_(iBlock *d, size_t allocSize) {
     if (value_Atomic(&d->i->refCount) > 1) {
@@ -90,27 +94,26 @@ static void detach_Block_(iBlock *d, size_t allocSize) {
     iAssert(value_Atomic(&d->i->refCount) == 1);
 }
 
+//---------------------------------------------------------------------------------------
+
 iDefineTypeConstructionArgs(Block, (size_t size), size)
 
 iBlock *newCStr_Block(const char *cstr) {
     iBlock *d = new_Block(strlen(cstr));
-    memcpy(d->i->data, cstr, d->i->size);
-    d->i->data[d->i->size] = 0;
+    memcpyFrom_Block_(d, cstr, d->i->size);
     return d;
 }
 
 iBlock *newData_Block(const void *data, size_t size) {
     iBlock *d = new_Block(size);
-    memcpy(d->i->data, data, size);
-    d->i->data[d->i->size] = 0;
+    memcpyFrom_Block_(d, data, size);
     return d;
 }
 
 iBlock *copy_Block(const iBlock *d) {
     if (d) {
         iBlock *dupl = malloc(sizeof(iBlock));
-        dupl->i = d->i;
-        add_Atomic(&d->i->refCount, 1);
+        initCopy_Block(dupl, d);
         return dupl;
     }
     return NULL;
@@ -124,6 +127,21 @@ void init_Block(iBlock *d, size_t size) {
     else {
         d->i = new_BlockData_(size, 0);
     }
+}
+
+void initData_Block(iBlock *d, const void *data, size_t size) {
+    if (size > 0) {
+        d->i = new_BlockData_(size, 0);
+        memcpyFrom_Block_(d, data, size);
+    }
+    else {
+        init_Block(d, size);
+    }
+}
+
+void initCopy_Block(iBlock *d, const iBlock *other) {
+    d->i = other->i;
+    add_Atomic(&d->i->refCount, 1);
 }
 
 void deinit_Block(iBlock *d) {
@@ -165,7 +183,7 @@ iBlock *mid_Block(const iBlock *d, size_t start, size_t count) {
     }
     const size_t midSize = iMin(count, d->i->size - start);
     iBlock *mid = new_Block(midSize);
-    memcpy(mid->i->data, d->i->data + start, midSize);
+    memcpyFrom_Block_(mid, d->i->data + start, midSize);
     return mid;
 }
 
@@ -242,9 +260,7 @@ void setByte_Block(iBlock *d, size_t pos, char value) {
 
 void setData_Block(iBlock *d, const void *data, size_t size) {
     reserve_Block(d, size);
-    memcpy(d->i->data, data, size);
-    d->i->data[size] = 0;
-    d->i->size = size;
+    memcpyFrom_Block_(d, data, size);
 }
 
 void setCStr_Block(iBlock *d, const char *cstr) {
@@ -306,6 +322,11 @@ int cmpCaseCStrN_Block(const iBlock *d, const char *cstr, size_t len) {
     return iCmpStrNCase(d->i->data, cstr, len);
 }
 
+uint32_t crc32_Block(const iBlock *d) {
+    return iCrc32(d->i->data, d->i->size);
+}
+
+//---------------------------------------------------------------------------------------
 #if defined (iHaveZlib)
 
 iDeclareType(ZStream);
