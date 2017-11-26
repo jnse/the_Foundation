@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/atomic.h  Atomic operations.
+/** @file c_plus/range.h  Numeric ranges.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,10 +26,30 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include <stdatomic.h>
+#include "defs.h"
 
-typedef atomic_int iAtomicInt;
+#define size_Range(d)               ((d)->end - (d)->start)
+#define isEmpty_Range(d)            ((d)->end == (d)->start)
+#define contains_Range(d, value)    ((value) >= (d)->start && (value) < (d)->end)
 
-#define value_Atomic(a)         atomic_load(a)
-#define set_Atomic(a, value)    atomic_store(a, value)
-#define add_Atomic(a, value)    atomic_fetch_add(a, value)
+#define shift_Range(d, delta)       {(d)->start += (delta); (d)->end += (delta);}
+#define setSize_Range(d, ns)        {(d)->end = (d)->start + (ns);}
+
+struct Impl_Rangei {
+    int start;
+    int end;
+};
+
+struct Impl_Rangeui {
+    unsigned int start;
+    unsigned int end;
+};
+
+struct Impl_Ranges {
+    size_t start;
+    size_t end;
+};
+
+iDeclareType(Rangei);
+iDeclareType(Rangeui);
+iDeclareType(Ranges);

@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/defs.h  General definitions.
+/** @file c_plus/defs.h  General definitions.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -59,6 +59,30 @@ typedef void (*iDeinitFunc)(iAnyObject *);
 #define iDeclareType(typeName) \
     typedef struct Impl_##typeName i##typeName
 
+#define iDefineTypeConstruction(typeName) \
+    i##typeName *new_##typeName(void) { \
+        i##typeName *d = malloc(sizeof(i##typeName)); \
+        init_##typeName(d); \
+        return d; \
+    } \
+    void delete_##typeName(i##typeName *d) { \
+        deinit_##typeName(d); \
+        free(d); \
+    }
+
+#define iDefineTypeConstructionArgs(typeName, newArgs, ...) \
+    i##typeName *new_##typeName newArgs { \
+        i##typeName *d = malloc(sizeof(i##typeName)); \
+        init_##typeName(d, __VA_ARGS__); \
+        return d; \
+    } \
+    void delete_##typeName(i##typeName *d) { \
+        if (d) { \
+            deinit_##typeName(d); \
+            free(d); \
+        } \
+    }
+
 #define iDeclareIterator_(iterType, typeName, container) \
     typedef struct iterType##Impl_##typeName i##typeName##iterType; \
     typedef struct iterType##Impl_##typeName i##typeName##Reverse##iterType; \
@@ -98,5 +122,5 @@ typedef void (*iDeinitFunc)(iAnyObject *);
 #   include <stdio.h>
 #   include <assert.h>
 #   define iAssert(cond)    assert(cond)
-#   define iDebug(...)      fprintf(stderr, __VA_ARGS__)
+#   define iDebug(...)      fprintf(stdout, __VA_ARGS__)
 #endif

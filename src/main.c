@@ -23,18 +23,19 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/array.h"
-#include "lite/block.h"
-#include "lite/class.h"
-#include "lite/counted.h"
-#include "lite/garbage.h"
-#include "lite/hash.h"
-#include "lite/object.h"
-#include "lite/string.h"
-#include "lite/regexp.h"
-#include "lite/ptrarray.h"
+#include "c_plus/array.h"
+#include "c_plus/block.h"
+#include "c_plus/class.h"
+#include "c_plus/counted.h"
+#include "c_plus/garbage.h"
+#include "c_plus/hash.h"
+#include "c_plus/object.h"
+#include "c_plus/string.h"
+#include "c_plus/regexp.h"
+#include "c_plus/ptrarray.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <locale.h>
 
 //---------------------------------------------------------------------------------------
@@ -187,13 +188,19 @@ int main(int argc, char *argv[]) {
     }
     /* Test a hash. */ {
         iHash *h = new_Hash();
-        insert_Hash(h, 3, 100);
-        insert_Hash(h, 1, 200);
-        printf("Hash contents:\n");
-        iConstForEach(Hash, i, h) {
-            printf("  %i: %li\n", i.key, *i.value);
+        for (int i = 0; i < 10; ++i) {
+            iHashElement *elem = malloc(sizeof(iHashElement));
+            elem->key = i;
+            insert_Hash(h, elem);
         }
-        printf("Contains: %i %i\n", contains_Hash(h, 3), contains_Hash(h, 5));
+        printf("Hash has %zu elements:\n", size_Hash(h));
+        iForEach(Hash, i, h) {
+            //printf("  %04x\n", i.value->key);
+            remove_HashIterator(&i);
+            free(i.value);
+        }
+        printf("Hash has %zu elements:\n", size_Hash(h));
+        //printf("Contains: %i %i\n", contains_Hash(h, 3), contains_Hash(h, 5));
         delete_Hash(h);
     }
     /* Test objects. */ {

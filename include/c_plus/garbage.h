@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/ptrarray.h  Array of pointers.
+/** @file c_plus/garbage.h  Garbage collector.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,43 +26,15 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "array.h"
+#include "defs.h"
 
-typedef iArray iPtrArray;
+typedef void (*iDeleteFunc)(iAny *);
 
-iPtrArray * new_PtrArray            (void);
-iPtrArray * newPointers_PtrArray    (void *ptr, ...); // NULL-terminated
-void        delete_PtrArray         (iPtrArray *);
+iAny *      collect_Garbage(iAny *ptr, iDeleteFunc del);
 
-#define     init_PtrArray(d)    init_Array(d, sizeof(void *))
-#define     deinit_PtrArray(d)  deinit_Array(d)
+#define     iCollect(ptr)           collect_Garbage(ptr, free)
+#define     iCollectDel(ptr, del)   collect_Garbage(ptr, (iDeleteFunc) del)
 
-#define     isEmpty_PtrArray(d) isEmpty_Array(d)
-#define     size_PtrArray(d)    size_Array(d)
+void        recycle_Garbage(void);
 
-void **     data_PtrArray   (const iPtrArray *);
-void *      at_PtrArray     (const iPtrArray *, size_t pos);
-void        set_PtrArray    (iPtrArray *, size_t pos, const void *ptr);
-
-void        pushBack_PtrArray   (iPtrArray *, const void *ptr);
-void        pushFront_PtrArray  (iPtrArray *, const void *ptr);
-iBool       take_PtrArray       (iPtrArray *, size_t pos, void **outPtr);
-void        insert_PtrArray     (iPtrArray *, size_t pos, const void *ptr);
-
-#define     resize_PtrArray(d, s)   resize_Array(d, s)
-
-iDeclareIterator(PtrArray, iPtrArray *);
-iDeclareConstIterator(PtrArray, const iPtrArray *);
-
-struct IteratorImpl_PtrArray {
-    void **value; // address of element
-    void *ptr; // element
-    size_t pos;
-    iPtrArray *array;
-};
-struct ConstIteratorImpl_PtrArray {
-    const void **value; // address of element
-    const void *ptr; // element
-    const iPtrArray *array;
-};
-
+#define     iRecycle()              recycle_Garbage()

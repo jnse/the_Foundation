@@ -24,11 +24,11 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/set.h"
+#include "c_plus/set.h"
 
 #include <stdlib.h>
 
-iSet *new_Set(size_t elementSize, iSetCmpElem cmp) {
+/*iSet *new_Set(size_t elementSize, iSetCmpElem cmp) {
     iSet *d = calloc(sizeof(iSet), 1);
     init_Set(d, elementSize, cmp);
     return d;
@@ -39,7 +39,9 @@ void delete_Set(iSet *d) {
         deinit_Set(d);
         free(d);
     }
-}
+}*/
+
+iDefineTypeConstructionArgs(Set, (size_t elementSize, iSetCmpElem cmp), elementSize, cmp)
 
 void init_Set(iSet *d, size_t elementSize, iSetCmpElem cmp) {
     init_Array(&d->values, elementSize);

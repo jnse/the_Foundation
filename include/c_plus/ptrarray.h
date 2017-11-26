@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/set.h  Set of unique values.
+/** @file c_plus/ptrarray.h  Array of pointers.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -28,31 +28,41 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "array.h"
 
-iDeclareType(Set);
+typedef iArray iPtrArray;
 
-typedef int (*iSetCmpElem)(const void *, const void *);
+iPtrArray * new_PtrArray            (void);
+iPtrArray * newPointers_PtrArray    (void *ptr, ...); // NULL-terminated
+void        delete_PtrArray         (iPtrArray *);
 
-struct Impl_Set {
-    iArray values;
-    iSetCmpElem cmp;
+#define     init_PtrArray(d)    init_Array(d, sizeof(void *))
+#define     deinit_PtrArray(d)  deinit_Array(d)
+
+#define     isEmpty_PtrArray(d) isEmpty_Array(d)
+#define     size_PtrArray(d)    size_Array(d)
+
+void **     data_PtrArray   (const iPtrArray *);
+void *      at_PtrArray     (const iPtrArray *, size_t pos);
+void        set_PtrArray    (iPtrArray *, size_t pos, const void *ptr);
+
+void        pushBack_PtrArray   (iPtrArray *, const void *ptr);
+void        pushFront_PtrArray  (iPtrArray *, const void *ptr);
+iBool       take_PtrArray       (iPtrArray *, size_t pos, void **outPtr);
+void        insert_PtrArray     (iPtrArray *, size_t pos, const void *ptr);
+
+#define     resize_PtrArray(d, s)   resize_Array(d, s)
+
+iDeclareIterator(PtrArray, iPtrArray *);
+iDeclareConstIterator(PtrArray, const iPtrArray *);
+
+struct IteratorImpl_PtrArray {
+    void **value; // address of element
+    void *ptr; // element
+    size_t pos;
+    iPtrArray *array;
+};
+struct ConstIteratorImpl_PtrArray {
+    const void **value; // address of element
+    const void *ptr; // element
+    const iPtrArray *array;
 };
 
-iSet *      new_Set     (size_t elementSize, iSetCmpElem cmp);
-void        delete_Set  (iSet *);
-
-void        init_Set    (iSet *d, size_t elementSize, iSetCmpElem cmp);
-void        deinit_Set  (iSet *d);
-
-size_t      size_Set    (const iSet *);
-iBool       contains_Set(const iSet *, const void *value);
-iBool       locate_Set  (const iSet *, const void *value, iRanges *outLoc);
-
-#define     at_Set(d, pos)  at_Array(&(d)->values, pos)
-#define     isEmpty_Set(d)  isEmpty_Array(&(d)->values)
-
-void        clear_Set   (iSet *);
-iBool       insert_Set  (iSet *, const void *value);
-iBool       remove_Set  (iSet *, const void *value);
-
-iDeclareIterator(Set, iSet *);
-iDeclareConstIterator(Set, const iSet *);

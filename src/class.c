@@ -24,7 +24,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/class.h"
+#include "c_plus/class.h"
 
 void deinit_Class(const iClass *d, void *object) {
     for (; d; d = d->super) {

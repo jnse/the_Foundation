@@ -24,9 +24,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/object.h"
-#include "lite/ptrarray.h"
-#include "lite/ptrset.h"
+#include "c_plus/object.h"
+#include "c_plus/ptrarray.h"
+#include "c_plus/ptrset.h"
 
 #include <stdio.h>
 #include <stdlib.h>

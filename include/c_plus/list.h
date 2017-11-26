@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/list.h  Doubly linked list.
+/** @file c_plus/list.h  Doubly linked list.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.

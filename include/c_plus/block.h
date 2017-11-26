@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/block.h  Byte array with copy-on-write semantics.
+/** @file c_plus/block.h  Byte array with copy-on-write semantics.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.

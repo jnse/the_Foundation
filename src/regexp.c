@@ -24,9 +24,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/regexp.h"
-#include "lite/string.h"
-#include "lite/range.h"
+#include "c_plus/regexp.h"
+#include "c_plus/string.h"
+#include "c_plus/range.h"
 
 #if !defined (iHavePcre)
 #   error libpcre is required for regular expressions

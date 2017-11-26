@@ -24,7 +24,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/array.h"
+#include "c_plus/array.h"
 
 #include <stdlib.h>
 
@@ -62,7 +62,7 @@ static void rebalance_Array_(iArray *d) {
     }
 }
 
-iArray *new_Array(size_t elementSize) {
+/*iArray *new_Array(size_t elementSize) {
     iArray *d = calloc(sizeof(iArray), 1);
     d->elementSize = elementSize;
     return d;
@@ -71,7 +71,9 @@ iArray *new_Array(size_t elementSize) {
 void delete_Array(iArray *d) {
     deinit_Array(d);
     free(d);
-}
+}*/
+
+iDefineTypeConstructionArgs(Array, (size_t elemSize), elemSize)
 
 void init_Array(iArray *d, size_t elementSize) {
     iZap(*d);

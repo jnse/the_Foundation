@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/regexp.h  Perl-compatible regular expressions.
+/** @file c_plus/object.h  Object base class.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,36 +26,30 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
-#include "range.h"
+#include "c_plus/defs.h"
+#include "c_plus/class.h"
+#include "c_plus/list.h"
 
-iDeclareType(String);
-iDeclareType(RegExp);
-iDeclareType(RegExpMatch);
+/**
+ * Object that owns child objects and may have a parent. When a parent is deleted,
+ * all its children are deleted first.
+ */
+iDeclareType(Object);
 
-#define iRegExpMaxSubstrings  32
-
-enum iRegExpOption {
-    caseSensitive_RegExpOption      = 0,
-    caseInsensitive_RegExpOption    = 0x1,
-    multiLine_RegExpOption          = 0x2,
+struct Impl_Object {
+    iListElement elem;
+    const iClass *class;
+    iObject *parent;
+    iList *children;
 };
 
-iRegExp *   new_RegExp(const char *pattern, enum iRegExpOption options);
-void        delete_RegExp(iRegExp *);
+iAnyObject *    new_Object(const iClass *class);
+void            delete_Object(iAnyObject *);
 
-#define     collect_RegExp(d)   iCollectDel(d, delete_RegExp)
+#define         collect_Object(d) iCollectDel(d, delete_Object)
 
-iBool       match_RegExp(const iRegExp *, const char *subject, size_t len, iRegExpMatch *match);
+iAnyObject *    parent_Object(const iAnyObject *);
+const iList *   children_Object(const iAnyObject *);
 
-#define     matchString_RegExp(d, str, m)   match_RegExp(d, cstr_String(str), size_String(str), m)
+void            setParent_Object(iAnyObject *, iAnyObject *parent);
 
-struct Impl_RegExpMatch {
-    const char *subject;
-    size_t pos;
-    iRangei range;
-    iRangei substring[iRegExpMaxSubstrings];
-    int data_[iRegExpMaxSubstrings + 1];
-};
-
-iString *   captured_RegExpMatch(const iRegExpMatch *, int index);

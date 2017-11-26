@@ -24,7 +24,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/list.h"
+#include "c_plus/list.h"
 
 #include <stdlib.h>
 
@@ -40,15 +40,7 @@ static iListElement *prevElement_List_(const iList *d, const iListElement *elem)
     return elem->prev;
 }
 
-iList *new_List(void) {
-    iList *d = malloc(sizeof(iList));
-    clear_List(d);
-    return d;
-}
-
-void delete_List(iList *d) {
-    free(d);
-}
+iDefineTypeConstruction(List)
 
 void init_List(iList *d) {
     clear_List(d);

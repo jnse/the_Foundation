@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/garbage.h  Garbage collector.
+/** @file c_plus/regexp.h  Perl-compatible regular expressions.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -27,14 +27,35 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
+#include "range.h"
 
-typedef void (*iDeleteFunc)(iAny *);
+iDeclareType(String);
+iDeclareType(RegExp);
+iDeclareType(RegExpMatch);
 
-iAny *      collect_Garbage(iAny *ptr, iDeleteFunc del);
+#define iRegExpMaxSubstrings  32
 
-#define     iCollect(ptr)           collect_Garbage(ptr, free)
-#define     iCollectDel(ptr, del)   collect_Garbage(ptr, (iDeleteFunc) del)
+enum iRegExpOption {
+    caseSensitive_RegExpOption      = 0,
+    caseInsensitive_RegExpOption    = 0x1,
+    multiLine_RegExpOption          = 0x2,
+};
 
-void        recycle_Garbage(void);
+iRegExp *   new_RegExp(const char *pattern, enum iRegExpOption options);
+void        delete_RegExp(iRegExp *);
 
-#define     iRecycle()              recycle_Garbage()
+#define     collect_RegExp(d)   iCollectDel(d, delete_RegExp)
+
+iBool       match_RegExp(const iRegExp *, const char *subject, size_t len, iRegExpMatch *match);
+
+#define     matchString_RegExp(d, str, m)   match_RegExp(d, cstr_String(str), size_String(str), m)
+
+struct Impl_RegExpMatch {
+    const char *subject;
+    size_t pos;
+    iRangei range;
+    iRangei substring[iRegExpMaxSubstrings];
+    int data_[iRegExpMaxSubstrings + 1];
+};
+
+iString *   captured_RegExpMatch(const iRegExpMatch *, int index);

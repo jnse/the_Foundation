@@ -24,10 +24,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/block.h"
-#include "lite/atomic.h"
-#include "lite/garbage.h"
-#include "lite/string.h"
+#include "c_plus/block.h"
+#include "c_plus/atomic.h"
+#include "c_plus/garbage.h"
+#include "c_plus/string.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -90,11 +90,7 @@ static void detach_Block_(iBlock *d, size_t allocSize) {
     iAssert(value_Atomic(&d->i->refCount) == 1);
 }
 
-iBlock *new_Block(size_t size) {
-    iBlock *d = malloc(sizeof(iBlock));
-    init_Block(d, size);
-    return d;
-}
+iDefineTypeConstructionArgs(Block, (size_t size), size)
 
 iBlock *newCStr_Block(const char *cstr) {
     iBlock *d = new_Block(strlen(cstr));
@@ -118,11 +114,6 @@ iBlock *copy_Block(const iBlock *d) {
         return dupl;
     }
     return NULL;
-}
-
-void delete_Block(iBlock *d) {
-    deinit_Block(d);
-    free(d);
 }
 
 void init_Block(iBlock *d, size_t size) {

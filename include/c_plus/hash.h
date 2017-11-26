@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/hash.h  Hash of integer values.
+/** @file c_plus/hash.h  Hash of integer values.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,54 +26,82 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
+/**
+ * Hash does not have ownership of the elements. This means the elements can be
+ * any type of object as long as they are derived from HashElement.
+ */
+
 #include "defs.h"
-#include "lite/ptrarray.h"
-#include "lite/list.h"
+#include "c_plus/ptrarray.h"
+#include "c_plus/list.h"
 
 iDeclareType(Hash);
 iDeclareType(HashElement);
-
-#define iHashDefaultBuckets 53
+iDeclareType(HashNode);
 
 typedef uint32_t iHashKey;
-typedef intptr_t iHashValue;
+//typedef intptr_t iHashValue;
 
 struct Impl_Hash {
-    iPtrArray buckets;
+    iHashNode *root;
     size_t size;
 };
 
+/// Elements inserted to the hash must be based on iHashElement.
 struct Impl_HashElement {
+    iHashElement *next;
     iHashKey key;
-    iHashValue value;
+    //iHashValue value;
 };
 
-#define     new_Hash()      newBuckets_Hash(iHashDefaultBuckets)
+iHash *         new_Hash    (void);
+void            delete_Hash (iHash *);
 
-iHash *     newBuckets_Hash (size_t buckets);
-void        delete_Hash     (iHash *);
+#define         collect_Hash(d) iCollectDel(d, delete_iHash)
 
-#define     collect_Hash(d) iCollectDel(d, delete_iHash)
+void            init_Hash   (iHash *);
+void            deinit_Hash (iHash *);
 
-void        init_Hash   (iHash *, size_t buckets);
-void        deinit_Hash (iHash *);
+#define         size_Hash(d)    ((d)->size)
+#define         isEmpty_Hash(d) (size_Hash(d) == 0)
 
-#define     size_Hash(d)    ((d)->size)
-#define     isEmpty_Hash(d) (size_Hash(d) == 0)
+iBool           contains_Hash   (const iHash *, iHashKey key);
+iHashElement *  value_Hash      (const iHash *, iHashKey key);
 
-iBool       contains_Hash(const iHash *, iHashKey key);
+void            clear_Hash  (iHash *);
 
-#define     value_Hash(d, key)  valueDefault_Hash(d, key, 0)
+/**
+ * Inserts an element into the hash.
+ *
+ * @param element  Element to be inserted. Ownership not taken. The `key` member must
+ *                 be set to a valid hash key.
+ *
+ * @return Previous element with the same key that had to be removed from the hash to
+ * make room for the new element. The caller should delete the element or take any other
+ * necessary actions, since it is no longer part of the hash.
+ */
+iHashElement *  insert_Hash (iHash *, iHashElement *element);
 
-iHashValue  valueDefault_Hash(const iHash *, iHashKey key, iHashValue defaultValue);
-
-void        clear_Hash  (iHash *);
-void        insert_Hash (iHash *, iHashKey key, iHashValue value);
-iBool       remove_Hash (iHash *, iHashKey key);
+iHashElement *  remove_Hash (iHash *, iHashKey key);
 
 iDeclareIterator(Hash, iHash *);
 iDeclareConstIterator(Hash, const iHash *);
 
+void remove_HashIterator(iHashIterator *d);
+
+struct IteratorImpl_Hash {
+    iHashElement *value;
+    iHashElement *next;
+    iHashNode *node;
+    iHash *hash;
+};
+struct ConstIteratorImpl_Hash {
+    const iHashElement *value;
+    const iHashNode *node;
+    const iHash *hash;
+};
+
+#if 0
 #define iHashIteratorImpl(iterType, containerType, valueType) \
     struct iterType##Impl_Hash { \
         valueType value; \
@@ -87,3 +115,4 @@ iHashIteratorImpl(Iterator, iHash *, iHashValue *);
 iHashIteratorImpl(ConstIterator, const iHash *, const iHashValue *);
 iHashIteratorImpl(ReverseIterator, iHash *, iHashValue *);
 iHashIteratorImpl(ReverseConstIterator, const iHash *, const iHashValue *);
+#endif

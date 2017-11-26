@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/ptrset.h  Set of unique pointers.
+/** @file c_plus/set.h  Set of unique values.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,22 +26,33 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "set.h"
+#include "array.h"
 
-typedef iSet iPtrSet;
+iDeclareType(Set);
 
-iPtrSet *   new_PtrSet      (void);
-void        delete_PtrSet   (iPtrSet *);
+typedef int (*iSetCmpElem)(const void *, const void *);
 
-#define     init_PtrSet(d)      init_Set(d)
-#define     deinit_PtrSet(d)    deinit_Set(d)
+struct Impl_Set {
+    iArray values;
+    iSetCmpElem cmp;
+};
 
-iBool       contains_PtrSet (const iPtrSet *, void *ptr);
-iBool       locate_PtrSet   (const iPtrSet *, void *ptr, iRanges *outLoc);
-void *      at_PtrSet       (const iSet *, size_t pos);
+iSet *      new_Set     (size_t elementSize, iSetCmpElem cmp);
+void        delete_Set  (iSet *);
 
-#define     isEmpty_PtrSet(d)   isEmpty_Set(d)
-#define     size_PtrSet(d)      size_Set(d)
+void        init_Set    (iSet *d, size_t elementSize, iSetCmpElem cmp);
+void        deinit_Set  (iSet *d);
 
-iBool       insert_PtrSet   (iPtrSet *, void *ptr);
-iBool       remove_PtrSet   (iPtrSet *, void *ptr);
+size_t      size_Set    (const iSet *);
+iBool       contains_Set(const iSet *, const void *value);
+iBool       locate_Set  (const iSet *, const void *value, iRanges *outLoc);
+
+#define     at_Set(d, pos)  at_Array(&(d)->values, pos)
+#define     isEmpty_Set(d)  isEmpty_Array(&(d)->values)
+
+void        clear_Set   (iSet *);
+iBool       insert_Set  (iSet *, const void *value);
+iBool       remove_Set  (iSet *, const void *value);
+
+iDeclareIterator(Set, iSet *);
+iDeclareConstIterator(Set, const iSet *);

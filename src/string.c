@@ -24,8 +24,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/string.h"
-#include "lite/range.h"
+#include "c_plus/string.h"
+#include "c_plus/range.h"
 
 #include <stdlib.h>
 #include <strings.h>
@@ -35,12 +35,6 @@ iString *new_String(void) {
     init_Block(&d->chars, 0);
     return d;
 }
-
-//iString *newUndefined_String(size_t len) {
-//    iString *d = calloc(sizeof(iString), 1);
-//    init_Block(&d->chars, len);
-//    return d;
-//}
 
 iString *fromCStr_String(const char *cstr) {
     return fromCStrN_String(cstr, strlen(cstr));

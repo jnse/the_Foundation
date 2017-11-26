@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/range.h  Numeric ranges.
+/** @file c_plus/ptrset.h  Set of unique pointers.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,30 +26,22 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
+#include "set.h"
 
-#define size_Range(d)               ((d)->end - (d)->start)
-#define isEmpty_Range(d)            ((d)->end == (d)->start)
-#define contains_Range(d, value)    ((value) >= (d)->start && (value) < (d)->end)
+typedef iSet iPtrSet;
 
-#define shift_Range(d, delta)       {(d)->start += (delta); (d)->end += (delta);}
-#define setSize_Range(d, ns)        {(d)->end = (d)->start + (ns);}
+iPtrSet *   new_PtrSet      (void);
+void        delete_PtrSet   (iPtrSet *);
 
-struct Impl_Rangei {
-    int start;
-    int end;
-};
+#define     init_PtrSet(d)      init_Set(d)
+#define     deinit_PtrSet(d)    deinit_Set(d)
 
-struct Impl_Rangeui {
-    unsigned int start;
-    unsigned int end;
-};
+iBool       contains_PtrSet (const iPtrSet *, void *ptr);
+iBool       locate_PtrSet   (const iPtrSet *, void *ptr, iRanges *outLoc);
+void *      at_PtrSet       (const iSet *, size_t pos);
 
-struct Impl_Ranges {
-    size_t start;
-    size_t end;
-};
+#define     isEmpty_PtrSet(d)   isEmpty_Set(d)
+#define     size_PtrSet(d)      size_Set(d)
 
-iDeclareType(Rangei);
-iDeclareType(Rangeui);
-iDeclareType(Ranges);
+iBool       insert_PtrSet   (iPtrSet *, void *ptr);
+iBool       remove_PtrSet   (iPtrSet *, void *ptr);

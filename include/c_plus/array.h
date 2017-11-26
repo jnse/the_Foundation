@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/array.h  Array of sequential fixed-size elements.
+/** @file c_plus/array.h  Array of sequential fixed-size elements.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.

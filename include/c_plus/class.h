@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/object.h  Object base class.
+/** @file c_plus/class.h  Class object.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,30 +26,36 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/defs.h"
-#include "lite/class.h"
-#include "lite/list.h"
+#include "defs.h"
 
-/**
- * Object that owns child objects and may have a parent. When a parent is deleted,
- * all its children are deleted first.
- */
-iDeclareType(Object);
+iDeclareType(Class);
 
-struct Impl_Object {
-    iListElement elem;
-    const iClass *class;
-    iObject *parent;
-    iList *children;
+struct Impl_Class {
+    const iClass *super;
+    const char *name;
+    size_t instanceSize;
+    void (*deinit)(void *);
 };
 
-iAnyObject *    new_Object(const iClass *class);
-void            delete_Object(iAnyObject *);
+#define iDeclareClass(className) \
+    extern iClass Class_##className;
 
-#define         collect_Object(d) iCollectDel(d, delete_Object)
+#define iBeginClass(classType, className) \
+    classType Class_##className = { \
 
-iAnyObject *    parent_Object(const iAnyObject *);
-const iList *   children_Object(const iAnyObject *);
+#define iEndClass(className) \
+    .name = #className, \
+    .instanceSize = sizeof(className), \
+    .deinit = deinit_##className, }
 
-void            setParent_Object(iAnyObject *, iAnyObject *parent);
+#define iDefineClass(classType, className) \
+    iBeginClass(classType, className) \
+        .super = NULL, \
+    iEndClass(className)
 
+#define iDefineSubclass(classType, className, superClass) \
+    iBeginClass(classType, className) \
+        .super = &Class_##superClass, \
+    iEndClass(className)
+
+void deinit_Class(const iClass *, void *object);

@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/class.h  Class object.
+/** @file c_plus/counted.h  Reference-counted object.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,36 +26,24 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
+#include "c_plus/defs.h"
+#include "c_plus/class.h"
 
-iDeclareType(Class);
+/**
+ * Reference-counted object that gets deleted only after all references are gone.
+ */
+iDeclareType(Counted);
 
-struct Impl_Class {
-    const iClass *super;
-    const char *name;
-    size_t instanceSize;
-    void (*deinit)(void *);
+struct Impl_Counted {
+    const iClass *class;
+    int refCount;
 };
 
-#define iDeclareClass(className) \
-    extern iClass Class_##className;
+typedef void iAnyCounted;
 
-#define iBeginClass(classType, className) \
-    classType Class_##className = { \
+iAnyCounted *   new_Counted     (const iClass *class);
 
-#define iEndClass(className) \
-    .name = #className, \
-    .instanceSize = sizeof(className), \
-    .deinit = deinit_##className, }
+void            deinit_Counted  (iAnyCounted *);
 
-#define iDefineClass(classType, className) \
-    iBeginClass(classType, className) \
-        .super = NULL, \
-    iEndClass(className)
-
-#define iDefineSubclass(classType, className, superClass) \
-    iBeginClass(classType, className) \
-        .super = &Class_##superClass, \
-    iEndClass(className)
-
-void deinit_Class(const iClass *, void *object);
+iAnyCounted *   ref_Counted     (const iAnyCounted *);
+void            deref_Counted   (iAnyCounted *);

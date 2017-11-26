@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.1)
-project (c_Lite
+project (c_Plus
     VERSION 1.0.0
     LANGUAGES C
 )
@@ -35,24 +35,24 @@ set (SOURCES
     src/string.c
 )
 set (HEADERS
-    include/lite/defs.h
-    include/lite/array.h
-    include/lite/block.h
-    include/lite/class.h
-    include/lite/counted.h
-    include/lite/garbage.h
-    include/lite/hash.h
-    include/lite/list.h
-    include/lite/object.h
-    include/lite/ptrarray.h
-    include/lite/ptrset.h
-    include/lite/range.h
-    include/lite/set.h
-    include/lite/string.h
+    include/c_plus/defs.h
+    include/c_plus/array.h
+    include/c_plus/block.h
+    include/c_plus/class.h
+    include/c_plus/counted.h
+    include/c_plus/garbage.h
+    include/c_plus/hash.h
+    include/c_plus/list.h
+    include/c_plus/object.h
+    include/c_plus/ptrarray.h
+    include/c_plus/ptrset.h
+    include/c_plus/range.h
+    include/c_plus/set.h
+    include/c_plus/string.h
 )
 if (PCRE_FOUND)
     set (SOURCES ${SOURCES} src/regexp.c)
-    set (HEADERS ${HEADERS} include/lite/regexp.h)
+    set (HEADERS ${HEADERS} include/c_plus/regexp.h)
 endif ()
 
 add_executable (cplus ${SOURCES} ${HEADERS})

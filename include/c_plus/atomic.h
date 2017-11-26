@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file lite/counted.h  Reference-counted object.
+/** @file c_plus/atomic.h  Atomic operations.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -26,24 +26,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "lite/defs.h"
-#include "lite/class.h"
+#include <stdatomic.h>
 
-/**
- * Reference-counted object that gets deleted only after all references are gone.
- */
-iDeclareType(Counted);
+typedef atomic_int iAtomicInt;
 
-struct Impl_Counted {
-    const iClass *class;
-    int refCount;
-};
-
-typedef void iAnyCounted;
-
-iAnyCounted *   new_Counted     (const iClass *class);
-
-void            deinit_Counted  (iAnyCounted *);
-
-iAnyCounted *   ref_Counted     (const iAnyCounted *);
-void            deref_Counted   (iAnyCounted *);
+#define value_Atomic(a)         atomic_load(a)
+#define set_Atomic(a, value)    atomic_store(a, value)
+#define add_Atomic(a, value)    atomic_fetch_add(a, value)
