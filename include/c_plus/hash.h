@@ -40,7 +40,6 @@ iDeclareType(HashElement);
 iDeclareType(HashNode);
 
 typedef uint32_t iHashKey;
-//typedef intptr_t iHashValue;
 
 struct Impl_Hash {
     iHashNode *root;
@@ -51,7 +50,6 @@ struct Impl_Hash {
 struct Impl_HashElement {
     iHashElement *next;
     iHashKey key;
-    //iHashValue value;
 };
 
 iHash *         new_Hash    (void);
@@ -85,34 +83,17 @@ iHashElement *  insert_Hash (iHash *, iHashElement *element);
 iHashElement *  remove_Hash (iHash *, iHashKey key);
 
 iDeclareIterator(Hash, iHash *);
-iDeclareConstIterator(Hash, const iHash *);
-
-void remove_HashIterator(iHashIterator *d);
-
+iHashElement *remove_HashIterator(iHashIterator *d);
 struct IteratorImpl_Hash {
     iHashElement *value;
     iHashElement *next;
     iHashNode *node;
     iHash *hash;
 };
+
+iDeclareConstIterator(Hash, const iHash *);
 struct ConstIteratorImpl_Hash {
     const iHashElement *value;
     const iHashNode *node;
     const iHash *hash;
 };
-
-#if 0
-#define iHashIteratorImpl(iterType, containerType, valueType) \
-    struct iterType##Impl_Hash { \
-        valueType value; \
-        iHashKey key; \
-        int bucket; \
-        size_t pos; \
-        containerType hash; \
-    }
-
-iHashIteratorImpl(Iterator, iHash *, iHashValue *);
-iHashIteratorImpl(ConstIterator, const iHash *, const iHashValue *);
-iHashIteratorImpl(ReverseIterator, iHash *, iHashValue *);
-iHashIteratorImpl(ReverseConstIterator, const iHash *, const iHashValue *);
-#endif

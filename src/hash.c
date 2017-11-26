@@ -274,9 +274,10 @@ void next_HashIterator(iHashIterator *d) {
     d->next = (d->value? d->value->next : NULL);
 }
 
-void remove_HashIterator(iHashIterator *d) {
+iHashElement *remove_HashIterator(iHashIterator *d) {
     remove_HashNode_(&d->node, d->value->key);
     d->hash->size--;
+    return d->value;
 }
 
 void init_HashConstIterator(iHashConstIterator *d, const iHash *hash) {
