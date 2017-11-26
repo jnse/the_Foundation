@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/string.h"
 #include "c_plus/regexp.h"
 #include "c_plus/ptrarray.h"
+#include "c_plus/math.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -120,7 +121,7 @@ TestElement;
 
 TestElement *new_TestElement(void) {
     TestElement *d = malloc(sizeof(TestElement));
-    d->member = 3.14159265;
+    d->member = iRandomf();
     return d;
 }
 
@@ -142,6 +143,7 @@ static int compareElements(const void *a, const void *b) {
 int main(int argc, char *argv[]) {
     iUnused(argc);
     iUnused(argv);
+    srand(time(NULL));
     setlocale(LC_CTYPE, "utf-8");
     /* Test list insertion and removal. */ {
         printf("Array insertions/removals:\n");

@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <stdlib.h>
 
-iList *children_Object_(iObject *d) {
+static iList *children_Object_(iObject *d) {
     if (!d->children) {
         d->children = new_List();
     }

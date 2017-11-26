@@ -29,6 +29,7 @@ set (SOURCES
     src/hash.c
     src/list.c
     src/main.c
+    src/math.c
     src/object.c
     src/ptrarray.c
     src/ptrhash.c
@@ -46,6 +47,7 @@ set (HEADERS
     include/c_plus/garbage.h
     include/c_plus/hash.h
     include/c_plus/list.h
+    include/c_plus/math.h
     include/c_plus/object.h
     include/c_plus/ptrarray.h
     include/c_plus/ptrhash.h

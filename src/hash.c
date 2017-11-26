@@ -141,6 +141,52 @@ static iHashElement *remove_HashNode_(iHashNode **d, iHashKey key) {
     return NULL;
 }
 
+static int ordinal_HashNode_(const iHashNode *d) {
+    if (d->parent) {
+        for (int i = 0; i < iHashNodeChildCount; ++i) {
+            if (d->parent->child[i] == d) return i;
+        }
+    }
+    return -1;
+}
+
+static iHashNode *firstNodePreOrder_HashNode_(const iHashNode *d) {
+    if (!d) return NULL;
+    if (d->element) {
+        iAssert(d->child[0] == NULL);
+        iAssert(d->child[1] == NULL);
+        iAssert(d->child[2] == NULL);
+        iAssert(d->child[3] == NULL);
+        return iConstCast(iHashNode *, d);
+    }
+    iHashNode *elem = NULL;
+    for (int i = 0; i < iHashNodeChildCount; ++i) {
+        if ((elem = firstNodePreOrder_HashNode_(d->child[i])) != NULL) {
+            break;
+        }
+    }
+    return elem;
+}
+
+static iHashNode *nextNodePreOrder_HashNode_(const iHashNode *d) {
+    iAssert(d);
+    // Nothing follows the root.
+    if (!d->parent) return NULL;
+    // Switch to the next sibling.
+    for (int i = 0; i < iHashNodeLastChild; ++i) {
+        if (d->parent->child[i] == d) {
+            return firstNodePreOrder_HashNode_(d->parent->child[i + 1]);
+        }
+    }
+    // Go back up until there's a node on the right.
+    int ord = iHashNodeLastChild;
+    for (; ord == iHashNodeLastChild; d = d->parent) {
+        if (!d->parent) return NULL;
+        ord = ordinal_HashNode_(d);
+    }
+    return firstNodePreOrder_HashNode_(d->child[ord + 1]);
+}
+
 //---------------------------------------------------------------------------------------
 
 iDefineTypeConstruction(Hash)
@@ -206,52 +252,6 @@ iHashElement *remove_Hash(iHash *d, iHashKey key) {
 }
 
 //---------------------------------------------------------------------------------------
-
-iHashNode *firstNodePreOrder_HashNode_(const iHashNode *d) {
-    if (!d) return NULL;
-    if (d->element) {
-        iAssert(d->child[0] == NULL);
-        iAssert(d->child[1] == NULL);
-        iAssert(d->child[2] == NULL);
-        iAssert(d->child[3] == NULL);
-        return iConstCast(iHashNode *, d);
-    }
-    iHashNode *elem = NULL;
-    for (int i = 0; i < iHashNodeChildCount; ++i) {
-        if ((elem = firstNodePreOrder_HashNode_(d->child[i])) != NULL) {
-            break;
-        }
-    }
-    return elem;
-}
-
-static int ordinal_HashNode_(const iHashNode *d) {
-    if (d->parent) {
-        for (int i = 0; i < iHashNodeChildCount; ++i) {
-            if (d->parent->child[i] == d) return i;
-        }
-    }
-    return -1;
-}
-
-iHashNode *nextNodePreOrder_HashNode_(const iHashNode *d) {
-    iAssert(d);
-    // Nothing follows the root.
-    if (!d->parent) return NULL;
-    // Switch to the next sibling.
-    for (int i = 0; i < iHashNodeLastChild; ++i) {
-        if (d->parent->child[i] == d) {
-            return firstNodePreOrder_HashNode_(d->parent->child[i + 1]);
-        }
-    }
-    // Go back up until there's a node on the right.
-    int ord = iHashNodeLastChild;
-    for (; ord == iHashNodeLastChild; d = d->parent) {
-        if (!d->parent) return NULL;
-        ord = ordinal_HashNode_(d);
-    }
-    return firstNodePreOrder_HashNode_(d->child[ord + 1]);
-}
 
 void init_HashIterator(iHashIterator *d, iHash *hash) {
     d->hash = hash;
