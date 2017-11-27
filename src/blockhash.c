@@ -94,7 +94,9 @@ iBool insert_BlockHash(iBlockHash *d, const iBlock *key, const iAnyObject *value
     iDebug("BlockHash: inserting \"%s\" => %s %p\n",
            constData_Block(key),
            class_Object(value)->name, value);
-    iAnyElement *old = insert_Hash(&d->base, (iHashElement *) d->elementClass->new(key, value));
+    iHashElement *elem = (iHashElement *) d->elementClass->new(key, value);
+    elem->key = d->elementClass->hashKey(key);
+    iAnyElement *old = insert_Hash(&d->base, elem);
     if (old) {
         delete_Class(d->elementClass, old);
         return iFalse;

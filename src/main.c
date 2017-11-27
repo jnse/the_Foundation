@@ -149,8 +149,11 @@ static int compareElements(const void *a, const void *b) {
 int main(int argc, char *argv[]) {
     iUnused(argc);
     iUnused(argv);
-    srand(time(NULL));
-    setlocale(LC_CTYPE, getenv("LC_CTYPE"));
+    /* Initialization. */ {
+        srand(time(NULL));
+        const char *lc = getenv("LC_CTYPE");
+        setlocale(LC_CTYPE, lc? lc : "en_US.UTF-8");
+    }
     /* Test list insertion and removal. */ {
         printf("Array insertions/removals:\n");
         iArray *list = new_Array(2);
