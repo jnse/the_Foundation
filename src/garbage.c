@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 static iList *collected_; // Should be thread-local...
 
-iDeclareType(Collected);
+iDeclareType(Collected)
 struct Impl_Collected {
     iListElement elem;
     void *ptr;

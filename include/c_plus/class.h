@@ -28,34 +28,59 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
-iDeclareType(Class);
+iDeclareType(Class)
 
+typedef void iAnyClass;
+
+// The mandatory members:
 struct Impl_Class {
     const iClass *super;
     const char *name;
-    size_t instanceSize;
+    size_t size;
     void (*deinit)(void *);
 };
 
+#define iBeginDeclareClass(className) \
+    iDeclareType(className##Class) \
+    struct Impl_##className##Class { \
+        const iAnyClass *super; \
+        const char *name; \
+        size_t size; \
+        void (*deinit)(void *);
+
+#define iEndDeclareClass(className) \
+    }; \
+    extern i##className##Class Class_##className;
+
+#define iEndDeclareStaticClass(className) \
+    }; \
+    iDeclareType(className##Class)
+
+#define iDeclareStaticClass(className) \
+    iBeginDeclareClass(className) \
+    iEndDeclareStaticClass(className)
+
 #define iDeclareClass(className) \
-    extern iClass Class_##className;
+    iBeginDeclareClass(className) iEndDeclareClass(className)
 
-#define iBeginClass(classType, className) \
-    classType Class_##className = { \
+#define iBeginDefineClass(className) \
+    i##className##Class Class_##className = { \
 
-#define iEndClass(className) \
-    .name = #className, \
-    .instanceSize = sizeof(className), \
-    .deinit = deinit_##className, }
+#define iEndDefineClass(className) \
+        .name = #className, \
+        .size = sizeof(i##className), \
+        .deinit = (void (*)(void *)) deinit_##className, \
+    };
 
-#define iDefineClass(classType, className) \
-    iBeginClass(classType, className) \
+#define iDefineClass(className) \
+    iBeginDefineClass(className) \
         .super = NULL, \
-    iEndClass(className)
+    iEndDefineClass(className)
 
-#define iDefineSubclass(classType, className, superClass) \
-    iBeginClass(classType, className) \
+#define iDefineSubclass(className, superClass) \
+    iBeginDefineClass(className) \
         .super = &Class_##superClass, \
-    iEndClass(className)
+    iEndDefineClass(className)
 
-void deinit_Class(const iClass *, void *object);
+void deinit_Class(const void *class, void *object);
+void delete_Class(const void *class, void *object);

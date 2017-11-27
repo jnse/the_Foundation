@@ -29,13 +29,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <stdlib.h>
 
-iAnyObject *new_Object(const iClass *class) {
+iAnyObject *new_Object(const iAnyClass *class) {
     iAssert(class != NULL);
-    iAssert(class->instanceSize >= sizeof(iObject));
-    iObject *d = calloc(class->instanceSize, 1);
+    iAssert(((const iClass *) class)->size >= sizeof(iObject));
+    iObject *d = malloc(((const iClass *) class)->size);
     d->class = class;
     d->refCount = 1;
-    printf("constructed %s %p\n", class->name, d);
+    printf("constructed %s %p\n", d->class->name, d);
     return d;
 }
 

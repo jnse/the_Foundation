@@ -29,14 +29,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "ptrarray.h"
 #include "list.h"
+#include "class.h"
 
 /**
  * Hash does not have ownership of the elements. This means the elements can be
  * any type of object as long as they are derived from HashElement.
  */
-iDeclareType(Hash);
-iDeclareType(HashElement);
-iDeclareType(HashNode);
+iDeclareType(Hash)
+iDeclareType(HashElement)
+iDeclareType(HashNode)
 
 typedef uint32_t iHashKey;
 
@@ -83,7 +84,7 @@ iHashElement *  insert_Hash (iHash *, iHashElement *element);
 
 iHashElement *  remove_Hash (iHash *, iHashKey key);
 
-iDeclareIterator(Hash, iHash *);
+iDeclareIterator(Hash, iHash *)
 iHashElement *remove_HashIterator(iHashIterator *d);
 struct IteratorImpl_Hash {
     iHashElement *value;
@@ -92,7 +93,7 @@ struct IteratorImpl_Hash {
     iHash *hash;
 };
 
-iDeclareConstIterator(Hash, const iHash *);
+iDeclareConstIterator(Hash, const iHash *)
 struct ConstIteratorImpl_Hash {
     const iHashElement *value;
     const iHashNode *node;

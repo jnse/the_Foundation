@@ -28,8 +28,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
-iDeclareType(List);
-iDeclareType(ListElement);
+iDeclareType(List)
+iDeclareType(ListElement)
 
 struct Impl_ListElement {
     iListElement *next;
@@ -72,8 +72,8 @@ iAny *      remove_List     (iList *, iAny *elem);
 iAny *      popFront_List   (iList *);
 iAny *      popBack_List    (iList *);
 
-iDeclareIterator(List, iList *);
-iDeclareConstIterator(List, const iList *);
+iDeclareIterator(List, iList *)
+iDeclareConstIterator(List, const iList *)
 
 struct IteratorImpl_List {
     iListElement *value;

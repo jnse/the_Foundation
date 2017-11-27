@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "array.h"
 
-iDeclareType(Set);
+iDeclareType(Set)
 
 typedef int (*iSetCompareElemFunc)(const void *, const void *);
 
@@ -54,5 +54,5 @@ void        clear_Set   (iSet *);
 iBool       insert_Set  (iSet *, const void *value);
 iBool       remove_Set  (iSet *, const void *value);
 
-iDeclareIterator(Set, iSet *);
-iDeclareConstIterator(Set, const iSet *);
+iDeclareIterator(Set, iSet *)
+iDeclareConstIterator(Set, const iSet *)

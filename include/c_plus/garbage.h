@@ -28,8 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
-typedef void (*iDeleteFunc)(iAny *);
-
 iAny *      collect_Garbage(iAny *ptr, iDeleteFunc del);
 
 #define     iCollect(ptr)           collect_Garbage(ptr, free)

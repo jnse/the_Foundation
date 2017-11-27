@@ -156,9 +156,9 @@ iBool popFront_Array(iArray *d) {
     return iTrue;
 }
 
-iBool take_Array(iArray *d, size_t pos, void *outValue) {
+iBool take_Array(iArray *d, size_t pos, void *value_out) {
     if (pos < size_Array(d)) {
-        memcpy(outValue, at_Array(d, pos), d->elementSize);
+        memcpy(value_out, at_Array(d, pos), d->elementSize);
         remove_Array(d, pos);
         return iTrue;
     }

@@ -34,9 +34,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 typedef wchar_t iChar;
 
-iDeclareType(String);
-iDeclareType(StringComparison);
-iDeclareType(MultibyteChar);
+iDeclareType(String)
+iDeclareType(StringComparison)
+iDeclareType(MultibyteChar)
 
 struct Impl_String {
     iBlock chars;
@@ -87,7 +87,7 @@ void            setCStr_String  (iString *, const char *cstr);
 
 void            truncate_String (iString *, size_t len);
 
-iDeclareConstIterator(String, const iString *);
+iDeclareConstIterator(String, const iString *)
 
 struct ConstIteratorImpl_String {
     iChar value;

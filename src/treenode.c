@@ -38,11 +38,14 @@ static iList *children_TreeNode_(iTreeNode *d) {
     return d->children;
 }
 
-void *new_TreeNode(const iClass *class) {
+void *new_TreeNode(const iAnyClass *class) {
     iAssert(class != NULL);
-    iAssert(class->instanceSize >= sizeof(iTreeNode));
-    iTreeNode *d = calloc(class->instanceSize, 1);
-    d->class = class;
+    iAssert(((const iClass *) class)->size >= sizeof(iTreeNode));
+    iTreeNode *d = malloc(((const iClass *) class)->size);
+    iZap(d->base);
+    d->class = (const iClass *) class;
+    d->parent = NULL;
+    d->children = NULL;
     printf("new Object %p\n", d);
     return d;
 }

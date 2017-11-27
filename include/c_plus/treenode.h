@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
  * Object that owns child objects and may have a parent. When a parent is deleted,
  * all its children are deleted first.
  */
-iDeclareType(TreeNode);
+iDeclareType(TreeNode)
 
 struct Impl_TreeNode {
     iListElement base;
@@ -45,7 +45,7 @@ struct Impl_TreeNode {
 
 typedef void iAnyTreeNode;
 
-iAnyTreeNode *  new_TreeNode(const iClass *class);
+iAnyTreeNode *  new_TreeNode(const iAnyClass *class);
 void            delete_TreeNode(iAnyObject *);
 
 #define         collect_TreeNode(d) iCollectDel(d, delete_TreeNode)

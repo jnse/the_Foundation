@@ -29,8 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "range.h"
 
-iDeclareType(Block);
-iDeclareType(BlockData);
+iDeclareType(Block)
+iDeclareType(BlockData)
 
 struct Impl_Block {
     iBlockData *i;

@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 
-iDeclareType(HashNode);
+iDeclareType(HashNode)
 
 #define iHashMaxElements    8 // per node
 #define iHashMaxDepth       32

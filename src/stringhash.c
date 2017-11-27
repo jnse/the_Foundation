@@ -25,10 +25,34 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "c_plus/stringhash.h"
+#include "c_plus/garbage.h"
 
 #include <stdlib.h>
 #include <stdarg.h>
 
+static iStringHashElementClass Class_StringHashElement = {
+    .name = "StringHashElement",
+    .super = NULL,
+    .size = sizeof(iStringHashElement),
+    .new = (iBlockHashElement *(*)(const iBlock *, const iAnyObject *)) new_StringHashElement,
+    .deinit = (iDeleteFunc) deinit_StringHashElement,
+};
+
+iDefineBlockHash(StringHash, String, AnyObject)
+
+const iString *key_StringHashElement(const iStringHashElement *d) {
+    return (const iString *) &d->keyBlock; // iString derived from iBlock
+}
+
+void initKey_StringHashElement(const iStringHashElement *d, iString *key_out) {
+    init_String(key_out, &d->keyBlock);
+}
+
+void initBlock_StringHashKey(const iString *d, iBlock *block) {
+    initCopy_Block(block, &d->chars);
+}
+
+#if 0
 iStringHashElement *new_StringHashElement(iString *key, iAnyObject *object) {
     iStringHashElement *d = iMalloc(StringHashElement);
     d->base.key = key;
@@ -96,46 +120,38 @@ iBool insertKey_StringHash(iStringHash *d, iString *key, iAnyObject *value) {
     }
     return iTrue;
 }
+#endif
 
 void insertValues_StringHash(iStringHash *d, const iString *key, iAnyObject *value, ...) {
-    insert_StringHash(d, key, value);
+    insert_StringHash(d, copy_String(key), value);
     va_list args;
     va_start(args, value);
     for (;;) {
         key = va_arg(args, const iString *);
         if (!key) break;
         value = va_arg(args, iAnyObject *);
-        insert_StringHash(d, key, value);
+        insert_StringHash(d, copy_String(key), value);
     }
     va_end(args);
 }
 
 void insertValuesCStr_StringHash(iStringHash *d, const char *key, iAnyObject *value, ...) {
-    insertKey_StringHash(d, newCStr_String(key), value);
+    insert_StringHash(d, newCStr_String(key), value);
     va_list args;
     va_start(args, value);
     for (;;) {
         key = va_arg(args, const char *);
         if (!key) break;
         value = va_arg(args, iAnyObject *);
-        insertKey_StringHash(d, newCStr_String(key), value);
+        insert_StringHash(d, newCStr_String(key), value);
     }
     va_end(args);
-}
-
-iBool remove_StringHash(iStringHash *d, const iString *key) {
-    iStringHashElement *old = remove_PtrHash(d, key);
-    if (old) {
-        delete_StringHashElement(old);
-        return iTrue;
-    }
-    return iFalse;
 }
 
 //---------------------------------------------------------------------------------------
 
 void init_StringHashIterator(iStringHashIterator *d, iStringHash *hash) {
-    init_HashIterator(&d->base, &hash->hash);
+    init_HashIterator(&d->base, &hash->base.hash);
     d->value = (iStringHashElement *) d->base.value;
 }
 
@@ -149,11 +165,11 @@ const iString *key_StringHashIterator(iStringHashIterator *d) {
 }
 
 void remove_StringHashIterator(iStringHashIterator *d) {
-    delete_StringHashElement((iStringHashElement *) remove_HashIterator(&d->base));
+    remove_BlockHashIterator((iBlockHashIterator *) d);
 }
 
 void init_StringHashConstIterator(iStringHashConstIterator *d, const iStringHash *hash) {
-    init_HashConstIterator(&d->base, &hash->hash);
+    init_HashConstIterator(&d->base, &hash->base.hash);
     d->value = (const iStringHashElement *) d->base.value;
 }
 
@@ -165,4 +181,3 @@ void next_StringHashConstIterator(iStringHashConstIterator *d) {
 const iString *key_StringHashConstIterator(iStringHashConstIterator *d) {
     return key_StringHashElement(d->value);
 }
-

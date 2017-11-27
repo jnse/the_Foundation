@@ -26,11 +26,13 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "ptrhash.h"
+#include "blockhash.h"
 #include "string.h"
-#include "object.h"
 
-iDeclareType(StringHashElement);
+iDeclareBlockHash(StringHash, String, AnyObject)
+
+#if 0
+iDeclareType(StringHashElement)
 
 typedef iPtrHash iStringHash;
 
@@ -76,10 +78,12 @@ iBool           insertKey_StringHash    (iStringHash *, iString *key, iAnyObject
 
 iBool           remove_StringHash       (iStringHash *, const iString *key);
 
+#endif
+
 void            insertValues_StringHash       (iStringHash *, const iString *key, iAnyObject *value, ...);
 void            insertValuesCStr_StringHash   (iStringHash *, const char *key, iAnyObject *value, ...);
 
-iDeclareIterator(StringHash, iStringHash *);
+iDeclareIterator(StringHash, iStringHash *)
 const iString * key_StringHashIterator(iStringHashIterator *);
 void            remove_StringHashIterator(iStringHashIterator *);
 struct IteratorImpl_StringHash {
@@ -87,7 +91,7 @@ struct IteratorImpl_StringHash {
     iStringHashElement *value;
 };
 
-iDeclareConstIterator(StringHash, const iStringHash *);
+iDeclareConstIterator(StringHash, const iStringHash *)
 const iString *key_StringHashConstIterator(iStringHashConstIterator *);
 struct ConstIteratorImpl_StringHash {
     iHashConstIterator base;

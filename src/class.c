@@ -26,10 +26,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "c_plus/class.h"
 
-void deinit_Class(const iClass *d, void *object) {
+#include <stdlib.h>
+
+void deinit_Class(const void *class, void *object) {
+    const iClass *d = (const iClass *) class;
     for (; d; d = d->super) {
         if (d->deinit) {
             d->deinit(object);
         }
     }
+}
+
+void delete_Class(const void *class, void *object) {
+    deinit_Class(class, object);
+    free(object);
 }

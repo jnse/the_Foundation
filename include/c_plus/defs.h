@@ -48,7 +48,8 @@ typedef unsigned int    iUInt;
 
 typedef void iAny;
 typedef void iAnyObject;
-typedef void (*iDeinitFunc)(iAnyObject *);
+typedef void (*iDeinitFunc)(iAny *);
+typedef void (*iDeleteFunc)(iAny *);
 
 uint32_t iCrc32(const char *data, size_t size);
 
@@ -60,7 +61,7 @@ uint32_t iCrc32(const char *data, size_t size);
 
 #define iMalloc(typeName)       malloc(sizeof(i##typeName))
 
-#define iDeclareType(typeName)  typedef struct Impl_##typeName i##typeName
+#define iDeclareType(typeName)  typedef struct Impl_##typeName i##typeName;
 
 #define iDefineTypeConstruction(typeName) \
     i##typeName *new_##typeName(void) { \
@@ -92,7 +93,7 @@ uint32_t iCrc32(const char *data, size_t size);
     void init_##typeName##iterType(i##typeName##iterType *, container); \
     void next_##typeName##iterType(i##typeName##iterType *); \
     void init_##typeName##Reverse##iterType(i##typeName##Reverse##iterType *, container); \
-    void next_##typeName##Reverse##iterType(i##typeName##Reverse##iterType *)
+    void next_##typeName##Reverse##iterType(i##typeName##Reverse##iterType *);
 
 #define iDeclareIterator(typeName, container) \
     iDeclareIterator_(Iterator, typeName, container)

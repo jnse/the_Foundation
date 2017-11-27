@@ -42,50 +42,54 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 //---------------------------------------------------------------------------------------
 
-typedef struct Impl_TestNode {
+iDeclareType(TestNode)
+
+struct Impl_TestNode {
     iTreeNode node;
     int value;
-}
-TestNode;
+};
 
-void init_TestNode(TestNode *d, int value) {
+void init_TestNode(iTestNode *d, int value) {
     d->value = value;
 }
 
 void deinit_TestNode(iAnyObject *obj) {
-    TestNode *d = (TestNode *) obj;
+    iTestNode *d = (iTestNode *) obj;
     printf("deinit TestNode: %i\n", d->value);
 }
 
-static iDefineClass(iClass, TestNode);
+iDeclareStaticClass(TestNode)
+static iDefineClass(TestNode)
 
-TestNode *new_TestNode(int value) {
-    TestNode *d = new_TreeNode(&Class_TestNode);
+iTestNode *new_TestNode(int value) {
+    iTestNode *d = new_TreeNode(&Class_TestNode);
     init_TestNode(d, value);
     return d;
 }
 
 //---------------------------------------------------------------------------------------
 
-typedef struct Impl_SuperNode {
-    TestNode testNode;
-    int member;
-}
-SuperNode;
+iDeclareType(SuperNode)
 
-void init_SuperNode(SuperNode *d, int member) {
+struct Impl_SuperNode {
+    iTestNode testNode;
+    int member;
+};
+
+void init_SuperNode(iSuperNode *d, int member) {
     d->member = member;
 }
 
 void deinit_SuperNode(iAnyObject *any) {
-    SuperNode *d = (SuperNode *) any;
+    iSuperNode *d = (iSuperNode *) any;
     printf("deinit SuperNode: %i\n", d->member);
 }
 
-static iDefineSubclass(iClass, SuperNode, TestNode);
+iDeclareStaticClass(SuperNode)
+static iDefineSubclass(SuperNode, TestNode)
 
-SuperNode *new_SuperNode(int value, int member) {
-    SuperNode *d = new_TreeNode(&Class_SuperNode);
+iSuperNode *new_SuperNode(int value, int member) {
+    iSuperNode *d = new_TreeNode(&Class_SuperNode);
     init_TestNode(&d->testNode, value);
     init_SuperNode(d, member);
     return d;
@@ -93,21 +97,22 @@ SuperNode *new_SuperNode(int value, int member) {
 
 //---------------------------------------------------------------------------------------
 
-typedef struct Impl_TestObject {
+iDeclareType(TestObject)
+struct Impl_TestObject {
     iObject object;
     int value;
-}
-TestObject;
+};
 
 void deinit_TestObject(iAnyObject *any) {
-    TestObject *d = (TestObject *) any;
+    iTestObject *d = (iTestObject *) any;
     printf("deinit TestObject: %i\n", d->value);
 }
 
-static iDefineClass(iClass, TestObject);
+iDeclareStaticClass(TestObject)
+static iDefineClass(TestObject)
 
-TestObject *new_TestObject(int value) {
-    TestObject *d = new_Object(&Class_TestObject);
+iTestObject *new_TestObject(int value) {
+    iTestObject *d = new_Object(&Class_TestObject);
     d->value = value;
     return d;
 }
@@ -210,15 +215,15 @@ int main(int argc, char *argv[]) {
         iForEach(StringHash, i, h) {
             printf("  %s: %i\n",
                    cstr_String(key_StringHashIterator(&i)),
-                   ((TestObject *) i.value->object)->value);
+                   ((iTestObject *) i.value->object)->value);
         }
         delete_StringHash(h);
         printf("Hash deleted.\n");
     }
     /* Test tree nodes. */ {
-        TestNode *a = new_TestNode(1);
-        TestNode *b = new_TestNode(2);
-        SuperNode *c = new_SuperNode(3, 100);
+        iTestNode *a = new_TestNode(1);
+        iTestNode *b = new_TestNode(2);
+        iSuperNode *c = new_SuperNode(3, 100);
         setParent_TreeNode(b, a);
         setParent_TreeNode(c, a);
         printf("Children:\n");
@@ -229,8 +234,8 @@ int main(int argc, char *argv[]) {
         delete_TreeNode(a);
     }
     /* Test reference counting. */ {
-        TestObject *a = new_TestObject(123);
-        TestObject *b = ref_Object(a);
+        iTestObject *a = new_TestObject(123);
+        iTestObject *b = ref_Object(a);
         printf("deref a...\n"); deref_Object(a);
         printf("deref b...\n"); deref_Object(b);
     }

@@ -11,34 +11,36 @@ c_Lite is built on many conventions.
 - Global symbols like type names and macros use the `i` prefix (e.g., `iMin`).
 - Method names and variables use camelCase.
 - Type names and classes start with a capital letter.
-- Preprocessor macros and constants use naming similar to classes (e.g., 
-  `iDeclareType`).
+- Preprocessor macros and constants use naming similar to classes (e.g., `iDeclareType`).
+- The general base class `iObject` implements reference counting. The class of the object determines how the object is deinitialized.
+- In functions where an object is passed as an argument, the reference count must be incremented if the function holds a pointer to the object. Otherwise, the reference count should not be modified.
 
-### Classes
+### Types and classes
 
 All class members use the class name as a suffix, e.g., `length_String`. This
 improves readability and associates the first argument (the `d` object,
 equivalent to `this` in C++) with the type of the class.
 
-A static/private member of a class additionally adds an extra underscore to the
-suffix, e.g., `element_Array_`.
+A static/private member of a class additionally adds an extra underscore to
+the suffix, e.g., `element_Array_`.
 
-Type names are declared with the `iDeclareType` macro. The implementation 
-struct is always called `struct Impl_{Name}`.
+Type names are declared with the `iDeclareType(Name)` macro. The
+implementation struct is always called `struct Impl_Name` that has a typedef
+alias called `iName`.
 
 Macros are used to define member functions with default values for parameters.
 
 ### Construction and destruction
 
-- `new` allocates memory but does not initialize it. 
-- `delete` deinitializes and deletes the object.
-- `init` initializes the object's memory (e.g., zeroing it).
-- `deinit` releases any memory/resource allocations, but not delete the object
-   itself nor is any of the object's state reset to zero.
+For a given type `Type`:
+
+- `new_Type` allocates memory for a Type instance from the heap and initializes it by calling the init method `init_Type`. The macro `iMalloc(Type)` is provided for convenience.
+- `delete_Type` deletes the object after deinitializing with `deinit_Type`.
+- `init_Type` initializes an object's memory (e.g., zeroing it) inside a memory buffer with uninitialized contents. The memory can be located anywhere (heap or stack).
+- `deinit_Type` releases any memory/resource allocations, but not delete the object itself nor is any of the object's state reset to zero. The memory contents are considered undefined afterwards.
 
 ### Iterators
 
-- The member `value` is a pointer to the current element. If NULL, the 
-  iteration will stop.
-- Iterators may have additional members depending on the type of the data
-  and the requirements for internal state.
+- The member `value` is a pointer to the current element. If NULL, the iteration will stop.
+- Iterators may have additional members depending on the type of the data and the requirements for internal state.
+- Non-const iterators have a method called `remove` if the currently iterated element can be removed during iteration. Using this ensures that memory owned by the container itself will be released when the element is deleted.

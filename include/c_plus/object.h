@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
  * Reference-counted object that gets deleted only after all references are gone.
  * iObject is used as a base class for many of the objects in c_Plus.
  */
-iDeclareType(Object);
+iDeclareType(Object)
 
 struct Impl_Object {
     const iClass *class;
@@ -42,7 +42,7 @@ struct Impl_Object {
 
 typedef void iAnyObject;
 
-iAnyObject *    new_Object      (const iClass *class);
+iAnyObject *    new_Object      (const iAnyClass *class);
 
 #define         collect_Object(d)     iCollectDel(d, deref_Object)
 #define         iDeref(d)             collect_Object(d)

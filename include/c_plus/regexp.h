@@ -29,9 +29,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "range.h"
 
-iDeclareType(String);
-iDeclareType(RegExp);
-iDeclareType(RegExpMatch);
+iDeclareType(String)
+iDeclareType(RegExp)
+iDeclareType(RegExpMatch)
 
 #define iRegExpMaxSubstrings  32
 

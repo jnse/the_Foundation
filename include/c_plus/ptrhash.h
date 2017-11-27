@@ -28,8 +28,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "hash.h"
 
-iDeclareType(PtrHash);
-iDeclareType(PtrHashElement);
+iDeclareType(PtrHash)
+iDeclareType(PtrHashElement)
 
 typedef iHashKey (*iPtrHashKeyFunc)(const void *key);
 

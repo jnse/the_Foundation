@@ -27,12 +27,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "ptrhash.h"
-#include "string.h"
+#include "block.h"
 #include "object.h"
 
-iDeclareType(BlockHashElement);
+iDeclareType(BlockHash)
+iDeclareType(BlockHashElement)
 
-typedef iPtrHash iBlockHash;
+typedef iAnyElement *(*iBlockHashElementConstructor)(const iBlock *, const iAnyObject *);
+
+iBeginDeclareClass(BlockHashElement)
+    iBlockHashElement *(*new)(const iBlock *key, const iAnyObject *object);
+iEndDeclareClass(BlockHashElement)
+
+struct Impl_BlockHash {
+    iPtrHash base;
+    const iBlockHashElementClass *elementClass;
+};
 
 struct Impl_BlockHashElement {
     iPtrHashElement base;
@@ -40,8 +50,8 @@ struct Impl_BlockHashElement {
     iAnyObject *object;
 };
 
-iBlockHashElement *     new_BlockHashElement(const iBlock *key, iAnyObject *object);
-void                    delete_BlockHashElement(iBlockHashElement *);
+iBlockHashElement *     new_BlockHashElement(const iBlock *key, const iAnyObject *object);
+void                    deinit_BlockHashElement(iBlockHashElement *);
 
 #define         key_BlockHashElement(d)    iConstCast(iBlock *, (&((const iBlockHashElement *) (d))->keyBlock))
 
@@ -53,8 +63,10 @@ void            delete_BlockHash  (iBlockHash *);
 void            init_BlockHash    (iBlockHash *);
 void            deinit_BlockHash  (iBlockHash *);
 
-#define         size_BlockHash(d)          size_Hash(&(d)->hash)
-#define         isEmpty_BlockHash(d)       isEmpty_Hash(&(d)->hash)
+void            setElementClass_BlockHash (iBlockHash *, const iBlockHashElementClass *class);
+
+#define         size_BlockHash(d)          size_Hash(&(d)->base.hash)
+#define         isEmpty_BlockHash(d)       isEmpty_Hash(&(d)->base.hash)
 
 iBool               contains_BlockHash    (const iBlockHash *, const iBlock *key);
 const iAnyObject *  constValue_BlockHash  (const iBlockHash *, const iBlock *key);
@@ -62,7 +74,7 @@ iAnyObject *        value_BlockHash       (iBlockHash *, const iBlock *key);
 
 void            clear_BlockHash        (iBlockHash *);
 
-iBool           insert_BlockHash       (iBlockHash *, const iBlock *key, iAnyObject *value);
+iBool           insert_BlockHash       (iBlockHash *, const iBlock *key, const iAnyObject *value);
 
 /**
  * Insert a key-value element into the BlockHash.
@@ -73,14 +85,14 @@ iBool           insert_BlockHash       (iBlockHash *, const iBlock *key, iAnyObj
  * @return @c iTrue, if the a new key-value element was added and the size of the hash
  * increased as a result. @c False, if an existing one was replaced.
  */
-iBool           insertKey_BlockHash    (iBlockHash *, iBlock *key, iAnyObject *value);
+iBool           insertKey_BlockHash    (iBlockHash *, iBlock *key, const iAnyObject *value);
 
 iBool           remove_BlockHash       (iBlockHash *, const iBlock *key);
 
-void            insertValues_BlockHash       (iBlockHash *, const iBlock *key, iAnyObject *value, ...);
-void            insertValuesCStr_BlockHash   (iBlockHash *, const char *key, iAnyObject *value, ...);
+void            insertValues_BlockHash       (iBlockHash *, const iBlock *key, const iAnyObject *value, ...);
+void            insertValuesCStr_BlockHash   (iBlockHash *, const char *key, const iAnyObject *value, ...);
 
-iDeclareIterator(BlockHash, iBlockHash *);
+iDeclareIterator(BlockHash, iBlockHash *)
 const iBlock *  key_BlockHashIterator(iBlockHashIterator *);
 void            remove_BlockHashIterator(iBlockHashIterator *);
 struct IteratorImpl_BlockHash {
@@ -88,7 +100,7 @@ struct IteratorImpl_BlockHash {
     iBlockHashElement *value;
 };
 
-iDeclareConstIterator(BlockHash, const iBlockHash *);
+iDeclareConstIterator(BlockHash, const iBlockHash *)
 const iBlock *  key_BlockHashConstIterator(iBlockHashConstIterator *);
 struct ConstIteratorImpl_BlockHash {
     iHashConstIterator base;
@@ -98,95 +110,94 @@ struct ConstIteratorImpl_BlockHash {
 //---------------------------------------------------------------------------------------
 // Deriving specialized hashes:
 
-#define iDeclareBlockHash(typeName, keyType, valueObject) \
-    typedef iBlockHash typeName; \
-    typedef keyType typeName##Key; \
-    typedef iBlockHashElement typeName##Element; \
+#define iDeclareBlockHash(typeName, keyType, valueType) \
+    typedef iBlockHash i##typeName; \
+    typedef i##keyType i##typeName##Key; \
+    typedef iBlockHashElement i##typeName##Element; \
+    typedef iBlockHashElementClass i##typeName##ElementClass; \
     \
-    typeName##Element * new_##typeName##Element     (const keyType *key, valueObject *object); \
-    void                delete_##typeName##Element  (typeName##Element *); \
-    void                key_##typeName##Element     (const typeName##Element *, keyType *key); \
-    valueObject *       value_##typeName##Element   (const typeName##Element *); \
+    i##typeName##Element *  new_##typeName##Element     (const i##keyType *key, const i##valueType *object); \
+    void                    deinit_##typeName##Element  (i##typeName##Element *); \
+    const i##keyType *      key_##typeName##Element     (const i##typeName##Element *); \
+    void                    initKey_##typeName##Element (const i##typeName##Element *, i##keyType *key_out); \
+    i##valueType *          value_##typeName##Element   (const i##typeName##Element *); \
+    void                    initBlock_##typeName##Key   (const i##keyType *key, iBlock *); \
     \
-    typeName *          new_##typeName      (void); \
-    void                delete_##typeName   (typeName *); \
-    typeName *          collect_##typeName  (typeName *); \
+    i##typeName *           new_##typeName      (void); \
+    void                    delete_##typeName   (i##typeName *); \
+    i##typeName *           collect_##typeName  (i##typeName *); \
     \
-    void                init_##typeName     (typeName *); \
-    void                deinit_##typeName   (typeName *); \
+    void                    init_##typeName     (i##typeName *); \
+    void                    deinit_##typeName   (i##typeName *); \
     \
-    size_t              size_##typeName     (const typeName *); \
-    iBool               isEmpty_##typeName  (const typeName *); \
+    size_t                  size_##typeName     (const i##typeName *); \
+    iBool                   isEmpty_##typeName  (const i##typeName *); \
     \
-    iBool               contains_##typeName     (const typeName *, const keyType *key); \
-    const valueObject * constValue_##typeName   (const typeName *, const keyType *key); \
-    valueObject *       value_##typeName        (typeName *, const keyType *key); \
+    iBool                   contains_##typeName     (const i##typeName *, const i##keyType *key); \
+    const i##valueType *    constValue_##typeName   (const i##typeName *, const i##keyType *key); \
+    i##valueType *          value_##typeName        (i##typeName *, const i##keyType *key); \
     \
-    void                clear_##typeName    (typeName *); \
+    void                    clear_##typeName    (i##typeName *); \
     \
-    iBool               insert_##typeName   (typeName *, const keyType *key, valueObject *value); \
-    iBool               remove_##typeName   (typeName *, const keyType *key);
+    iBool                   insert_##typeName   (i##typeName *, const i##keyType *key, const i##valueType *value); \
+    iBool                   remove_##typeName   (i##typeName *, const i##keyType *key);
 
 /**
- * Methods that must be manually defined:
- * - key_<typeName>Element(element, key): copies the Block back to an existing keyType instance
+ * Things that must be manually defined:
+ * - key_<typeName>Element(element): returns the key as-is (if available)
+ * - initKey_<typeName>Element(element, key_out): copies the Block back to an existing keyType instance
  * - initBlock_<typeName>Key(key, block): initializes a Block with the key data
  */
-#define iDefineBlockHash(typeName, keyType, valueObject) \
-    typeName##Element *new_##typeName##Element(const keyType *key, valueObject *object) { \
+#define iDefineBlockHash(typeName, keyType, valueType) \
+    i##typeName##Element *new_##typeName##Element(const i##keyType *key, const i##valueType *object) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
-        iAnyElement *elem = new_BlockHashElement(&bkey, object); \
+        void *elem = new_BlockHashElement(&bkey, object); \
         deinit_Block(&bkey); \
         return elem; \
     } \
-    void delete_##typeName##Element(typeName##Element *d) { delete_BlockHashElement(d); } \
-    typeName *new_##typeName(void) { \
-        typeName *d = malloc(sizeof(typeName)); \
-        init_##typeName(d); return d; \
+    void deinit_##typeName##Element(i##typeName##Element *d) { deinit_BlockHashElement(d); } \
+    i##valueType *value_##typeName##Element(const i##typeName##Element *d) { \
+        return (i##valueType *) d->object; \
     } \
-    valueObject *value_##typeName##Element(const typeName##Element *d) {\
-        return (valueObject *) d->object; \
-    } \
-    void delete_##typeName(typeName *d) { \
-        deinit_##typeName(d); free(d); \
-    } \
-    void init_##typeName(typeName *d) { \
+    iDefineTypeConstruction(typeName) \
+    void init_##typeName(i##typeName *d) { \
         init_BlockHash(d); \
+        setElementClass_BlockHash(d, (const iBlockHashElementClass *) &Class_##typeName##Element); \
     } \
-    void deinit_##typeName(typeName *d) { \
+    void deinit_##typeName(i##typeName *d) { \
         deinit_BlockHash(d); \
     } \
-    typeName *collect_##typeName(typeName *d) { return iCollectDel(d, delete_##typeName); } \
-    size_t size_##typeName(const typeName *d) { return size_BlockHash(d); } \
-    size_t isEmpty_##typeName(const typeName *d) { return isEmpty_BlockHash(d); } \
-    void clear_##typeName(typeName *d) { clear_BlockHash(d); } \
-    iBool contains_##typeName(const typeName *d, const keyType *key) { \
+    i##typeName *collect_##typeName(i##typeName *d) { return iCollectDel(d, delete_##typeName); } \
+    size_t size_##typeName(const i##typeName *d) { return size_BlockHash(d); } \
+    iBool isEmpty_##typeName(const i##typeName *d) { return isEmpty_BlockHash(d); } \
+    void clear_##typeName(i##typeName *d) { clear_BlockHash(d); } \
+    iBool contains_##typeName(const i##typeName *d, const i##keyType *key) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
         iBool res = contains_BlockHash(d, &bkey); \
         deinit_Block(&bkey); \
         return res; \
     } \
-    const valueObject *constValue_##typeName(const typeName *d, const keyType *key) { \
+    const i##valueType *constValue_##typeName(const i##typeName *d, const i##keyType *key) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
-        const valueObject *obj = (const valueObject *) constValue_BlockHash(d, &bkey); \
+        const i##valueType *obj = (const i##valueType *) constValue_BlockHash(d, &bkey); \
         deinit_Block(&bkey); \
         return obj; \
     } \
-    valueObject *value_##typeName(typeName *d, const keyType *key) { \
+    i##valueType *value_##typeName(i##typeName *d, const i##keyType *key) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
-        valueObject *obj = (valueObject *) value_BlockHash(d, &bkey); \
+        i##valueType *obj = (i##valueType *) value_BlockHash(d, &bkey); \
         deinit_Block(&bkey); \
         return obj; \
     } \
-    iBool insert_##typeName(typeName *d, const keyType *key, valueObject *value) { \
+    iBool insert_##typeName(i##typeName *d, const i##keyType *key, const i##valueType *value) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
-        iBool res = insertKey_BlockHash(d, &bkey)); \
+        iBool res = insertKey_BlockHash(d, &bkey, value); \
         deinit_Block(&bkey); \
         return res; \
     } \
-    iBool remove_##typeName(typeName *d, const keyType *key) { \
+    iBool remove_##typeName(i##typeName *d, const i##keyType *key) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
         iBool res = remove_BlockHash(d, &bkey); \
-        deinit_Block(bkey); \
+        deinit_Block(&bkey); \
         return res; \
     }

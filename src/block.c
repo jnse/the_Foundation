@@ -328,7 +328,7 @@ uint32_t crc32_Block(const iBlock *d) {
 //---------------------------------------------------------------------------------------
 #if defined (iHaveZlib)
 
-iDeclareType(ZStream);
+iDeclareType(ZStream)
 
 struct Impl_ZStream {
     z_stream stream;

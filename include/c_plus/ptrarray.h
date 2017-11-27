@@ -51,8 +51,8 @@ void        insert_PtrArray     (iPtrArray *, size_t pos, const void *ptr);
 
 #define     resize_PtrArray(d, s)   resize_Array(d, s)
 
-iDeclareIterator(PtrArray, iPtrArray *);
-iDeclareConstIterator(PtrArray, const iPtrArray *);
+iDeclareIterator(PtrArray, iPtrArray *)
+iDeclareConstIterator(PtrArray, const iPtrArray *)
 
 struct IteratorImpl_PtrArray {
     void **value; // address of element

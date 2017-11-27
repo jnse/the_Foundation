@@ -36,7 +36,7 @@ struct Impl_Array {
     size_t allocSize;
 };
 
-iDeclareType(Array);
+iDeclareType(Array)
 
 iArray *    new_Array      (size_t elementSize);
 void        delete_Array   (iArray *);
@@ -61,14 +61,14 @@ void        pushBack_Array  (iArray *, const void *value);
 void        pushFront_Array (iArray *, const void *value);
 iBool       popBack_Array   (iArray *);
 iBool       popFront_Array  (iArray *);
-iBool       take_Array      (iArray *, size_t pos, void *outValue);
+iBool       take_Array      (iArray *, size_t pos, void *value_out);
 void        insert_Array    (iArray *, size_t pos, const void *value);
 void        remove_Array    (iArray *, size_t pos);
 void        fill_Array      (iArray *, char value);
 void        sort_Array      (iArray *, int (*cmp)(const void *, const void *));
 
-iDeclareIterator(Array, iArray *);
-iDeclareConstIterator(Array, const iArray *);
+iDeclareIterator(Array, iArray *)
+iDeclareConstIterator(Array, const iArray *)
 
 struct IteratorImpl_Array {
     void *value; // address of element
