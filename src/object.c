@@ -29,20 +29,33 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <stdlib.h>
 
+#if !defined (NDEBUG)
+static int totalCount_;
+int totalCount_Object(void) {
+    return totalCount_;
+}
+#endif
+
 iAnyObject *new_Object(const iAnyClass *class) {
     iAssert(class != NULL);
     iAssert(((const iClass *) class)->size >= sizeof(iObject));
     iObject *d = malloc(((const iClass *) class)->size);
     d->class = class;
     d->refCount = 1;
-    printf("constructed %s %p\n", d->class->name, d);
+#if !defined (NDEBUG)
+    totalCount_++;
+#endif
+    iDebug("constructed %s %p\n", d->class->name, d);
     return d;
 }
 
 static void delete_Object_(iObject *d) {
     deinit_Object(d);
-    printf("deleting %s %p\n", d->class->name, d);
+    iDebug("deleting %s %p\n", d->class->name, d);
     free(d);
+#if !defined (NDEBUG)
+    totalCount_--;
+#endif
 }
 
 void deinit_Object(iAnyObject *d) {

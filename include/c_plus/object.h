@@ -44,8 +44,8 @@ typedef void iAnyObject;
 
 iAnyObject *    new_Object      (const iAnyClass *class);
 
-#define         collect_Object(d)     iCollectDel(d, deref_Object)
-#define         iDeref(d)             collect_Object(d)
+#define         collect_Object(d)   iCollectDel(d, deref_Object)
+#define         iDeref(d)           collect_Object(d)
 
 void            deinit_Object   (iAnyObject *);
 
@@ -53,3 +53,7 @@ iAnyObject *    ref_Object      (const iAnyObject *);
 void            deref_Object    (iAnyObject *);
 
 const iClass *  class_Object    (const iAnyObject *);
+
+#if !defined (NDEBUG)
+int             totalCount_Object   (void);
+#endif

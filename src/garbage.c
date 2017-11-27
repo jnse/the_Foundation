@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 static iList *collected_; // Should be thread-local...
 
 iDeclareType(Collected)
+
 struct Impl_Collected {
     iListElement elem;
     void *ptr;
@@ -47,7 +48,7 @@ static iCollected *new_Collected_(void *ptr, iDeleteFunc del) {
 }
 
 static void delete_Collected_(iCollected *d) {
-    printf("...recycling %p\n", d->ptr);
+    iDebug("...recycling %p\n", d->ptr);
     d->del(d->ptr);
     free(d);
 }
