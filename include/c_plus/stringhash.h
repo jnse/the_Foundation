@@ -31,57 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iDeclareBlockHash(StringHash, String, AnyObject)
 
-#if 0
-iDeclareType(StringHashElement)
-
-typedef iPtrHash iStringHash;
-
-struct Impl_StringHashElement {
-    iPtrHashElement base; // key String held here
-    iAnyObject *object;
-};
-
-iStringHashElement *    new_StringHashElement(iString *key, iAnyObject *object);
-void                    delete_StringHashElement(iStringHashElement *);
-
-#define         key_StringHashElement(d)    (iConstCast(iString *, (d)->base.key))
-
-iStringHash *   new_StringHash     (void);
-void            delete_StringHash  (iStringHash *);
-
-#define         collect_StringHash(d)       iCollectDel(d, delete_StringHash)
-
-void            init_StringHash    (iStringHash *);
-void            deinit_StringHash  (iStringHash *);
-
-#define         size_StringHash(d)          size_Hash(&(d)->hash)
-#define         isEmpty_StringHash(d)       isEmpty_Hash(&(d)->hash)
-
-iBool               contains_StringHash    (const iStringHash *, const iString *key);
-const iAnyObject *  constValue_StringHash  (const iStringHash *, const iString *key);
-iAnyObject *        value_StringHash       (iStringHash *, const iString *key);
-
-void            clear_StringHash        (iStringHash *);
-
-iBool           insert_StringHash       (iStringHash *, const iString *key, iAnyObject *value);
-
-/**
- * Insert a key-value element into the StringHash.
- *
- * @param key    Key string. Ownership taken.
- * @param value  Value object.
- *
- * @return @c iTrue, if the a new key-value element was added and the size of the hash
- * increased as a result. @c False, if an existing one was replaced.
- */
-iBool           insertKey_StringHash    (iStringHash *, iString *key, iAnyObject *value);
-
-iBool           remove_StringHash       (iStringHash *, const iString *key);
-
-#endif
-
-void            insertValues_StringHash       (iStringHash *, const iString *key, iAnyObject *value, ...);
-void            insertValuesCStr_StringHash   (iStringHash *, const char *key, iAnyObject *value, ...);
+void        insertValues_StringHash       (iStringHash *, const iString *key, iAnyObject *value, ...);
+void        insertValuesCStr_StringHash   (iStringHash *, const char *key, iAnyObject *value, ...);
 
 iDeclareIterator(StringHash, iStringHash *)
 const iString * key_StringHashIterator(iStringHashIterator *);
@@ -92,7 +43,7 @@ struct IteratorImpl_StringHash {
 };
 
 iDeclareConstIterator(StringHash, const iStringHash *)
-const iString *key_StringHashConstIterator(iStringHashConstIterator *);
+const iString * key_StringHashConstIterator(iStringHashConstIterator *);
 struct ConstIteratorImpl_StringHash {
     iHashConstIterator base;
     const iStringHashElement *value;

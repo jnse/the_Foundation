@@ -28,7 +28,6 @@ set (SOURCES
     src/math.c
     src/object.c
     src/ptrarray.c
-    src/ptrhash.c
     src/ptrset.c
     src/set.c
     src/string.c
@@ -47,7 +46,6 @@ set (HEADERS
     include/c_plus/math.h
     include/c_plus/object.h
     include/c_plus/ptrarray.h
-    include/c_plus/ptrhash.h
     include/c_plus/ptrset.h
     include/c_plus/range.h
     include/c_plus/set.h

@@ -64,13 +64,13 @@ iAny *      back_List   (const iList *);
 
 void        clear_List          (iList *);
 
-iAny *      pushBack_List   (iList *, iAny *elem);
-iAny *      pushFront_List  (iList *, iAny *elem);
-iAny *      insertAfter_List(iList *, iAny *after, iAny *elem);
-iAny *      insertBefore_List(iList *, iAny *before, iAny *elem);
-iAny *      remove_List     (iList *, iAny *elem);
-iAny *      popFront_List   (iList *);
-iAny *      popBack_List    (iList *);
+iAny *      pushBack_List       (iList *, iAny *elem);
+iAny *      pushFront_List      (iList *, iAny *elem);
+iAny *      insertAfter_List    (iList *, iAny *after, iAny *elem);
+iAny *      insertBefore_List   (iList *, iAny *before, iAny *elem);
+iAny *      remove_List         (iList *, iAny *elem);
+iAny *      popFront_List       (iList *);
+iAny *      popBack_List        (iList *);
 
 iDeclareIterator(List, iList *)
 iDeclareConstIterator(List, const iList *)

@@ -25,6 +25,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "c_plus/blockhash.h"
+#include "c_plus/garbage.h"
 
 #include <stdlib.h>
 #include <stdarg.h>
@@ -32,7 +33,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iBlockHashElement *new_BlockHashElement(const iBlock *key, const iAnyObject *object) {
     iBlockHashElement *d = iMalloc(BlockHashElement);
     initCopy_Block(&d->keyBlock, key);
-    d->base.key = &d->keyBlock;
     d->object = ref_Object(object);
     return d;
 }
@@ -44,20 +44,27 @@ void deinit_BlockHashElement(iBlockHashElement *d) {
     }
 }
 
-static iHashKey keyFunc_BlockHash_(const void *key) {
-    return crc32_Block((const iBlock *) key);
+iHashKey hashKey_BlockHashElement(const iBlock *key) {
+    return crc32_Block(key);
 }
+
+iBeginDefineClass(BlockHashElement)
+    .new     = new_BlockHashElement,
+    .hashKey = hashKey_BlockHashElement,
+iEndDefineClass(BlockHashElement)
+
+//---------------------------------------------------------------------------------------
 
 iDefineTypeConstruction(BlockHash)
 
 void init_BlockHash(iBlockHash *d) {
-    init_PtrHash(&d->base, keyFunc_BlockHash_);
+    init_Hash(&d->base);
     setElementClass_BlockHash(d, &Class_BlockHashElement);
 }
 
 void deinit_BlockHash(iBlockHash *d) {
     clear_BlockHash(d); // delete everything
-    deinit_PtrHash(&d->base);
+    deinit_Hash(&d->base);
 }
 
 void setElementClass_BlockHash(iBlockHash *d, const iBlockHashElementClass *class) {
@@ -65,33 +72,29 @@ void setElementClass_BlockHash(iBlockHash *d, const iBlockHashElementClass *clas
 }
 
 iBool contains_BlockHash(const iBlockHash *d, const iBlock *key) {
-    return contains_PtrHash(&d->base, key);
+    return contains_Hash(&d->base, d->elementClass->hashKey(key));
 }
 
 const iAnyElement *constValue_BlockHash(const iBlockHash *d, const iBlock *key) {
-    return constValue_PtrHash(&d->base, key);
+    return value_Hash(&d->base, d->elementClass->hashKey(key));
 }
 
 iAnyElement *value_BlockHash(iBlockHash *d, const iBlock *key) {
-    return value_PtrHash(&d->base, key);
+    return value_Hash(&d->base, d->elementClass->hashKey(key));
 }
 
 void clear_BlockHash(iBlockHash *d) {
     iForEach(BlockHash, i, d) {
         remove_BlockHashIterator(&i);
     }
-    clear_PtrHash(&d->base);
+    clear_Hash(&d->base);
 }
 
 iBool insert_BlockHash(iBlockHash *d, const iBlock *key, const iAnyObject *value) {
-    return insertKey_BlockHash(d, copy_Block(key), value);
-}
-
-iBool insertKey_BlockHash(iBlockHash *d, iBlock *key, const iAnyObject *value) {
     iDebug("BlockHash: inserting \"%s\" => %s %p\n",
            constData_Block(key),
            class_Object(value)->name, value);
-    iAnyElement *old = insert_PtrHash(&d->base, (iPtrHashElement *) d->elementClass->new(key, value));
+    iAnyElement *old = insert_Hash(&d->base, (iHashElement *) d->elementClass->new(key, value));
     if (old) {
         delete_Class(d->elementClass, old);
         return iFalse;
@@ -102,31 +105,27 @@ iBool insertKey_BlockHash(iBlockHash *d, iBlock *key, const iAnyObject *value) {
 void insertValues_BlockHash(iBlockHash *d, const iBlock *key, const iAnyObject *value, ...) {
     insert_BlockHash(d, key, value);
     va_list args;
-    va_start(args, value);
-    for (;;) {
+    for (va_start(args, value);;) {
         key = va_arg(args, const iBlock *);
         if (!key) break;
-        value = va_arg(args, const iAnyObject *);
-        insert_BlockHash(d, key, value);
+        insert_BlockHash(d, key, va_arg(args, const iAnyObject *));
     }
     va_end(args);
 }
 
 void insertValuesCStr_BlockHash(iBlockHash *d, const char *key, const iAnyObject *value, ...) {
-    insertKey_BlockHash(d, newCStr_Block(key), value);
+    insert_BlockHash(d, iDeref(newCStr_Block(key)), value);
     va_list args;
-    va_start(args, value);
-    for (;;) {
+    for (va_start(args, value);;) {
         key = va_arg(args, const char *);
         if (!key) break;
-        value = va_arg(args, const iAnyObject *);
-        insertKey_BlockHash(d, newCStr_Block(key), value);
+        insert_BlockHash(d, iDeref(newCStr_Block(key)), va_arg(args, const iAnyObject *));
     }
     va_end(args);
 }
 
 iBool remove_BlockHash(iBlockHash *d, const iBlock *key) {
-    iBlockHashElement *old = remove_PtrHash(&d->base, key);
+    iHashElement *old = remove_Hash(&d->base, d->elementClass->hashKey(key));
     if (old) {
         delete_Class(d->elementClass, old);
         return iTrue;
@@ -137,7 +136,7 @@ iBool remove_BlockHash(iBlockHash *d, const iBlock *key) {
 //---------------------------------------------------------------------------------------
 
 void init_BlockHashIterator(iBlockHashIterator *d, iBlockHash *hash) {
-    init_HashIterator(&d->base, &hash->base.hash);
+    init_HashIterator(&d->base, &hash->base);
     d->value = (iBlockHashElement *) d->base.value;
 }
 
@@ -155,7 +154,7 @@ void remove_BlockHashIterator(iBlockHashIterator *d) {
 }
 
 void init_BlockHashConstIterator(iBlockHashConstIterator *d, const iBlockHash *hash) {
-    init_HashConstIterator(&d->base, &hash->base.hash);
+    init_HashConstIterator(&d->base, &hash->base);
     d->value = (const iBlockHashElement *) d->base.value;
 }
 
@@ -167,8 +166,3 @@ void next_BlockHashConstIterator(iBlockHashConstIterator *d) {
 const iBlock *key_BlockHashConstIterator(iBlockHashConstIterator *d) {
     return key_BlockHashElement(d->value);
 }
-
-iBeginDefineClass(BlockHashElement)
-    .super = NULL,
-    .new = new_BlockHashElement,
-iEndDefineClass(BlockHashElement)

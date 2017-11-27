@@ -26,31 +26,31 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "ptrhash.h"
+#include "hash.h"
 #include "block.h"
 #include "object.h"
 
 iDeclareType(BlockHash)
 iDeclareType(BlockHashElement)
 
-typedef iAnyElement *(*iBlockHashElementConstructor)(const iBlock *, const iAnyObject *);
-
 iBeginDeclareClass(BlockHashElement)
-    iBlockHashElement *(*new)(const iBlock *key, const iAnyObject *object);
+    iBlockHashElement * (*new)      (const iBlock *key, const iAnyObject *object);
+    iHashKey            (*hashKey)  (const iBlock *key);
 iEndDeclareClass(BlockHashElement)
 
 struct Impl_BlockHash {
-    iPtrHash base;
+    iHash base;
     const iBlockHashElementClass *elementClass;
 };
 
 struct Impl_BlockHashElement {
-    iPtrHashElement base;
+    iHashElement base;
     iBlock keyBlock;
     iAnyObject *object;
 };
 
 iBlockHashElement *     new_BlockHashElement(const iBlock *key, const iAnyObject *object);
+iHashKey                hashKey_BlockHashElement(const iBlock *key);
 void                    deinit_BlockHashElement(iBlockHashElement *);
 
 #define         key_BlockHashElement(d)    iConstCast(iBlock *, (&((const iBlockHashElement *) (d))->keyBlock))
@@ -65,8 +65,8 @@ void            deinit_BlockHash  (iBlockHash *);
 
 void            setElementClass_BlockHash (iBlockHash *, const iBlockHashElementClass *class);
 
-#define         size_BlockHash(d)          size_Hash(&(d)->base.hash)
-#define         isEmpty_BlockHash(d)       isEmpty_Hash(&(d)->base.hash)
+#define         size_BlockHash(d)          size_Hash(&(d)->base)
+#define         isEmpty_BlockHash(d)       isEmpty_Hash(&(d)->base)
 
 iBool               contains_BlockHash    (const iBlockHash *, const iBlock *key);
 const iAnyObject *  constValue_BlockHash  (const iBlockHash *, const iBlock *key);
@@ -74,18 +74,16 @@ iAnyObject *        value_BlockHash       (iBlockHash *, const iBlock *key);
 
 void            clear_BlockHash        (iBlockHash *);
 
-iBool           insert_BlockHash       (iBlockHash *, const iBlock *key, const iAnyObject *value);
-
 /**
  * Insert a key-value element into the BlockHash.
  *
- * @param key    Key string. Ownership taken.
+ * @param key    Key string. A copy is made of the key and stored in the element.
  * @param value  Value object.
  *
  * @return @c iTrue, if the a new key-value element was added and the size of the hash
  * increased as a result. @c False, if an existing one was replaced.
  */
-iBool           insertKey_BlockHash    (iBlockHash *, iBlock *key, const iAnyObject *value);
+iBool           insert_BlockHash       (iBlockHash *, const iBlock *key, const iAnyObject *value);
 
 iBool           remove_BlockHash       (iBlockHash *, const iBlock *key);
 
@@ -191,7 +189,7 @@ struct ConstIteratorImpl_BlockHash {
     } \
     iBool insert_##typeName(i##typeName *d, const i##keyType *key, const i##valueType *value) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
-        iBool res = insertKey_BlockHash(d, &bkey, value); \
+        iBool res = insert_BlockHash(d, &bkey, value); \
         deinit_Block(&bkey); \
         return res; \
     } \
