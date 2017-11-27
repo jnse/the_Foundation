@@ -194,7 +194,7 @@ void *data_Block(iBlock *d) {
 void clear_Block(iBlock *d) {
     deref_BlockData_(d->i);
     d->i = &emptyBlockData;
-    &emptyBlockData.refCount++;
+    emptyBlockData.refCount++;
 }
 
 void reserve_Block(iBlock *d, size_t reservedSize) {
