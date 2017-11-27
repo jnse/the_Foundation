@@ -28,11 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
-/**
- * List does not have ownership of the elements. This means the elements can be
- * any type of object as long as they are derived from ListElement.
- */
-
 iDeclareType(List);
 iDeclareType(ListElement);
 
@@ -46,7 +41,16 @@ struct Impl_List {
     size_t size;
 };
 
+/**
+ * Constructs a new list.
+ *
+ * List does not have ownership of the elements. This means the elements can be
+ * any type of object as long as they are derived from ListElement.
+ *
+ * @return List instance.
+ */
 iList *     new_List    (void);
+
 void        delete_List (iList *);
 
 void        init_List   (iList *);
