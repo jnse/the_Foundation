@@ -268,6 +268,7 @@ int main(int argc, char *argv[]) {
         truncate_String(s, 3);
         printf("Truncated: %s\n", cstr_String(s));
     }
+#if defined (iHavePcre)
     /* Test regular expressions. */ {
         iString *s = newCStr_String("Hello world Äöäö, there is a \U0001f698 out there.");
         iRegExp *rx = new_RegExp("\\b(THERE|WORLD|äöäö)\\b", caseInsensitive_RegExpOption);
@@ -280,6 +281,8 @@ int main(int argc, char *argv[]) {
         delete_RegExp(rx);
         delete_String(s);
     }
+#endif
+#if defined (iHaveZlib)
     /* Test zlib compression. */ {
         iString *s = newCStr_String("Hello world. "
                                     "Hello world. "
@@ -297,5 +300,6 @@ int main(int argc, char *argv[]) {
         delete_Block(restored);
         delete_Block(compr);
     }
+#endif
     return 0;
 }
