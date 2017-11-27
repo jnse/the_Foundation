@@ -1,4 +1,4 @@
-/** @file counted.c  Reference-counted object.
+/** @file treenode.c  Tree node base class.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -24,48 +24,60 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/counted.h"
+#include "c_plus/treenode.h"
+#include "c_plus/ptrarray.h"
+#include "c_plus/ptrset.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-iAnyObject *new_Counted(const iClass *class) {
+static iList *children_TreeNode_(iTreeNode *d) {
+    if (!d->children) {
+        d->children = new_List();
+    }
+    return d->children;
+}
+
+void *new_TreeNode(const iClass *class) {
     iAssert(class != NULL);
-    iAssert(class->instanceSize >= sizeof(iCounted));
-    iCounted *d = calloc(class->instanceSize, 1);
+    iAssert(class->instanceSize >= sizeof(iTreeNode));
+    iTreeNode *d = calloc(class->instanceSize, 1);
     d->class = class;
-    d->refCount = 1;
-    printf("constructed Counted %p\n", d);
+    printf("new Object %p\n", d);
     return d;
 }
 
-static void delete_Counted_(iCounted *d) {
-    deinit_Counted(d);
-    printf("deleting Counted %p\n", d);
-    free(d);
-}
-
-void deinit_Counted(iAnyCounted *any) {
-    iCounted *d = (iCounted *) any;
-    iAssert(d->refCount == 0);
+void delete_TreeNode(iAnyTreeNode *any) {
+    iTreeNode *d = (iTreeNode *) any;
+    setParent_TreeNode(d, NULL);
+    // Destroy children, who will remove themselves.
+    while (!isEmpty_List(d->children)) {
+        delete_TreeNode(front_List(d->children));
+    }
+    delete_List(d->children);
     deinit_Class(d->class, d);
+    free(d);
+    printf("deleted Object %p\n", d);
 }
 
-iAnyCounted *ref_Counted(const iAnyCounted *any) {
-    if (any) {
-        iCounted *i = iConstCast(iCounted *, any);
-        i->refCount++;
-        return i;
+void setParent_TreeNode(iAnyTreeNode *any, iAnyTreeNode *parent) {
+    iTreeNode *d = (iTreeNode *) any;
+    if (d->parent == parent) return;
+    if (d->parent) {
+        // Remove from old parent.
+        iAssert(d->parent->children);
+        remove_List(d->parent->children, d);
     }
-    return NULL;
+    d->parent = parent;
+    if (parent) {
+        pushBack_List(children_TreeNode_(d->parent), d);
+    }
 }
 
-void deref_Counted(iAnyCounted *any) {
-    if (any) {
-        iCounted *d = (iCounted *) any;
-        iAssert(d->refCount > 0);
-        if (--d->refCount <= 0) {
-            delete_Counted_(d);
-        }
-    }
+iAnyTreeNode *parent_TreeNode(const iAnyTreeNode *d) {
+    return ((const iTreeNode *) d)->parent;
+}
+
+const iList *children_TreeNode(const iAnyTreeNode *d) {
+    return children_TreeNode_(iConstCast(iTreeNode *, d));
 }

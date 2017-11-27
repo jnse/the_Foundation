@@ -24,7 +24,6 @@ set (SOURCES
     src/block.c
     src/class.c
     src/crc32.c
-    src/counted.c
     src/garbage.c
     src/hash.c
     src/list.c
@@ -37,13 +36,13 @@ set (SOURCES
     src/set.c
     src/string.c
     src/stringhash.c
+    src/treenode.c
 )
 set (HEADERS
     include/c_plus/defs.h
     include/c_plus/array.h
     include/c_plus/block.h
     include/c_plus/class.h
-    include/c_plus/counted.h
     include/c_plus/garbage.h
     include/c_plus/hash.h
     include/c_plus/list.h
@@ -56,7 +55,7 @@ set (HEADERS
     include/c_plus/set.h
     include/c_plus/string.h
     include/c_plus/stringhash.h
-    include/c_plus/stringobjecthash.h
+    include/c_plus/treenode.h
 )
 if (PCRE_FOUND)
     set (SOURCES ${SOURCES} src/regexp.c)

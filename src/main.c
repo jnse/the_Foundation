@@ -26,18 +26,69 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/array.h"
 #include "c_plus/block.h"
 #include "c_plus/class.h"
-#include "c_plus/counted.h"
 #include "c_plus/garbage.h"
-#include "c_plus/stringhash.h"
-#include "c_plus/object.h"
-#include "c_plus/string.h"
-#include "c_plus/regexp.h"
-#include "c_plus/ptrarray.h"
 #include "c_plus/math.h"
+#include "c_plus/object.h"
+#include "c_plus/ptrarray.h"
+#include "c_plus/regexp.h"
+#include "c_plus/string.h"
+#include "c_plus/stringhash.h"
+#include "c_plus/treenode.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
+
+//---------------------------------------------------------------------------------------
+
+typedef struct Impl_TestNode {
+    iTreeNode node;
+    int value;
+}
+TestNode;
+
+void init_TestNode(TestNode *d, int value) {
+    d->value = value;
+}
+
+void deinit_TestNode(iAnyObject *obj) {
+    TestNode *d = (TestNode *) obj;
+    printf("deinit TestNode: %i\n", d->value);
+}
+
+static iDefineClass(iClass, TestNode);
+
+TestNode *new_TestNode(int value) {
+    TestNode *d = new_TreeNode(&Class_TestNode);
+    init_TestNode(d, value);
+    return d;
+}
+
+//---------------------------------------------------------------------------------------
+
+typedef struct Impl_SuperNode {
+    TestNode testNode;
+    int member;
+}
+SuperNode;
+
+void init_SuperNode(SuperNode *d, int member) {
+    d->member = member;
+}
+
+void deinit_SuperNode(iAnyObject *any) {
+    SuperNode *d = (SuperNode *) any;
+    printf("deinit SuperNode: %i\n", d->member);
+}
+
+static iDefineSubclass(iClass, SuperNode, TestNode);
+
+SuperNode *new_SuperNode(int value, int member) {
+    SuperNode *d = new_TreeNode(&Class_SuperNode);
+    init_TestNode(&d->testNode, value);
+    init_SuperNode(d, member);
+    return d;
+}
 
 //---------------------------------------------------------------------------------------
 
@@ -47,12 +98,8 @@ typedef struct Impl_TestObject {
 }
 TestObject;
 
-void init_TestObject(TestObject *d, int value) {
-    d->value = value;
-}
-
-void deinit_TestObject(iAnyObject *obj) {
-    TestObject *d = (TestObject *) obj;
+void deinit_TestObject(iAnyObject *any) {
+    TestObject *d = (TestObject *) any;
     printf("deinit TestObject: %i\n", d->value);
 }
 
@@ -60,53 +107,6 @@ static iDefineClass(iClass, TestObject);
 
 TestObject *new_TestObject(int value) {
     TestObject *d = new_Object(&Class_TestObject);
-    init_TestObject(d, value);
-    return d;
-}
-
-//---------------------------------------------------------------------------------------
-
-typedef struct Impl_SuperObject {
-    TestObject base;
-    int member;
-}
-SuperObject;
-
-void init_SuperObject(SuperObject *d, int member) {
-    d->member = member;
-}
-
-void deinit_SuperObject(iAnyObject *any) {
-    SuperObject *d = (SuperObject *) any;
-    printf("deinit SuperObject: %i\n", d->member);
-}
-
-static iDefineSubclass(iClass, SuperObject, TestObject);
-
-SuperObject *new_SuperObject(int value, int member) {
-    SuperObject *d = new_Object(&Class_SuperObject);
-    init_TestObject(&d->base, value);
-    init_SuperObject(d, member);
-    return d;
-}
-
-//---------------------------------------------------------------------------------------
-
-typedef struct Impl_TestCounted {
-    iCounted base;
-    int value;
-}
-TestCounted;
-
-void deinit_TestCounted(iAnyCounted *any) {
-    TestCounted *d = (TestCounted *) any;
-    printf("deinit TestCounted: %i\n", d->value);
-}
-
-static iDefineClass(iClass, TestCounted);
-
-TestCounted *new_TestCounted(int value) {
-    TestCounted *d = new_Counted(&Class_TestCounted);
     d->value = value;
     return d;
 }
@@ -202,39 +202,36 @@ int main(int argc, char *argv[]) {
     }
     /* Test a hash. */ {
         iStringHash *h = new_StringHash();
-        insertElementsCStr_StringHash(h,
-              "one", new_TestElement(),
-              "two", new_TestElement(), 0);
+        insertValuesCStr_StringHash(h,
+              "one", iDeref(new_TestObject(1000)),
+              "two", iDeref(new_TestObject(1001)), 0);
         printf("Hash has %zu elements:\n", size_StringHash(h));
         iForEach(StringHash, i, h) {
-            printf("  %s: %f\n",
+            printf("  %s: %i\n",
                    cstr_String(key_StringHashIterator(&i)),
-                   ((TestElement *) i.value)->member);
-            iCollect(i.value);
+                   ((TestObject *) i.value->object)->value);
         }
-        printf("Hash has %zu elements:\n", size_StringHash(h));
-        //printf("Contains: %i %i\n", contains_Hash(h, 3), contains_Hash(h, 5));
-        //deleteElements_StringHash(h, free);
         delete_StringHash(h);
+        printf("Hash deleted.\n");
     }
-    /* Test objects. */ {
-        TestObject *a = new_TestObject(1);
-        TestObject *b = new_TestObject(2);
-        SuperObject *c = new_SuperObject(3, 100);
-        setParent_Object(b, a);
-        setParent_Object(c, a);
+    /* Test tree nodes. */ {
+        TestNode *a = new_TestNode(1);
+        TestNode *b = new_TestNode(2);
+        SuperNode *c = new_SuperNode(3, 100);
+        setParent_TreeNode(b, a);
+        setParent_TreeNode(c, a);
         printf("Children:\n");
-        iConstForEach(List, i, a->object.children) {
+        iConstForEach(List, i, a->node.children) {
             printf("- %p\n", i.value);
         }
-        delete_Object(b);
-        delete_Object(a);
+        delete_TreeNode(b);
+        delete_TreeNode(a);
     }
     /* Test reference counting. */ {
-        TestCounted *a = new_TestCounted(123);
-        TestCounted *b = ref_Counted(a);
-        printf("deref a...\n"); deref_Counted(a);
-        printf("deref b...\n"); deref_Counted(b);
+        TestObject *a = new_TestObject(123);
+        TestObject *b = ref_Object(a);
+        printf("deref a...\n"); deref_Object(a);
+        printf("deref b...\n"); deref_Object(b);
     }
     /* Test blocks and garbage collector. */ {
         iBlock *a = collect_Block(new_Block(0));

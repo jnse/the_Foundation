@@ -52,18 +52,19 @@ typedef void (*iDeinitFunc)(iAnyObject *);
 
 uint32_t iCrc32(const char *data, size_t size);
 
-#define iUnused(var) ((void)(var))
+#define iUnused(var)            ((void)(var))
 
-#define iZap(var)   memset(&(var), 0, sizeof(var));
+#define iZap(var)               memset(&(var), 0, sizeof(var));
 
-#define iConstCast(type, ptr) ((type) (intptr_t) (ptr))
+#define iConstCast(type, ptr)   ((type) (intptr_t) (ptr))
 
-#define iDeclareType(typeName) \
-    typedef struct Impl_##typeName i##typeName
+#define iMalloc(typeName)       malloc(sizeof(i##typeName))
+
+#define iDeclareType(typeName)  typedef struct Impl_##typeName i##typeName
 
 #define iDefineTypeConstruction(typeName) \
     i##typeName *new_##typeName(void) { \
-        i##typeName *d = malloc(sizeof(i##typeName)); \
+        i##typeName *d = iMalloc(typeName); \
         init_##typeName(d); \
         return d; \
     } \
@@ -74,7 +75,7 @@ uint32_t iCrc32(const char *data, size_t size);
 
 #define iDefineTypeConstructionArgs(typeName, newArgs, ...) \
     i##typeName *new_##typeName newArgs { \
-        i##typeName *d = malloc(sizeof(i##typeName)); \
+        i##typeName *d = iMalloc(typeName); \
         init_##typeName(d, __VA_ARGS__); \
         return d; \
     } \

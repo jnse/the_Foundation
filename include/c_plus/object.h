@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/object.h  Object base class.
+/** @file c_plus/object.h  Reference-counted object.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -28,28 +28,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 #include "class.h"
-#include "list.h"
+#include "atomic.h"
 
 /**
- * Object that owns child objects and may have a parent. When a parent is deleted,
- * all its children are deleted first.
+ * Reference-counted object that gets deleted only after all references are gone.
+ * iObject is used as a base class for many of the objects in c_Plus.
  */
 iDeclareType(Object);
 
 struct Impl_Object {
-    iListElement base;
     const iClass *class;
-    iObject *parent;
-    iList *children;
+    iAtomicInt refCount;
 };
 
-iAnyObject *    new_Object(const iClass *class);
-void            delete_Object(iAnyObject *);
+typedef void iAnyObject;
 
-#define         collect_Object(d) iCollectDel(d, delete_Object)
+iAnyObject *    new_Object      (const iClass *class);
 
-iAnyObject *    parent_Object(const iAnyObject *);
-const iList *   children_Object(const iAnyObject *);
+#define         collect_Object(d)     iCollectDel(d, deref_Object)
+#define         iDeref(d)             collect_Object(d)
 
-void            setParent_Object(iAnyObject *, iAnyObject *parent);
+void            deinit_Object   (iAnyObject *);
 
+iAnyObject *    ref_Object      (const iAnyObject *);
+void            deref_Object    (iAnyObject *);
+
+const iClass *  class_Object    (const iAnyObject *);

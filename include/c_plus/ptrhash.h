@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/ptrhash.h  Hash that uses pointers for keys.
+/** @file c_plus/ptrhash.h  Generic hash that uses pointers for keys.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -43,7 +43,19 @@ struct Impl_PtrHashElement {
     void *key;
 };
 
+/**
+ * Construct a new pointer hash.
+ *
+ * PtrHash does not have ownership of the elements. The class is most suitable as a
+ * base for more specialized hashes that actually own the keys and the values.
+ *
+ * @param keyFunc  Hashing function for generating unique 32-bit integers for each
+ *                 key pointer.
+ *
+ * @return PtrHash instance.
+ */
 iPtrHash *      new_PtrHash     (iPtrHashKeyFunc keyFunc);
+
 void            delete_PtrHash  (iPtrHash *);
 
 #define         collect_PtrHash(d) iCollectDel(d, delete_PtrHash)

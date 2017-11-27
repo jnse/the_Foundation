@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/counted.h  Reference-counted object.
+/** @file c_plus/treenode.h  Tree node base class.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -28,22 +28,30 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 #include "class.h"
+#include "list.h"
 
 /**
- * Reference-counted object that gets deleted only after all references are gone.
+ * Object that owns child objects and may have a parent. When a parent is deleted,
+ * all its children are deleted first.
  */
-iDeclareType(Counted);
+iDeclareType(TreeNode);
 
-struct Impl_Counted {
+struct Impl_TreeNode {
+    iListElement base;
     const iClass *class;
-    int refCount;
+    iTreeNode *parent;
+    iList *children;
 };
 
-typedef void iAnyCounted;
+typedef void iAnyTreeNode;
 
-iAnyCounted *   new_Counted     (const iClass *class);
+iAnyTreeNode *  new_TreeNode(const iClass *class);
+void            delete_TreeNode(iAnyObject *);
 
-void            deinit_Counted  (iAnyCounted *);
+#define         collect_TreeNode(d) iCollectDel(d, delete_TreeNode)
 
-iAnyCounted *   ref_Counted     (const iAnyCounted *);
-void            deref_Counted   (iAnyCounted *);
+iAnyTreeNode *  parent_TreeNode(const iAnyTreeNode *);
+const iList *   children_TreeNode(const iAnyTreeNode *);
+
+void            setParent_TreeNode(iAnyTreeNode *, iAnyTreeNode *parent);
+

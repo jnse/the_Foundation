@@ -1,4 +1,4 @@
-/** @file ptrhash.c  Hash that maps pointers to pointers.
+/** @file ptrhash.c  Generic hash that uses pointers for keys.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.

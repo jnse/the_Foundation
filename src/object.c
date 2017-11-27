@@ -1,4 +1,4 @@
-/** @file object.c  Object base class.
+/** @file object.c  Reference-counted object.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -25,59 +25,53 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "c_plus/object.h"
-#include "c_plus/ptrarray.h"
-#include "c_plus/ptrset.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-static iList *children_Object_(iObject *d) {
-    if (!d->children) {
-        d->children = new_List();
-    }
-    return d->children;
-}
-
-void *new_Object(const iClass *class) {
+iAnyObject *new_Object(const iClass *class) {
     iAssert(class != NULL);
     iAssert(class->instanceSize >= sizeof(iObject));
     iObject *d = calloc(class->instanceSize, 1);
     d->class = class;
-    printf("new Object %p\n", d);
+    set_Atomic(&d->refCount, 1);
+    printf("constructed Counted %p\n", d);
     return d;
 }
 
-void delete_Object(iAnyObject *any) {
-    iObject *d = (iObject *) any;
-    setParent_Object(d, NULL);
-    // Destroy children, who will remove themselves.
-    while (!isEmpty_List(d->children)) {
-        delete_Object(front_List(d->children));
-    }
-    delete_List(d->children);
-    deinit_Class(d->class, d);
+static void delete_Object_(iObject *d) {
+    deinit_Object(d);
+    printf("deleting Counted %p\n", d);
     free(d);
-    printf("deleted Object %p\n", d);
 }
 
-void setParent_Object(iAnyObject *any, iAnyObject *parent) {
-    iObject *d = (iObject *) any;
-    if (d->parent == parent) return;
-    if (d->parent) {
-        // Remove from old parent.
-        iAssert(d->parent->children);
-        remove_List(d->parent->children, d);
+void deinit_Object(iAnyObject *d) {
+    deinit_Class(((iObject *) d)->class, d);
+}
+
+iAnyObject *ref_Object(const iAnyObject *any) {
+    if (any) {
+        iObject *d = iConstCast(iObject *, any);
+        add_Atomic(&d->refCount, 1);
+        return d;
     }
-    d->parent = parent;
-    if (parent) {
-        pushBack_List(children_Object_(d->parent), d);
+    return NULL;
+}
+
+void deref_Object(iAnyObject *any) {
+    if (any) {
+        iObject *d = (iObject *) any;
+        const int rc = add_Atomic(&d->refCount, -1);
+        iAssert(rc >= 1);
+        if (rc == 1) { // became zero
+            delete_Object_(d);
+        }
     }
 }
 
-iAnyObject *parent_Object(const iAnyObject *d) {
-    return ((const iObject *) d)->parent;
-}
-
-const iList *children_Object(const iAnyObject *d) {
-    return children_Object_(iConstCast(iObject *, d));
+const iClass *class_Object(const iAnyObject *d) {
+    if (d) {
+        return ((const iObject *) d)->class;
+    }
+    return NULL;
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/stringhash.h  Hash that uses strings for keys.
+/** @file c_plus/stringhash.h  Hash that uses String for keys and Object for values.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -28,44 +28,60 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "ptrhash.h"
 #include "string.h"
+#include "object.h"
 
 iDeclareType(StringHashElement);
 
 typedef iPtrHash iStringHash;
 
-struct Impl_StringHashElement { // compatible with iPtrHashElement
-    iHashElement base;
-    iString *key;
+struct Impl_StringHashElement {
+    iPtrHashElement base; // key String held here
+    iAnyObject *object;
 };
 
-iStringHash *   new_StringHash              (void);
-void            delete_StringHash           (iStringHash *);
+iStringHashElement *    new_StringHashElement(iString *key, iAnyObject *object);
+void                    delete_StringHashElement(iStringHashElement *);
 
-#define         collect_StringHash(d) iCollectDel(d, delete_StringHash)
+#define         key_StringHashElement(d)    (iConstCast(iString *, (d)->base.key))
+
+iStringHash *   new_StringHash     (void);
+void            delete_StringHash  (iStringHash *);
+
+#define         collect_StringHash(d)       iCollectDel(d, delete_StringHash)
 
 void            init_StringHash    (iStringHash *);
 void            deinit_StringHash  (iStringHash *);
 
-#define         size_StringHash(d)         size_Hash(&(d)->hash)
-#define         isEmpty_StringHash(d)      isEmpty_Hash(&(d)->hash)
+#define         size_StringHash(d)          size_Hash(&(d)->hash)
+#define         isEmpty_StringHash(d)       isEmpty_Hash(&(d)->hash)
 
 iBool               contains_StringHash    (const iStringHash *, const iString *key);
-const iAnyElement * constValue_StringHash  (const iStringHash *, const iString *key);
-iAnyElement *       value_StringHash       (iStringHash *, const iString *key);
+const iAnyObject *  constValue_StringHash  (const iStringHash *, const iString *key);
+iAnyObject *        value_StringHash       (iStringHash *, const iString *key);
 
 void            clear_StringHash        (iStringHash *);
-void            deleteElements_StringHash(iStringHash *, void (*deleteFunc)(iAnyElement *));
 
-iAnyElement *   insert_StringHash       (iStringHash *, const iString *key, iAnyElement *element);
-iAnyElement *   insertKey_StringHash    (iStringHash *, iString *key, iAnyElement *element);
-iAnyElement *   remove_StringHash       (iStringHash *, const iString *key);
+iBool           insert_StringHash       (iStringHash *, const iString *key, iAnyObject *value);
 
-void            insertElments_StringHash        (iStringHash *, const iString *key, iAnyElement *element, ...);
-void            insertElementsCStr_StringHash   (iStringHash *, const char *key, iAnyElement *element, ...);
+/**
+ * Insert a key-value element into the StringHash.
+ *
+ * @param key    Key string. Ownership taken.
+ * @param value  Value object.
+ *
+ * @return @c iTrue, if the a new key-value element was added and the size of the hash
+ * increased as a result. @c False, if an existing one was replaced.
+ */
+iBool           insertKey_StringHash    (iStringHash *, iString *key, iAnyObject *value);
+
+iBool           remove_StringHash       (iStringHash *, const iString *key);
+
+void            insertValues_StringHash       (iStringHash *, const iString *key, iAnyObject *value, ...);
+void            insertValuesCStr_StringHash   (iStringHash *, const char *key, iAnyObject *value, ...);
 
 iDeclareIterator(StringHash, iStringHash *);
 const iString * key_StringHashIterator(iStringHashIterator *);
-iAnyElement *   remove_StringHashIterator(iStringHashIterator *);
+void            remove_StringHashIterator(iStringHashIterator *);
 struct IteratorImpl_StringHash {
     iHashIterator base;
     iStringHashElement *value;
