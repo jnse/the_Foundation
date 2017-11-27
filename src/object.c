@@ -35,13 +35,13 @@ iAnyObject *new_Object(const iClass *class) {
     iObject *d = calloc(class->instanceSize, 1);
     d->class = class;
     set_Atomic(&d->refCount, 1);
-    printf("constructed Counted %p\n", d);
+    printf("constructed %s %p\n", class->name, d);
     return d;
 }
 
 static void delete_Object_(iObject *d) {
     deinit_Object(d);
-    printf("deleting Counted %p\n", d);
+    printf("deleting %s %p\n", d->class->name, d);
     free(d);
 }
 

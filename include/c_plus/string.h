@@ -43,14 +43,16 @@ struct Impl_String {
 };
 
 iString *       new_String      (void);
+iString *       newCStr_String  (const char *cstr);
+iString *       newCStrN_String (const char *cstr, size_t len);
+iString *       newBlock_String (const iBlock *data);
 iString *       copy_String     (const iString *);
 void            delete_String   (iString *);
 
 #define         collect_String(d)   iCollectDel(d, delete_String)
 
-iString *       fromCStr_String (const char *cstr);
-iString *       fromCStrN_String(const char *cstr, size_t len);
-iString *       fromBlock_String(const iBlock *data);
+void            init_String     (iString *, const iBlock *chars);
+void            deinit_String   (iString *);
 
 const char *    cstr_String     (const iString *);
 size_t          length_String   (const iString *);

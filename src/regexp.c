@@ -87,5 +87,5 @@ iBool match_RegExp(const iRegExp *d, const char *subject, size_t len, iRegExpMat
 iString *captured_RegExpMatch(const iRegExpMatch *d, int index) {
     iAssert(index <= iRegExpMaxSubstrings);
     const iRangei *cap = &d->range + index;
-    return fromCStrN_String(d->subject + cap->start, size_Range(cap));
+    return newCStrN_String(d->subject + cap->start, size_Range(cap));
 }

@@ -22,6 +22,7 @@ endif ()
 set (SOURCES
     src/array.c
     src/block.c
+    src/blockhash.c
     src/class.c
     src/crc32.c
     src/garbage.c
@@ -42,6 +43,7 @@ set (HEADERS
     include/c_plus/defs.h
     include/c_plus/array.h
     include/c_plus/block.h
+    include/c_plus/blockhash.h
     include/c_plus/class.h
     include/c_plus/garbage.h
     include/c_plus/hash.h

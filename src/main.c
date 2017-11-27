@@ -250,7 +250,7 @@ int main(int argc, char *argv[]) {
         iRecycle();
     }
     /* Test Unicode strings. */ {
-        iString *s = collect_String(fromCStr_String("A_Äö\U0001f698a"));
+        iString *s = collect_String(newCStr_String("A_Äö\U0001f698a"));
         printf("String: %s length: %zu size: %zu\n", cstr_String(s), length_String(s), size_String(s)); {
             iConstForEach(String, i, s) {
                 printf(" char: %04x [%lc]\n", i.value, i.value);
@@ -269,7 +269,7 @@ int main(int argc, char *argv[]) {
         printf("Truncated: %s\n", cstr_String(s));
     }
     /* Test regular expressions. */ {
-        iString *s = fromCStr_String("Hello world Äöäö, there is a \U0001f698 out there.");
+        iString *s = newCStr_String("Hello world Äöäö, there is a \U0001f698 out there.");
         iRegExp *rx = new_RegExp("\\b(THERE|WORLD|äöäö)\\b", caseInsensitive_RegExpOption);
         iRegExpMatch match;
         while (matchString_RegExp(rx, s, &match)) {
@@ -281,15 +281,15 @@ int main(int argc, char *argv[]) {
         delete_String(s);
     }
     /* Test zlib compression. */ {
-        iString *s = fromCStr_String("Hello world. "
-                                     "Hello world. "
-                                     "Hello world. "
-                                     "Hello world. "
-                                     "Hello world. "
-                                     "Hello world. "
-                                     "Hello world. "
-                                     "Hello world. "
-                                     "Hello world.");
+        iString *s = newCStr_String("Hello world. "
+                                    "Hello world. "
+                                    "Hello world. "
+                                    "Hello world. "
+                                    "Hello world. "
+                                    "Hello world. "
+                                    "Hello world. "
+                                    "Hello world. "
+                                    "Hello world.");
         iBlock *compr = compress_Block(&s->chars);
         printf("Original: %zu Compressed: %zu\n", size_String(s), size_Block(compr));
         iBlock *restored = decompress_Block(compr);

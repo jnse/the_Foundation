@@ -31,36 +31,44 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <strings.h>
 
 iString *new_String(void) {
-    iString *d = malloc(sizeof(iString));
+    iString *d = iMalloc(String);
     init_Block(&d->chars, 0);
     return d;
 }
 
-iString *copy_String(const iString *d) {
-    iString *copy = malloc(sizeof(iString));
-    initCopy_Block(&copy->chars, &d->chars);
-    return copy;
+iString *newCStr_String(const char *cstr) {
+    return newCStrN_String(cstr, strlen(cstr));
 }
 
-iString *fromCStr_String(const char *cstr) {
-    return fromCStrN_String(cstr, strlen(cstr));
-}
-
-iString *fromCStrN_String(const char *cstr, size_t len) {
-    iString *d = calloc(sizeof(iString), 1);
+iString *newCStrN_String(const char *cstr, size_t len) {
+    iString *d = iMalloc(String);
     initData_Block(&d->chars, cstr, len);
     return d;
 }
 
-iString *fromBlock_String(const iBlock *data) {
-    iString *d = new_String();
-    set_Block(&d->chars, data);
+iString *newBlock_String(const iBlock *data) {
+    iString *d = iMalloc(String);
+    initCopy_Block(&d->chars, data);
     return d;
 }
 
+iString *copy_String(const iString *d) {
+    iString *copy = iMalloc(String);
+    initCopy_Block(&copy->chars, &d->chars);
+    return copy;
+}
+
 void delete_String(iString *d) {
-    deinit_Block(&d->chars);
+    deinit_String(d);
     free(d);
+}
+
+void init_String(iString *d, const iBlock *chars) {
+    initCopy_Block(&d->chars, chars);
+}
+
+void deinit_String(iString *d) {
+    deinit_Block(&d->chars);
 }
 
 void truncate_String(iString *d, size_t len) {
@@ -105,7 +113,7 @@ iString *mid_String(const iString *d, size_t start, size_t count) {
         pos++;
     }
     iBlock *midChars = midRange_Block(&d->chars, &range);
-    iString *mid = fromBlock_String(midChars);
+    iString *mid = newBlock_String(midChars);
     delete_Block(midChars);
     return mid;
 }

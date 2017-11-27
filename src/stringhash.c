@@ -111,14 +111,14 @@ void insertValues_StringHash(iStringHash *d, const iString *key, iAnyObject *val
 }
 
 void insertValuesCStr_StringHash(iStringHash *d, const char *key, iAnyObject *value, ...) {
-    insertKey_StringHash(d, fromCStr_String(key), value);
+    insertKey_StringHash(d, newCStr_String(key), value);
     va_list args;
     va_start(args, value);
     for (;;) {
         key = va_arg(args, const char *);
         if (!key) break;
         value = va_arg(args, iAnyObject *);
-        insertKey_StringHash(d, fromCStr_String(key), value);
+        insertKey_StringHash(d, newCStr_String(key), value);
     }
     va_end(args);
 }
