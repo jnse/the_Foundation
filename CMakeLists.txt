@@ -1,9 +1,5 @@
 cmake_minimum_required (VERSION 3.1)
-project (c_Plus
-    VERSION 1.0.0
-    LANGUAGES C
-)
-
+project (c_Plus VERSION 1.0.0 LANGUAGES C)
 find_package (PkgConfig)
 
 #----------------------------------------------------------------------------------------
@@ -68,7 +64,12 @@ add_executable (cplus ${SOURCES} ${HEADERS})
 
 set_property (TARGET cplus PROPERTY C_STANDARD 11)
 target_include_directories (cplus PUBLIC include)
-target_compile_options (cplus PRIVATE -Wall -Wpedantic -Wno-format-pedantic)
+target_compile_options (cplus PRIVATE -Wall -Wpedantic)
+if (CMAKE_COMPILER_IS_GNUCC)
+    target_compile_options (cplus PRIVATE -Wno-format)
+else ()
+    target_compile_options (cplus PRIVATE -Wno-format-pedantic)
+endif () 
 
 if (ZLIB_FOUND)
     target_include_directories (cplus PRIVATE ${ZLIB_INCLUDE_DIRS})

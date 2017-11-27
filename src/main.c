@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
+#include <time.h>
 
 //---------------------------------------------------------------------------------------
 
@@ -144,7 +145,7 @@ int main(int argc, char *argv[]) {
     iUnused(argc);
     iUnused(argv);
     srand(time(NULL));
-    setlocale(LC_CTYPE, "utf-8");
+    setlocale(LC_CTYPE, getenv("LC_CTYPE"));
     /* Test list insertion and removal. */ {
         printf("Array insertions/removals:\n");
         iArray *list = new_Array(2);

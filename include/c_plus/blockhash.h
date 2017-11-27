@@ -189,4 +189,4 @@ struct ConstIteratorImpl_BlockHash {
         iBool res = remove_BlockHash(d, &bkey); \
         deinit_Block(bkey); \
         return res; \
-    } \
+    }
