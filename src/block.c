@@ -38,7 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #endif
 
 struct Impl_BlockData {
-    iAtomicInt refCount;
+    int refCount;
     char *data;
     size_t size;
     size_t allocSize;
@@ -48,7 +48,7 @@ static iBlockData emptyBlockData = { 1, "", 0, 1 };
 
 static iBlockData *new_BlockData_(size_t size, size_t allocSize) {
     iBlockData *d = malloc(sizeof(iBlockData));
-    set_Atomic(&d->refCount, 1);
+    d->refCount = 1;
     d->size = size;
     d->allocSize = iMax(size + 1, allocSize);
     d->data = malloc(d->allocSize);
@@ -62,8 +62,7 @@ static iBlockData *duplicate_BlockData_(const iBlockData *d, size_t allocSize) {
 }
 
 static void deref_BlockData_(iBlockData *d) {
-    const int oldRef = add_Atomic(&d->refCount, -1);
-    if (oldRef == 1) {
+    if (--d->refCount == 0) {
         iAssert(d != &emptyBlockData);
         free(d->data);
         free(d);
@@ -73,7 +72,7 @@ static void deref_BlockData_(iBlockData *d) {
 static void reserve_BlockData_(iBlockData *d, size_t size) {
     size++;
     if (d->allocSize >= size) return;
-    iAssert(value_Atomic(&d->refCount) == 1);
+    iAssert(d->refCount == 1);
     iAssert(d->allocSize > 0);
     while (d->allocSize < size) d->allocSize *= 2;
     d->data = realloc(d->data, d->allocSize);
@@ -86,12 +85,12 @@ static void memcpyFrom_Block_(iBlock *d, const void *data, size_t size) {
 }
 
 static void detach_Block_(iBlock *d, size_t allocSize) {
-    if (value_Atomic(&d->i->refCount) > 1) {
+    if (d->i->refCount > 1) {
         iBlockData *detached = duplicate_BlockData_(d->i, allocSize);
         deref_BlockData_(d->i);
         d->i = detached;
     }
-    iAssert(value_Atomic(&d->i->refCount) == 1);
+    iAssert(d->i->refCount == 1);
 }
 
 //---------------------------------------------------------------------------------------
@@ -122,7 +121,7 @@ iBlock *copy_Block(const iBlock *d) {
 void init_Block(iBlock *d, size_t size) {
     if (size == 0) {
         d->i = &emptyBlockData;
-        add_Atomic(&emptyBlockData.refCount, 1);
+        emptyBlockData.refCount++;
     }
     else {
         d->i = new_BlockData_(size, 0);
@@ -141,7 +140,7 @@ void initData_Block(iBlock *d, const void *data, size_t size) {
 
 void initCopy_Block(iBlock *d, const iBlock *other) {
     d->i = other->i;
-    add_Atomic(&d->i->refCount, 1);
+    d->i->refCount++;
 }
 
 void deinit_Block(iBlock *d) {
@@ -195,7 +194,7 @@ void *data_Block(iBlock *d) {
 void clear_Block(iBlock *d) {
     deref_BlockData_(d->i);
     d->i = &emptyBlockData;
-    add_Atomic(&emptyBlockData.refCount, 1);
+    &emptyBlockData.refCount++;
 }
 
 void reserve_Block(iBlock *d, size_t reservedSize) {
@@ -249,7 +248,7 @@ void popBack_Block(iBlock *d) {
 void set_Block(iBlock *d, const iBlock *other) {
     deref_BlockData_(d->i);
     d->i = other->i;
-    add_Atomic(&d->i->refCount, 1);
+    d->i->refCount++;
 }
 
 void setByte_Block(iBlock *d, size_t pos, char value) {

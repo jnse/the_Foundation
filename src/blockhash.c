@@ -29,16 +29,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdlib.h>
 #include <stdarg.h>
 
-iBlockHashElement *new_BlockHashElement(iBlock *key, iAnyObject *object) {
+iBlockHashElement *new_BlockHashElement(const iBlock *key, iAnyObject *object) {
     iBlockHashElement *d = iMalloc(BlockHashElement);
-    d->base.key = key;
+    initCopy_Block(&d->keyBlock, key);
     d->object = ref_Object(object);
     return d;
 }
 
 void delete_BlockHashElement(iBlockHashElement *d) {
     if (d) {
-        delete_Block(key_BlockHashElement(d));
+        deinit_Block(key_BlockHashElement(d));
         deref_Object(d->object);
         free(d);
     }

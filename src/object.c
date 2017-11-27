@@ -34,7 +34,7 @@ iAnyObject *new_Object(const iClass *class) {
     iAssert(class->instanceSize >= sizeof(iObject));
     iObject *d = calloc(class->instanceSize, 1);
     d->class = class;
-    set_Atomic(&d->refCount, 1);
+    d->refCount = 1;
     printf("constructed %s %p\n", class->name, d);
     return d;
 }
@@ -52,7 +52,7 @@ void deinit_Object(iAnyObject *d) {
 iAnyObject *ref_Object(const iAnyObject *any) {
     if (any) {
         iObject *d = iConstCast(iObject *, any);
-        add_Atomic(&d->refCount, 1);
+        d->refCount++;
         return d;
     }
     return NULL;
@@ -61,9 +61,8 @@ iAnyObject *ref_Object(const iAnyObject *any) {
 void deref_Object(iAnyObject *any) {
     if (any) {
         iObject *d = (iObject *) any;
-        const int rc = add_Atomic(&d->refCount, -1);
-        iAssert(rc >= 1);
-        if (rc == 1) { // became zero
+        iAssert(d->refCount > 0);
+        if (--d->refCount == 0) {
             delete_Object_(d);
         }
     }

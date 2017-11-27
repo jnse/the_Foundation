@@ -28,7 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 #include "class.h"
-#include "atomic.h"
 
 /**
  * Reference-counted object that gets deleted only after all references are gone.
@@ -38,7 +37,7 @@ iDeclareType(Object);
 
 struct Impl_Object {
     const iClass *class;
-    iAtomicInt refCount;
+    int refCount;
 };
 
 typedef void iAnyObject;
