@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/blockhash.h  Hash that uses Block for keys and Object for values.
+/** @file c_plus/blockhash.h  Hash object that uses Block for keys and Object for values.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -33,13 +33,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iDeclareType(BlockHash)
 iDeclareType(BlockHashElement)
 
+iDeclareClass(BlockHash)
+
 iBeginDeclareClass(BlockHashElement)
     iBlockHashElement * (*new)      (const iBlock *key, const iAnyObject *object);
     iHashKey            (*hashKey)  (const iBlock *key);
 iEndDeclareClass(BlockHashElement)
 
 struct Impl_BlockHash {
-    iHash base;
+    iObject object;
+    iHash hash;
     const iBlockHashElementClass *elementClass;
 };
 
@@ -65,8 +68,8 @@ void            deinit_BlockHash  (iBlockHash *);
 
 void            setElementClass_BlockHash (iBlockHash *, const iBlockHashElementClass *class);
 
-#define         size_BlockHash(d)          size_Hash(&(d)->base)
-#define         isEmpty_BlockHash(d)       isEmpty_Hash(&(d)->base)
+#define         size_BlockHash(d)          size_Hash(&(d)->hash)
+#define         isEmpty_BlockHash(d)       isEmpty_Hash(&(d)->hash)
 
 iBool               contains_BlockHash    (const iBlockHash *, const iBlock *key);
 const iAnyObject *  constValue_BlockHash  (const iBlockHash *, const iBlock *key);
@@ -113,6 +116,7 @@ struct ConstIteratorImpl_BlockHash {
     typedef i##keyType i##typeName##Key; \
     typedef iBlockHashElement i##typeName##Element; \
     typedef iBlockHashElementClass i##typeName##ElementClass; \
+    iDeclareClass(typeName) \
     \
     i##typeName##Element *  new_##typeName##Element     (const i##keyType *key, const i##valueType *object); \
     void                    deinit_##typeName##Element  (i##typeName##Element *); \
@@ -162,6 +166,7 @@ struct ConstIteratorImpl_BlockHash {
  * - initBlock_<typeName>Key(key, block): initializes a Block with the key data
  */
 #define iDefineBlockHash(typeName, keyType, valueType) \
+    iDefineClass(typeName) \
     i##typeName##Element *new_##typeName##Element(const i##keyType *key, const i##valueType *object) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
         void *elem = new_BlockHashElement(&bkey, object); \
@@ -174,7 +179,14 @@ struct ConstIteratorImpl_BlockHash {
         return (i##valueType *) d->object; \
     } \
     \
-    iDefineTypeConstruction(typeName) \
+    i##typeName *new_##typeName(void) { \
+        i##typeName *d = iNew(typeName); \
+        init_##typeName(d); \
+        return d; \
+    } \
+    \
+    void delete_##typeName(i##typeName *d) { deref_Object(d); } \
+    \
     void init_##typeName(i##typeName *d) { \
         init_BlockHash(d); \
         setElementClass_BlockHash(d, (const iBlockHashElementClass *) &Class_##typeName##Element); \
@@ -228,7 +240,7 @@ struct ConstIteratorImpl_BlockHash {
     } \
     \
     void init_##typeName##Iterator(i##typeName##Iterator *d, i##typeName *hash) { \
-        init_HashIterator(&d->base, &hash->base); \
+        init_HashIterator(&d->base, &hash->hash); \
         d->value = (i##typeName##Element *) d->base.value; \
     } \
     \
@@ -246,7 +258,7 @@ struct ConstIteratorImpl_BlockHash {
     } \
     \
     void init_##typeName##ConstIterator(i##typeName##ConstIterator *d, const i##typeName *hash) { \
-        init_HashConstIterator(&d->base, &hash->base); \
+        init_HashConstIterator(&d->base, &hash->hash); \
         d->value = (const i##typeName##Element *) d->base.value; \
     } \
     \

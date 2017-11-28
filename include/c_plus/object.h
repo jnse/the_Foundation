@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "class.h"
 
+#define iNew(typeName)  new_Object(&Class_##typeName)
+
 /**
  * Reference-counted object that gets deleted only after all references are gone.
  * iObject is used as a base class for many of the objects in c_Plus.

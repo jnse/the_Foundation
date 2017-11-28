@@ -112,7 +112,7 @@ iDeclareStaticClass(TestObject)
 static iDefineClass(TestObject)
 
 iTestObject *new_TestObject(int value) {
-    iTestObject *d = new_Object(&Class_TestObject);
+    iTestObject *d = iNew(TestObject);
     d->value = value;
     return d;
 }
@@ -165,10 +165,6 @@ int main(int argc, char *argv[]) {
             }
         }
         pushBack_Array(list, "00"); printArray(list);
-//        pushBack_Array(list, "11"); printArray(list);
-//        pushBack_Array(list, "22"); printArray(list);
-//        pushBack_Array(list, "33"); printArray(list);
-//        pushBack_Array(list, "44"); printArray(list);
         pushBackN_Array(list, "11223344", 4); printArray(list);
         pushBack_Array(list, "55"); printArray(list);
         pushBack_Array(list, "66"); printArray(list);
@@ -176,7 +172,6 @@ int main(int argc, char *argv[]) {
         pushBack_Array(list, "88"); printArray(list);
         pushBack_Array(list, "99"); printArray(list);
         insertN_Array(list, 7, "XXYY", 2); printArray(list);
-        //insert_Array(list, 7, "YY"); printArray(list);
         insert_Array(list, 8, "ZZ"); printArray(list);
         pushFront_Array(list, "aa"); printArray(list);
         pushBack_Array(list, "bb"); printArray(list);
@@ -216,9 +211,9 @@ int main(int argc, char *argv[]) {
               "one", iReleaseLater(new_TestObject(1000)),
               "two", iReleaseLater(new_TestObject(1001)), 0);
         printf("Hash has %zu elements:\n", size_StringHash(h));
-        iForEach(StringHash, i, h) {
+        iConstForEach(StringHash, i, h) {
             printf("  %s: %i\n",
-                   cstr_String(key_StringHashIterator(&i)),
+                   cstr_String(key_StringHashConstIterator(&i)),
                    ((iTestObject *) i.value->object)->value);
         }
         delete_StringHash(h);

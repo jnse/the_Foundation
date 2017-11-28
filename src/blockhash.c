@@ -55,16 +55,26 @@ iEndDefineClass(BlockHashElement)
 
 //---------------------------------------------------------------------------------------
 
-iDefineTypeConstruction(BlockHash)
+iDefineClass(BlockHash)
+
+iBlockHash *new_BlockHash() {
+    iBlockHash *d = iNew(BlockHash);
+    init_BlockHash(d);
+    return d;
+}
+
+void delete_BlockHash(iBlockHash *d) {
+    deref_Object(d);
+}
 
 void init_BlockHash(iBlockHash *d) {
-    init_Hash(&d->base);
+    init_Hash(&d->hash);
     setElementClass_BlockHash(d, &Class_BlockHashElement);
 }
 
 void deinit_BlockHash(iBlockHash *d) {
     clear_BlockHash(d); // delete everything
-    deinit_Hash(&d->base);
+    deinit_Hash(&d->hash);
 }
 
 void setElementClass_BlockHash(iBlockHash *d, const iBlockHashElementClass *class) {
@@ -72,31 +82,32 @@ void setElementClass_BlockHash(iBlockHash *d, const iBlockHashElementClass *clas
 }
 
 iBool contains_BlockHash(const iBlockHash *d, const iBlock *key) {
-    return contains_Hash(&d->base, d->elementClass->hashKey(key));
+    return contains_Hash(&d->hash, d->elementClass->hashKey(key));
 }
 
 const iAnyElement *constValue_BlockHash(const iBlockHash *d, const iBlock *key) {
-    return value_Hash(&d->base, d->elementClass->hashKey(key));
+    return value_Hash(&d->hash, d->elementClass->hashKey(key));
 }
 
 iAnyElement *value_BlockHash(iBlockHash *d, const iBlock *key) {
-    return value_Hash(&d->base, d->elementClass->hashKey(key));
+    return value_Hash(&d->hash, d->elementClass->hashKey(key));
 }
 
 void clear_BlockHash(iBlockHash *d) {
     iForEach(BlockHash, i, d) {
         remove_BlockHashIterator(&i);
     }
-    clear_Hash(&d->base);
+    clear_Hash(&d->hash);
 }
 
 iBool insert_BlockHash(iBlockHash *d, const iBlock *key, const iAnyObject *value) {
-    iDebug("BlockHash: inserting \"%s\" => %s %p\n",
+    iDebug("%s: inserting \"%s\" => %s %p\n",
+           d->object.class->name,
            constData_Block(key),
            class_Object(value)->name, value);
     iHashElement *elem = (iHashElement *) d->elementClass->new(key, value);
     elem->key = d->elementClass->hashKey(key);
-    iAnyElement *old = insert_Hash(&d->base, elem);
+    iAnyElement *old = insert_Hash(&d->hash, elem);
     if (old) {
         delete_Class(d->elementClass, old);
         return iFalse;
@@ -127,7 +138,7 @@ void insertValuesCStr_BlockHash(iBlockHash *d, const char *key, const iAnyObject
 }
 
 iBool remove_BlockHash(iBlockHash *d, const iBlock *key) {
-    iHashElement *old = remove_Hash(&d->base, d->elementClass->hashKey(key));
+    iHashElement *old = remove_Hash(&d->hash, d->elementClass->hashKey(key));
     if (old) {
         delete_Class(d->elementClass, old);
         return iTrue;
@@ -138,7 +149,7 @@ iBool remove_BlockHash(iBlockHash *d, const iBlock *key) {
 //---------------------------------------------------------------------------------------
 
 void init_BlockHashIterator(iBlockHashIterator *d, iBlockHash *hash) {
-    init_HashIterator(&d->base, &hash->base);
+    init_HashIterator(&d->base, &hash->hash);
     d->value = (iBlockHashElement *) d->base.value;
 }
 
@@ -156,7 +167,7 @@ void remove_BlockHashIterator(iBlockHashIterator *d) {
 }
 
 void init_BlockHashConstIterator(iBlockHashConstIterator *d, const iBlockHash *hash) {
-    init_HashConstIterator(&d->base, &hash->base);
+    init_HashConstIterator(&d->base, &hash->hash);
     d->value = (const iBlockHashElement *) d->base.value;
 }
 

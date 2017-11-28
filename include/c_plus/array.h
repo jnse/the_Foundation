@@ -74,14 +74,6 @@ const void *constEnd_Array  (const iArray *);
 void        reserve_Array   (iArray *, size_t reservedSize);
 void        clear_Array     (iArray *);
 void        resize_Array    (iArray *, size_t size);
-void        setN_Array      (iArray *, size_t pos, const void *value, size_t count);
-void        pushBackN_Array (iArray *, const void *value, size_t count);
-void        pushFrontN_Array(iArray *, const void *value, size_t count);
-size_t      popBackN_Array  (iArray *, size_t count);
-size_t      popFrontN_Array (iArray *, size_t count);
-size_t      takeN_Array     (iArray *, size_t pos, void *value_out, size_t count);
-void        insertN_Array   (iArray *, size_t pos, const void *value, size_t count);
-void        removeN_Array   (iArray *, size_t pos, size_t count);
 void        fill_Array      (iArray *, char value);
 void        sort_Array      (iArray *, int (*cmp)(const void *, const void *));
 
@@ -93,6 +85,15 @@ void        sort_Array      (iArray *, int (*cmp)(const void *, const void *));
 #define     insert_Array(d, pos, v)     insertN_Array   (d, pos, v, 1)
 #define     remove_Array(d, pos)        removeN_Array   (d, pos, 1)
 #define     take_Array(d, pos, vv)      takeN_Array     (d, pos, vv, 1)
+
+void        setN_Array      (iArray *, size_t pos, const void *value, size_t count);
+void        pushBackN_Array (iArray *, const void *value, size_t count);
+void        pushFrontN_Array(iArray *, const void *value, size_t count);
+size_t      popBackN_Array  (iArray *, size_t count);
+size_t      popFrontN_Array (iArray *, size_t count);
+size_t      takeN_Array     (iArray *, size_t pos, void *value_out, size_t count);
+void        insertN_Array   (iArray *, size_t pos, const void *value, size_t count);
+void        removeN_Array   (iArray *, size_t pos, size_t count);
 
 iDeclareIterator(Array, iArray *)
 iDeclareConstIterator(Array, const iArray *)
