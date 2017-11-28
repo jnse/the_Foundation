@@ -1,10 +1,28 @@
-# c_Lite
+# c_Plus
 
 Simplicity of C11, power of object-orientation! API usability is priority #1. 
 
+## Introduction
+
+C++ is an awesome language, but it is also extremely complex and each of its
+modern updates adds even more complexity. It attempts to be low-level while
+supporting high-level programming styles; this conflict prevents it from being
+truly high-level while compromising the benefits of low-level C. The complexity
+also makes compiling C++ programs much slower than C.
+
+**c_Plus** is a C library and a coding convention for object-oriented
+programming that has been designed from the point of view of someone who
+appreciates the user-friendliness of Qt and the philosophy behind C++ STL. The
+preprocessor is used heavily to provide flexibility and convenience for the
+programmer.
+
+### Wait, what about GLib?
+
+
+
 ## Conventions
 
-c_Lite is built on many conventions.
+c_Plus is built on many conventions.
 
 ### General
 
@@ -21,12 +39,12 @@ All class members use the class name as a suffix, e.g., `length_String`. This
 improves readability and associates the first argument (the `d` object,
 equivalent to `this` in C++) with the type of the class.
 
-A static/private member of a class additionally adds an extra underscore to
-the suffix, e.g., `element_Array_`.
+A static/private member of a class additionally adds an extra underscore to the
+suffix, e.g., `element_Array_`.
 
-Type names are declared with the `iDeclareType(Name)` macro. The
-implementation struct is always called `struct Impl_Name` that has a typedef
-alias called `iName`.
+Type names are declared with the `iDeclareType(Name)` macro. The implementation
+struct is always called `struct Impl_Name` that has a typedef alias called
+`iName`.
 
 Macros are used to define member functions with default values for parameters.
 
