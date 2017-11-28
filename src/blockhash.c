@@ -48,14 +48,7 @@ iHashKey hashKey_BlockHashElement(const iBlock *key) {
     return crc32_Block(key);
 }
 
-iBeginDefineClass(BlockHashElement)
-    .new     = new_BlockHashElement,
-    .hashKey = hashKey_BlockHashElement,
-iEndDefineClass(BlockHashElement)
-
 //---------------------------------------------------------------------------------------
-
-iDefineClass(BlockHash)
 
 iBlockHash *new_BlockHash() {
     iBlockHash *d = iNew(BlockHash);
@@ -64,7 +57,7 @@ iBlockHash *new_BlockHash() {
 }
 
 void delete_BlockHash(iBlockHash *d) {
-    deref_Object(d);
+    iRelease(d);
 }
 
 void init_BlockHash(iBlockHash *d) {
@@ -179,3 +172,10 @@ void next_BlockHashConstIterator(iBlockHashConstIterator *d) {
 const iBlock *key_BlockHashConstIterator(iBlockHashConstIterator *d) {
     return key_BlockHashElement(d->value);
 }
+
+iDefineClass(BlockHash)
+
+iBeginDefineClass(BlockHashElement)
+    .new     = new_BlockHashElement,
+    .hashKey = hashKey_BlockHashElement,
+iEndDefineClass(BlockHashElement)

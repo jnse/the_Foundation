@@ -28,10 +28,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 #include "range.h"
+#include "class.h"
 
 iDeclareType(RegExp)
 iDeclareType(RegExpMatch)
 iDeclareType(String)
+
+iDeclareClass(RegExp)
 
 #define iRegExpMaxSubstrings  32
 
@@ -43,6 +46,8 @@ enum iRegExpOption {
 
 iRegExp *   new_RegExp(const char *pattern, enum iRegExpOption options);
 void        delete_RegExp(iRegExp *);
+
+void        deinit_RegExp(iRegExp *);
 
 #define     collect_RegExp(d)   iCollectDel(d, delete_RegExp)
 

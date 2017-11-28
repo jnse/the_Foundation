@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/regexp.h"
 #include "c_plus/string.h"
 #include "c_plus/range.h"
+#include "c_plus/object.h"
 
 #if !defined (iHavePcre)
 #   error libpcre is required for regular expressions
@@ -36,6 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <pcre.h>
 
 struct Impl_RegExp {
+    iObject object;
     pcre *re;
 };
 
@@ -49,7 +51,7 @@ iRegExp *new_RegExp(const char *pattern, enum iRegExpOption options) {
     }
     const char *errorMsg = NULL;
     int errorOffset;
-    iRegExp *d = malloc(sizeof(iRegExp));
+    iRegExp *d = iNew(RegExp);
     d->re = pcre_compile(pattern, opts, &errorMsg, &errorOffset, NULL);
     if (!d->re) {
         iDebug("new_RegExp: \"%s\" %s (at offset %i)\n", pattern, errorMsg, errorOffset);
@@ -58,10 +60,13 @@ iRegExp *new_RegExp(const char *pattern, enum iRegExpOption options) {
 }
 
 void delete_RegExp(iRegExp *d) {
+    iRelease(d);
+}
+
+void deinit_RegExp(iRegExp *d) {
     if (d->re) {
         pcre_free(d->re);
     }
-    free(d);
 }
 
 iBool match_RegExp(const iRegExp *d, const char *subject, size_t len, iRegExpMatch *match) {
@@ -89,3 +94,5 @@ iString *captured_RegExpMatch(const iRegExpMatch *d, int index) {
     const iRangei *cap = &d->range + index;
     return newCStrN_String(d->subject + cap->start, size_Range(cap));
 }
+
+iDefineClass(RegExp)
