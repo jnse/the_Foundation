@@ -33,18 +33,3 @@ iDeclareBlockHash(StringHash, String, AnyObject)
 
 void        insertValues_StringHash       (iStringHash *, const iString *key, iAnyObject *value, ...);
 void        insertValuesCStr_StringHash   (iStringHash *, const char *key, iAnyObject *value, ...);
-
-iDeclareIterator(StringHash, iStringHash *)
-const iString * key_StringHashIterator(iStringHashIterator *);
-void            remove_StringHashIterator(iStringHashIterator *);
-struct IteratorImpl_StringHash {
-    iHashIterator base;
-    iStringHashElement *value;
-};
-
-iDeclareConstIterator(StringHash, const iStringHash *)
-const iString * key_StringHashConstIterator(iStringHashConstIterator *);
-struct ConstIteratorImpl_StringHash {
-    iHashConstIterator base;
-    const iStringHashElement *value;
-};

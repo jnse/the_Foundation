@@ -72,37 +72,3 @@ void insertValuesCStr_StringHash(iStringHash *d, const char *key, iAnyObject *va
     }
     va_end(args);
 }
-
-//---------------------------------------------------------------------------------------
-
-void init_StringHashIterator(iStringHashIterator *d, iStringHash *hash) {
-    init_HashIterator(&d->base, &hash->base);
-    d->value = (iStringHashElement *) d->base.value;
-}
-
-void next_StringHashIterator(iStringHashIterator *d) {
-    next_HashIterator(&d->base);
-    d->value = (iStringHashElement *) d->base.value;
-}
-
-const iString *key_StringHashIterator(iStringHashIterator *d) {
-    return key_StringHashElement(d->value);
-}
-
-void remove_StringHashIterator(iStringHashIterator *d) {
-    remove_BlockHashIterator((iBlockHashIterator *) d);
-}
-
-void init_StringHashConstIterator(iStringHashConstIterator *d, const iStringHash *hash) {
-    init_HashConstIterator(&d->base, &hash->base);
-    d->value = (const iStringHashElement *) d->base.value;
-}
-
-void next_StringHashConstIterator(iStringHashConstIterator *d) {
-    next_HashConstIterator(&d->base);
-    d->value = (const iStringHashElement *) d->base.value;
-}
-
-const iString *key_StringHashConstIterator(iStringHashConstIterator *d) {
-    return key_StringHashElement(d->value);
-}

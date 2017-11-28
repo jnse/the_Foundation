@@ -138,7 +138,22 @@ struct ConstIteratorImpl_BlockHash {
     void                    clear_##typeName    (i##typeName *); \
     \
     iBool                   insert_##typeName   (i##typeName *, const i##keyType *key, const i##valueType *value); \
-    iBool                   remove_##typeName   (i##typeName *, const i##keyType *key);
+    iBool                   remove_##typeName   (i##typeName *, const i##keyType *key); \
+    \
+    iDeclareIterator(typeName, i##typeName *) \
+    const i##keyType *      key_##typeName##Iterator(i##typeName##Iterator *); \
+    void                    remove_##typeName##Iterator(i##typeName##Iterator *); \
+    struct IteratorImpl_##typeName { \
+        iHashIterator base; \
+        i##typeName##Element *value; \
+    }; \
+    \
+    iDeclareConstIterator(typeName, const i##typeName *) \
+    const i##keyType * key_##typeName##ConstIterator(i##typeName##ConstIterator *); \
+    struct ConstIteratorImpl_##typeName { \
+        iHashConstIterator base; \
+        const i##typeName##Element *value; \
+    };
 
 /**
  * Things that must be manually defined:
@@ -153,49 +168,93 @@ struct ConstIteratorImpl_BlockHash {
         deinit_Block(&bkey); \
         return elem; \
     } \
+    \
     void deinit_##typeName##Element(i##typeName##Element *d) { deinit_BlockHashElement(d); } \
     i##valueType *value_##typeName##Element(const i##typeName##Element *d) { \
         return (i##valueType *) d->object; \
     } \
+    \
     iDefineTypeConstruction(typeName) \
     void init_##typeName(i##typeName *d) { \
         init_BlockHash(d); \
         setElementClass_BlockHash(d, (const iBlockHashElementClass *) &Class_##typeName##Element); \
     } \
+    \
     void deinit_##typeName(i##typeName *d) { \
         deinit_BlockHash(d); \
     } \
+    \
     i##typeName *collect_##typeName(i##typeName *d) { return iCollectDel(d, delete_##typeName); } \
+    \
     size_t size_##typeName(const i##typeName *d) { return size_BlockHash(d); } \
+    \
     iBool isEmpty_##typeName(const i##typeName *d) { return isEmpty_BlockHash(d); } \
+    \
     void clear_##typeName(i##typeName *d) { clear_BlockHash(d); } \
+    \
     iBool contains_##typeName(const i##typeName *d, const i##keyType *key) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
         iBool res = contains_BlockHash(d, &bkey); \
         deinit_Block(&bkey); \
         return res; \
     } \
+    \
     const i##valueType *constValue_##typeName(const i##typeName *d, const i##keyType *key) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
         const i##valueType *obj = (const i##valueType *) constValue_BlockHash(d, &bkey); \
         deinit_Block(&bkey); \
         return obj; \
     } \
+    \
     i##valueType *value_##typeName(i##typeName *d, const i##keyType *key) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
         i##valueType *obj = (i##valueType *) value_BlockHash(d, &bkey); \
         deinit_Block(&bkey); \
         return obj; \
     } \
+    \
     iBool insert_##typeName(i##typeName *d, const i##keyType *key, const i##valueType *value) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
         iBool res = insert_BlockHash(d, &bkey, value); \
         deinit_Block(&bkey); \
         return res; \
     } \
+    \
     iBool remove_##typeName(i##typeName *d, const i##keyType *key) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
         iBool res = remove_BlockHash(d, &bkey); \
         deinit_Block(&bkey); \
         return res; \
+    } \
+    \
+    void init_##typeName##Iterator(i##typeName##Iterator *d, i##typeName *hash) { \
+        init_HashIterator(&d->base, &hash->base); \
+        d->value = (i##typeName##Element *) d->base.value; \
+    } \
+    \
+    void next_##typeName##Iterator(i##typeName##Iterator *d) { \
+        next_HashIterator(&d->base); \
+        d->value = (i##typeName##Element *) d->base.value; \
+    } \
+    \
+    const i##keyType *key_##typeName##Iterator(i##typeName##Iterator *d) { \
+        return key_##typeName##Element(d->value); \
+    } \
+    \
+    void remove_##typeName##Iterator(i##typeName##Iterator *d) { \
+        remove_BlockHashIterator((iBlockHashIterator *) d); \
+    } \
+    \
+    void init_##typeName##ConstIterator(i##typeName##ConstIterator *d, const i##typeName *hash) { \
+        init_HashConstIterator(&d->base, &hash->base); \
+        d->value = (const i##typeName##Element *) d->base.value; \
+    } \
+    \
+    void next_##typeName##ConstIterator(i##typeName##ConstIterator *d) { \
+        next_HashConstIterator(&d->base); \
+        d->value = (const i##typeName##Element *) d->base.value; \
+    } \
+    \
+    const i##keyType *key_##typeName##ConstIterator(i##typeName##ConstIterator *d) { \
+        return key_##typeName##Element(d->value); \
     }
