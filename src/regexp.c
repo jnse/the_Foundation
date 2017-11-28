@@ -59,10 +59,6 @@ iRegExp *new_RegExp(const char *pattern, enum iRegExpOption options) {
     return d;
 }
 
-void delete_RegExp(iRegExp *d) {
-    iRelease(d);
-}
-
 void deinit_RegExp(iRegExp *d) {
     if (d->re) {
         pcre_free(d->re);

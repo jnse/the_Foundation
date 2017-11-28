@@ -45,11 +45,11 @@ enum iRegExpOption {
 };
 
 iRegExp *   new_RegExp(const char *pattern, enum iRegExpOption options);
-void        delete_RegExp(iRegExp *);
+
+#define     delete_RegExp(d)    deref_Object(d)
+#define     collect_RegExp(d)   iReleaseLater(d)
 
 void        deinit_RegExp(iRegExp *);
-
-#define     collect_RegExp(d)   iCollectDel(d, delete_RegExp)
 
 iBool       match_RegExp(const iRegExp *, const char *subject, size_t len, iRegExpMatch *match);
 
