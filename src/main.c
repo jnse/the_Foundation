@@ -135,9 +135,9 @@ void printArray(const iArray *list) {
     printf("%4lu %4lu -> %-4lu : %4lu [", size_Array(list), list->range.start, list->range.end, list->allocSize);
     for (int i = 0; i < list->allocSize * list->elementSize; ++i) {
         if (i/list->elementSize < list->range.start || i/list->elementSize >= list->range.end)
-            printf(" __");
+            printf(" _");
         else
-            printf(" %02x", list->data[i]);
+            printf(" %c", list->data[i]);
     }
     printf(" ]\n");
 }
@@ -165,17 +165,18 @@ int main(int argc, char *argv[]) {
             }
         }
         pushBack_Array(list, "00"); printArray(list);
-        pushBack_Array(list, "11"); printArray(list);
-        pushBack_Array(list, "22"); printArray(list);
-        pushBack_Array(list, "33"); printArray(list);
-        pushBack_Array(list, "44"); printArray(list);
+//        pushBack_Array(list, "11"); printArray(list);
+//        pushBack_Array(list, "22"); printArray(list);
+//        pushBack_Array(list, "33"); printArray(list);
+//        pushBack_Array(list, "44"); printArray(list);
+        pushBackN_Array(list, "11223344", 4); printArray(list);
         pushBack_Array(list, "55"); printArray(list);
         pushBack_Array(list, "66"); printArray(list);
         pushBack_Array(list, "77"); printArray(list);
         pushBack_Array(list, "88"); printArray(list);
         pushBack_Array(list, "99"); printArray(list);
-        insert_Array(list, 7, "XX"); printArray(list);
-        insert_Array(list, 7, "YY"); printArray(list);
+        insertN_Array(list, 7, "XXYY", 2); printArray(list);
+        //insert_Array(list, 7, "YY"); printArray(list);
         insert_Array(list, 8, "ZZ"); printArray(list);
         pushFront_Array(list, "aa"); printArray(list);
         pushBack_Array(list, "bb"); printArray(list);
