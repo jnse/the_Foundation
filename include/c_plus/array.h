@@ -38,7 +38,22 @@ struct Impl_Array {
 
 iDeclareType(Array)
 
+/**
+ * Constructs a new array.
+ *
+ * @par Complexity
+ * - Push back: amortized O(1)
+ * - Push front: amortized O(1)
+ * - Insert: O(n)
+ * - Pop back: O(1)
+ * - Pop front: O(1)
+ *
+ * @param elementSize  Size of an element in bytes.
+ *
+ * @return Empty array.
+ */
 iArray *    new_Array           (size_t elementSize);
+
 iArray *    newN_Array          (size_t elementSize, const void *value, size_t count);
 iArray *    newElements_Array   (size_t elementSize, const void *value, ...);
 iArray *    copy_Array          (const iArray *);
