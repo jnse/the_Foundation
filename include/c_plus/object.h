@@ -45,7 +45,9 @@ typedef void iAnyObject;
 iAnyObject *    new_Object      (const iAnyClass *class);
 
 #define         collect_Object(d)   iCollectDel(d, deref_Object)
-#define         iDeref(d)           collect_Object(d)
+
+#define         iRelease(d)         deref_Object(d)
+#define         iReleaseLater(d)    collect_Object(d)
 
 void            deinit_Object   (iAnyObject *);
 

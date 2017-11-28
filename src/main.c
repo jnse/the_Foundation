@@ -213,8 +213,8 @@ int main(int argc, char *argv[]) {
     /* Test a hash. */ {
         iStringHash *h = new_StringHash();
         insertValuesCStr_StringHash(h,
-              "one", iDeref(new_TestObject(1000)),
-              "two", iDeref(new_TestObject(1001)), 0);
+              "one", iReleaseLater(new_TestObject(1000)),
+              "two", iReleaseLater(new_TestObject(1001)), 0);
         printf("Hash has %zu elements:\n", size_StringHash(h));
         iForEach(StringHash, i, h) {
             printf("  %s: %i\n",

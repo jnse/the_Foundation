@@ -36,6 +36,15 @@ int totalCount_Object(void) {
 }
 #endif
 
+static void free_Object_(iObject *d) {
+    deinit_Object(d);
+    iDebug("deleting %s %p\n", d->class->name, d);
+    free(d);
+#if !defined (NDEBUG)
+    totalCount_--;
+#endif
+}
+
 iAnyObject *new_Object(const iAnyClass *class) {
     iAssert(class != NULL);
     iAssert(((const iClass *) class)->size >= sizeof(iObject));
@@ -47,15 +56,6 @@ iAnyObject *new_Object(const iAnyClass *class) {
 #endif
     iDebug("constructed %s %p\n", d->class->name, d);
     return d;
-}
-
-static void delete_Object_(iObject *d) {
-    deinit_Object(d);
-    iDebug("deleting %s %p\n", d->class->name, d);
-    free(d);
-#if !defined (NDEBUG)
-    totalCount_--;
-#endif
 }
 
 void deinit_Object(iAnyObject *d) {
@@ -76,7 +76,7 @@ void deref_Object(iAnyObject *any) {
         iObject *d = (iObject *) any;
         iAssert(d->refCount > 0);
         if (--d->refCount == 0) {
-            delete_Object_(d);
+            free_Object_(d);
         }
     }
 }
