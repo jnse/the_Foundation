@@ -117,7 +117,7 @@ struct ConstIteratorImpl_BlockHash {
     i##typeName##Element *  new_##typeName##Element     (const i##keyType *key, const i##valueType *object); \
     void                    deinit_##typeName##Element  (i##typeName##Element *); \
     const i##keyType *      key_##typeName##Element     (const i##typeName##Element *); \
-    void                    initKey_##typeName##Element (const i##typeName##Element *, i##keyType *key_out); \
+    void                    initKey_##typeName##Element (const i##typeName##Element *, i##keyType *key); \
     i##valueType *          value_##typeName##Element   (const i##typeName##Element *); \
     void                    initBlock_##typeName##Key   (const i##keyType *key, iBlock *); \
     \
@@ -143,7 +143,7 @@ struct ConstIteratorImpl_BlockHash {
 /**
  * Things that must be manually defined:
  * - key_<typeName>Element(element): returns the key as-is (if available)
- * - initKey_<typeName>Element(element, key_out): copies the Block back to an existing keyType instance
+ * - initKey_<typeName>Element(element, key): copies the Block back to an existing keyType instance
  * - initBlock_<typeName>Key(key, block): initializes a Block with the key data
  */
 #define iDefineBlockHash(typeName, keyType, valueType) \

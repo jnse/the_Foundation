@@ -41,8 +41,8 @@ const iString *key_StringHashElement(const iStringHashElement *d) {
     return (const iString *) &d->keyBlock; // iString derived from iBlock
 }
 
-void initKey_StringHashElement(const iStringHashElement *d, iString *key_out) {
-    init_String(key_out, &d->keyBlock);
+void initKey_StringHashElement(const iStringHashElement *d, iString *key) {
+    init_String(key, &d->keyBlock);
 }
 
 void initBlock_StringHashKey(const iString *d, iBlock *block) {
