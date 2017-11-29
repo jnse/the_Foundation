@@ -207,6 +207,7 @@ iMapElement *insert_Map(iMap *d, iMapElement *element) {
         newRoot = newRoot->parent;
     }
     d->root = newRoot;
+    d->size++;
     return NULL; // no previous element replaced
 }
 
