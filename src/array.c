@@ -62,17 +62,6 @@ static void rebalance_Array_(iArray *d) {
     }
 }
 
-/*iArray *new_Array(size_t elementSize) {
-    iArray *d = calloc(sizeof(iArray), 1);
-    d->elementSize = elementSize;
-    return d;
-}
-
-void delete_Array(iArray *d) {
-    deinit_Array(d);
-    free(d);
-}*/
-
 iDefineTypeConstructionArgs(Array, (size_t elemSize), elemSize)
 
 iArray *copy_Array(const iArray *other) {

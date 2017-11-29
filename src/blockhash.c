@@ -50,15 +50,7 @@ iHashKey hashKey_BlockHashElement(const iBlock *key) {
 
 //---------------------------------------------------------------------------------------
 
-iBlockHash *new_BlockHash() {
-    iBlockHash *d = iNew(BlockHash);
-    init_BlockHash(d);
-    return d;
-}
-
-void delete_BlockHash(iBlockHash *d) {
-    iRelease(d);
-}
+iDefineObjectConstruction(BlockHash)
 
 void init_BlockHash(iBlockHash *d) {
     init_Hash(&d->hash);

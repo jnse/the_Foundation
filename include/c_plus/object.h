@@ -29,8 +29,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "class.h"
 
-#define iNew(typeName)  new_Object(&Class_##typeName)
+#define iNew(typeName)      new_Object(&Class_##typeName)
+#define iRelease(d)         deref_Object(d)
+#define iReleaseLater(d)    collect_Object(d)
 
+#define iDefineObjectConstruction(typeName) \
+    i##typeName *new_##typeName(void) { \
+        i##typeName *d = iNew(typeName); \
+        init_##typeName(d); \
+        return d; \
+    } \
+    void delete_##typeName(i##typeName *d) { \
+        iRelease(d); \
+    }
+
+#define iDefineObjectConstructionArgs(typeName, newArgs, ...) \
+    i##typeName *new_##typeName newArgs { \
+        i##typeName *d = iNew(typeName); \
+        init_##typeName(d, __VA_ARGS__); \
+        return d; \
+    } \
+    void delete_##typeName(i##typeName *d) { \
+        iRelease(d); \
+    }
 /**
  * Reference-counted object that gets deleted only after all references are gone.
  * iObject is used as a base class for many of the objects in c_Plus.
@@ -47,9 +68,6 @@ typedef void iAnyObject;
 iAnyObject *    new_Object      (const iAnyClass *class);
 
 #define         collect_Object(d)   iCollectDel(d, deref_Object)
-
-#define         iRelease(d)         deref_Object(d)
-#define         iReleaseLater(d)    collect_Object(d)
 
 void            deinit_Object   (iAnyObject *);
 

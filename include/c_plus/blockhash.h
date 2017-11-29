@@ -52,9 +52,9 @@ struct Impl_BlockHashElement {
     iAnyObject *object;
 };
 
-iBlockHashElement *     new_BlockHashElement(const iBlock *key, const iAnyObject *object);
+iBlockHashElement *     new_BlockHashElement    (const iBlock *key, const iAnyObject *object);
 iHashKey                hashKey_BlockHashElement(const iBlock *key);
-void                    deinit_BlockHashElement(iBlockHashElement *);
+void                    deinit_BlockHashElement (iBlockHashElement *);
 
 #define         key_BlockHashElement(d)    iConstCast(iBlock *, (&((const iBlockHashElement *) (d))->keyBlock))
 
@@ -167,6 +167,8 @@ struct ConstIteratorImpl_BlockHash {
  */
 #define iDefineBlockHash(typeName, keyType, valueType) \
     iDefineClass(typeName) \
+    iDefineObjectConstruction(typeName) \
+    \
     i##typeName##Element *new_##typeName##Element(const i##keyType *key, const i##valueType *object) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
         void *elem = new_BlockHashElement(&bkey, object); \
@@ -178,14 +180,6 @@ struct ConstIteratorImpl_BlockHash {
     i##valueType *value_##typeName##Element(const i##typeName##Element *d) { \
         return (i##valueType *) d->object; \
     } \
-    \
-    i##typeName *new_##typeName(void) { \
-        i##typeName *d = iNew(typeName); \
-        init_##typeName(d); \
-        return d; \
-    } \
-    \
-    void delete_##typeName(i##typeName *d) { deref_Object(d); } \
     \
     void init_##typeName(i##typeName *d) { \
         init_BlockHash(d); \

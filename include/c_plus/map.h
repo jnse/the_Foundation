@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/hash.h  Hash of unsorted unique integer keys.
+/** @file c_plus/map.h  Map of sorted unique integer elements.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -27,73 +27,83 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
+#include "list.h"
 #include "class.h"
 
-/**
- * Hash does not have ownership of the elements. This means the elements can be
- * any type of object as long as they are derived from HashElement.
- */
-iDeclareType(Hash)
-iDeclareType(HashElement)
-iDeclareType(HashNode)
+iDeclareType(Map)
+iDeclareType(MapElement)
+iDeclareType(Block)
 
-typedef uint32_t iHashKey;
+typedef intptr_t iMapKey;
+typedef int (*iMapElementCmpFunc)(iMapKey, iMapKey);
 
-struct Impl_Hash {
+struct Impl_Map {
     size_t size;
-    iHashNode *root;
+    iMapElement *root;
+    iMapElementCmpFunc cmp;
 };
 
-/// Elements inserted to the hash must be based on iHashElement.
-struct Impl_HashElement {
-    iHashElement *next;
-    iHashKey key;
+/// Elements inserted to the map must be based on iMapElement.
+struct Impl_MapElement {
+    iMapElement *parent;
+    iMapElement *child[2];
+    int flags;
+    iMapKey key;
 };
 
 typedef void iAnyElement;
 
-iHash *         new_Hash    (void);
-void            delete_Hash (iHash *);
+/**
+ * Constructs a new map.
+ *
+ * Map does not have ownership of the elements. This means the elements can be
+ * any type of object as long as they are derived from MapElement.
+ *
+ * @return Map instance.
+ */
+iMap *          new_Map     (iMapElementCmpFunc cmp);
 
-#define         collect_Hash(d) iCollectDel(d, delete_Hash)
+void            delete_Map  (iMap *);
 
-void            init_Hash   (iHash *);
-void            deinit_Hash (iHash *);
+#define         collect_Map(d)  iCollectDel(d, delete_Map)
 
-#define         size_Hash(d)    ((d)->size)
-#define         isEmpty_Hash(d) (size_Hash(d) == 0)
+void            init_Map    (iMap *, iMapElementCmpFunc cmp);
+void            deinit_Map  (iMap *);
 
-iBool           contains_Hash   (const iHash *, iHashKey key);
-iHashElement *  value_Hash      (const iHash *, iHashKey key);
+#define         size_Map(d)     ((d)->size)
+#define         isEmpty_Map(d)  (size_Map(d) == 0)
 
-void            clear_Hash  (iHash *);
+iBool           contains_Map    (const iMap *, iMapKey key);
+iMapElement *   value_Map       (const iMap *, iMapKey key);
+
+void            clear_Map   (iMap *);
 
 /**
- * Inserts an element into the hash.
+ * Inserts an element into the map.
  *
  * @param element  Element to be inserted. Ownership not taken. The `key` member must
- *                 be set to a valid hash key.
+ *                 be set to the key value.
  *
  * @return Previous element with the same key that had to be removed from the hash to
  * make room for the new element. The caller should delete the element or take any other
  * necessary actions, since it is no longer part of the hash.
  */
-iHashElement *  insert_Hash (iHash *, iHashElement *element);
+iMapElement *  insert_Map (iMap *, iMapElement *element);
 
-iHashElement *  remove_Hash (iHash *, iHashKey key);
+iMapElement *  remove_Map (iMap *, iMapKey key);
 
-iDeclareIterator(Hash, iHash *)
-iHashElement *remove_HashIterator(iHashIterator *d);
-struct IteratorImpl_Hash {
-    iHashElement *value;
-    iHashElement *next;
-    iHashNode *node;
-    iHash *hash;
+iDeclareIterator(Map, iMap *)
+iMapElement *remove_MapIterator(iMapIterator *d);
+struct IteratorImpl_Map {
+    iMapElement *value;
+    iMapElement *next;
+    //iMapNode *node;
+    iMap *hash;
 };
 
-iDeclareConstIterator(Hash, const iHash *)
-struct ConstIteratorImpl_Hash {
-    const iHashElement *value;
-    const iHashNode *node;
-    const iHash *hash;
+iDeclareConstIterator(Map, const iMap *)
+struct ConstIteratorImpl_Map {
+    const iMapElement *value;
+    //const iMapNode *node;
+    const iMap *hash;
 };
