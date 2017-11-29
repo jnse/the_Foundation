@@ -30,18 +30,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdlib.h>
 #include <stdarg.h>
 
-static iBeginDefineClass(StringHashElement)
-    .new = (iBlockHashElement *(*)(const iBlock *, const iAnyObject *)) new_StringHashElement,
-    .hashKey = hashKey_BlockHashElement,
-iEndDefineClass(StringHashElement)
+static iBeginDefineClass(StringHashNode)
+    .new = (iBlockHashNode *(*)(const iBlock *, const iAnyObject *)) new_StringHashNode,
+    .hashKey = hashKey_BlockHashNode,
+iEndDefineClass(StringHashNode)
 
 iDefineBlockHash(StringHash, String, AnyObject)
 
-const iString *key_StringHashElement(const iStringHashElement *d) {
+const iString *key_StringHashNode(const iStringHashNode *d) {
     return (const iString *) &d->keyBlock; // iString derived from iBlock
 }
 
-void initKey_StringHashElement(const iStringHashElement *d, iString *key) {
+void initKey_StringHashNode(const iStringHashNode *d, iString *key) {
     init_String(key, &d->keyBlock);
 }
 

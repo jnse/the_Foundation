@@ -30,21 +30,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdlib.h>
 #include <stdarg.h>
 
-iBlockHashElement *new_BlockHashElement(const iBlock *key, const iAnyObject *object) {
-    iBlockHashElement *d = iMalloc(BlockHashElement);
+iBlockHashNode *new_BlockHashNode(const iBlock *key, const iAnyObject *object) {
+    iBlockHashNode *d = iMalloc(BlockHashNode);
     initCopy_Block(&d->keyBlock, key);
     d->object = ref_Object(object);
     return d;
 }
 
-void deinit_BlockHashElement(iBlockHashElement *d) {
+void deinit_BlockHashNode(iBlockHashNode *d) {
     if (d) {
-        deinit_Block(key_BlockHashElement(d));
+        deinit_Block(key_BlockHashNode(d));
         deref_Object(d->object);
     }
 }
 
-iHashKey hashKey_BlockHashElement(const iBlock *key) {
+iHashKey hashKey_BlockHashNode(const iBlock *key) {
     return crc32_Block(key);
 }
 
@@ -54,7 +54,7 @@ iDefineObjectConstruction(BlockHash)
 
 void init_BlockHash(iBlockHash *d) {
     init_Hash(&d->hash);
-    setElementClass_BlockHash(d, &Class_BlockHashElement);
+    setElementClass_BlockHash(d, &Class_BlockHashNode);
 }
 
 void deinit_BlockHash(iBlockHash *d) {
@@ -62,7 +62,7 @@ void deinit_BlockHash(iBlockHash *d) {
     deinit_Hash(&d->hash);
 }
 
-void setElementClass_BlockHash(iBlockHash *d, const iBlockHashElementClass *class) {
+void setElementClass_BlockHash(iBlockHash *d, const iBlockHashNodeClass *class) {
     d->elementClass = class;
 }
 
@@ -70,11 +70,11 @@ iBool contains_BlockHash(const iBlockHash *d, const iBlock *key) {
     return contains_Hash(&d->hash, d->elementClass->hashKey(key));
 }
 
-const iAnyElement *constValue_BlockHash(const iBlockHash *d, const iBlock *key) {
+const iAnyNode *constValue_BlockHash(const iBlockHash *d, const iBlock *key) {
     return value_Hash(&d->hash, d->elementClass->hashKey(key));
 }
 
-iAnyElement *value_BlockHash(iBlockHash *d, const iBlock *key) {
+iAnyNode *value_BlockHash(iBlockHash *d, const iBlock *key) {
     return value_Hash(&d->hash, d->elementClass->hashKey(key));
 }
 
@@ -90,9 +90,9 @@ iBool insert_BlockHash(iBlockHash *d, const iBlock *key, const iAnyObject *value
            d->object.class->name,
            constData_Block(key),
            class_Object(value)->name, value);
-    iHashElement *elem = (iHashElement *) d->elementClass->new(key, value);
-    elem->key = d->elementClass->hashKey(key);
-    iAnyElement *old = insert_Hash(&d->hash, elem);
+    iHashNode *node = (iHashNode *) d->elementClass->new(key, value);
+    node->key = d->elementClass->hashKey(key);
+    iAnyNode *old = insert_Hash(&d->hash, node);
     if (old) {
         delete_Class(d->elementClass, old);
         return iFalse;
@@ -123,7 +123,7 @@ void insertValuesCStr_BlockHash(iBlockHash *d, const char *key, const iAnyObject
 }
 
 iBool remove_BlockHash(iBlockHash *d, const iBlock *key) {
-    iHashElement *old = remove_Hash(&d->hash, d->elementClass->hashKey(key));
+    iHashNode *old = remove_Hash(&d->hash, d->elementClass->hashKey(key));
     if (old) {
         delete_Class(d->elementClass, old);
         return iTrue;
@@ -135,39 +135,40 @@ iBool remove_BlockHash(iBlockHash *d, const iBlock *key) {
 
 void init_BlockHashIterator(iBlockHashIterator *d, iBlockHash *hash) {
     init_HashIterator(&d->base, &hash->hash);
-    d->value = (iBlockHashElement *) d->base.value;
+    d->blockHash = hash;
+    d->value = (iBlockHashNode *) d->base.value;
 }
 
 void next_BlockHashIterator(iBlockHashIterator *d) {
     next_HashIterator(&d->base);
-    d->value = (iBlockHashElement *) d->base.value;
+    d->value = (iBlockHashNode *) d->base.value;
 }
 
 const iBlock *key_BlockHashIterator(iBlockHashIterator *d) {
-    return key_BlockHashElement(d->value);
+    return key_BlockHashNode(d->value);
 }
 
 void remove_BlockHashIterator(iBlockHashIterator *d) {
-    delete_Class(((iBlockHash *) d->base.hash)->elementClass, remove_HashIterator(&d->base));
+    delete_Class(d->blockHash->elementClass, remove_HashIterator(&d->base));
 }
 
 void init_BlockHashConstIterator(iBlockHashConstIterator *d, const iBlockHash *hash) {
     init_HashConstIterator(&d->base, &hash->hash);
-    d->value = (const iBlockHashElement *) d->base.value;
+    d->value = (const iBlockHashNode *) d->base.value;
 }
 
 void next_BlockHashConstIterator(iBlockHashConstIterator *d) {
     next_HashConstIterator(&d->base);
-    d->value = (const iBlockHashElement *) d->base.value;
+    d->value = (const iBlockHashNode *) d->base.value;
 }
 
 const iBlock *key_BlockHashConstIterator(iBlockHashConstIterator *d) {
-    return key_BlockHashElement(d->value);
+    return key_BlockHashNode(d->value);
 }
 
 iDefineClass(BlockHash)
 
-iBeginDefineClass(BlockHashElement)
-    .new     = new_BlockHashElement,
-    .hashKey = hashKey_BlockHashElement,
-iEndDefineClass(BlockHashElement)
+iBeginDefineClass(BlockHashNode)
+    .new     = new_BlockHashNode,
+    .hashKey = hashKey_BlockHashNode,
+iEndDefineClass(BlockHashNode)

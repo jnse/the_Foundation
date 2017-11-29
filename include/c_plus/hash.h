@@ -31,42 +31,42 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 /**
  * Hash does not have ownership of the elements. This means the elements can be
- * any type of object as long as they are derived from HashElement.
+ * any type of object as long as they are derived from HashNode.
  */
 iDeclareType(Hash)
-iDeclareType(HashElement)
 iDeclareType(HashNode)
+iDeclareType(HashBucket)
 
 typedef uint32_t iHashKey;
 
 struct Impl_Hash {
     size_t size;
-    iHashNode *root;
+    iHashBucket *root;
 };
 
-/// Elements inserted to the hash must be based on iHashElement.
-struct Impl_HashElement {
-    iHashElement *next;
+/// Elements inserted to the hash must be based on iHashNode.
+struct Impl_HashNode {
+    iHashNode *next;
     iHashKey key;
 };
 
-typedef void iAnyElement;
+typedef void iAnyNode;
 
-iHash *         new_Hash    (void);
-void            delete_Hash (iHash *);
+iHash *     new_Hash    (void);
+void        delete_Hash (iHash *);
 
-#define         collect_Hash(d) iCollectDel(d, delete_Hash)
+#define     collect_Hash(d) iCollectDel(d, delete_Hash)
 
-void            init_Hash   (iHash *);
-void            deinit_Hash (iHash *);
+void        init_Hash   (iHash *);
+void        deinit_Hash (iHash *);
 
-#define         size_Hash(d)    ((d)->size)
-#define         isEmpty_Hash(d) (size_Hash(d) == 0)
+#define     size_Hash(d)    ((d)->size)
+#define     isEmpty_Hash(d) (size_Hash(d) == 0)
 
-iBool           contains_Hash   (const iHash *, iHashKey key);
-iHashElement *  value_Hash      (const iHash *, iHashKey key);
+iBool       contains_Hash   (const iHash *, iHashKey key);
+iHashNode * value_Hash      (const iHash *, iHashKey key);
 
-void            clear_Hash  (iHash *);
+void        clear_Hash  (iHash *);
 
 /**
  * Inserts an element into the hash.
@@ -78,22 +78,22 @@ void            clear_Hash  (iHash *);
  * make room for the new element. The caller should delete the element or take any other
  * necessary actions, since it is no longer part of the hash.
  */
-iHashElement *  insert_Hash (iHash *, iHashElement *element);
+iHashNode * insert_Hash (iHash *, iHashNode *element);
 
-iHashElement *  remove_Hash (iHash *, iHashKey key);
+iHashNode * remove_Hash (iHash *, iHashKey key);
 
 iDeclareIterator(Hash, iHash *)
-iHashElement *remove_HashIterator(iHashIterator *d);
+iHashNode *remove_HashIterator(iHashIterator *d);
 struct IteratorImpl_Hash {
-    iHashElement *value;
-    iHashElement *next;
-    iHashNode *node;
+    iHashNode *value;
+    iHashNode *next;
+    iHashBucket *node;
     iHash *hash;
 };
 
 iDeclareConstIterator(Hash, const iHash *)
 struct ConstIteratorImpl_Hash {
-    const iHashElement *value;
-    const iHashNode *node;
+    const iHashNode *value;
+    const iHashBucket *node;
     const iHash *hash;
 };

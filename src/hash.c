@@ -29,55 +29,55 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 
-iDeclareType(HashNode)
+iDeclareType(HashBucket)
 
-#define iHashMaxElements    8 // per node
-#define iHashMaxDepth       32
+#define iHashMaxNodes           8 // per node
+#define iHashMaxDepth           32
 
-#define iHashNodeChildCount 4
-#define iHashNodeChildMask  0x3
-#define iHashNodeChildShift 2
-#define iHashNodeLastChild  (iHashNodeChildCount - 1)
+#define iHashBucketChildCount   4
+#define iHashBucketChildMask    0x3
+#define iHashBucketChildShift   2
+#define iHashBucketLastChild    (iHashBucketChildCount - 1)
 
-struct Impl_HashNode {
-    iHashNode *parent;
-    iHashNode *child[iHashNodeChildCount];
-    iHashElement *element;
+struct Impl_HashBucket {
+    iHashBucket *parent;
+    iHashBucket *child[iHashBucketChildCount];
+    iHashNode *element;
 };
 
-#define isBranchNode_HashNode_(d)       ((d)->child[0] != NULL)
-#define shiftKey_HashNode_(key, levels) ((key) >> (iHashNodeChildShift * (levels)))
-#define childNode_HashNode_(d, key, depth) \
-        ((d)->child[shiftKey_HashNode_(key, depth) & iHashNodeChildMask])
+#define isBranch_HashBucket_(d)             ((d)->child[0] != NULL)
+#define shiftKey_HashBucket_(key, levels)   ((key) >> (iHashBucketChildShift * (levels)))
+#define child_HashBucket_(d, key, depth)    \
+        ((d)->child[shiftKey_HashBucket_(key, depth) & iHashBucketChildMask])
 
-static void delete_HashNode_(iHashNode *d) {
+static void delete_HashBucket_(iHashBucket *d) {
     if (d) {
-        for (int i = 0; i < iHashNodeChildCount; ++i) {
+        for (int i = 0; i < iHashBucketChildCount; ++i) {
             if (d->child[i]) {
-                delete_HashNode_(d->child[i]);
+                delete_HashBucket_(d->child[i]);
             }
         }
         free(d);
     }
 }
 
-static iHashNode *findNode_HashNode_(iHashNode *d, iHashKey key, int *depth) {
+static iHashBucket *find_HashBucket_(iHashBucket *d, iHashKey key, int *depth) {
     *depth = 0;
-    while (isBranchNode_HashNode_(d)) {
-        d = d->child[key & iHashNodeChildMask];
-        key = shiftKey_HashNode_(key, 1);
+    while (isBranch_HashBucket_(d)) {
+        d = d->child[key & iHashBucketChildMask];
+        key = shiftKey_HashBucket_(key, 1);
         *depth += 1;
     }
     return d;
 }
 
-static iHashElement *findElement_HashNode_(const iHashNode *d, iHashKey key) {
+static iHashNode *findNode_HashBucket_(const iHashBucket *d, iHashKey key) {
     const iHashKey elemKey = key;
-    while (isBranchNode_HashNode_(d)) {
-        d = d->child[key & iHashNodeChildMask];
-        key = shiftKey_HashNode_(key, 1);
+    while (isBranch_HashBucket_(d)) {
+        d = d->child[key & iHashBucketChildMask];
+        key = shiftKey_HashBucket_(key, 1);
     }
-    for (iHashElement *i = d->element; i; i = i->next) {
+    for (iHashNode *i = d->element; i; i = i->next) {
         if (i->key == elemKey) {
             return i;
         }
@@ -85,41 +85,41 @@ static iHashElement *findElement_HashNode_(const iHashNode *d, iHashKey key) {
     return NULL;
 }
 
-static void addElement_HashNode_(iHashNode *d, iHashElement *element) {
+static void addNode_HashBucket_(iHashBucket *d, iHashNode *element) {
     element->next = d->element;
     d->element = element;
 }
 
-static void split_HashNode_(iHashNode *d, int depth) {
+static void split_HashBucket_(iHashBucket *d, int depth) {
     iAssert(depth < iHashMaxDepth);
     // Create the new children.
-    for (int i = 0; i < iHashNodeChildCount; ++i) {
-        d->child[i] = calloc(sizeof(iHashNode), 1);
+    for (int i = 0; i < iHashBucketChildCount; ++i) {
+        d->child[i] = calloc(sizeof(iHashBucket), 1);
         d->child[i]->parent = d;
     }
     // Divide the listed elements.
-    iHashElement *next;
-    for (iHashElement *i = d->element; i; i = next) {
+    iHashNode *next;
+    for (iHashNode *i = d->element; i; i = next) {
         next = i->next;
-        iHashNode *dest = childNode_HashNode_(d, i->key, depth);
-        addElement_HashNode_(dest, i);
+        iHashBucket *dest = child_HashBucket_(d, i->key, depth);
+        addNode_HashBucket_(dest, i);
     }
     d->element = NULL;
 }
 
-static iBool isEmpty_HashNode_(const iHashNode *d) {
+static iBool isEmpty_HashBucket_(const iHashBucket *d) {
     return d->element == NULL && d->child[0] == NULL && d->child[1] == NULL;
 }
 
-static iHashNode *trim_HashNode_(iHashNode *d) {
+static iHashBucket *trim_HashBucket_(iHashBucket *d) {
     while (d->parent &&
-           isEmpty_HashNode_(d->parent->child[0]) &&
-           isEmpty_HashNode_(d->parent->child[1]) &&
-           isEmpty_HashNode_(d->parent->child[2]) &&
-           isEmpty_HashNode_(d->parent->child[3])) {
+           isEmpty_HashBucket_(d->parent->child[0]) &&
+           isEmpty_HashBucket_(d->parent->child[1]) &&
+           isEmpty_HashBucket_(d->parent->child[2]) &&
+           isEmpty_HashBucket_(d->parent->child[3])) {
         d = d->parent;
         // Both child nodes empty, get rid of them.
-        for (int i = 0; i < iHashNodeChildCount; ++i) {
+        for (int i = 0; i < iHashBucketChildCount; ++i) {
             free(d->child[i]);
             d->child[i] = NULL;
         }
@@ -127,14 +127,14 @@ static iHashNode *trim_HashNode_(iHashNode *d) {
     return d;
 }
 
-static iHashElement *remove_HashNode_(iHashNode **d, iHashKey key) {
-    for (iHashElement *i = (*d)->element, **prev = &(*d)->element; i; i = i->next) {
+static iHashNode *remove_HashBucket_(iHashBucket **d, iHashKey key) {
+    for (iHashNode *i = (*d)->element, **prev = &(*d)->element; i; i = i->next) {
         if (i->key == key) {
             *prev = i->next;
             i->next = NULL;
             if ((*d)->element == NULL) {
                 // Node became empty, it may need removing.
-                *d = trim_HashNode_(*d);
+                *d = trim_HashBucket_(*d);
             }
             return i;
         }
@@ -143,50 +143,50 @@ static iHashElement *remove_HashNode_(iHashNode **d, iHashKey key) {
     return NULL;
 }
 
-static int ordinal_HashNode_(const iHashNode *d) {
+static int ordinal_HashBucket_(const iHashBucket *d) {
     if (d->parent) {
-        for (int i = 0; i < iHashNodeChildCount; ++i) {
+        for (int i = 0; i < iHashBucketChildCount; ++i) {
             if (d->parent->child[i] == d) return i;
         }
     }
     return -1;
 }
 
-static iHashNode *firstNodePreOrder_HashNode_(const iHashNode *d) {
+static iHashBucket *firstInOrder_HashBucket_(const iHashBucket *d) {
     if (!d) return NULL;
     if (d->element) {
         iAssert(d->child[0] == NULL);
         iAssert(d->child[1] == NULL);
         iAssert(d->child[2] == NULL);
         iAssert(d->child[3] == NULL);
-        return iConstCast(iHashNode *, d);
+        return iConstCast(iHashBucket *, d);
     }
-    iHashNode *elem = NULL;
-    for (int i = 0; i < iHashNodeChildCount; ++i) {
-        if ((elem = firstNodePreOrder_HashNode_(d->child[i])) != NULL) {
+    iHashBucket *elem = NULL;
+    for (int i = 0; i < iHashBucketChildCount; ++i) {
+        if ((elem = firstInOrder_HashBucket_(d->child[i])) != NULL) {
             break;
         }
     }
     return elem;
 }
 
-static iHashNode *nextNodePreOrder_HashNode_(const iHashNode *d) {
+static iHashBucket *nextInOrder_HashBucket_(const iHashBucket *d) {
     iAssert(d);
     // Nothing follows the root.
     if (!d->parent) return NULL;
     // Switch to the next sibling.
-    for (int i = 0; i < iHashNodeLastChild; ++i) {
+    for (int i = 0; i < iHashBucketLastChild; ++i) {
         if (d->parent->child[i] == d) {
-            return firstNodePreOrder_HashNode_(d->parent->child[i + 1]);
+            return firstInOrder_HashBucket_(d->parent->child[i + 1]);
         }
     }
     // Go back up until there's a node on the right.
-    int ord = iHashNodeLastChild;
-    for (; ord == iHashNodeLastChild; d = d->parent) {
+    int ord = iHashBucketLastChild;
+    for (; ord == iHashBucketLastChild; d = d->parent) {
         if (!d->parent) return NULL;
-        ord = ordinal_HashNode_(d);
+        ord = ordinal_HashBucket_(d);
     }
-    return firstNodePreOrder_HashNode_(d->child[ord + 1]);
+    return firstInOrder_HashBucket_(d->child[ord + 1]);
 }
 
 //---------------------------------------------------------------------------------------
@@ -194,38 +194,38 @@ static iHashNode *nextNodePreOrder_HashNode_(const iHashNode *d) {
 iDefineTypeConstruction(Hash)
 
 void init_Hash(iHash *d) {
-    d->root = calloc(sizeof(iHashNode), 1);
+    d->root = calloc(sizeof(iHashBucket), 1);
     d->size = 0;
 }
 
 void deinit_Hash(iHash *d) {
-    delete_HashNode_(d->root);
+    delete_HashBucket_(d->root);
 }
 
 iBool contains_Hash(const iHash *d, iHashKey key) {
     return value_Hash(d, key) == NULL;
 }
 
-iHashElement *value_Hash(const iHash *d, iHashKey key) {
-    return findElement_HashNode_(d->root, key);
+iHashNode *value_Hash(const iHash *d, iHashKey key) {
+    return findNode_HashBucket_(d->root, key);
 }
 
 void clear_Hash(iHash *d) {
-    for (int i = 0; i < iHashNodeChildCount; ++i) {
-        delete_HashNode_(d->root->child[i]);
+    for (int i = 0; i < iHashBucketChildCount; ++i) {
+        delete_HashBucket_(d->root->child[i]);
     }
     iZap(*d->root);
     d->size = 0;
 }
 
-iHashElement *insert_Hash(iHash *d, iHashElement *element) {
+iHashNode *insert_Hash(iHash *d, iHashNode *element) {
     iAssert(element != NULL);
     int depth;
-    iHashNode *node = findNode_HashNode_(d->root, element->key, &depth);
-    iHashElement *existing = NULL;
+    iHashBucket *node = find_HashBucket_(d->root, element->key, &depth);
+    iHashNode *existing = NULL;
     size_t nodeSize = 0;
     // An existing element with a clashing key must be removed.
-    for (iHashElement *i = node->element, **prev = &node->element; i; i = i->next, nodeSize++) {
+    for (iHashNode *i = node->element, **prev = &node->element; i; i = i->next, nodeSize++) {
         if (i->key == element->key) {
             *prev = i->next;
             existing = i;
@@ -235,22 +235,22 @@ iHashElement *insert_Hash(iHash *d, iHashElement *element) {
         }
         prev = &i->next;
     }
-    if (nodeSize >= iHashMaxElements) {
-        split_HashNode_(node, depth);
-        addElement_HashNode_(childNode_HashNode_(node, element->key, depth), element);
+    if (nodeSize >= iHashMaxNodes) {
+        split_HashBucket_(node, depth);
+        addNode_HashBucket_(child_HashBucket_(node, element->key, depth), element);
     }
     else {
-        addElement_HashNode_(node, element);
+        addNode_HashBucket_(node, element);
     }
     // Update total count.
     d->size++;
     return existing;
 }
 
-iHashElement *remove_Hash(iHash *d, iHashKey key) {
+iHashNode *remove_Hash(iHash *d, iHashKey key) {
     int depth;
-    iHashNode *node = findNode_HashNode_(d->root, key, &depth);
-    iHashElement *removed = remove_HashNode_(&node, key);
+    iHashBucket *node = find_HashBucket_(d->root, key, &depth);
+    iHashNode *removed = remove_HashBucket_(&node, key);
     if (removed) d->size--;
     return removed;
 }
@@ -259,7 +259,7 @@ iHashElement *remove_Hash(iHash *d, iHashKey key) {
 
 void init_HashIterator(iHashIterator *d, iHash *hash) {
     d->hash = hash;
-    d->node = firstNodePreOrder_HashNode_(hash->root);
+    d->node = firstInOrder_HashBucket_(hash->root);
     d->value = (d->node? d->node->element : NULL);
     // The current element may be deleted, so keep the next one in a safe place.
     d->next = (d->value? d->value->next : NULL);
@@ -268,29 +268,29 @@ void init_HashIterator(iHashIterator *d, iHash *hash) {
 void next_HashIterator(iHashIterator *d) {
     d->value = d->next;
     if (!d->value) {
-        if((d->node = nextNodePreOrder_HashNode_(d->node)) != NULL) {
+        if((d->node = nextInOrder_HashBucket_(d->node)) != NULL) {
             d->value = d->node->element;
         }
     }
     d->next = (d->value? d->value->next : NULL);
 }
 
-iHashElement *remove_HashIterator(iHashIterator *d) {
-    remove_HashNode_(&d->node, d->value->key);
+iHashNode *remove_HashIterator(iHashIterator *d) {
+    remove_HashBucket_(&d->node, d->value->key);
     d->hash->size--;
     return d->value;
 }
 
 void init_HashConstIterator(iHashConstIterator *d, const iHash *hash) {
     d->hash = hash;
-    d->node = firstNodePreOrder_HashNode_(hash->root);
+    d->node = firstInOrder_HashBucket_(hash->root);
     d->value = (d->node? d->node->element : NULL);
 }
 
 void next_HashConstIterator(iHashConstIterator *d) {
     d->value = d->value->next;
     if (!d->value) {
-        if((d->node = nextNodePreOrder_HashNode_(d->node)) != NULL) {
+        if((d->node = nextInOrder_HashBucket_(d->node)) != NULL) {
             d->value = d->node->element;
         }
     }
