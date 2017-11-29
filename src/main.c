@@ -27,7 +27,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/block.h"
 #include "c_plus/class.h"
 #include "c_plus/garbage.h"
+#include "c_plus/hash.h"
+#include "c_plus/map.h"
 #include "c_plus/math.h"
+#include "c_plus/hash.h"
 #include "c_plus/object.h"
 #include "c_plus/ptrarray.h"
 #include "c_plus/regexp.h"
@@ -120,7 +123,7 @@ iTestObject *new_TestObject(int value) {
 //---------------------------------------------------------------------------------------
 
 typedef struct Impl_TestElement {
-    iStringHashElement base;
+    iStringHashNode base;
     float member;
 }
 TestElement;
@@ -142,8 +145,12 @@ void printArray(const iArray *list) {
     printf(" ]\n");
 }
 
-static int compareElements(const void *a, const void *b) {
-    return strncmp(a, b, 2);
+static int compareTextElements(const void *a, const void *b) {
+    return iCmpStrN(a, b, 2);
+}
+
+static int compareIntegers(iMapKey a, iMapKey b) {
+    return iCmp(a, b);
 }
 
 int main(int argc, char *argv[]) {
@@ -176,7 +183,7 @@ int main(int argc, char *argv[]) {
         pushFront_Array(list, "aa"); printArray(list);
         pushBack_Array(list, "bb"); printArray(list);
         pushBack_Array(list, "cc"); printArray(list);
-        sort_Array(list, compareElements); printArray(list);
+        sort_Array(list, compareTextElements); printArray(list);
         popBack_Array(list); printArray(list);
         popBack_Array(list); printArray(list);
         popBack_Array(list); printArray(list);
@@ -205,7 +212,7 @@ int main(int argc, char *argv[]) {
         }
         delete_PtrArray(par);
     }
-    /* Test a hash. */ {
+    /* Test a string hash. */ {
         iStringHash *h = new_StringHash();
         insertValuesCStr_StringHash(h,
               "one", iReleaseLater(new_TestObject(1000)),
@@ -219,6 +226,38 @@ int main(int argc, char *argv[]) {
         delete_StringHash(h);
         printf("Hash deleted.\n");
     }
+    /* Test a hash. */ {
+        /*iHash *h = new_Hash();
+        for (int i = 0; i < 100; ++i) {
+            iHashNode *node = iCollect(iMalloc(HashNode));
+            node->key = i;
+            insert_Hash(h, node);
+        }
+        printf("Hash iteration:\n");
+        int counter = 0;
+        iForEach(Hash, i, h) {
+            printf(" %3i: %i\n", counter++, i.value->key);
+        }
+        delete_Hash(h);*/
+    }
+    /* Test map. */ {
+        printf("Testing a map.\n");
+        iMap *map = new_Map(compareIntegers);
+        for (int i = 0; i < 20; ++i) {
+            iMapNode *elem = iMalloc(MapNode);
+            elem->key = iRandom(0, 100);
+            iMapNode *old = insert_Map(map, elem);
+            if (old) free(old);
+        }
+        printf("Keys: [");
+        iForEach(Map, i, map) {
+            printf(" %2li", i.value->key);
+            iCollect(i.value);
+        }
+        printf(" ]\n");
+        delete_Map(map);
+    }
+    return 1;
     /* Test tree nodes. */ {
         iTestNode *a = new_TestNode(1);
         iTestNode *b = new_TestNode(2);

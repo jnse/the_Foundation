@@ -31,22 +31,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "class.h"
 
 iDeclareType(Map)
-iDeclareType(MapElement)
+iDeclareType(MapNode)
 iDeclareType(Block)
 
 typedef intptr_t iMapKey;
-typedef int (*iMapElementCmpFunc)(iMapKey, iMapKey);
+typedef int (*iMapNodeCmpFunc)(iMapKey, iMapKey);
 
 struct Impl_Map {
     size_t size;
-    iMapElement *root;
-    iMapElementCmpFunc cmp;
+    iMapNode *root;
+    iMapNodeCmpFunc cmp;
 };
 
-/// Elements inserted to the map must be based on iMapElement.
-struct Impl_MapElement {
-    iMapElement *parent;
-    iMapElement *child[2];
+/// Elements inserted to the map must be based on iMapNode.
+struct Impl_MapNode {
+    iMapNode *parent;
+    iMapNode *child[2];
     int flags;
     iMapKey key;
 };
@@ -57,26 +57,26 @@ typedef void iAnyElement;
  * Constructs a new map.
  *
  * Map does not have ownership of the elements. This means the elements can be
- * any type of object as long as they are derived from MapElement.
+ * any type of object as long as they are derived from MapNode.
  *
  * @return Map instance.
  */
-iMap *          new_Map     (iMapElementCmpFunc cmp);
+iMap *      new_Map     (iMapNodeCmpFunc cmp);
 
-void            delete_Map  (iMap *);
+void        delete_Map  (iMap *);
 
-#define         collect_Map(d)  iCollectDel(d, delete_Map)
+#define     collect_Map(d)  iCollectDel(d, delete_Map)
 
-void            init_Map    (iMap *, iMapElementCmpFunc cmp);
-void            deinit_Map  (iMap *);
+void        init_Map    (iMap *, iMapNodeCmpFunc cmp);
+void        deinit_Map  (iMap *);
 
-#define         size_Map(d)     ((d)->size)
-#define         isEmpty_Map(d)  (size_Map(d) == 0)
+#define     size_Map(d)     ((d)->size)
+#define     isEmpty_Map(d)  (size_Map(d) == 0)
 
-iBool           contains_Map    (const iMap *, iMapKey key);
-iMapElement *   value_Map       (const iMap *, iMapKey key);
+iBool       contains_Map    (const iMap *, iMapKey key);
+iMapNode *  value_Map       (const iMap *, iMapKey key);
 
-void            clear_Map   (iMap *);
+void        clear_Map   (iMap *);
 
 /**
  * Inserts an element into the map.
@@ -88,22 +88,23 @@ void            clear_Map   (iMap *);
  * make room for the new element. The caller should delete the element or take any other
  * necessary actions, since it is no longer part of the hash.
  */
-iMapElement *  insert_Map (iMap *, iMapElement *element);
+iMapNode *  insert_Map (iMap *, iMapNode *element);
 
-iMapElement *  remove_Map (iMap *, iMapKey key);
+iMapNode *  remove_Map (iMap *, iMapKey key);
 
 iDeclareIterator(Map, iMap *)
-iMapElement *remove_MapIterator(iMapIterator *d);
+iMapNode *remove_MapIterator(iMapIterator *d);
 struct IteratorImpl_Map {
-    iMapElement *value;
-    iMapElement *next;
+    iMapNode *value;
+    iMapNode *next;
+    int dir;
     //iMapNode *node;
-    iMap *hash;
+    iMap *map;
 };
 
 iDeclareConstIterator(Map, const iMap *)
 struct ConstIteratorImpl_Map {
-    const iMapElement *value;
+    const iMapNode *value;
     //const iMapNode *node;
-    const iMap *hash;
+    const iMap *map;
 };
