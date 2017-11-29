@@ -28,6 +28,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 
+int iRandom(int start, int end) {
+    return start + rand() % (end - start);
+}
+
 float iRandomf(void) {
     return rand() / (float) RAND_MAX;
 }

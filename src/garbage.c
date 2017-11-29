@@ -48,7 +48,6 @@ static iCollected *new_Collected_(void *ptr, iDeleteFunc del) {
 }
 
 static void delete_Collected_(iCollected *d) {
-    iDebug("...recycling %p\n", d->ptr);
     d->del(d->ptr);
     free(d);
 }
@@ -74,6 +73,7 @@ void *collect_Garbage(void *ptr, iDeleteFunc del) {
 
 void recycle_Garbage(void) {
     if (collected_) {
+        iDebug("[Garbage] recycling %zu allocations\n", size_List(collected_));
         iReverseForEach(List, i, collected_) {
             delete_Collected_((iCollected *) i.value);
         }

@@ -31,4 +31,5 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define iMathPi     3.14159265358979323846
 #define iMathPif    ((float) iMathPi)
 
+int     iRandom(int start, int end);
 float   iRandomf(void);
