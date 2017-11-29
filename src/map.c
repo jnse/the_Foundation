@@ -136,25 +136,21 @@ static void repairAfterInsert_MapElement_(iMapElement *elem) {
             elem = grandParent_MapElement_(elem);
         }
         else {
-            {
-                iMapElement *p = elem->parent;
-                iMapElement *g = grandParent_MapElement_(elem);
-                if (elem == g->child[0]->child[1]) {
-                    rotate_MapElement_(p, left_Rotation);
-                    elem = elem->child[0];
-                }
-                else if (elem == g->child[1]->child[0]) {
-                    rotate_MapElement_(p, right_Rotation);
-                    elem = elem->child[1];
-                }
+            iMapElement *p = elem->parent;
+            iMapElement *g = grandParent_MapElement_(elem);
+            if (elem == g->child[0]->child[1]) {
+                rotate_MapElement_(p, left_Rotation);
+                elem = elem->child[0];
             }
-            {
-                iMapElement *p = elem->parent;
-                iMapElement *g = grandParent_MapElement_(elem);
-                rotate_MapElement_(g, elem == p->child[0]? right_Rotation : left_Rotation);
-                p->flags = black_MapElementFlag;
-                g->flags = red_MapElementFlag;
+            else if (elem == g->child[1]->child[0]) {
+                rotate_MapElement_(p, right_Rotation);
+                elem = elem->child[1];
             }
+            p = elem->parent;
+            g = grandParent_MapElement_(elem);
+            rotate_MapElement_(g, elem == p->child[0]? right_Rotation : left_Rotation);
+            p->flags = black_MapElementFlag;
+            g->flags = red_MapElementFlag;
             break;
         }
     }
