@@ -78,14 +78,13 @@ static void deinit_Garbage_(void) {
 static iList *init_Garbage_(void) {
     if (!collected_) {
         collected_ = new_List();
-        pushBack_List(collected_, new_Collected_());
         atexit(deinit_Garbage_);
     }
     return collected_;
 }
 
 static iBool pop_Garbage_(void) {
-    if (!collected_) return iFalse;
+    if (!collected_ || isEmpty_List(collected_)) return iFalse;
     iCollected *d = back_List(collected_);
     if (isEmpty_Collected_(d) && size_List(collected_) > 1) {
         delete_Collected_(d);
@@ -97,12 +96,12 @@ static iBool pop_Garbage_(void) {
 void *collect_Garbage(void *ptr, iDeleteFunc del) {
     iList *list = init_Garbage_();
     iCollected *d = back_List(list);
+    if (!d || isFull_Collected_(d)) {
+        pushBack_List(list, d = new_Collected_());
+    }
     d->allocs[d->count].ptr = ptr;
     d->allocs[d->count].del = del;
     d->count++;
-    if (isFull_Collected_(d)) {
-        pushBack_List(list, new_Collected_());
-    }
     return ptr;
 }
 

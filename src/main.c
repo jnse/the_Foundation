@@ -257,7 +257,7 @@ int main(int argc, char *argv[]) {
         printf(" ]\n");
         delete_Map(map);
     }
-    return 1;
+    //return 1;
     /* Test tree nodes. */ {
         iTestNode *a = new_TestNode(1);
         iTestNode *b = new_TestNode(2);
