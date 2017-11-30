@@ -240,7 +240,7 @@ int main(int argc, char *argv[]) {
         }
         delete_Hash(h);*/
     }
-    /* Test map. */ {
+    /* Test a map. */ {
         printf("Testing a map.\n");
         iMap *map = new_Map(compareIntegers);
         for (int i = 0; i < 20; ++i) {

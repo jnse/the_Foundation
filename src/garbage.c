@@ -30,25 +30,42 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <stdlib.h>
 
+#define iCollectedMax   16
+
 static iList *collected_; // Should be thread-local...
 
 iDeclareType(Collected)
 
 struct Impl_Collected {
     iListElement elem;
-    void *ptr;
-    iDeleteFunc del;
+    int count;
+    struct {
+        void *ptr;
+        iDeleteFunc del;
+    } allocs[iCollectedMax];
 };
 
-static iCollected *new_Collected_(void *ptr, iDeleteFunc del) {
-    iCollected *col = malloc(sizeof(iCollected));
-    col->ptr = ptr;
-    col->del = del;
-    return col;
+#define isEmpty_Collected_(d)   ((d)->count == 0)
+#define isFull_Collected_(d)    ((d)->count == iCollectedMax)
+
+static iCollected *new_Collected_(void) {
+    iCollected *d = iMalloc(Collected);
+    d->count = 0;
+    return d;
+}
+
+static iBool popBack_Collected_(iCollected *d) {
+    if (d->count > 0) {
+        if (d->allocs[--d->count].del) {
+            d->allocs[d->count].del(d->allocs[d->count].ptr);
+            return iTrue;
+        }
+    }
+    return iFalse;
 }
 
 static void delete_Collected_(iCollected *d) {
-    d->del(d->ptr);
+    while (popBack_Collected_(d)) {}
     free(d);
 }
 
@@ -61,14 +78,44 @@ static void deinit_Garbage_(void) {
 static iList *init_Garbage_(void) {
     if (!collected_) {
         collected_ = new_List();
+        pushBack_List(collected_, new_Collected_());
         atexit(deinit_Garbage_);
     }
     return collected_;
 }
 
+static iBool pop_Garbage_(void) {
+    if (!collected_) return iFalse;
+    iCollected *d = back_List(collected_);
+    if (isEmpty_Collected_(d) && size_List(collected_) > 1) {
+        delete_Collected_(d);
+        popBack_List(collected_);
+    }
+    return popBack_Collected_(back_List(collected_));
+}
+
 void *collect_Garbage(void *ptr, iDeleteFunc del) {
-    pushBack_List(init_Garbage_(), new_Collected_(ptr, del));
+    iList *list = init_Garbage_();
+    iCollected *d = back_List(list);
+    d->allocs[d->count].ptr = ptr;
+    d->allocs[d->count].del = del;
+    d->count++;
+    if (isFull_Collected_(d)) {
+        pushBack_List(list, new_Collected_());
+    }
     return ptr;
+}
+
+void beginScope_Garbage(void) {
+    collect_Garbage(NULL, NULL); // marks beginning of scope
+}
+
+void endScope_Garbage(void) {
+    int count = 0;
+    while (pop_Garbage_()) { count++; }
+    if (count) {
+        iDebug("[Garbage] recycled %i scope allocations\n", count);
+    }
 }
 
 void recycle_Garbage(void) {

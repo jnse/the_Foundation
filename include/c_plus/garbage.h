@@ -30,9 +30,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iAny *      collect_Garbage(iAny *ptr, iDeleteFunc del);
 
+void        beginScope_Garbage(void);
+void        endScope_Garbage(void);
+void        recycle_Garbage(void);
+
 #define     iCollect(ptr)           collect_Garbage(ptr, free)
 #define     iCollectDel(ptr, del)   collect_Garbage(ptr, (iDeleteFunc) del)
-
-void        recycle_Garbage(void);
+#define     iBeginCollect()         beginScope_Garbage()
+#define     iEndCollect()           endScope_Garbage()
 
 #define     iRecycle()              recycle_Garbage()
