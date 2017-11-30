@@ -279,6 +279,7 @@ int main(int argc, char *argv[]) {
         printf("deref b...\n"); deref_Object(b);
     }
     /* Test blocks and garbage collector. */ {
+        iBeginCollect();
         iBlock *a = collect_Block(new_Block(0));
         appendCStr_Block(a, "Hello World");
         appendCStr_Block(a, "!");
@@ -292,7 +293,7 @@ int main(int argc, char *argv[]) {
         printf("Block: %s %s\n", constData_Block(a), constData_Block(b));
         printf("c-Block: %s\n", constData_Block(c));
         printf("mid: %s\n", constData_Block(collect_Block(mid_Block(b, 3, 4))));
-        iRecycle();
+        iEndCollect();
     }
     /* Test Unicode strings. */ {
         iString *s = collect_String(newCStr_String("A_Äö\U0001f698a"));

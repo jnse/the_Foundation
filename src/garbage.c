@@ -65,7 +65,9 @@ static iBool popBack_Collected_(iCollected *d) {
 }
 
 static void delete_Collected_(iCollected *d) {
-    while (popBack_Collected_(d)) {}
+    while (d->count > 0) {
+        popBack_Collected_(d);
+    }
     free(d);
 }
 
