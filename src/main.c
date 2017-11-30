@@ -159,7 +159,8 @@ int main(int argc, char *argv[]) {
     /* Initialization. */ {
         srand(time(NULL));
         const char *lc = getenv("LC_CTYPE");
-        setlocale(LC_CTYPE, lc? lc : "en_US.UTF-8");
+        if (!lc) lc = getenv("LANG");
+        setlocale(LC_CTYPE, lc? lc : "en_US.utf8");
     }
     /* Test list insertion and removal. */ {
         printf("Array insertions/removals:\n");
@@ -205,7 +206,7 @@ int main(int argc, char *argv[]) {
         delete_Array(list);
     }
     /* Test an array of pointers. */ {
-        iPtrArray *par = newPointers_PtrArray("Entry One", "Entry Two", 0);
+        iPtrArray *par = newPointers_PtrArray("Entry One", "Entry Two", NULL);
         printf("Iterating the pointer array:\n");
         iConstForEach(PtrArray, i, par) {
             printf("- %s\n", i.ptr);
@@ -216,7 +217,7 @@ int main(int argc, char *argv[]) {
         iStringHash *h = new_StringHash();
         insertValuesCStr_StringHash(h,
               "one", iReleaseLater(new_TestObject(1000)),
-              "two", iReleaseLater(new_TestObject(1001)), 0);
+              "two", iReleaseLater(new_TestObject(1001)), NULL);
         printf("Hash has %zu elements:\n", size_StringHash(h));
         iConstForEach(StringHash, i, h) {
             printf("  %s: %i\n",
