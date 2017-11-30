@@ -89,8 +89,8 @@ static iBool pop_Garbage_(void) {
     if (!collected_ || isEmpty_List(collected_)) return iFalse;
     iCollected *d = back_List(collected_);
     if (isEmpty_Collected_(d) && size_List(collected_) > 1) {
-        delete_Collected_(d);
         popBack_List(collected_);
+        delete_Collected_(d);
     }
     return popBack_Collected_(back_List(collected_));
 }

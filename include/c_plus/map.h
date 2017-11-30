@@ -88,9 +88,10 @@ void        clear_Map   (iMap *);
  * make room for the new element. The caller should delete the element or take any other
  * necessary actions, since it is no longer part of the hash.
  */
-iMapNode *  insert_Map (iMap *, iMapNode *element);
+iMapNode *  insert_Map (iMap *, iMapNode *node);
 
-iMapNode *  remove_Map (iMap *, iMapKey key);
+iMapNode *  remove_Map      (iMap *, iMapKey key);
+iMapNode *  removeNode_Map  (iMap *, iMapNode *node);
 
 iDeclareIterator(Map, iMap *)
 iMapNode *remove_MapIterator(iMapIterator *d);

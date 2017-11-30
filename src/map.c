@@ -41,6 +41,7 @@ enum iRotation {
 };
 
 #define grandParent_MapNode_(d) ((d)->parent? (d)->parent->parent : NULL)
+#define isRed_MapNode_(d)       ((d) && (d)->flags == red_MapNodeFlag)
 
 static iMapNode *sibling_MapNode_(iMapNode *d) {
     if (!d->parent) return NULL;
@@ -64,21 +65,21 @@ static iMapNode *uncle_MapNode_(iMapNode *d) {
 //    return d->parent->child[0] == d? 0 : 1;
 //}
 
-static iMapNode **parentLink_MapNode_(iMapNode *d) {
+static iMapNode **downLink_MapNode_(iMapNode *d) {
     if (!d->parent) return NULL;
     return d->parent->child + (d->parent->child[0] == d? 0 : 1);
 }
 
 static void rotate_MapNode_(iMapNode *d, enum iRotation dir) {
     const int side = (dir == left_Rotation? 1 : 0);
-    iMapNode **oldParentLink = parentLink_MapNode_(d);
+    iMapNode **oldDownLink = downLink_MapNode_(d);
     iMapNode *newD = d->child[side];
     iAssert(newD != NULL);
     d->child[side] = newD->child[side ^ 1];
     if (d->child[side]) d->child[side]->parent = d;
     newD->child[side ^ 1] = d;
     newD->parent = d->parent;
-    if (oldParentLink) *oldParentLink = newD;
+    if (oldDownLink) *oldDownLink = newD;
     d->parent = newD;
 }
 
@@ -90,11 +91,48 @@ static void setChild_MapNode_(iMapNode *d, int index, iMapNode *child) {
 }
 
 static void replaceElement_MapNode_(iMapNode *d, iMapNode *replacement) {
-    iMapNode **parentLink = parentLink_MapNode_(d);
+    iMapNode **parentLink = downLink_MapNode_(d);
     if (parentLink) *parentLink = replacement;
     replacement->parent = d->parent;
     for (int i = 0; i < 2; ++i) {
         setChild_MapNode_(replacement, i, d->child[i]);
+    }
+}
+
+static void repairAfterInsert_MapNode_(iMapNode *elem) {
+    // Restore the required red/black properties.
+    while (elem) {
+        if (!elem->parent) {
+            elem->flags = black_MapNodeFlag;
+            break;
+        }
+        else if (elem->parent->flags == black_MapNodeFlag) {
+            break;
+        }
+        else if (isRed_MapNode_(uncle_MapNode_(elem))) {
+            elem->parent->flags = black_MapNodeFlag;
+            uncle_MapNode_(elem)->flags = black_MapNodeFlag;
+            grandParent_MapNode_(elem)->flags = red_MapNodeFlag;
+            elem = grandParent_MapNode_(elem);
+        }
+        else {
+            iMapNode *p = elem->parent;
+            iMapNode *g = grandParent_MapNode_(elem);
+            if (g->child[0] && elem == g->child[0]->child[1]) {
+                rotate_MapNode_(p, left_Rotation);
+                elem = elem->child[0];
+            }
+            else if (g->child[1] && elem == g->child[1]->child[0]) {
+                rotate_MapNode_(p, right_Rotation);
+                elem = elem->child[1];
+            }
+            p = elem->parent;
+            g = grandParent_MapNode_(elem);
+            rotate_MapNode_(g, elem == p->child[0]? right_Rotation : left_Rotation);
+            p->flags = black_MapNodeFlag;
+            g->flags = red_MapNodeFlag;
+            break;
+        }
     }
 }
 
@@ -121,44 +159,6 @@ static iMapNode *insertElement_Map_(iMap *d, iMapNode *insert) {
     insert->child[0] = insert->child[1] = NULL;
     insert->flags = red_MapNodeFlag;
     return NULL; // New element added.
-}
-
-static void repairAfterInsert_MapNode_(iMapNode *elem) {
-    // Restore the required red/black properties.
-    while (elem) {
-        if (!elem->parent) {
-            elem->flags = black_MapNodeFlag;
-            break;
-        }
-        else if (elem->parent->flags == black_MapNodeFlag) {
-            break;
-        }
-        else if (uncle_MapNode_(elem) &&
-                 uncle_MapNode_(elem)->flags == red_MapNodeFlag) {
-            elem->parent->flags = black_MapNodeFlag;
-            uncle_MapNode_(elem)->flags = black_MapNodeFlag;
-            grandParent_MapNode_(elem)->flags = red_MapNodeFlag;
-            elem = grandParent_MapNode_(elem);
-        }
-        else {
-            iMapNode *p = elem->parent;
-            iMapNode *g = grandParent_MapNode_(elem);
-            if (g->child[0] && elem == g->child[0]->child[1]) {
-                rotate_MapNode_(p, left_Rotation);
-                elem = elem->child[0];
-            }
-            else if (g->child[1] && elem == g->child[1]->child[0]) {
-                rotate_MapNode_(p, right_Rotation);
-                elem = elem->child[1];
-            }
-            p = elem->parent;
-            g = grandParent_MapNode_(elem);
-            rotate_MapNode_(g, elem == p->child[0]? right_Rotation : left_Rotation);
-            p->flags = black_MapNodeFlag;
-            g->flags = red_MapNodeFlag;
-            break;
-        }
-    }
 }
 
 void init_Map(iMap *d, iMapNodeCmpFunc cmp) {
@@ -194,16 +194,16 @@ void clear_Map(iMap *d) {
     d->root = NULL;
 }
 
-iMapNode *insert_Map(iMap *d, iMapNode *element) {
-    iMapNode *old = insertElement_Map_(d, element);
+iMapNode *insert_Map(iMap *d, iMapNode *node) {
+    iMapNode *old = insertElement_Map_(d, node);
     if (old) {
         // The root may have been replaced.
-        if (d->root == old) d->root = element;
+        if (d->root == old) d->root = node;
         return old;
     }
-    repairAfterInsert_MapNode_(element);
-    // Re-root.
-    iMapNode *newRoot = element;
+    repairAfterInsert_MapNode_(node);
+    // Find the new root.
+    iMapNode *newRoot = node;
     while (newRoot->parent) {
         newRoot = newRoot->parent;
     }
@@ -213,7 +213,22 @@ iMapNode *insert_Map(iMap *d, iMapNode *element) {
 }
 
 iMapNode *remove_Map(iMap *d, iMapKey key) {
-    return NULL;
+    return removeNode_Map(d, value_Map(d, key));
+}
+
+iMapNode *removeNode_Map(iMap *d, iMapNode *node) {
+    if (!node) return NULL;
+    d->size--;
+    if (!node->child[0] && !node->child[1]) {
+        if (!node->parent) {
+            // Removing the root.
+            d->root = NULL;
+        }
+        else {
+            *downLink_MapNode_(node) = NULL;
+        }
+    }
+    return node;
 }
 
 //---------------------------------------------------------------------------------------
@@ -271,4 +286,8 @@ void init_MapIterator(iMapIterator *d, iMap *map) {
 void next_MapIterator(iMapIterator *d) {
     d->value = d->next;
     d->next = iConstCast(iMapNode *, nextInOrder_MapNode_(d->value, &d->dir));
+}
+
+iMapNode *remove_MapIterator(iMapIterator *d) {
+    return removeNode_Map(d->map, d->value);
 }
