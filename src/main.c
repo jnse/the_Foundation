@@ -122,14 +122,14 @@ iTestObject *new_TestObject(int value) {
 
 //---------------------------------------------------------------------------------------
 
-typedef struct Impl_TestElement {
+typedef struct Impl_SHTestNode {
     iStringHashNode base;
     float member;
 }
-TestElement;
+SHTestNode;
 
-TestElement *new_TestElement(void) {
-    TestElement *d = malloc(sizeof(TestElement));
+SHTestNode *new_SHTestNode(void) {
+    SHTestNode *d = malloc(sizeof(SHTestNode));
     d->member = iRandomf();
     return d;
 }

@@ -29,23 +29,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 
 iDeclareType(List)
-iDeclareType(ListElement)
+iDeclareType(ListNode)
 
-struct Impl_ListElement {
-    iListElement *next;
-    iListElement *prev;
+struct Impl_ListNode {
+    iListNode *next;
+    iListNode *prev;
 };
 
 struct Impl_List {
-    iListElement root;
+    iListNode root;
     size_t size;
 };
 
 /**
  * Constructs a new list.
  *
- * List does not have ownership of the elements. This means the elements can be
- * any type of object as long as they are derived from ListElement.
+ * List does not have ownership of the nodes. This means the nodes can be
+ * any type of object as long as they are derived from ListNode.
  *
  * @return List instance.
  */
@@ -64,11 +64,11 @@ iAny *      back_List   (const iList *);
 
 void        clear_List          (iList *);
 
-iAny *      pushBack_List       (iList *, iAny *elem);
-iAny *      pushFront_List      (iList *, iAny *elem);
-iAny *      insertAfter_List    (iList *, iAny *after, iAny *elem);
-iAny *      insertBefore_List   (iList *, iAny *before, iAny *elem);
-iAny *      remove_List         (iList *, iAny *elem);
+iAny *      pushBack_List       (iList *, iAny *node);
+iAny *      pushFront_List      (iList *, iAny *node);
+iAny *      insertAfter_List    (iList *, iAny *after, iAny *node);
+iAny *      insertBefore_List   (iList *, iAny *before, iAny *node);
+iAny *      remove_List         (iList *, iAny *node);
 iAny *      popFront_List       (iList *);
 iAny *      popBack_List        (iList *);
 
@@ -76,12 +76,12 @@ iDeclareIterator(List, iList *)
 iDeclareConstIterator(List, const iList *)
 
 struct IteratorImpl_List {
-    iListElement *value;
+    iListNode *value;
     iList *list;
-    iListElement *next;
+    iListNode *next;
 };
 struct ConstIteratorImpl_List {
-    const iListElement *value;
+    const iListNode *value;
     const iList *list;
-    const iListElement *next;
+    const iListNode *next;
 };

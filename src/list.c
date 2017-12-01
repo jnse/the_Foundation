@@ -28,16 +28,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 
-#define iListElement_(ptr) ((iListElement *)(ptr))
+#define iListNode_(ptr) ((iListNode *) (ptr))
 
-static iListElement *nextElement_List_(const iList *d, const iListElement *elem) {
-    if (!elem || elem->next == &d->root) return NULL;
-    return elem->next;
+static iListNode *nextNode_List_(const iList *d, const iListNode *node) {
+    if (!node || node->next == &d->root) return NULL;
+    return node->next;
 }
 
-static iListElement *prevElement_List_(const iList *d, const iListElement *elem) {
-    if (!elem || elem->prev == &d->root) return NULL;
-    return elem->prev;
+static iListNode *prevNode_List_(const iList *d, const iListNode *node) {
+    if (!node || node->prev == &d->root) return NULL;
+    return node->prev;
 }
 
 iDefineTypeConstruction(List)
@@ -67,34 +67,34 @@ void clear_List(iList *d) {
     d->size = 0;
 }
 
-iAny *pushBack_List(iList *d, iAny *elem) {
-    return insertBefore_List(d, &d->root, elem);
+iAny *pushBack_List(iList *d, iAny *node) {
+    return insertBefore_List(d, &d->root, node);
 }
 
-iAny *pushFront_List(iList *d, iAny *elem) {
-    return insertAfter_List(d, &d->root, elem);
+iAny *pushFront_List(iList *d, iAny *node) {
+    return insertAfter_List(d, &d->root, node);
 }
 
-iAny *insertAfter_List(iList *d, iAny *after, iAny *elem) {
-    iAssert(elem);
+iAny *insertAfter_List(iList *d, iAny *after, iAny *node) {
+    iAssert(node);
     if (!after) after = back_List(d);
-    iListElement_(elem) ->next = iListElement_(after)->next;
-    iListElement_(after)->next->prev = elem;
-    iListElement_(elem) ->prev = after;
-    iListElement_(after)->next = elem;
+    iListNode_(node) ->next = iListNode_(after)->next;
+    iListNode_(after)->next->prev = node;
+    iListNode_(node) ->prev = after;
+    iListNode_(after)->next = node;
     d->size++;
-    return elem;
+    return node;
 }
 
-iAny *insertBefore_List(iList *d, iAny *before, iAny *elem) {
-    iAssert(elem);
+iAny *insertBefore_List(iList *d, iAny *before, iAny *node) {
+    iAssert(node);
     if (!before) before = front_List(d);
-    iListElement_(elem)  ->prev = iListElement_(before)->prev;
-    iListElement_(before)->prev->next = elem;
-    iListElement_(elem)  ->next = before;
-    iListElement_(before)->prev = elem;
+    iListNode_(node)  ->prev = iListNode_(before)->prev;
+    iListNode_(before)->prev->next = node;
+    iListNode_(node)  ->next = before;
+    iListNode_(before)->prev = node;
     d->size++;
-    return elem;
+    return node;
 }
 
 iAny *popFront_List(iList *d) {
@@ -107,26 +107,26 @@ iAny *popBack_List(iList *d) {
     return remove_List(d, back_List(d));
 }
 
-iAny *remove_List(iList *d, iAny *elem) {
-    iAssert(elem);
+iAny *remove_List(iList *d, iAny *node) {
+    iAssert(node);
     iAssert(d->size > 0);
     d->size--;
-    iListElement_(elem)->next->prev = iListElement_(elem)->prev;
-    iListElement_(elem)->prev->next = iListElement_(elem)->next;
-    iListElement_(elem)->next = iListElement_(elem)->prev = NULL;
-    return elem;
+    iListNode_(node)->next->prev = iListNode_(node)->prev;
+    iListNode_(node)->prev->next = iListNode_(node)->next;
+    iListNode_(node)->next = iListNode_(node)->prev = NULL;
+    return node;
 }
 
 //---------------------------------------------------------------------------------------
 
 #define init_ListIterator_(d, list) \
     { d->list  = list; \
-      d->value = nextElement_List_(list, &list->root); \
-      d->next  = nextElement_List_(list, d->value); }
+      d->value = nextNode_List_(list, &list->root); \
+      d->next  = nextNode_List_(list, d->value); }
 
 #define next_ListIterator_(d) \
     { d->value = d->next; \
-      d->next  = nextElement_List_(d->list, d->value); }
+      d->next  = nextNode_List_(d->list, d->value); }
 
 void init_ListIterator(iListIterator *d, iList *list) {
     init_ListIterator_(d, list);
@@ -148,12 +148,12 @@ void next_ListConstIterator(iListConstIterator *d) {
 
 #define init_ListReverseIterator_(d, list) \
     { d->list  = list; \
-      d->value = prevElement_List_(list, &list->root); \
-      d->next  = prevElement_List_(list, d->value); }
+      d->value = prevNode_List_(list, &list->root); \
+      d->next  = prevNode_List_(list, d->value); }
 
 #define next_ListReverseIterator_(d) \
     { d->value = d->next; \
-      d->next  = prevElement_List_(d->list, d->value); }
+      d->next  = prevNode_List_(d->list, d->value); }
 
 void init_ListReverseIterator(iListReverseIterator *d, iList *list) {
     init_ListReverseIterator_(d, list);

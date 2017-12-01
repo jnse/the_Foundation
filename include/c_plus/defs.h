@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include <stddef.h>
-#include <stdint.h>
+#include <stdint.h> // prefer to use int{n}_t/uint{n}_t
 #include <string.h>
 
 #define iFalse  0
@@ -42,10 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define iCmp(a, b)              ((a) == (b)? 0 : (a) < (b)? -1 : 1)
 
 // Types.
-typedef int             iBool;
-typedef uint8_t         iByte;
-typedef unsigned int    iUInt;
-
+typedef int iBool;
 typedef void iAny;
 typedef void iAnyObject;
 typedef void (*iDeinitFunc)(iAny *);

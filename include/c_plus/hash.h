@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "class.h"
 
 /**
- * Hash does not have ownership of the elements. This means the elements can be
+ * Hash does not have ownership of the nodes. This means the nodes can be
  * any type of object as long as they are derived from HashNode.
  */
 iDeclareType(Hash)
@@ -44,7 +44,7 @@ struct Impl_Hash {
     iHashBucket *root;
 };
 
-/// Elements inserted to the hash must be based on iHashNode.
+/// Nodes inserted to the hash must be based on iHashNode.
 struct Impl_HashNode {
     iHashNode *next;
     iHashKey key;
@@ -69,16 +69,16 @@ iHashNode * value_Hash      (const iHash *, iHashKey key);
 void        clear_Hash  (iHash *);
 
 /**
- * Inserts an element into the hash.
+ * Inserts a node into the hash.
  *
- * @param element  Element to be inserted. Ownership not taken. The `key` member must
- *                 be set to a valid hash key.
+ * @param node  Node to be inserted. Ownership not taken. The `key` member must
+ *              be set to a valid hash key.
  *
- * @return Previous element with the same key that had to be removed from the hash to
- * make room for the new element. The caller should delete the element or take any other
+ * @return Previous node with the same key that had to be removed from the hash to
+ * make room for the new nodes. The caller should delete the node or take any other
  * necessary actions, since it is no longer part of the hash.
  */
-iHashNode * insert_Hash (iHash *, iHashNode *element);
+iHashNode * insert_Hash (iHash *, iHashNode *node);
 
 iHashNode * remove_Hash (iHash *, iHashKey key);
 
@@ -87,13 +87,13 @@ iHashNode *remove_HashIterator(iHashIterator *d);
 struct IteratorImpl_Hash {
     iHashNode *value;
     iHashNode *next;
-    iHashBucket *node;
+    iHashBucket *bucket;
     iHash *hash;
 };
 
 iDeclareConstIterator(Hash, const iHash *)
 struct ConstIteratorImpl_Hash {
     const iHashNode *value;
-    const iHashBucket *node;
+    const iHashBucket *bucket;
     const iHash *hash;
 };

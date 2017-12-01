@@ -43,7 +43,7 @@ iEndDeclareClass(BlockHashNode)
 struct Impl_BlockHash {
     iObject object;
     iHash hash;
-    const iBlockHashNodeClass *elementClass;
+    const iBlockHashNodeClass *nodeClass;
 };
 
 struct Impl_BlockHashNode {
@@ -66,7 +66,7 @@ void            delete_BlockHash  (iBlockHash *);
 void            init_BlockHash    (iBlockHash *);
 void            deinit_BlockHash  (iBlockHash *);
 
-void            setElementClass_BlockHash (iBlockHash *, const iBlockHashNodeClass *class);
+void            setNodeClass_BlockHash  (iBlockHash *, const iBlockHashNodeClass *class);
 
 #define         size_BlockHash(d)       size_Hash(&(d)->hash)
 #define         isEmpty_BlockHash(d)    isEmpty_Hash(&(d)->hash)
@@ -78,12 +78,12 @@ iAnyObject *        value_BlockHash       (iBlockHash *, const iBlock *key);
 void            clear_BlockHash        (iBlockHash *);
 
 /**
- * Insert a key-value element into the BlockHash.
+ * Insert a key-value node into the BlockHash.
  *
- * @param key    Key string. A copy is made of the key and stored in the element.
+ * @param key    Key string. A copy is made of the key and stored in the node.
  * @param value  Value object.
  *
- * @return @c iTrue, if the a new key-value element was added and the size of the hash
+ * @return @c iTrue, if the a new key-value node was added and the size of the hash
  * increased as a result. @c False, if an existing one was replaced.
  */
 iBool           insert_BlockHash       (iBlockHash *, const iBlock *key, const iAnyObject *value);
@@ -162,8 +162,8 @@ struct ConstIteratorImpl_BlockHash {
 
 /**
  * Things that must be manually defined:
- * - key_<typeName>Element(element): returns the key as-is (if available)
- * - initKey_<typeName>Element(element, key): copies the Block back to an existing keyType instance
+ * - key_<typeName>Node(d): returns the key as-is (if available)
+ * - initKey_<typeName>Node(d, key): copies the Block back to an existing keyType instance
  * - initBlock_<typeName>Key(key, block): initializes a Block with the key data
  */
 #define iDefineBlockHash(typeName, keyType, valueType) \
@@ -184,7 +184,7 @@ struct ConstIteratorImpl_BlockHash {
     \
     void init_##typeName(i##typeName *d) { \
         init_BlockHash(d); \
-        setElementClass_BlockHash(d, (const iBlockHashNodeClass *) &Class_##typeName##Node); \
+        setNodeClass_BlockHash(d, (const iBlockHashNodeClass *) &Class_##typeName##Node); \
     } \
     \
     void deinit_##typeName(i##typeName *d) { \

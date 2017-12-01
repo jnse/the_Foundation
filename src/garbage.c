@@ -37,7 +37,7 @@ static iList *collected_; // Should be thread-local...
 iDeclareType(Collected)
 
 struct Impl_Collected {
-    iListElement elem;
+    iListNode node;
     int count;
     struct {
         void *ptr;

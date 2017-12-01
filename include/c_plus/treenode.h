@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iDeclareType(TreeNode)
 
 struct Impl_TreeNode {
-    iListElement base;
+    iListNode base;
     const iClass *class;
     iTreeNode *parent;
     iList *children;

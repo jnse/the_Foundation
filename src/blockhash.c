@@ -54,7 +54,7 @@ iDefineObjectConstruction(BlockHash)
 
 void init_BlockHash(iBlockHash *d) {
     init_Hash(&d->hash);
-    setElementClass_BlockHash(d, &Class_BlockHashNode);
+    setNodeClass_BlockHash(d, &Class_BlockHashNode);
 }
 
 void deinit_BlockHash(iBlockHash *d) {
@@ -62,20 +62,20 @@ void deinit_BlockHash(iBlockHash *d) {
     deinit_Hash(&d->hash);
 }
 
-void setElementClass_BlockHash(iBlockHash *d, const iBlockHashNodeClass *class) {
-    d->elementClass = class;
+void setNodeClass_BlockHash(iBlockHash *d, const iBlockHashNodeClass *class) {
+    d->nodeClass = class;
 }
 
 iBool contains_BlockHash(const iBlockHash *d, const iBlock *key) {
-    return contains_Hash(&d->hash, d->elementClass->hashKey(key));
+    return contains_Hash(&d->hash, d->nodeClass->hashKey(key));
 }
 
 const iAnyNode *constValue_BlockHash(const iBlockHash *d, const iBlock *key) {
-    return value_Hash(&d->hash, d->elementClass->hashKey(key));
+    return value_Hash(&d->hash, d->nodeClass->hashKey(key));
 }
 
 iAnyNode *value_BlockHash(iBlockHash *d, const iBlock *key) {
-    return value_Hash(&d->hash, d->elementClass->hashKey(key));
+    return value_Hash(&d->hash, d->nodeClass->hashKey(key));
 }
 
 void clear_BlockHash(iBlockHash *d) {
@@ -90,11 +90,11 @@ iBool insert_BlockHash(iBlockHash *d, const iBlock *key, const iAnyObject *value
            d->object.class->name,
            constData_Block(key),
            class_Object(value)->name, value);
-    iHashNode *node = (iHashNode *) d->elementClass->new(key, value);
-    node->key = d->elementClass->hashKey(key);
+    iHashNode *node = (iHashNode *) d->nodeClass->new(key, value);
+    node->key = d->nodeClass->hashKey(key);
     iAnyNode *old = insert_Hash(&d->hash, node);
     if (old) {
-        delete_Class(d->elementClass, old);
+        delete_Class(d->nodeClass, old);
         return iFalse;
     }
     return iTrue;
@@ -123,9 +123,9 @@ void insertValuesCStr_BlockHash(iBlockHash *d, const char *key, const iAnyObject
 }
 
 iBool remove_BlockHash(iBlockHash *d, const iBlock *key) {
-    iHashNode *old = remove_Hash(&d->hash, d->elementClass->hashKey(key));
+    iHashNode *old = remove_Hash(&d->hash, d->nodeClass->hashKey(key));
     if (old) {
-        delete_Class(d->elementClass, old);
+        delete_Class(d->nodeClass, old);
         return iTrue;
     }
     return iFalse;
@@ -149,7 +149,7 @@ const iBlock *key_BlockHashIterator(iBlockHashIterator *d) {
 }
 
 void remove_BlockHashIterator(iBlockHashIterator *d) {
-    delete_Class(d->blockHash->elementClass, remove_HashIterator(&d->base));
+    delete_Class(d->blockHash->nodeClass, remove_HashIterator(&d->base));
 }
 
 void init_BlockHashConstIterator(iBlockHashConstIterator *d, const iBlockHash *hash) {

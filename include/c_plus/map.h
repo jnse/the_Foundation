@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/map.h  Map of sorted unique integer elements.
+/** @file c_plus/map.h  Map of sorted unique integer nodes.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
@@ -43,7 +43,7 @@ struct Impl_Map {
     iMapNodeCmpFunc cmp;
 };
 
-/// Elements inserted to the map must be based on iMapNode.
+/// Nodes inserted to the map must be based on iMapNode.
 struct Impl_MapNode {
     iMapNode *parent;
     iMapNode *child[2];
@@ -51,12 +51,10 @@ struct Impl_MapNode {
     iMapKey key;
 };
 
-typedef void iAnyElement;
-
 /**
  * Constructs a new map.
  *
- * Map does not have ownership of the elements. This means the elements can be
+ * Map does not have ownership of the nodes. This means the nodes can be
  * any type of object as long as they are derived from MapNode.
  *
  * @return Map instance.
@@ -79,13 +77,13 @@ iMapNode *  value_Map       (const iMap *, iMapKey key);
 void        clear_Map   (iMap *);
 
 /**
- * Inserts an element into the map.
+ * Inserts a node into the map.
  *
- * @param element  Element to be inserted. Ownership not taken. The `key` member must
- *                 be set to the key value.
+ * @param node  Node to be inserted. Ownership not taken. The `key` member must
+ *              be set to the key value.
  *
- * @return Previous element with the same key that had to be removed from the hash to
- * make room for the new element. The caller should delete the element or take any other
+ * @return Previous node with the same key that had to be removed from the hash to
+ * make room for the new node. The caller should delete the node or take any other
  * necessary actions, since it is no longer part of the hash.
  */
 iMapNode *  insert_Map (iMap *, iMapNode *node);
