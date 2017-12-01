@@ -157,7 +157,9 @@ int main(int argc, char *argv[]) {
     iUnused(argc);
     iUnused(argv);
     /* Initialization. */ {
-        srand(time(NULL));
+        time_t seed = time(NULL);
+        srand(seed);
+        printf("random seed: %li\n", seed);
         const char *lc = getenv("LC_CTYPE");
         if (!lc) lc = getenv("LANG");
         setlocale(LC_CTYPE, lc? lc : "en_US.utf8");
@@ -257,6 +259,19 @@ int main(int argc, char *argv[]) {
             iCollect(i.value);
         }
         printf(" ]\n");
+        const int fullSize = size_Map(map);
+        int remCount = 0;
+        for (int i = 0; i < 300; ++i) {
+            iMapKey key = iRandom(0, 100);
+            iMapNode *rem = remove_Map(map, key);
+            if (rem) {
+                remCount++;
+                printf("    removed %li\n", key);
+                iAssert(rem->key == key);
+            }
+        }
+        iAssert(fullSize - remCount == size_Map(map));
+        printf("Size after removals: %zu\n", size_Map(map));
         delete_Map(map);
         iEndCollect();
     }

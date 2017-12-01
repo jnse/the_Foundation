@@ -99,13 +99,11 @@ struct IteratorImpl_Map {
     iMapNode *value;
     iMapNode *next;
     int dir;
-    //iMapNode *node;
     iMap *map;
 };
 
 iDeclareConstIterator(Map, const iMap *)
 struct ConstIteratorImpl_Map {
     const iMapNode *value;
-    //const iMapNode *node;
     const iMap *map;
 };
