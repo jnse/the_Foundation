@@ -253,10 +253,17 @@ int main(int argc, char *argv[]) {
             iMapNode *old = insert_Map(map, elem);
             if (old) free(old);
         }
-        printf("Keys: [");
-        iForEach(Map, i, map) {
-            printf(" %2li", i.value->key);
-            iCollect(i.value);
+        printf("Keys: ["); {
+            iForEach(Map, i, map) {
+                printf(" %2li", i.value->key);
+                iCollect(i.value);
+            }
+        }
+        printf(" ]\n");
+        printf("Keys in reverse: ["); {
+            iConstReverseForEach(Map, i, map) {
+                printf(" %2li", i.value->key);
+            }
         }
         printf(" ]\n");
         const int fullSize = size_Map(map);
@@ -266,7 +273,6 @@ int main(int argc, char *argv[]) {
             iMapNode *rem = remove_Map(map, key);
             if (rem) {
                 remCount++;
-                printf("    removed %li\n", key);
                 iAssert(rem->key == key);
             }
         }
