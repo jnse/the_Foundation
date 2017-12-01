@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdint.h> // prefer to use int{n}_t/uint{n}_t
 #include <string.h>
 
+#include "config.h"
+
 #define iFalse  0
 #define iTrue   1
 
@@ -48,14 +50,12 @@ typedef void iAnyObject;
 typedef void (*iDeinitFunc)(iAny *);
 typedef void (*iDeleteFunc)(iAny *);
 
-uint32_t iCrc32(const char *data, size_t size);
+void        init_CPlus  (void);
+uint32_t    iCrc32      (const char *data, size_t size);
 
 #define iUnused(var)            ((void)(var))
-
 #define iZap(var)               memset(&(var), 0, sizeof(var));
-
 #define iConstCast(type, ptr)   ((type) (intptr_t) (ptr))
-
 #define iMalloc(typeName)       malloc(sizeof(i##typeName))
 
 #define iDeclareType(typeName)  typedef struct Impl_##typeName i##typeName;

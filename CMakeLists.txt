@@ -7,15 +7,17 @@ find_package (PkgConfig)
 pkg_check_modules (PCRE libpcre)
 find_package (ZLIB)
 if (PCRE_FOUND)
-    add_definitions (-DiHavePcre)
+    set (iHavePcre YES)
 endif ()
 if (ZLIB_FOUND)
-    add_definitions (-DiHaveZlib)
+    set (iHaveZlib YES)
 endif ()
+configure_file (config.h.in config.h)
 
 #----------------------------------------------------------------------------------------
 
 set (SOURCES
+    src/c_plus.c
     src/array.c
     src/block.c
     src/blockhash.c
@@ -24,7 +26,6 @@ set (SOURCES
     src/garbage.c
     src/hash.c
     src/list.c
-    src/main.c
     src/map.c
     src/math.c
     src/object.c
@@ -59,18 +60,16 @@ if (PCRE_FOUND)
     set (SOURCES ${SOURCES} src/regexp.c)
     set (HEADERS ${HEADERS} include/c_plus/regexp.h)
 endif ()
-
-add_executable (cplus ${SOURCES} ${HEADERS})
-
+add_library (cplus STATIC ${SOURCES} ${HEADERS})
+target_compile_definitions (cplus PRIVATE iIsLibraryBuild)
 set_property (TARGET cplus PROPERTY C_STANDARD 11)
-target_include_directories (cplus PUBLIC include)
+target_include_directories (cplus PUBLIC include ${CMAKE_CURRENT_BINARY_DIR})
 target_compile_options (cplus PRIVATE -Wall -Wpedantic -Werror)
 if (CMAKE_COMPILER_IS_GNUCC)
     target_compile_options (cplus PRIVATE -Wno-format)
 else ()
     target_compile_options (cplus PRIVATE -Wno-format-pedantic)
 endif ()
-
 if (ZLIB_FOUND)
     target_include_directories (cplus PRIVATE ${ZLIB_INCLUDE_DIRS})
     target_link_libraries (cplus PRIVATE ${ZLIB_LIBRARIES})
@@ -79,3 +78,6 @@ if (PCRE_FOUND)
     target_include_directories (cplus PRIVATE ${PCRE_INCLUDE_DIRS})
     target_link_libraries (cplus PRIVATE ${PCRE_LDFLAGS})
 endif ()
+
+add_executable (c+test tests/main.c)
+target_link_libraries (c+test PRIVATE cplus)
