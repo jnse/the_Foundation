@@ -261,7 +261,7 @@ int main(int argc, char *argv[]) {
         }
         printf(" ]\n");
         printf("Keys in reverse: ["); {
-            iConstReverseForEach(Map, i, map) {
+            iReverseConstForEach(Map, i, map) {
                 printf(" %2li", i.value->key);
             }
         }
@@ -325,7 +325,7 @@ int main(int argc, char *argv[]) {
             }
         }
         printf("Backwards:\n"); {
-            iConstReverseForEach(String, i , s) {
+            iReverseConstForEach(String, i , s) {
                 printf(" char: %04x [%lc]\n", i.value, i.value);
             }
         }

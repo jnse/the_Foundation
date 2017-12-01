@@ -113,7 +113,7 @@ uint32_t iCrc32(const char *data, size_t size);
 #define iConstForEach(typeName, iterName, container) \
     iIterate(typeName, ConstIterator, iterName, container)
 
-#define iConstReverseForEach(typeName, iterName, container) \
+#define iReverseConstForEach(typeName, iterName, container) \
     iIterate(typeName, ReverseConstIterator, iterName, container)
 
 #if defined (NDEBUG)
