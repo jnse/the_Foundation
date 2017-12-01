@@ -281,7 +281,6 @@ int main(int argc, char *argv[]) {
         delete_Map(map);
         iEndCollect();
     }
-    return 1;
     /* Test tree nodes. */ {
         iTestNode *a = new_TestNode(1);
         iTestNode *b = new_TestNode(2);
