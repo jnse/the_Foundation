@@ -1,5 +1,8 @@
 /** @file map.c  Map of sorted unique integer keys.
 
+Description of the red-black tree algorithms:
+https://en.wikipedia.org/wiki/Red–black_tree
+
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 All rights reserved.
 
@@ -57,22 +60,8 @@ static iMapNode *uncle_MapNode_(iMapNode *d) {
     return sibling_MapNode_(d->parent);
 }
 
-//static void replace_MapNode_(iMapNode *d, iMapNode *other) {
-//    // Replace this node.
-//    if (d->parent) {
-//        d->parent->child[d->parent->child[0] == d? 0 : 1] = other;
-//    }
-//}
-
-//static int childIndex_MapNode_(const iMapNode *d) {
-//    iAssert(d->parent);
-//    return d->parent->child[0] == d? 0 : 1;
-//}
-
 static int verify_MapNode_(iMapNode *d) {
     if (!d) return 1;
-    if (d->child[0]) iAssert(d->key > d->child[0]->key);
-    if (d->child[1]) iAssert(d->key < d->child[1]->key);
     if (isRed_MapNode_(d)) {
         iAssert(isChildBlack_MapNode_(d, 0));
         iAssert(isChildBlack_MapNode_(d, 1));
@@ -90,6 +79,8 @@ static iMapNode *adjacent_MapNode_(iMapNode *d, int side) {
     for (d = d->child[side]; d->child[side ^ 1]; d = d->child[side ^ 1]) {}
     return d;
 }
+
+#define constAdjacent_MapNode_(d, s)    ((const iMapNode *) adjacent_MapNode_(iConstCast(iMapNode *, d), s))
 
 static iMapNode **downLink_MapNode_(iMapNode *d) {
     if (!d->parent) return NULL;
@@ -252,7 +243,7 @@ iMapNode *remove_Map(iMap *d, iMapKey key) {
     return removeNode_Map(d, value_Map(d, key));
 }
 
-static void repairAfterRemoval_Map_(iMap *d, iMapNode *node) {
+static void repairAfterRemoval_MapNode_(iMapNode *node) {
     iAssert(node->flags == black_MapNodeFlag);
     while (node->parent) { // Not the root?
         iMapNode *s = sibling_MapNode_(node);
@@ -317,13 +308,13 @@ static void removeNodeWithZeroOrOneChild_Map_(iMap *d, iMapNode *node) {
                 child->flags = black_MapNodeFlag;
             }
             else {
-                repairAfterRemoval_Map_(d, child);
+                repairAfterRemoval_MapNode_(child);
             }
         }
     }
     else {
         if (node->flags == black_MapNodeFlag) {
-            repairAfterRemoval_Map_(d, node);
+            repairAfterRemoval_MapNode_(node);
         }
         if (node->parent) {
             *downLink_MapNode_(node) = NULL;
@@ -382,12 +373,12 @@ iMapNode *removeNode_Map(iMap *d, iMapNode *node) {
 
 //---------------------------------------------------------------------------------------
 
-enum iMapIteratorDir {
-    down_MapIteratorDir,
-    up_MapIteratorDir,
-};
+//enum iMapIteratorDir {
+//    down_MapIteratorDir,
+//    up_MapIteratorDir,
+//};
 
-static const iMapNode *firstInOrder_MapNode_(const iMapNode *d) {
+static const iMapNode *constFirstInOrder_MapNode_(const iMapNode *d) {
     if (!d) return NULL;
     while (d->child[0]) {
         d = d->child[0];
@@ -395,9 +386,19 @@ static const iMapNode *firstInOrder_MapNode_(const iMapNode *d) {
     return d;
 }
 
-static const iMapNode *nextInOrder_MapNode_(const iMapNode *d, int *dir) {
+static const iMapNode *constNextInOrder_MapNode_(const iMapNode *d) {
     if (!d) return NULL;
-    // Switch to the next sibling.
+    const iMapNode *adj = constAdjacent_MapNode_(d, 1);
+    if (adj) return adj;
+    // Go back up until there's a node on the right.
+    for (; d->parent; d = d->parent) {
+        if (isLeftChild_MapNode_(d) && d->parent->child[1]) {
+            return d->parent;
+        }
+    }
+    return NULL;
+
+    /*// Switch to the next sibling.
     switch (*dir) {
         case down_MapIteratorDir:
             if (d->child[1]) {
@@ -421,24 +422,35 @@ static const iMapNode *nextInOrder_MapNode_(const iMapNode *d, int *dir) {
     for (;; d = d->parent) {
         if (!d->parent) return NULL; // Reached the root.
         if (d->parent->child[0] == d && d->parent->child[1]) return d->parent;
-    }
+    }*/
 }
+
+#define firstInOrder_MapNode_(d)    iConstCast(iMapNode *, constFirstInOrder_MapNode_(d))
+#define nextInOrder_MapNode_(d)     iConstCast(iMapNode *, constNextInOrder_MapNode_(d))
 
 void init_MapIterator(iMapIterator *d, iMap *map) {
     d->map = map;
-    d->dir = down_MapIteratorDir;
-    d->value = iConstCast(iMapNode *, firstInOrder_MapNode_(map->root));
+    d->value = firstInOrder_MapNode_(map->root);
     // The current node may be deleted, so keep the next one in a safe place.
-    d->next = iConstCast(iMapNode *, nextInOrder_MapNode_(d->value, &d->dir));
+    d->next = nextInOrder_MapNode_(d->value);
 }
 
 void next_MapIterator(iMapIterator *d) {
     d->value = d->next;
-    d->next = iConstCast(iMapNode *, nextInOrder_MapNode_(d->value, &d->dir));
+    d->next = nextInOrder_MapNode_(d->value);
 }
 
 iMapNode *remove_MapIterator(iMapIterator *d) {
-    // This will potentially invalidate the next pointer as the structure of the
-    // tree is altered!
-    //return removeNode_Map(d->map, d->value);
+    // The `next` pointer will remain valid even though the structure of
+    // the tree changes.
+    return removeNode_Map(d->map, d->value);
+}
+
+void init_MapConstIterator(iMapConstIterator *d, const iMap *map) {
+    d->map = map;
+    d->value = constFirstInOrder_MapNode_(map->root);
+}
+
+void next_MapConstIterator(iMapConstIterator *d) {
+    d->value = constNextInOrder_MapNode_(d->value);
 }

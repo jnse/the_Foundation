@@ -98,7 +98,7 @@ iMapNode *remove_MapIterator(iMapIterator *d);
 struct IteratorImpl_Map {
     iMapNode *value;
     iMapNode *next;
-    int dir;
+    //int dir;
     iMap *map;
 };
 
