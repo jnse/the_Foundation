@@ -149,6 +149,7 @@ void remove_ObjectListReverseIterator(iObjectListReverseIterator *d) {
 void init_ObjectListConstIterator(iObjectListConstIterator *d, const iObjectList *list) {
     d->list = list;
     d->value = front_List(&list->list);
+    d->object = (d->value? d->value->object : NULL);
 }
 
 void next_ObjectListConstIterator(iObjectListConstIterator *d) {
@@ -156,11 +157,13 @@ void next_ObjectListConstIterator(iObjectListConstIterator *d) {
     if (d->value == constEnd_ObjectList(d->list)) {
         d->value = NULL;
     }
+    d->object = (d->value? d->value->object : NULL);
 }
 
 void init_ObjectListReverseConstIterator(iObjectListReverseConstIterator *d, const iObjectList *list) {
     d->list = list;
     d->value = back_List(&list->list);
+    d->object = (d->value? d->value->object : NULL);
 }
 
 void next_ObjectListReverseConstIterator(iObjectListReverseConstIterator *d) {
@@ -168,4 +171,5 @@ void next_ObjectListReverseConstIterator(iObjectListReverseConstIterator *d) {
     if (d->value == constEnd_ObjectList(d->list)) {
         d->value = NULL;
     }
+    d->object = (d->value? d->value->object : NULL);
 }

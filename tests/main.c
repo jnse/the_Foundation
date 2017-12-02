@@ -37,6 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/ptrarray.h>
 #include <c_plus/regexp.h>
 #include <c_plus/string.h>
+#include <c_plus/stringarray.h>
 #include <c_plus/stringhash.h>
 #include <c_plus/treenode.h>
 
@@ -60,7 +61,7 @@ void init_TestNode(iTestNode *d, int value) {
 
 void deinit_TestNode(iAnyObject *obj) {
     iTestNode *d = (iTestNode *) obj;
-    printf("deinit TestNode: %i\n", d->value);
+    iDebug("deinit TestNode: %i\n", d->value);
 }
 
 iDeclareStaticClass(TestNode)
@@ -87,7 +88,7 @@ void init_SuperNode(iSuperNode *d, int member) {
 
 void deinit_SuperNode(iAnyObject *any) {
     iSuperNode *d = (iSuperNode *) any;
-    printf("deinit SuperNode: %i\n", d->member);
+    iDebug("deinit SuperNode: %i\n", d->member);
 }
 
 iDeclareStaticClass(SuperNode)
@@ -110,7 +111,7 @@ struct Impl_TestObject {
 
 static void deinit_TestObject(iAnyObject *any) {
     iTestObject *d = (iTestObject *) any;
-    printf("deinit TestObject: %i\n", d->value);
+    iDebug("deinit TestObject: %i\n", d->value);
 }
 
 iDeclareStaticClass(TestObject)
@@ -210,6 +211,14 @@ int main(int argc, char *argv[]) {
         }
         delete_PtrArray(par);
     }
+    /* Test an array of strings. */ {
+        iStringArray *sar = newStringsCStr_StringArray("Hello World", "Another string", "3rd text", NULL);
+        printf("StringArray contents:\n");
+        iConstForEach(StringArray, i, sar) {
+            printf(" %3zu: \"%s\"\n", index_StringArrayConstIterator(&i), cstr_String(*i.value));
+        }
+        iRelease(sar);
+    }
     /* Test an object list. */ {
         iObjectList *olist = new_ObjectList();
         pushBack_ObjectList(olist, iReleaseLater(new_TestObject(500)));
@@ -217,7 +226,7 @@ int main(int argc, char *argv[]) {
         pushFront_ObjectList(olist, iReleaseLater(new_TestObject(400)));
         printf("List of objects:");
         iConstForEach(ObjectList, i, olist) {
-            printf(" %i", ((iTestObject *) i.value->object)->value);
+            printf(" %i", ((iTestObject *) i.object)->value);
         }
         printf("\n");
         iRelease(olist);

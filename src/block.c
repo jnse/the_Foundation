@@ -45,7 +45,7 @@ struct Impl_BlockData {
     size_t allocSize;
 };
 
-static iBlockData emptyBlockData = { 1, "", 0, 1 };
+static iBlockData emptyBlockData = { 1, "", 0, 1 }; /// @todo Needs a ref-counting mutex.
 
 static iBlockData *new_BlockData_(size_t size, size_t allocSize) {
     iBlockData *d = malloc(sizeof(iBlockData));

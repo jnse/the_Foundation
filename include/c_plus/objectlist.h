@@ -88,11 +88,13 @@ void            remove_ObjectListIterator(iObjectListIterator *);
 struct IteratorImpl_ObjectList {
     iObjectListNode *value;
     iObjectListNode *next;
+    iObject *object;
     iObjectList *list;
 };
 
 iDeclareConstIterator(ObjectList, const iObjectList *)
 struct ConstIteratorImpl_ObjectList {
     const iObjectListNode *value;
+    const iObject *object;
     const iObjectList *list;
 };

@@ -50,8 +50,8 @@ void delete_PtrArray(iPtrArray *d) {
     delete_Array(d);
 }
 
-void **data_PtrArray(const iPtrArray *d) {
-    return data_Array(d);
+const void **constData_PtrArray(const iPtrArray *d) {
+    return *(void * const *) constData_Array(d);
 }
 
 void *at_PtrArray(const iPtrArray *d, size_t pos) {
@@ -71,7 +71,7 @@ void pushFront_PtrArray(iPtrArray *d, const void *ptr) {
 }
 
 iBool take_PtrArray(iPtrArray *d, size_t pos, void **outPtr) {
-    return take_Array(d, pos, &outPtr);
+    return take_Array(d, pos, &outPtr) > 0;
 }
 
 void insert_PtrArray(iPtrArray *d, size_t pos, const void *ptr) {
@@ -80,35 +80,25 @@ void insert_PtrArray(iPtrArray *d, size_t pos, const void *ptr) {
 
 //---------------------------------------------------------------------------------------
 
+#define value_PtrArrayIterator_(d)      (((d)->iter.value? *(void **) (d)->iter.value : NULL));
+#define value_PtrArrayConstIterator_(d) (((d)->iter.value? *(void * const *) (d)->iter.value : NULL));
+
 void init_PtrArrayIterator(iPtrArrayIterator *d, iPtrArray *array) {
-    d->array = array;
-    d->pos = 0;
-    d->value = (!isEmpty_PtrArray(array)? at_Array(array, 0) : NULL);
-    d->ptr = (d->value? *d->value : NULL);
+    init_ArrayIterator(&d->iter, array);
+    d->ptr = value_PtrArrayIterator_(d);
 }
 
 void next_PtrArrayIterator(iPtrArrayIterator *d) {
-    if (++d->pos < size_Array(d->array)) {
-        d->value = at_Array(d->array, d->pos);
-        d->ptr = *d->value;
-    }
-    else {
-        d->value = d->ptr = NULL;
-    }
+    next_ArrayIterator(&d->iter);
+    d->ptr = value_PtrArrayIterator_(d);
 }
 
 void init_PtrArrayConstIterator(iPtrArrayConstIterator *d, const iPtrArray *array) {
-    d->array = array;
-    d->value = (!isEmpty_Array(array)? front_Array(array) : NULL); // element
-    d->ptr = (d->value? *d->value : NULL);
+    init_ArrayConstIterator(&d->iter, array);
+    d->ptr = value_PtrArrayConstIterator_(d);
 }
 
 void next_PtrArrayConstIterator(iPtrArrayConstIterator *d) {
-    if (++d->value < (const void * const *) constEnd_Array(d->array)) {
-        d->ptr = *d->value;
-    }
-    else {
-        d->value = NULL;
-        d->ptr = NULL;
-    }
+    next_ArrayConstIterator(&d->iter);
+    d->ptr = value_PtrArrayConstIterator_(d);
 }

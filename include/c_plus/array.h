@@ -68,7 +68,8 @@ void        deinit_Array    (iArray *);
 #define     front_Array(d)      at_Array(d, 0)
 #define     back_Array(d)       at_Array(d, size_Array(d) - 1)
 
-void *      data_Array      (const iArray *);
+void *      data_Array      (iArray *);
+const void *constData_Array (const iArray *);
 void *      at_Array        (const iArray *, size_t pos);
 const void *constEnd_Array  (const iArray *);
 
@@ -98,6 +99,11 @@ void        removeN_Array   (iArray *, size_t pos, size_t count);
 
 iDeclareIterator(Array, iArray *)
 iDeclareConstIterator(Array, const iArray *)
+
+size_t index_ArrayIterator(const iArrayIterator *);
+size_t index_ArrayConstIterator(const iArrayConstIterator *);
+size_t index_ArrayReverseIterator(const iArrayReverseIterator *);
+size_t index_ArrayReverseConstIterator(const iArrayReverseConstIterator *);
 
 struct IteratorImpl_Array {
     void *value; // address of element

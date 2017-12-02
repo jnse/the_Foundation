@@ -34,6 +34,7 @@ set (SOURCES
     src/ptrset.c
     src/set.c
     src/string.c
+    src/stringarray.c
     src/stringhash.c
     src/treenode.c
 )
@@ -55,6 +56,8 @@ set (HEADERS
     include/c_plus/range.h
     include/c_plus/set.h
     include/c_plus/string.h
+    include/c_plus/stringarray.h
+    include/c_plus/stringlist.h
     include/c_plus/stringhash.h
     include/c_plus/treenode.h
 )

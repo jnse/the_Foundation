@@ -35,35 +35,43 @@ iPtrArray * new_PtrArray            (void);
 iPtrArray * newPointers_PtrArray    (void *ptr, ...); // NULL-terminated
 void        delete_PtrArray         (iPtrArray *);
 
-#define     init_PtrArray(d)    init_Array(d, sizeof(void *))
-#define     deinit_PtrArray(d)  deinit_Array(d)
+#define     init_PtrArray(d)        init_Array(d, sizeof(void *))
+#define     deinit_PtrArray(d)      deinit_Array(d)
 
-#define     isEmpty_PtrArray(d) isEmpty_Array(d)
-#define     size_PtrArray(d)    size_Array(d)
+#define     isEmpty_PtrArray(d)     isEmpty_Array(d)
+#define     size_PtrArray(d)        size_Array(d)
 
-void **     data_PtrArray   (const iPtrArray *);
-void *      at_PtrArray     (const iPtrArray *, size_t pos);
-void        set_PtrArray    (iPtrArray *, size_t pos, const void *ptr);
+void **         data_PtrArray       (iPtrArray *);
+const void **   constData_PtrArray  (const iPtrArray *);
+void *          at_PtrArray         (const iPtrArray *, size_t pos);
+void            set_PtrArray        (iPtrArray *, size_t pos, const void *ptr);
 
-void        pushBack_PtrArray   (iPtrArray *, const void *ptr);
-void        pushFront_PtrArray  (iPtrArray *, const void *ptr);
-iBool       take_PtrArray       (iPtrArray *, size_t pos, void **outPtr);
-void        insert_PtrArray     (iPtrArray *, size_t pos, const void *ptr);
+void        pushBack_PtrArray       (iPtrArray *, const void *ptr);
+void        pushFront_PtrArray      (iPtrArray *, const void *ptr);
+iBool       take_PtrArray           (iPtrArray *, size_t pos, void **outPtr);
+void        insert_PtrArray         (iPtrArray *, size_t pos, const void *ptr);
 
 #define     resize_PtrArray(d, s)   resize_Array(d, s)
 
 iDeclareIterator(PtrArray, iPtrArray *)
 iDeclareConstIterator(PtrArray, const iPtrArray *)
 
+#define index_PtrArrayIterator(d)               index_ArrayIterator(d)
+#define index_PtrArrayConstIterator(d)          index_ArrayConstIterator(d)
+#define index_PtrArrayReverseIterator(d)        index_ArrayReverseIterator(d)
+#define index_PtrArrayReverseConstIterator(d)   index_ArrayReverseConstIterator(d)
+
 struct IteratorImpl_PtrArray {
-    void **value; // address of element
-    void *ptr; // element
-    size_t pos;
-    iPtrArray *array;
+    union {
+        void **value; // pointer to array element
+        iArrayIterator iter;
+    };
+    void *ptr; // array element
 };
 struct ConstIteratorImpl_PtrArray {
-    const void **value; // address of element
-    const void *ptr; // element
-    const iPtrArray *array;
+    union {
+        const void * const *value; // pointer to array element
+        iArrayConstIterator iter;
+    };
+    const void *ptr; // array element
 };
-

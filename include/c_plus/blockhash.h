@@ -103,16 +103,20 @@ iDeclareIterator(BlockHash, iBlockHash *)
 const iBlock *  key_BlockHashIterator(iBlockHashIterator *);
 void            remove_BlockHashIterator(iBlockHashIterator *);
 struct IteratorImpl_BlockHash {
-    iHashIterator iter;
-    iBlockHashNode *value;
+    union {
+        iBlockHashNode *value;
+        iHashIterator iter;
+    };
     iBlockHash *blockHash;
 };
 
 iDeclareConstIterator(BlockHash, const iBlockHash *)
 const iBlock *  key_BlockHashConstIterator(iBlockHashConstIterator *);
 struct ConstIteratorImpl_BlockHash {
-    iHashConstIterator iter;
-    const iBlockHashNode *value;
+    union {
+        const iBlockHashNode *value;
+        iHashConstIterator iter;
+    };
 };
 
 //---------------------------------------------------------------------------------------

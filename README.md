@@ -18,7 +18,7 @@ programmer.
 
 ### Wait, what about GLib?
 
-
+GLib is a solid library, and serves an important function in GTK.
 
 ## Conventions
 
@@ -60,5 +60,6 @@ For a given type `Type`:
 ### Iterators
 
 - The member `value` is a pointer to the current element. If NULL, the iteration will stop.
+- The `value` pointer must be the first member in an iterator struct. Derived iterators should use an anonymous union to alias the value pointer to an appropriate type, while remaining compatible with the base class's iterator implementation.
 - Iterators may have additional members depending on the type of the data and the requirements for internal state.
 - Non-const iterators have a method called `remove` if the currently iterated element can be removed during iteration. Using this ensures that memory owned by the container itself will be released when the element is deleted.

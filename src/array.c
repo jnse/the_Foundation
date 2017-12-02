@@ -85,7 +85,12 @@ void deinit_Array(iArray *d) {
     free(d->data);
 }
 
-void *data_Array(const iArray *d) {
+void *data_Array(iArray *d) {
+    if (isEmpty_Array(d)) return NULL;
+    return element_Array_(d, d->range.start);
+}
+
+const void *constData_Array(const iArray *d) {
     if (isEmpty_Array(d)) return NULL;
     return element_Array_(d, d->range.start);
 }
@@ -240,12 +245,16 @@ void init_ArrayIterator(iArrayIterator *d, iArray *array) {
 }
 
 void next_ArrayIterator(iArrayIterator *d) {
-    if (d->pos < size_Array(d->array)) {
+    if (d->pos < size_Array(d->array) - 1) {
         d->value = at_Array(d->array, ++d->pos);
     }
     else {
         d->value = NULL;
     }
+}
+
+size_t index_ArrayIterator(const iArrayIterator *d) {
+    return d->pos;
 }
 
 void init_ArrayConstIterator(iArrayConstIterator *d, const iArray *array) {
@@ -261,3 +270,11 @@ void next_ArrayConstIterator(iArrayConstIterator *d) {
         d->value = NULL;
     }
 }
+
+size_t index_ArrayConstIterator(const iArrayConstIterator *d) {
+    return ((const char *) d->value - (const char *) constData_Array(d->array)) /
+            d->array->elementSize;
+}
+
+//size_t index_ArrayReverseIterator(const iArrayIterator *);
+//size_t index_ArrayReverseConstIterator(const iArrayIterator *);
