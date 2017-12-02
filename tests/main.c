@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/math.h>
 #include <c_plus/hash.h>
 #include <c_plus/object.h>
+#include <c_plus/objectlist.h>
 #include <c_plus/ptrarray.h>
 #include <c_plus/regexp.h>
 #include <c_plus/string.h>
@@ -107,7 +108,7 @@ struct Impl_TestObject {
     int value;
 };
 
-void deinit_TestObject(iAnyObject *any) {
+static void deinit_TestObject(iAnyObject *any) {
     iTestObject *d = (iTestObject *) any;
     printf("deinit TestObject: %i\n", d->value);
 }
@@ -124,7 +125,7 @@ iTestObject *new_TestObject(int value) {
 //---------------------------------------------------------------------------------------
 
 typedef struct Impl_SHTestNode {
-    iStringHashNode base;
+    iStringHashNode node;
     float member;
 }
 SHTestNode;
@@ -158,7 +159,7 @@ int main(int argc, char *argv[]) {
     iUnused(argc);
     iUnused(argv);
     init_CPlus();
-    /* Test list insertion and removal. */ {
+    /* Test array insertion and removal. */ {
         printf("Array insertions/removals:\n");
         iArray *list = new_Array(2);
         printArray(list);
@@ -209,23 +210,34 @@ int main(int argc, char *argv[]) {
         }
         delete_PtrArray(par);
     }
+    /* Test an object list. */ {
+        iObjectList *olist = new_ObjectList();
+        pushBack_ObjectList(olist, iReleaseLater(new_TestObject(500)));
+        pushBack_ObjectList(olist, iReleaseLater(new_TestObject(600)));
+        pushFront_ObjectList(olist, iReleaseLater(new_TestObject(400)));
+        printf("List of objects:");
+        iConstForEach(ObjectList, i, olist) {
+            printf(" %i", ((iTestObject *) i.value->object)->value);
+        }
+        printf("\n");
+        iRelease(olist);
+    }
     /* Test a string hash. */ {
         iStringHash *h = new_StringHash();
         insertValuesCStr_StringHash(h,
               "one", iReleaseLater(new_TestObject(1000)),
               "two", iReleaseLater(new_TestObject(1001)), NULL);
-        printf("Hash has %zu elements:\n", size_StringHash(h));
+        printf("Hash has %zu nodes:\n", size_StringHash(h));
         iConstForEach(StringHash, i, h) {
             printf("  %s: %i\n",
                    cstr_String(key_StringHashConstIterator(&i)),
                    ((iTestObject *) i.value->object)->value);
         }
-        delete_StringHash(h);
-        printf("Hash deleted.\n");
+        iRelease(h);
     }
     /* Test a hash. */ {
-        /*iHash *h = new_Hash();
-        for (int i = 0; i < 100; ++i) {
+        iHash *h = new_Hash();
+        for (int i = 0; i < 10; ++i) {
             iHashNode *node = iCollect(iMalloc(HashNode));
             node->key = i;
             insert_Hash(h, node);
@@ -235,16 +247,16 @@ int main(int argc, char *argv[]) {
         iForEach(Hash, i, h) {
             printf(" %3i: %i\n", counter++, i.value->key);
         }
-        delete_Hash(h);*/
+        delete_Hash(h);
     }
     /* Test a map. */ {
         iBeginCollect();
         printf("Testing a map.\n");
         iMap *map = new_Map(compareIntegers);
         for (int i = 0; i < 20; ++i) {
-            iMapNode *elem = iMalloc(MapNode);
-            elem->key = iRandom(0, 100);
-            iMapNode *old = insert_Map(map, elem);
+            iMapNode *node = iMalloc(MapNode);
+            node->key = iRandom(0, 100);
+            iMapNode *old = insert_Map(map, node);
             if (old) free(old);
         }
         printf("Keys: ["); {

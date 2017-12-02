@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/string.h  UTF-8 text string with copy-on-write semantics.
+/** @file c_plus/string.h  Text string with multibyte characters (copy-on-write).
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 

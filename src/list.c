@@ -78,7 +78,7 @@ iAny *pushFront_List(iList *d, iAny *node) {
 
 iAny *insertAfter_List(iList *d, iAny *after, iAny *node) {
     iAssert(node);
-    if (!after) after = back_List(d);
+    if (!after) after = d->root.prev;
     iListNode_(node) ->next = iListNode_(after)->next;
     iListNode_(after)->next->prev = node;
     iListNode_(node) ->prev = after;
@@ -89,7 +89,7 @@ iAny *insertAfter_List(iList *d, iAny *after, iAny *node) {
 
 iAny *insertBefore_List(iList *d, iAny *before, iAny *node) {
     iAssert(node);
-    if (!before) before = front_List(d);
+    if (!before) before = d->root.next;
     iListNode_(node)  ->prev = iListNode_(before)->prev;
     iListNode_(before)->prev->next = node;
     iListNode_(node)  ->next = before;

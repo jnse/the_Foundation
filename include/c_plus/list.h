@@ -61,6 +61,9 @@ size_t      size_List   (const iList *);
 iAny *      front_List  (const iList *);
 iAny *      back_List   (const iList *);
 
+#define     begin_List(d)   (&(d)->root.next)
+#define     end_List(d)     (&(d)->root)
+
 #define     isEmpty_List(d)     (size_List(d) == 0)
 
 void        clear_List          (iList *);

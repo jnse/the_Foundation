@@ -1,6 +1,6 @@
 /** @file map.c  Map of sorted unique integer keys.
 
-See Wikipedia for a description of the [red-black tree 
+See Wikipedia for a description of the [red-black tree
 algorithms](https://en.wikipedia.org/wiki/Red–black_tree).
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
@@ -32,6 +32,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 
+#if !defined (NDEBUG)
+#   define iMapDebug
+#endif
+
 iDefineTypeConstructionArgs(Map, (iMapNodeCmpFunc cmp), cmp)
 
 enum iMapNodeFlag {
@@ -62,6 +66,7 @@ static iMapNode *uncle_MapNode_(iMapNode *d) {
     return sibling_MapNode_(d->parent);
 }
 
+#if defined (iMapDebug)
 static int verify_MapNode_(iMapNode *d) {
     if (!d) return 1;
     if (isRed_MapNode_(d)) {
@@ -75,6 +80,7 @@ static int verify_MapNode_(iMapNode *d) {
     iAssert(bd0 == bd1);
     return bd0 + (isBlack_MapNode_(d)? 1 : 0);
 }
+#endif
 
 static iMapNode *adjacent_MapNode_(iMapNode *d, int side) {
     if (!d->child[side]) return NULL;
@@ -243,8 +249,10 @@ static void updateRoot_Map_(iMap *d, iMapNode *node) {
         newRoot = newRoot->parent;
     }
     d->root = newRoot;
+#if defined (iMapDebug)
     iAssert(isBlack_MapNode_(d->root));
     verify_MapNode_(d->root);
+#endif
 }
 
 static iMapNode *insertNode_Map_(iMap *d, iMapNode *insert) {
@@ -342,8 +350,10 @@ iMapNode *insert_Map(iMap *d, iMapNode *node) {
     iMapNode *old = insertNode_Map_(d, node);
     if (old) {
         // The root may have been replaced.
+#if defined (iMapDebug)
         iAssert(isBlack_MapNode_(d->root));
         verify_MapNode_(d->root);
+#endif
         return old;
     }
     repairAfterInsert_MapNode_(node);
@@ -368,8 +378,10 @@ iMapNode *removeNode_Map(iMap *d, iMapNode *node) {
         swapNodes_Map_(d, node, pred);
     }
     removeNodeWithZeroOrOneChild_Map_(d, node);
+#if defined (iMapDebug)
     iAssert(isBlack_MapNode_(d->root));
     verify_MapNode_(d->root);
+#endif
     return node;
 }
 

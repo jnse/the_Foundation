@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "class.h"
 
-#define iNew(typeName)      new_Object(&Class_##typeName)
+#define iNew(typeName)      ((i##typeName *) new_Object(&Class_##typeName))
 #define iRelease(d)         deref_Object(d)
 #define iReleaseLater(d)    collect_Object(d)
 
@@ -40,9 +40,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
         init_##typeName(d); \
         return d; \
     } \
-    void delete_##typeName(i##typeName *d) { \
-        iRelease(d); \
-    }
 
 #define iDefineObjectConstructionArgs(typeName, newArgs, ...) \
     i##typeName *new_##typeName newArgs { \
@@ -50,9 +47,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
         init_##typeName(d, __VA_ARGS__); \
         return d; \
     } \
-    void delete_##typeName(i##typeName *d) { \
-        iRelease(d); \
-    }
+
 /**
  * Reference-counted object that gets deleted only after all references are gone.
  * iObject is used as a base class for many of the objects in c_Plus.

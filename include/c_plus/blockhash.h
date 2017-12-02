@@ -31,15 +31,35 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "block.h"
 #include "object.h"
 
-iDeclareType(BlockHash)
-iDeclareType(BlockHashNode)
+/**
+ * @name BlockHashNode
+ */
+///@{
 
-iDeclareClass(BlockHash)
+iDeclareType(BlockHashNode)
 
 iBeginDeclareClass(BlockHashNode)
     iBlockHashNode *    (*new)      (const iBlock *key, const iAnyObject *object);
     iHashKey            (*hashKey)  (const iBlock *key);
 iEndDeclareClass(BlockHashNode)
+
+struct Impl_BlockHashNode {
+    iHashNode node;
+    iBlock keyBlock;
+    iAnyObject *object;
+};
+
+iBlockHashNode *    new_BlockHashNode       (const iBlock *key, const iAnyObject *object);
+iHashKey            hashKey_BlockHashNode   (const iBlock *key);
+void                deinit_BlockHashNode    (iBlockHashNode *);
+
+#define             key_BlockHashNode(d)    iConstCast(iBlock *, (&((const iBlockHashNode *) (d))->keyBlock))
+
+///@}
+//---------------------------------------------------------------------------------------
+
+iDeclareClass(BlockHash)
+iDeclareType(BlockHash)
 
 struct Impl_BlockHash {
     iObject object;
@@ -47,22 +67,7 @@ struct Impl_BlockHash {
     const iBlockHashNodeClass *nodeClass;
 };
 
-struct Impl_BlockHashNode {
-    iHashNode base;
-    iBlock keyBlock;
-    iAnyObject *object;
-};
-
-iBlockHashNode *    new_BlockHashNode    (const iBlock *key, const iAnyObject *object);
-iHashKey            hashKey_BlockHashNode(const iBlock *key);
-void                deinit_BlockHashNode (iBlockHashNode *);
-
-#define         key_BlockHashNode(d)    iConstCast(iBlock *, (&((const iBlockHashNode *) (d))->keyBlock))
-
 iBlockHash *    new_BlockHash     (void);
-void            delete_BlockHash  (iBlockHash *);
-
-#define         collect_BlockHash(d)    iCollectDel(d, delete_BlockHash)
 
 void            init_BlockHash    (iBlockHash *);
 void            deinit_BlockHash  (iBlockHash *);
@@ -98,7 +103,7 @@ iDeclareIterator(BlockHash, iBlockHash *)
 const iBlock *  key_BlockHashIterator(iBlockHashIterator *);
 void            remove_BlockHashIterator(iBlockHashIterator *);
 struct IteratorImpl_BlockHash {
-    iHashIterator base;
+    iHashIterator iter;
     iBlockHashNode *value;
     iBlockHash *blockHash;
 };
@@ -106,7 +111,7 @@ struct IteratorImpl_BlockHash {
 iDeclareConstIterator(BlockHash, const iBlockHash *)
 const iBlock *  key_BlockHashConstIterator(iBlockHashConstIterator *);
 struct ConstIteratorImpl_BlockHash {
-    iHashConstIterator base;
+    iHashConstIterator iter;
     const iBlockHashNode *value;
 };
 
@@ -128,8 +133,6 @@ struct ConstIteratorImpl_BlockHash {
     void                    initBlock_##typeName##Key   (const i##keyType *key, iBlock *); \
     \
     i##typeName *           new_##typeName      (void); \
-    void                    delete_##typeName   (i##typeName *); \
-    i##typeName *           collect_##typeName  (i##typeName *); \
     \
     void                    init_##typeName     (i##typeName *); \
     void                    deinit_##typeName   (i##typeName *); \
@@ -150,14 +153,14 @@ struct ConstIteratorImpl_BlockHash {
     const i##keyType *      key_##typeName##Iterator(i##typeName##Iterator *); \
     void                    remove_##typeName##Iterator(i##typeName##Iterator *); \
     struct IteratorImpl_##typeName { \
-        iHashIterator base; \
+        iHashIterator iter; \
         i##typeName##Node *value; \
     }; \
     \
     iDeclareConstIterator(typeName, const i##typeName *) \
     const i##keyType * key_##typeName##ConstIterator(i##typeName##ConstIterator *); \
     struct ConstIteratorImpl_##typeName { \
-        iHashConstIterator base; \
+        iHashConstIterator iter; \
         const i##typeName##Node *value; \
     };
 
@@ -191,8 +194,6 @@ struct ConstIteratorImpl_BlockHash {
     void deinit_##typeName(i##typeName *d) { \
         deinit_BlockHash(d); \
     } \
-    \
-    i##typeName *collect_##typeName(i##typeName *d) { return iCollectDel(d, delete_##typeName); } \
     \
     size_t size_##typeName(const i##typeName *d) { return size_BlockHash(d); } \
     \
@@ -236,13 +237,13 @@ struct ConstIteratorImpl_BlockHash {
     } \
     \
     void init_##typeName##Iterator(i##typeName##Iterator *d, i##typeName *hash) { \
-        init_HashIterator(&d->base, &hash->hash); \
-        d->value = (i##typeName##Node *) d->base.value; \
+        init_HashIterator(&d->iter, &hash->hash); \
+        d->value = (i##typeName##Node *) d->iter.value; \
     } \
     \
     void next_##typeName##Iterator(i##typeName##Iterator *d) { \
-        next_HashIterator(&d->base); \
-        d->value = (i##typeName##Node *) d->base.value; \
+        next_HashIterator(&d->iter); \
+        d->value = (i##typeName##Node *) d->iter.value; \
     } \
     \
     const i##keyType *key_##typeName##Iterator(i##typeName##Iterator *d) { \
@@ -254,13 +255,13 @@ struct ConstIteratorImpl_BlockHash {
     } \
     \
     void init_##typeName##ConstIterator(i##typeName##ConstIterator *d, const i##typeName *hash) { \
-        init_HashConstIterator(&d->base, &hash->hash); \
-        d->value = (const i##typeName##Node *) d->base.value; \
+        init_HashConstIterator(&d->iter, &hash->hash); \
+        d->value = (const i##typeName##Node *) d->iter.value; \
     } \
     \
     void next_##typeName##ConstIterator(i##typeName##ConstIterator *d) { \
-        next_HashConstIterator(&d->base); \
-        d->value = (const i##typeName##Node *) d->base.value; \
+        next_HashConstIterator(&d->iter); \
+        d->value = (const i##typeName##Node *) d->iter.value; \
     } \
     \
     const i##keyType *key_##typeName##ConstIterator(i##typeName##ConstIterator *d) { \

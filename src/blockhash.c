@@ -135,14 +135,14 @@ iBool remove_BlockHash(iBlockHash *d, const iBlock *key) {
 //---------------------------------------------------------------------------------------
 
 void init_BlockHashIterator(iBlockHashIterator *d, iBlockHash *hash) {
-    init_HashIterator(&d->base, &hash->hash);
+    init_HashIterator(&d->iter, &hash->hash);
     d->blockHash = hash;
-    d->value = (iBlockHashNode *) d->base.value;
+    d->value = (iBlockHashNode *) d->iter.value;
 }
 
 void next_BlockHashIterator(iBlockHashIterator *d) {
-    next_HashIterator(&d->base);
-    d->value = (iBlockHashNode *) d->base.value;
+    next_HashIterator(&d->iter);
+    d->value = (iBlockHashNode *) d->iter.value;
 }
 
 const iBlock *key_BlockHashIterator(iBlockHashIterator *d) {
@@ -150,17 +150,17 @@ const iBlock *key_BlockHashIterator(iBlockHashIterator *d) {
 }
 
 void remove_BlockHashIterator(iBlockHashIterator *d) {
-    delete_Class(d->blockHash->nodeClass, remove_HashIterator(&d->base));
+    delete_Class(d->blockHash->nodeClass, remove_HashIterator(&d->iter));
 }
 
 void init_BlockHashConstIterator(iBlockHashConstIterator *d, const iBlockHash *hash) {
-    init_HashConstIterator(&d->base, &hash->hash);
-    d->value = (const iBlockHashNode *) d->base.value;
+    init_HashConstIterator(&d->iter, &hash->hash);
+    d->value = (const iBlockHashNode *) d->iter.value;
 }
 
 void next_BlockHashConstIterator(iBlockHashConstIterator *d) {
-    next_HashConstIterator(&d->base);
-    d->value = (const iBlockHashNode *) d->base.value;
+    next_HashConstIterator(&d->iter);
+    d->value = (const iBlockHashNode *) d->iter.value;
 }
 
 const iBlock *key_BlockHashConstIterator(iBlockHashConstIterator *d) {

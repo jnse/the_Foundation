@@ -29,6 +29,7 @@ set (SOURCES
     src/map.c
     src/math.c
     src/object.c
+    src/objectlist.c
     src/ptrarray.c
     src/ptrset.c
     src/set.c
@@ -48,6 +49,7 @@ set (HEADERS
     include/c_plus/map.h
     include/c_plus/math.h
     include/c_plus/object.h
+    include/c_plus/objectlist.h
     include/c_plus/ptrarray.h
     include/c_plus/ptrset.h
     include/c_plus/range.h

@@ -43,7 +43,7 @@ void *new_TreeNode(const iAnyClass *class) {
     iAssert(class != NULL);
     iAssert(((const iClass *) class)->size >= sizeof(iTreeNode));
     iTreeNode *d = malloc(((const iClass *) class)->size);
-    iZap(d->base);
+    iZap(d->node);
     d->class = (const iClass *) class;
     d->parent = NULL;
     d->children = NULL;

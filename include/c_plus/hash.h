@@ -45,7 +45,7 @@ struct Impl_Hash {
     iHashBucket *root;
 };
 
-/// Nodes inserted to the hash must be based on iHashNode.
+/// Base class for nodes inserted into the hash.
 struct Impl_HashNode {
     iHashNode *next;
     iHashKey key;
