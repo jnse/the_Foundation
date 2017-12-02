@@ -1,4 +1,4 @@
-# c_Plus
+# c_Plus Documentation
 
 Simplicity of C11, power of object-orientation! API usability is priority #1. 
 

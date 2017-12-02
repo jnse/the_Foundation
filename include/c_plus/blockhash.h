@@ -3,7 +3,8 @@
 /** @file c_plus/blockhash.h  Hash object that uses Block for keys and Object for values.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
-All rights reserved.
+
+@par License
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -161,7 +162,7 @@ struct ConstIteratorImpl_BlockHash {
     };
 
 /**
- * Things that must be manually defined:
+ * Functions that must be defined manually:
  * - key_<typeName>Node(d): returns the key as-is (if available)
  * - initKey_<typeName>Node(d, key): copies the Block back to an existing keyType instance
  * - initBlock_<typeName>Key(key, block): initializes a Block with the key data
