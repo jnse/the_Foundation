@@ -49,6 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 //---------------------------------------------------------------------------------------
 
 iDeclareType(TestNode)
+iDeclareStaticClass(TestNode)
 
 struct Impl_TestNode {
     iTreeNode node;
@@ -64,7 +65,6 @@ void deinit_TestNode(iAnyObject *obj) {
     iDebug("deinit TestNode: %i\n", d->value);
 }
 
-iDeclareStaticClass(TestNode)
 static iDefineClass(TestNode)
 
 iTestNode *new_TestNode(int value) {
@@ -76,6 +76,7 @@ iTestNode *new_TestNode(int value) {
 //---------------------------------------------------------------------------------------
 
 iDeclareType(SuperNode)
+iDeclareStaticClass(SuperNode)
 
 struct Impl_SuperNode {
     iTestNode testNode;
@@ -91,7 +92,6 @@ void deinit_SuperNode(iAnyObject *any) {
     iDebug("deinit SuperNode: %i\n", d->member);
 }
 
-iDeclareStaticClass(SuperNode)
 static iDefineSubclass(SuperNode, TestNode)
 
 iSuperNode *new_SuperNode(int value, int member) {
@@ -104,6 +104,8 @@ iSuperNode *new_SuperNode(int value, int member) {
 //---------------------------------------------------------------------------------------
 
 iDeclareType(TestObject)
+iDeclareStaticClass(TestObject)
+
 struct Impl_TestObject {
     iObject object;
     int value;
@@ -114,7 +116,6 @@ static void deinit_TestObject(iAnyObject *any) {
     iDebug("deinit TestObject: %i\n", d->value);
 }
 
-iDeclareStaticClass(TestObject)
 static iDefineClass(TestObject)
 
 iTestObject *new_TestObject(int value) {
