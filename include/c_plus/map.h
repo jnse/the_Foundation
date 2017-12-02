@@ -35,7 +35,7 @@ iDeclareType(Map)
 iDeclareType(MapNode)
 iDeclareType(Block)
 
-typedef intptr_t iMapKey;
+typedef int64_t iMapKey;
 typedef int (*iMapNodeCmpFunc)(iMapKey, iMapKey);
 
 struct Impl_Map {

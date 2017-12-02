@@ -45,10 +45,20 @@ enum iRegExpOption {
     multiLine_RegExpOption          = 0x2,
 };
 
+/**
+ * Compiles a regular expression.
+ *
+ * Avoid repeatedly compiling and releasing RegExp objects: always compile first and then
+ * use multiple times.
+ *
+ * @param pattern  Regular expression.
+ * @param options  Options affecting the matching behavior.
+ *
+ * @return RegExp object.
+ *
+ * @see [Perl compatible regular expressions](https://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions)
+ */
 iRegExp *   new_RegExp(const char *pattern, enum iRegExpOption options);
-
-#define     delete_RegExp(d)    deref_Object(d)
-#define     collect_RegExp(d)   iReleaseLater(d)
 
 void        deinit_RegExp(iRegExp *);
 

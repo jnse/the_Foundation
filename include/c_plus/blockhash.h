@@ -56,7 +56,6 @@ void                deinit_BlockHashNode    (iBlockHashNode *);
 #define             key_BlockHashNode(d)    iConstCast(iBlock *, (&((const iBlockHashNode *) (d))->keyBlock))
 
 ///@}
-//---------------------------------------------------------------------------------------
 
 iDeclareClass(BlockHash)
 iDeclareType(BlockHash)
@@ -84,7 +83,7 @@ iAnyObject *        value_BlockHash       (iBlockHash *, const iBlock *key);
 void            clear_BlockHash        (iBlockHash *);
 
 /**
- * Insert a key-value node into the BlockHash.
+ * Inserts a key-value node into the BlockHash.
  *
  * @param key    Key string. A copy is made of the key and stored in the node.
  * @param value  Value object.

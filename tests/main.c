@@ -259,14 +259,14 @@ int main(int argc, char *argv[]) {
         }
         printf("Keys: ["); {
             iForEach(Map, i, map) {
-                printf(" %2li", i.value->key);
+                printf(" %2lli", i.value->key);
                 iCollect(i.value);
             }
         }
         printf(" ]\n");
         printf("Keys in reverse: ["); {
             iReverseConstForEach(Map, i, map) {
-                printf(" %2li", i.value->key);
+                printf(" %2lli", i.value->key);
             }
         }
         printf(" ]\n");

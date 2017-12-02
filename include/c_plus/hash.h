@@ -85,7 +85,6 @@ iHashNode * remove_Hash (iHash *, iHashKey key);
 
 /** @name Iterators */
 ///@{
-
 iDeclareIterator(Hash, iHash *)
 iHashNode *remove_HashIterator(iHashIterator *d);
 struct IteratorImpl_Hash {
@@ -101,5 +100,4 @@ struct ConstIteratorImpl_Hash {
     const iHashBucket *bucket;
     const iHash *hash;
 };
-
 ///@}
