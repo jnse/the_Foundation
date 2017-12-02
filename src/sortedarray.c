@@ -1,4 +1,4 @@
-/** @file set.c  Set of unique integer values.
+/** @file sortedarray.c  SortedArray of unique integer values.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -25,46 +25,46 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/set.h"
+#include "c_plus/sortedarray.h"
 
 #include <stdlib.h>
 
-iDefineTypeConstructionArgs(Set, (size_t elementSize, iSetCompareElemFunc cmp), elementSize, cmp)
+iDefineTypeConstructionArgs(SortedArray,
+                            (size_t elementSize, iSortedArrayCompareElemFunc cmp),
+                            elementSize, cmp)
 
-void init_Set(iSet *d, size_t elementSize, iSetCompareElemFunc cmp) {
+void init_SortedArray(iSortedArray *d, size_t elementSize, iSortedArrayCompareElemFunc cmp) {
     init_Array(&d->values, elementSize);
     d->cmp = cmp;
 }
 
-void deinit_Set(iSet *d) {
+void deinit_SortedArray(iSortedArray *d) {
     deinit_Array(&d->values);
 }
 
-size_t size_Set(const iSet *d) {
+size_t size_SortedArray(const iSortedArray *d) {
     return size_Array(&d->values);
 }
 
-iBool contains_Set(const iSet *d, const void *value) {
-    return locate_Set(d, value, NULL);
+iBool contains_SortedArray(const iSortedArray *d, const void *value) {
+    return locate_SortedArray(d, value, NULL);
 }
 
-iBool locate_Set(const iSet *d, const void *value, iRanges *span) {
+iBool locate_SortedArray(const iSortedArray *d, const void *value, iRanges *span) {
     iRanges loc;
     if (!span) span = &loc;
-
     // We will narrow down the span until the pointer is found or we'll know where
     // it would be if it were inserted.
     span->start = 0;
     span->end = size_Array(&d->values);
-
     while (!isEmpty_Range(span)) {
         // Arrived at a single item?
         if (size_Range(span) == 1) {
-            if (d->cmp(value, at_Set(d, span->start)) == 0) {
+            if (d->cmp(value, at_SortedArray(d, span->start)) == 0) {
                 return iTrue; // Found it.
             }
             // Then the value would go before or after this position.
-            if (d->cmp(value, at_Set(d, span->start)) < 0) {
+            if (d->cmp(value, at_SortedArray(d, span->start)) < 0) {
                 span->end = span->start;
             }
             else {
@@ -74,7 +74,7 @@ iBool locate_Set(const iSet *d, const void *value, iRanges *span) {
         }
         // Narrow down the search by a half.
         const size_t rightHalf = (span->start + span->end + 1) / 2;
-        const void *mid = at_Set(d, rightHalf);
+        const void *mid = at_SortedArray(d, rightHalf);
         if (d->cmp(value, mid) == 0) {
             // Oh, it's here.
             span->start = rightHalf;
@@ -91,13 +91,13 @@ iBool locate_Set(const iSet *d, const void *value, iRanges *span) {
     return iFalse;
 }
 
-void clear_Set(iSet *d) {
+void clear_SortedArray(iSortedArray *d) {
     clear_Array(&d->values);
 }
 
-iBool insert_Set(iSet *d, const void *value) {
+iBool insert_SortedArray(iSortedArray *d, const void *value) {
     iRanges loc;
-    if (locate_Set(d, value, &loc)) {
+    if (locate_SortedArray(d, value, &loc)) {
         // The value already exists in the set. It is written anyway, since some
         // contents of the element may have changed.
         set_Array(&d->values, loc.start, value);
@@ -107,9 +107,9 @@ iBool insert_Set(iSet *d, const void *value) {
     return iTrue;
 }
 
-iBool remove_Set(iSet *d, const void *value) {
+iBool remove_SortedArray(iSortedArray *d, const void *value) {
     iRanges loc;
-    if (locate_Set(d, value, &loc)) {
+    if (locate_SortedArray(d, value, &loc)) {
         remove_Array(&d->values, loc.start);
         return iTrue;
     }

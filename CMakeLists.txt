@@ -32,7 +32,7 @@ set (SOURCES
     src/objectlist.c
     src/ptrarray.c
     src/ptrset.c
-    src/set.c
+    src/sortedarray.c
     src/string.c
     src/stringarray.c
     src/stringhash.c
@@ -54,7 +54,7 @@ set (HEADERS
     include/c_plus/ptrarray.h
     include/c_plus/ptrset.h
     include/c_plus/range.h
-    include/c_plus/set.h
+    include/c_plus/sortedarray.h
     include/c_plus/string.h
     include/c_plus/stringarray.h
     include/c_plus/stringlist.h

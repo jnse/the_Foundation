@@ -77,6 +77,8 @@ void            insertCStr_StringArray      (iStringArray *, size_t pos, const c
 
 void            remove_StringArray      (iStringArray *, size_t pos);
 
+/** @name Iterators */
+///@{
 iDeclareIterator(StringArray, iStringArray *)
 iDeclareConstIterator(StringArray, const iStringArray *)
 
@@ -96,3 +98,4 @@ struct ConstIteratorImpl_StringArray {
         iPtrArrayConstIterator iter;
     };
 };
+///@}

@@ -126,18 +126,6 @@ iTestObject *new_TestObject(int value) {
 
 //---------------------------------------------------------------------------------------
 
-typedef struct Impl_SHTestNode {
-    iStringHashNode node;
-    float member;
-}
-SHTestNode;
-
-SHTestNode *new_SHTestNode(void) {
-    SHTestNode *d = malloc(sizeof(SHTestNode));
-    d->member = iRandomf();
-    return d;
-}
-
 void printArray(const iArray *list) {
     printf("%4lu %4lu -> %-4lu : %4lu [", size_Array(list), list->range.start, list->range.end, list->allocSize);
     for (int i = 0; i < list->allocSize * list->elementSize; ++i) {
@@ -216,7 +204,7 @@ int main(int argc, char *argv[]) {
         iStringArray *sar = newStringsCStr_StringArray("Hello World", "Another string", "3rd text", NULL);
         printf("StringArray contents:\n");
         iConstForEach(StringArray, i, sar) {
-            printf(" %3zu: \"%s\"\n", index_StringArrayConstIterator(&i), cstr_String(*i.value));
+            printf("%4zu: \"%s\"\n", index_StringArrayConstIterator(&i), cstr_String(*i.value));
         }
         iRelease(sar);
     }
@@ -227,7 +215,7 @@ int main(int argc, char *argv[]) {
         pushFront_ObjectList(olist, iReleaseLater(new_TestObject(400)));
         printf("List of objects:");
         iConstForEach(ObjectList, i, olist) {
-            printf(" %i", ((iTestObject *) i.object)->value);
+            printf("%4i", ((iTestObject *) i.object)->value);
         }
         printf("\n");
         iRelease(olist);
@@ -255,7 +243,7 @@ int main(int argc, char *argv[]) {
         printf("Hash iteration:\n");
         int counter = 0;
         iForEach(Hash, i, h) {
-            printf(" %3i: %i\n", counter++, i.value->key);
+            printf("%4i: %i\n", counter++, i.value->key);
         }
         delete_Hash(h);
     }

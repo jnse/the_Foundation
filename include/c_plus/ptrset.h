@@ -27,22 +27,22 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "set.h"
+#include "sortedarray.h"
 
-typedef iSet iPtrSet;
+typedef iSortedArray iPtrSet;
 
 iPtrSet *   new_PtrSet      (void);
 void        delete_PtrSet   (iPtrSet *);
 
-#define     init_PtrSet(d)      init_Set(d)
-#define     deinit_PtrSet(d)    deinit_Set(d)
+#define     init_PtrSet(d)      init_SortedArray(d)
+#define     deinit_PtrSet(d)    deinit_SortedArray(d)
 
 iBool       contains_PtrSet (const iPtrSet *, void *ptr);
 iBool       locate_PtrSet   (const iPtrSet *, void *ptr, iRanges *outLoc);
-void *      at_PtrSet       (const iSet *, size_t pos);
+void *      at_PtrSet       (const iPtrSet *, size_t pos);
 
-#define     isEmpty_PtrSet(d)   isEmpty_Set(d)
-#define     size_PtrSet(d)      size_Set(d)
+#define     isEmpty_PtrSet(d)   isEmpty_SortedArray(d)
+#define     size_PtrSet(d)      size_SortedArray(d)
 
 iBool       insert_PtrSet   (iPtrSet *, void *ptr);
 iBool       remove_PtrSet   (iPtrSet *, void *ptr);

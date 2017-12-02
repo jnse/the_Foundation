@@ -2,6 +2,15 @@
 
 /** @file c_plus/string.h  Text string with multibyte characters (copy-on-write).
 
+String is derived from Block, and contains text with multibyte characters. When
+iterating a string, the multibyte characters are converted to wchar_t according to the
+current locale.
+
+String uses copy-on-write semantics (thanks to Block), so making copies is very
+efficient. Conversions between String and Block are also trivial, and can be done
+without duplicating the content. In fact, a pointer to a Block can be simply casted to
+a String pointer and vice versa.
+
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
 @par License
@@ -44,6 +53,7 @@ struct Impl_String {
 };
 
 iString *       new_String      (void);
+
 iString *       newCStr_String  (const char *cstr);
 iString *       newCStrN_String (const char *cstr, size_t len);
 iString *       newBlock_String (const iBlock *data);
@@ -88,8 +98,9 @@ void            setCStr_String  (iString *, const char *cstr);
 
 void            truncate_String (iString *, size_t len);
 
+/** @name Iterators */
+///@{
 iDeclareConstIterator(String, const iString *)
-
 struct ConstIteratorImpl_String {
     iChar value;
     const char *pos;
@@ -98,6 +109,7 @@ struct ConstIteratorImpl_String {
     size_t remaining;
     mbstate_t mbs;
 };
+///@}
 
 //---------------------------------------------------------------------------------------
 

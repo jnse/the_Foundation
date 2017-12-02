@@ -51,6 +51,18 @@ struct Impl_Ranges {
     size_t end;
 };
 
+struct Impl_Rangef {
+    float start;
+    float end;
+};
+
+struct Impl_Ranged {
+    double start;
+    double end;
+};
+
 iDeclareType(Rangei)
 iDeclareType(Rangeui)
 iDeclareType(Ranges)
+iDeclareType(Rangef)
+iDeclareType(Ranged)

@@ -2,6 +2,17 @@
 
 /** @file c_plus/list.h  Doubly linked list.
 
+List is doubly-linked, and uses a sentinel node representing the start/end of the list.
+
+    Sentinel <--> Node
+       ʌ           ʌ
+       |           |
+       v           v
+      Node <----> Node
+
+List does not have ownership of the nodes. This means the nodes can be any type of object
+as long as they are derived from ListNode.
+
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
 @par License
@@ -42,14 +53,6 @@ struct Impl_List {
     size_t size;
 };
 
-/**
- * Constructs a new list.
- *
- * List does not have ownership of the nodes. This means the nodes can be
- * any type of object as long as they are derived from ListNode.
- *
- * @return List instance.
- */
 iList *     new_List    (void);
 
 void        delete_List (iList *);
@@ -61,8 +64,8 @@ size_t      size_List   (const iList *);
 iAny *      front_List  (const iList *);
 iAny *      back_List   (const iList *);
 
-#define     begin_List(d)   (&(d)->root.next)
-#define     end_List(d)     (&(d)->root)
+#define     begin_List(d)       (&(d)->root.next)
+#define     end_List(d)         (&(d)->root)
 
 #define     isEmpty_List(d)     (size_List(d) == 0)
 
@@ -76,9 +79,10 @@ iAny *      remove_List         (iList *, iAny *node);
 iAny *      popFront_List       (iList *);
 iAny *      popBack_List        (iList *);
 
+/** @name Iterators */
+///@{
 iDeclareIterator(List, iList *)
 iDeclareConstIterator(List, const iList *)
-
 struct IteratorImpl_List {
     iListNode *value;
     iList *list;
@@ -89,3 +93,4 @@ struct ConstIteratorImpl_List {
     const iList *list;
     const iListNode *next;
 };
+///@}

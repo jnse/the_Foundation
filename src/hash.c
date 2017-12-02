@@ -26,7 +26,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "c_plus/hash.h"
-#include "c_plus/set.h"
 
 #include <stdlib.h>
 

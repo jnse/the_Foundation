@@ -2,6 +2,11 @@
 
 /** @file c_plus/objectlist.h  List of objects.
 
+ObjectList is itself an Object.
+
+ObjectList owns its nodes, so deleting the list will delete all the nodes and
+release references to the corresponding objects.
+
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
 @par License
@@ -47,16 +52,6 @@ struct Impl_ObjectListNode {
 #define next_ObjectListNode(d)  ((iObjectListNode *) ((d)? (d)->node.next : NULL))
 #define prev_ObjectListNode(d)  ((iObjectListNode *) ((d)? (d)->node.prev : NULL))
 
-/**
- * Constructs a new list of objects.
- *
- * ObjectList is itself an Object.
- *
- * ObjectList owns its nodes, so deleting the list will delete all the nodes and
- * release references to the corresponding objects.
- *
- * @return ObjectList instance.
- */
 iObjectList *   new_ObjectList          (void);
 
 void            init_ObjectList         (iObjectList *);
@@ -83,6 +78,8 @@ void            removeNode_ObjectList   (iObjectList *, iObjectListNode *node);
 void            popFront_ObjectList     (iObjectList *);
 void            popBack_ObjectList      (iObjectList *);
 
+/** @name Iterators */
+///@{
 iDeclareIterator(ObjectList, iObjectList *)
 void            remove_ObjectListIterator(iObjectListIterator *);
 struct IteratorImpl_ObjectList {
@@ -98,3 +95,4 @@ struct ConstIteratorImpl_ObjectList {
     const iObject *object;
     const iObjectList *list;
 };
+///@}

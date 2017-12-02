@@ -34,29 +34,29 @@ static int cmp_PtrSet_(const void *a, const void *b) {
 }
 
 iPtrSet *new_PtrSet(void) {
-    return new_Set(sizeof(iPtr), cmp_PtrSet_);
+    return new_SortedArray(sizeof(iPtr), cmp_PtrSet_);
 }
 
 void delete_PtrSet(iPtrSet *d) {
-    delete_Set(d);
+    delete_SortedArray(d);
 }
 
 iBool contains_PtrSet(const iPtrSet *d, void *ptr) {
-    return contains_Set(d, &ptr);
+    return contains_SortedArray(d, &ptr);
 }
 
 iBool locate_PtrSet(const iPtrSet *d, void *ptr, iRanges *outLoc) {
-    return locate_Set(d, &ptr, outLoc);
+    return locate_SortedArray(d, &ptr, outLoc);
 }
 
 iBool insert_PtrSet(iPtrSet *d, void *ptr) {
-    return insert_Set(d, &ptr);
+    return insert_SortedArray(d, &ptr);
 }
 
 iBool remove_PtrSet(iPtrSet *d, void *ptr) {
-    return remove_Set(d, &ptr);
+    return remove_SortedArray(d, &ptr);
 }
 
-void *at_PtrSet(const iSet *d, size_t pos) {
-    return *(iPtr *) at_Set(d, pos);
+void *at_PtrSet(const iPtrSet *d, size_t pos) {
+    return *(iPtr *) at_SortedArray(d, pos);
 }

@@ -53,6 +53,8 @@ void        insert_PtrArray         (iPtrArray *, size_t pos, const void *ptr);
 
 #define     resize_PtrArray(d, s)   resize_Array(d, s)
 
+/** @name Iterators */
+///@{
 iDeclareIterator(PtrArray, iPtrArray *)
 iDeclareConstIterator(PtrArray, const iPtrArray *)
 
@@ -75,3 +77,4 @@ struct ConstIteratorImpl_PtrArray {
     };
     const void *ptr; // array element
 };
+///@}

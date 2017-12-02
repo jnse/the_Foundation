@@ -39,7 +39,7 @@ int totalCount_Object(void) {
 
 static void free_Object_(iObject *d) {
     deinit_Object(d);
-    iDebug("deleting %s %p\n", d->class->name, d);
+    iDebug("[Object] deleting %s %p\n", d->class->name, d);
     free(d);
 #if !defined (NDEBUG)
     totalCount_--;
@@ -55,7 +55,7 @@ iAnyObject *new_Object(const iAnyClass *class) {
 #if !defined (NDEBUG)
     totalCount_++;
 #endif
-    iDebug("constructed %s %p\n", d->class->name, d);
+    iDebug("[Object] constructed %s %p\n", d->class->name, d);
     return d;
 }
 

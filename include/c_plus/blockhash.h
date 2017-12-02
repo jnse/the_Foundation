@@ -99,6 +99,8 @@ iBool           remove_BlockHash       (iBlockHash *, const iBlock *key);
 void            insertValues_BlockHash       (iBlockHash *, const iBlock *key, const iAnyObject *value, ...);
 void            insertValuesCStr_BlockHash   (iBlockHash *, const char *key, const iAnyObject *value, ...);
 
+/** @name Iterators */
+///@{
 iDeclareIterator(BlockHash, iBlockHash *)
 const iBlock *  key_BlockHashIterator(iBlockHashIterator *);
 void            remove_BlockHashIterator(iBlockHashIterator *);
@@ -118,6 +120,7 @@ struct ConstIteratorImpl_BlockHash {
         iHashConstIterator iter;
     };
 };
+///@}
 
 //---------------------------------------------------------------------------------------
 // Deriving specialized hashes:

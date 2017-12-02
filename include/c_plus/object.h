@@ -2,6 +2,9 @@
 
 /** @file c_plus/object.h  Reference-counted object.
 
+Object is reference-counted and gets deleted only after all references are gone.
+Object is used as a base class for many of the objects in c_Plus.
+
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
 @par License
@@ -48,10 +51,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
         return d; \
     } \
 
-/**
- * Reference-counted object that gets deleted only after all references are gone.
- * iObject is used as a base class for many of the objects in c_Plus.
- */
 iDeclareType(Object)
 
 struct Impl_Object {
@@ -61,6 +60,11 @@ struct Impl_Object {
 
 typedef void iAnyObject;
 
+/**
+ * Constructs a new object.
+ *
+ * @param class  Object class. Determines how much memory is allocated for the object.
+ */
 iAnyObject *    new_Object      (const iAnyClass *class);
 
 #define         collect_Object(d)   iCollectDel(d, deref_Object)

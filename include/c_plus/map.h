@@ -55,6 +55,8 @@ struct Impl_MapNode {
 /**
  * Constructs a new map.
  *
+ * Map is implemented as a red-black tree, i.e., a balanced BST.
+ *
  * Map does not have ownership of the nodes. This means the nodes can be
  * any type of object as long as they are derived from MapNode.
  *
@@ -92,6 +94,8 @@ iMapNode *  insert_Map (iMap *, iMapNode *node);
 iMapNode *  remove_Map      (iMap *, iMapKey key);
 iMapNode *  removeNode_Map  (iMap *, iMapNode *node);
 
+/** @name Iterators */
+///@{
 iDeclareIterator(Map, iMap *)
 iMapNode *remove_MapIterator(iMapIterator *d);
 struct IteratorImpl_Map {
@@ -105,3 +109,4 @@ struct ConstIteratorImpl_Map {
     const iMapNode *value;
     const iMap *map;
 };
+///@}

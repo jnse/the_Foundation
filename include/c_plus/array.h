@@ -2,6 +2,21 @@
 
 /** @file c_plus/array.h  Array of sequential fixed-size elements.
 
+Array elements are packed sequentially inside a single block of memory. New elements
+can be efficiently added to or removed from the start/end of the array.
+
+                 start                          end
+                   v                             v
+    | ....... | Element | Element | Element | ....... |
+
+@par Complexity
+
+- Push back: amortized O(1)
+- Push front: amortized O(1)
+- Insert: O(n)
+- Pop back: O(1)
+- Pop front: O(1)
+
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
 @par License
@@ -41,13 +56,6 @@ iDeclareType(Array)
 
 /**
  * Constructs a new array.
- *
- * @par Complexity
- * - Push back: amortized O(1)
- * - Push front: amortized O(1)
- * - Insert: O(n)
- * - Pop back: O(1)
- * - Pop front: O(1)
  *
  * @param elementSize  Size of an element in bytes.
  *
@@ -97,6 +105,8 @@ size_t      takeN_Array     (iArray *, size_t pos, void *value_out, size_t count
 void        insertN_Array   (iArray *, size_t pos, const void *value, size_t count);
 void        removeN_Array   (iArray *, size_t pos, size_t count);
 
+/** @name Iterators */
+///@{
 iDeclareIterator(Array, iArray *)
 iDeclareConstIterator(Array, const iArray *)
 
@@ -115,3 +125,4 @@ struct ConstIteratorImpl_Array {
     const iArray *array;
     const void *end;
 };
+///@}
