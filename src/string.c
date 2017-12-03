@@ -60,12 +60,18 @@ iString *copy_String(const iString *d) {
 }
 
 void delete_String(iString *d) {
-    deinit_String(d);
-    free(d);
+    if (d) {
+        deinit_String(d);
+        free(d);
+    }
 }
 
 void init_String(iString *d, const iBlock *chars) {
     initCopy_Block(&d->chars, chars);
+}
+
+void initCStr_String(iString *d, const char *cstr) {
+    initData_Block(&d->chars, cstr, strlen(cstr));
 }
 
 void deinit_String(iString *d) {

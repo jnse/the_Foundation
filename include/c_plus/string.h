@@ -63,6 +63,7 @@ void            delete_String   (iString *);
 #define         collect_String(d)   iCollectDel(d, delete_String)
 
 void            init_String     (iString *, const iBlock *chars);
+void            initCStr_String (iString *, const char *cstr);
 void            deinit_String   (iString *);
 
 const char *    cstr_String     (const iString *);

@@ -36,7 +36,9 @@ set (SOURCES
     src/string.c
     src/stringarray.c
     src/stringhash.c
+    src/stringlist.c
     src/treenode.c
+    src/version.c
 )
 set (HEADERS
     include/c_plus/defs.h
@@ -60,13 +62,16 @@ set (HEADERS
     include/c_plus/stringlist.h
     include/c_plus/stringhash.h
     include/c_plus/treenode.h
+    include/c_plus/version.h
 )
 if (PCRE_FOUND)
     set (SOURCES ${SOURCES} src/regexp.c)
     set (HEADERS ${HEADERS} include/c_plus/regexp.h)
 endif ()
 add_library (cplus STATIC ${SOURCES} ${HEADERS})
-target_compile_definitions (cplus PRIVATE iIsLibraryBuild)
+target_compile_definitions (cplus PRIVATE
+    iIsLibraryBuild
+)
 set_property (TARGET cplus PROPERTY C_STANDARD 11)
 target_include_directories (cplus PUBLIC include ${CMAKE_CURRENT_BINARY_DIR})
 target_compile_options (cplus PRIVATE -Wall -Wpedantic -Werror)
@@ -83,6 +88,8 @@ if (PCRE_FOUND)
     target_include_directories (cplus PRIVATE ${PCRE_INCLUDE_DIRS})
     target_link_libraries (cplus PRIVATE ${PCRE_LDFLAGS})
 endif ()
+
+#----------------------------------------------------------------------------------------
 
 add_executable (c+test tests/main.c)
 target_link_libraries (c+test PRIVATE cplus)

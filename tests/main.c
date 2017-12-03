@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/regexp.h>
 #include <c_plus/string.h>
 #include <c_plus/stringarray.h>
+#include <c_plus/stringlist.h>
 #include <c_plus/stringhash.h>
 #include <c_plus/treenode.h>
 
@@ -208,6 +209,14 @@ int main(int argc, char *argv[]) {
         }
         iRelease(sar);
     }
+    /* Test a list of strings. */ {
+        iStringList *list = new_StringList();
+        // Read all lines from a file.
+        iForEach(StringList, i, list) {
+            printf("%4zu: \"%s\"\n", i.pos, cstr_String(i.value));
+        }
+        iRelease(list);
+    }
     /* Test an object list. */ {
         iObjectList *olist = new_ObjectList();
         pushBack_ObjectList(olist, iReleaseLater(new_TestObject(500)));
@@ -350,7 +359,7 @@ int main(int argc, char *argv[]) {
             printf("match: %i -> %i [%s]\n", match.range.start, match.range.end, cstr_String(cap));
             delete_String(cap);
         }
-        delete_RegExp(rx);
+        iRelease(rx);
         delete_String(s);
     }
 #endif

@@ -48,10 +48,14 @@ void            set_PtrArray        (iPtrArray *, size_t pos, const void *ptr);
 
 void        pushBack_PtrArray       (iPtrArray *, const void *ptr);
 void        pushFront_PtrArray      (iPtrArray *, const void *ptr);
-iBool       take_PtrArray           (iPtrArray *, size_t pos, void **outPtr);
-void        insert_PtrArray         (iPtrArray *, size_t pos, const void *ptr);
+
+iBool       take_PtrArray           (iPtrArray *, size_t pos, void **ptr_out);
+size_t      takeN_PtrArray          (iPtrArray *, size_t pos, void **ptr_out, size_t count);
+void        insert_PtrArray         (iPtrArray *, size_t pos, const void *value);
+void        insertN_PtrArray        (iPtrArray *, size_t pos, const void **values, size_t count);
 
 #define     resize_PtrArray(d, s)   resize_Array(d, s)
+#define     clear_PtrArray(d)       clear_Array(d)
 
 /** @name Iterators */
 ///@{

@@ -2,6 +2,11 @@
 
 /** @file c_plus/map.h  Map of sorted unique integer nodes.
 
+Map is implemented as a red-black tree, i.e., a balanced BST.
+
+Map does not have ownership of the nodes. This means the nodes can be any type of object
+as long as they are derived from MapNode.
+
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
 @par License
@@ -52,16 +57,6 @@ struct Impl_MapNode {
     iMapKey key;
 };
 
-/**
- * Constructs a new map.
- *
- * Map is implemented as a red-black tree, i.e., a balanced BST.
- *
- * Map does not have ownership of the nodes. This means the nodes can be
- * any type of object as long as they are derived from MapNode.
- *
- * @return Map instance.
- */
 iMap *      new_Map     (iMapNodeCmpFunc cmp);
 
 void        delete_Map  (iMap *);

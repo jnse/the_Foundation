@@ -232,6 +232,23 @@ void fill_Array(iArray *d, char value) {
     memset(front_Array(d), value, d->elementSize * size_Array(d));
 }
 
+void move_Array(iArray *d, const iRanges *range, iArray *dest, size_t destPos) {
+    iAssert(d);
+    iAssert(range);
+    iAssert(dest);
+    iAssert(d != dest);
+    iAssert(d->elementSize == dest->elementSize);
+    const int count = size_Range(range);
+    const int oldDestSize = size_Array(dest);
+    const iRanges moved = { destPos, oldDestSize };
+    resize_Array(dest, oldDestSize + count); // dest size increased
+    move_Array_(dest, &moved, count);
+    memcpy(element_Array_(dest, dest->range.start + destPos),
+           element_Array_(   d,    d->range.start + range->start),
+           d->elementSize * count);
+    removeRange_Array(d, range);
+}
+
 void sort_Array(iArray *d, int (*cmp)(const void *, const void *)) {
     qsort(front_Array(d), size_Array(d), d->elementSize, cmp);
 }

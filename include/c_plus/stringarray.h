@@ -52,6 +52,8 @@ void            deinit_StringArray  (iStringArray *);
 #define         data_StringArray(d)         ((iString **) data_PtrArray(&(d)->strings))
 #define         constData_StringArray(d)    ((const iString **) constData_PtrArray(&(d)->strings))
 
+void            clear_StringArray   (iStringArray *);
+
 /**
  * Resizes the string array. When growing the array, empty strings are used for filling
  * new array positions.
@@ -74,8 +76,13 @@ void            setCStr_StringArray         (iStringArray *, size_t pos, const c
 void            pushBackCStr_StringArray    (iStringArray *, const char *cstr);
 void            pushFrontCStr_StringArray   (iStringArray *, const char *cstr);
 void            insertCStr_StringArray      (iStringArray *, size_t pos, const char *cstr);
+void            insertN_StringArray         (iStringArray *, size_t pos, const iString * const *strings, size_t count);
 
-void            remove_StringArray      (iStringArray *, size_t pos);
+iString *       take_StringArray            (iStringArray *, size_t pos);
+size_t          takeN_StringArray           (iStringArray *, size_t pos, iString **strings, size_t count);
+void            remove_StringArray          (iStringArray *, size_t pos);
+
+void            move_StringArray            (iStringArray *, const iRanges *range, iStringArray *dest, size_t destPos);
 
 /** @name Iterators */
 ///@{

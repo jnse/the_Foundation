@@ -94,6 +94,7 @@ void        sort_Array      (iArray *, int (*cmp)(const void *, const void *));
 #define     popFront_Array(d)           popFrontN_Array (d, 1)
 #define     insert_Array(d, pos, v)     insertN_Array   (d, pos, v, 1)
 #define     remove_Array(d, pos)        removeN_Array   (d, pos, 1)
+#define     removeRange_Array(d, range) removeN_Array   (d, (range)->start, size_Range(range))
 #define     take_Array(d, pos, vv)      takeN_Array     (d, pos, vv, 1)
 
 void        setN_Array      (iArray *, size_t pos, const void *value, size_t count);
@@ -104,6 +105,7 @@ size_t      popFrontN_Array (iArray *, size_t count);
 size_t      takeN_Array     (iArray *, size_t pos, void *value_out, size_t count);
 void        insertN_Array   (iArray *, size_t pos, const void *value, size_t count);
 void        removeN_Array   (iArray *, size_t pos, size_t count);
+void        move_Array      (iArray *, const iRanges *range, iArray *dest, size_t destPos);
 
 /** @name Iterators */
 ///@{

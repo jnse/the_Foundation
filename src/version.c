@@ -1,4 +1,4 @@
-/** @file c_plus.c  Library initialization.
+/** @file version.c  Version numbers.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -25,32 +25,14 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/defs.h"
-#include "c_plus/string.h"
 #include "c_plus/version.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <locale.h>
+const iVersion version_CPlus = iCPlusBuildVersion;
 
-void init_CPlus(void) {
-    printf("[c_Plus] version: %i.%i.%i\n", version_CPlus.major, version_CPlus.minor, version_CPlus.patch);
-    /* Random number generator. */ {
-        time_t seed = time(NULL);
-        srand(seed);
-        printf("[c_Plus] random seed: %li\n", seed);
+int cmp_Version(const iVersion *d, const iVersion *other) {
+    for (int i = 0; i < 3; ++i) {
+        const int cmp = iCmp((&d->major)[i], (&other->major)[i]);
+        if (cmp) return cmp;
     }
-    /* Locale. */ {
-        const char *lc = getenv("LC_CTYPE");
-        if (!lc) lc = getenv("LANG");
-        if (!lc) lc = "en_US.utf8";
-        setlocale(LC_CTYPE, lc? lc : "en_US.utf8");
-        const char *setlc = NULL;
-        if (!iCmpStr(setlc = setlocale(LC_CTYPE, NULL), "C")) {
-            setlocale(LC_CTYPE, "en_US.UTF-8");
-            setlc = setlocale(LC_CTYPE, NULL);
-        }
-        printf("[c_Plus] locale: %s\n", setlc);
-    }
+    return 0;
 }

@@ -72,6 +72,17 @@ uint32_t    iCrc32      (const char *data, size_t size);
         free(d); \
     }
 
+#define iDefineStaticTypeConstruction(typeName) \
+    static i##typeName *new_##typeName##_(void) { \
+        i##typeName *d = iMalloc(typeName); \
+        init_##typeName##_(d); \
+        return d; \
+    } \
+    static void delete_##typeName##_(i##typeName *d) { \
+        deinit_##typeName##_(d); \
+        free(d); \
+    }
+
 #define iDefineTypeConstructionArgs(typeName, newArgs, ...) \
     i##typeName *new_##typeName newArgs { \
         i##typeName *d = iMalloc(typeName); \
@@ -116,6 +127,16 @@ uint32_t    iCrc32      (const char *data, size_t size);
 
 #define iReverseConstForEach(typeName, iterName, container) \
     iIterate(typeName, ReverseConstIterator, iterName, container)
+
+#define iForVarArgs(type, var, body) { \
+    { body; } \
+    va_list iVarArgs_; \
+    for (va_start(iVarArgs_, var);;) { \
+        var = va_arg(iVarArgs_, type); \
+        if (!var) break; \
+        { body; } \
+    } \
+    va_end(iVarArgs_); }
 
 #if defined (NDEBUG)
 #   define iAssert(cond)

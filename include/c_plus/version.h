@@ -1,4 +1,6 @@
-/** @file c_plus.c  Library initialization.
+#pragma once
+
+/** @file c_plus/version.h  Version numbers.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -25,32 +27,16 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/defs.h"
-#include "c_plus/string.h"
-#include "c_plus/version.h"
+#include "defs.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <locale.h>
+iDeclareType(Version)
 
-void init_CPlus(void) {
-    printf("[c_Plus] version: %i.%i.%i\n", version_CPlus.major, version_CPlus.minor, version_CPlus.patch);
-    /* Random number generator. */ {
-        time_t seed = time(NULL);
-        srand(seed);
-        printf("[c_Plus] random seed: %li\n", seed);
-    }
-    /* Locale. */ {
-        const char *lc = getenv("LC_CTYPE");
-        if (!lc) lc = getenv("LANG");
-        if (!lc) lc = "en_US.utf8";
-        setlocale(LC_CTYPE, lc? lc : "en_US.utf8");
-        const char *setlc = NULL;
-        if (!iCmpStr(setlc = setlocale(LC_CTYPE, NULL), "C")) {
-            setlocale(LC_CTYPE, "en_US.UTF-8");
-            setlc = setlocale(LC_CTYPE, NULL);
-        }
-        printf("[c_Plus] locale: %s\n", setlc);
-    }
-}
+struct Impl_Version {
+    int major;
+    int minor;
+    int patch;
+};
+
+int cmp_Version(const iVersion *, const iVersion *other);
+
+extern const iVersion version_CPlus;

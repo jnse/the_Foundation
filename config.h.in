@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #cmakedefine iHavePcre
 #cmakedefine iHaveZlib
 
+#define iCPlusBuildVersion { ${c_Plus_VERSION_MAJOR}, ${c_Plus_VERSION_MINOR}, ${c_Plus_VERSION_PATCH} }
+
 /*
  * The iCPlusAPI macro is used for declaring exported symbols. It must be
  * applied in all exported classes and functions.

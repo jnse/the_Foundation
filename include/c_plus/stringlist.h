@@ -2,6 +2,17 @@
 
 /** @file c_plus/stringlist.h  List of strings.
 
+StringList is based on a linked list of relatively short StringArrays. Therefore
+it is suitable for both small and large numbers of Strings without compromising
+performance of sequential access, random-access lookups, insertion, or removal.
+
+     Node <--> Node <--> Node <-->
+      |         |         |
+    String    String    String
+    String    String    String
+    String              String
+                        String
+
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
 @par License
@@ -37,22 +48,65 @@ iDeclareType(StringList)
 struct Impl_StringList {
     iObject object;
     iList list;
+    size_t size;
 };
 
 /**
  * Constructs a new list of strings.
- *
- * StringList is based on a linked list of relatively short StringArrays. Therefore
- * it is suitable for both small and large numbers of Strings without compromising
- * performance of sequential access, random-access lookups, insertion, or removal.
- *
- *      Node <--> Node <--> Node <-->
- *       |         |         |
- *     String    String    String
- *     String    String    String
- *     String              String
- *                         String
- *
+
  * @return StringList object.
  */
-iStringList *new_StringList(void);
+iStringList *   new_StringList      (void);
+
+iStringList *   newStrings_StringList       (const iString *, ...);
+iStringList *   newStringsCStr_StringList   (const char *, ...);
+
+void            init_StringList     (iStringList *);
+void            deinit_StringList   (iStringList *);
+
+void            clear_StringList    (iStringList *);
+
+#define         size_StringList(d)      ((d)->size)
+#define         isEmpty_StringList(d)   ((d)->size == 0)
+
+const iString * constAt_StringList  (const iStringList *, size_t pos);
+iString *       at_StringList       (iStringList *, size_t pos);
+
+void            pushBack_StringList     (iStringList *, const iString *str);
+void            pushBackCStr_StringList (iStringList *, const char *cstr);
+void            pushFront_StringList    (iStringList *, const iString *str);
+void            pushFrontCStr_StringList(iStringList *, const char *cstr);
+void            popBack_StringList  (iStringList *);
+void            popFront_StringList (iStringList *);
+
+void            insert_StringList       (iStringList *, size_t pos, const iString *str);
+void            insertCStr_StringList   (iStringList *, size_t pos, const char *cstr);
+void            remove_StringList       (iStringList *, size_t pos);
+
+iString *       take_StringList     (iStringList *, size_t pos);
+
+#define         takeFirst_StringList(d)     take_StringList(d, 0)
+#define         takeLast_StringList(d)      take_StringList(d, size_StringList(d) - 1)
+
+/** @name Iterators */
+///@{
+iDeclareIterator(StringList, iStringList *)
+struct IteratorImpl_StringList {
+    iString *value;
+    void *node;
+    size_t pos; // in the entire list
+    size_t nodePos; // inside the node
+    iStringList *list;
+};
+void            remove_StringListIterator(iStringListIterator *);
+iString *       take_StringListIterator(iStringListIterator *);
+
+iDeclareConstIterator(StringList, const iStringList *)
+struct ConstIteratorImpl_StringList {
+    const iString *value;
+    const void *node;
+    size_t pos; // in the entire list
+    size_t nodePos; // inside the node
+    const iStringList *list;
+};
+///@}

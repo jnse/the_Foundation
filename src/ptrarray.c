@@ -35,14 +35,7 @@ iPtrArray *new_PtrArray(void) {
 
 iPtrArray *newPointers_PtrArray(void *ptr, ...) {
     iPtrArray *d = new_PtrArray();
-    pushBack_PtrArray(d, ptr);
-    va_list args;
-    va_start(args, ptr);
-    void *next;
-    while ((next = va_arg(args, void *)) != NULL) {
-        pushBack_PtrArray(d, next);
-    }
-    va_end(args);
+    iForVarArgs(void *, ptr, pushBack_PtrArray(d, ptr));
     return d;
 }
 
@@ -70,12 +63,20 @@ void pushFront_PtrArray(iPtrArray *d, const void *ptr) {
     pushFront_Array(d, &ptr);
 }
 
-iBool take_PtrArray(iPtrArray *d, size_t pos, void **outPtr) {
-    return take_Array(d, pos, &outPtr) > 0;
+iBool take_PtrArray(iPtrArray *d, size_t pos, void **ptr_out) {
+    return takeN_PtrArray(d, pos, ptr_out, 1) > 0;
 }
 
-void insert_PtrArray(iPtrArray *d, size_t pos, const void *ptr) {
-    insert_Array(d, pos, &ptr);
+size_t takeN_PtrArray(iPtrArray *d, size_t pos, void **ptr_out, size_t count) {
+    return takeN_Array(d, pos, ptr_out, count);
+}
+
+void insert_PtrArray(iPtrArray *d, size_t pos, const void *value) {
+    insertN_PtrArray(d, pos, &value, 1);
+}
+
+void insertN_PtrArray(iPtrArray *d, size_t pos, const void **values, size_t count) {
+    insertN_Array(d, pos, values, count);
 }
 
 //---------------------------------------------------------------------------------------

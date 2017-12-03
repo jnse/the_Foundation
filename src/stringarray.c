@@ -45,28 +45,21 @@ void deinit_StringArray(iStringArray *d) {
 
 iStringArray *newStrings_StringArray(const iString *str, ...) {
     iStringArray *d = new_StringArray();
-    pushBack_StringArray(d, copy_String(str));
-    va_list args;
-    for (va_start(args, str);;) {
-        str = va_arg(args, const iString *);
-        if (!str) break;
-        pushBack_StringArray(d, copy_String(str));
-    }
-    va_end(args);
+    iForVarArgs(const iString *, str, pushBack_StringArray(d, copy_String(str)));
     return d;
 }
 
 iStringArray *newStringsCStr_StringArray(const char *cstr, ...) {
     iStringArray *d = new_StringArray();
-    pushBackCStr_StringArray(d, cstr);
-    va_list args;
-    for (va_start(args, cstr);;) {
-        cstr = va_arg(args, const char *);
-        if (!cstr) break;
-        pushBackCStr_StringArray(d, cstr);
-    }
-    va_end(args);
+    iForVarArgs(const char *, cstr, pushBackCStr_StringArray(d, cstr));
     return d;
+}
+
+void clear_StringArray(iStringArray *d) {
+    iForEach(PtrArray, i, &d->strings) {
+        delete_String(i.ptr);
+    }
+    clear_PtrArray(&d->strings);
 }
 
 void resize_StringArray(iStringArray *d, size_t size) {
@@ -95,42 +88,57 @@ const iString *constAt_StringArray(const iStringArray *d, size_t pos) {
 void set_StringArray(iStringArray *d, size_t pos, const iString *str) {
     iAssert(pos < size_StringArray(d));
     delete_String(at_PtrArray(&d->strings, pos));
-    set_PtrArray(&d->strings, pos, str);
+    set_PtrArray(&d->strings, pos, copy_String(str));
 }
 
 void pushBack_StringArray(iStringArray *d, const iString *str) {
-    pushBack_PtrArray(&d->strings, str);
+    pushBack_PtrArray(&d->strings, copy_String(str));
 }
 
 void pushFront_StringArray(iStringArray *d, const iString *str) {
-    pushFront_PtrArray(&d->strings, str);
+    pushFront_PtrArray(&d->strings, copy_String(str));
 }
 
 void insert_StringArray(iStringArray *d, size_t pos, const iString *str) {
-    insert_PtrArray(&d->strings, pos, str);
+    insert_PtrArray(&d->strings, pos, copy_String(str));
 }
 
 void setCStr_StringArray(iStringArray *d, size_t pos, const char *cstr) {
-    set_StringArray(d, pos, newCStr_String(cstr));
+    iString str; initCStr_String(&str, cstr);
+    set_StringArray(d, pos, &str);
+    deinit_String(&str);
 }
 
 void pushBackCStr_StringArray(iStringArray *d, const char *cstr) {
-    pushBack_StringArray(d, newCStr_String(cstr));
+    iString str; initCStr_String(&str, cstr);
+    pushBack_StringArray(d, &str);
+    deinit_String(&str);
 }
 
 void pushFrontCStr_StringArray(iStringArray *d, const char *cstr) {
-    pushFront_StringArray(d, newCStr_String(cstr));
+    iString str; initCStr_String(&str, cstr);
+    pushFront_StringArray(d, &str);
+    deinit_String(&str);
 }
 
 void insertCStr_StringArray(iStringArray *d, size_t pos, const char *cstr) {
-    insert_StringArray(d, pos, newCStr_String(cstr));
+    iString str; initCStr_String(&str, cstr);
+    insert_StringArray(d, pos, &str);
+    deinit_String(&str);
+}
+
+iString *take_StringArray(iStringArray *d, size_t pos) {
+    void *str = NULL;
+    take_PtrArray(&d->strings, pos, &str);
+    return str;
 }
 
 void remove_StringArray(iStringArray *d, size_t pos) {
-    void *str;
-    if (take_PtrArray(&d->strings, pos, &str)) {
-        delete_String(str);
-    }
+    delete_String(take_StringArray(d, pos));
+}
+
+void move_StringArray(iStringArray *d, const iRanges *range, iStringArray *dest, size_t destPos) {
+    move_Array(&d->strings, range, &dest->strings, destPos);
 }
 
 //---------------------------------------------------------------------------------------
