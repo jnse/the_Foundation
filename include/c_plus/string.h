@@ -45,6 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 typedef wchar_t iChar;
 
 iDeclareType(String)
+iDeclareType(StringList)
 iDeclareType(StringComparison)
 iDeclareType(MultibyteChar)
 
@@ -98,6 +99,8 @@ void            set_String      (iString *, const iString *other);
 void            setCStr_String  (iString *, const char *cstr);
 
 void            truncate_String (iString *, size_t len);
+
+iStringList *   split_String    (const iString *, const char *separator);
 
 /** @name Iterators */
 ///@{

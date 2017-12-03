@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "c_plus/string.h"
+#include "c_plus/stringlist.h"
 #include "c_plus/range.h"
 
 #include <stdlib.h>
@@ -162,6 +163,12 @@ size_t indexOfCStr_String(const iString *d, const char *cstr) {
         return found - chars;
     }
     return iInvalidPos;
+}
+
+iStringList *split_String(const iString *d, const char *separator) {
+    iStringList *parts = new_StringList();
+
+    return parts;
 }
 
 //---------------------------------------------------------------------------------------
