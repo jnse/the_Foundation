@@ -121,6 +121,12 @@ iTime lastModified_FileInfo(const iFileInfo *d) {
     return d->lastModified;
 }
 
+iDirFileInfo *directoryContents_FileInfo(const iFileInfo *fileInfo) {
+    iDirFileInfo *d = iNew(DirFileInfo);
+    initInfo_DirFileInfo(d, fileInfo);
+    return d;
+}
+
 iBool fileExists_FileInfo(const iString *path) {
     return fileExistsCStr_FileInfo(cstr_String(path));
 }
@@ -151,7 +157,41 @@ struct Impl_DirFileInfo {
 };
 
 iDefineClass(DirFileInfo)
-iDefineObjectConstructionArgs(DirFileInfo, (const iFileInfo *dir), dir)
+iDefineObjectConstructionArgs(DirFileInfo, (const iString *path), path)
+
+iDirFileInfo *newCStr_DirFileInfo(const char *path) {
+    iString str; initCStr_String(&str, path);
+    iDirFileInfo *d = new_DirFileInfo(&str);
+    deinit_String(&str);
+    return d;
+}
+
+void init_DirFileInfo(iDirFileInfo *d, const iString *path) {
+    iFileInfo *fileInfo = new_FileInfo(path);
+    initInfo_DirFileInfo(d, fileInfo);
+    iRelease(fileInfo);
+}
+
+void initInfo_DirFileInfo(iDirFileInfo *d, const iFileInfo *dir) {
+    iZap(d->entry);
+    if (isDirectory_FileInfo(dir)) {
+        d->fd = opendir(cstr_String(path_FileInfo(dir)));
+        d->dirInfo = ref_Object(dir);
+    }
+    else {
+        d->fd = NULL;
+        d->dirInfo = NULL;
+    }
+}
+
+void deinit_DirFileInfo(iDirFileInfo *d) {
+    if (d->fd) {
+        closedir(d->fd);
+        d->fd = NULL;
+    }
+    deinit_FileInfo(&d->entry);
+    deref_Object(d->dirInfo);
+}
 
 static iBool readNextEntry_DirFileInfo_(iDirFileInfo *d) {
     deinit_FileInfo(&d->entry);
@@ -164,26 +204,6 @@ static iBool readNextEntry_DirFileInfo_(iDirFileInfo *d) {
         return iTrue;
     }
     return iFalse;
-}
-
-void init_DirFileInfo(iDirFileInfo *d, const iFileInfo *dir) {
-    iZap(d->entry);
-    if (isDirectory_FileInfo(dir)) {
-        d->fd = opendir(cstr_String(path_FileInfo(dir)));
-        d->dirInfo = ref_Object(dir);
-    }
-    else {
-        d->fd = NULL;
-    }
-}
-
-void deinit_DirFileInfo(iDirFileInfo *d) {
-    if (d->fd) {
-        closedir(d->fd);
-        d->fd = NULL;
-    }
-    deinit_FileInfo(&d->entry);
-    deref_Object(d->dirInfo);
 }
 
 void init_DirFileInfoIterator(iDirFileInfoIterator *d, iDirFileInfo *info) {

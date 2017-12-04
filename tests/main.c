@@ -163,11 +163,7 @@ int main(int argc, char *argv[]) {
     }
     /* File information. */ {
         iBeginCollect();
-        iFileInfo *curDir = iReleaseLater(newCStr_FileInfo("."));
-        iAssert(isDirectory_FileInfo(curDir));
-        printf("Path: %s\n", cstr_String(path_FileInfo(curDir)));
-        iDirFileInfo *dir = iReleaseLater(directoryContents_FileInfo(curDir));
-        iForEach(DirFileInfo, i, dir) {
+        iForEach(DirFileInfo, i, iReleaseLater(newCStr_DirFileInfo("."))) {
             printf("%10li %s %12li %s\n",
                    size_FileInfo(i.value),
                    isDirectory_FileInfo(i.value)? "(dir)" : "     ",
@@ -250,7 +246,7 @@ int main(int argc, char *argv[]) {
         pushFront_ObjectList(olist, iReleaseLater(new_TestObject(400)));
         printf("List of objects:");
         iConstForEach(ObjectList, i, olist) {
-            printf("%4i", ((iTestObject *) i.object)->value);
+            printf("%4i", ((const iTestObject *) i.object)->value);
         }
         printf("\n");
         iRelease(olist);

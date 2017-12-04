@@ -59,14 +59,16 @@ iBool       fileExistsCStr_FileInfo (const char *path);
 long        fileSize_FileInfo       (const iString *path);
 long        fileSizeCStr_FileInfo   (const char *path);
 
-#define     directoryContents_FileInfo(d)   new_DirFileInfo(d)
+iDirFileInfo *  directoryContents_FileInfo  (const iFileInfo *);
 
 //---------------------------------------------------------------------------------------
 
-iDirFileInfo *  new_DirFileInfo       (const iFileInfo *d);
+iDirFileInfo *  new_DirFileInfo         (const iString *path);
+iDirFileInfo *  newCStr_DirFileInfo     (const char *path);
 
-void            init_DirFileInfo      (iDirFileInfo *, const iFileInfo *d);
-void            deinit_DirFileInfo    (iDirFileInfo *);
+void            init_DirFileInfo        (iDirFileInfo *, const iString *path);
+void            initInfo_DirFileInfo    (iDirFileInfo *, const iFileInfo *d);
+void            deinit_DirFileInfo      (iDirFileInfo *);
 
 /** @name Iterators */
 ///@{
