@@ -72,9 +72,9 @@ iAnyObject *ref_Object(const iAnyObject *any) {
     return NULL;
 }
 
-void deref_Object(iAnyObject *any) {
+void deref_Object(const iAnyObject *any) {
     if (any) {
-        iObject *d = (iObject *) any;
+        iObject *d = iConstCast(iObject *, any);
         iAssert(d->refCount > 0);
         if (--d->refCount == 0) {
             free_Object_(d);

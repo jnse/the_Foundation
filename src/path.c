@@ -1,6 +1,4 @@
-#pragma once
-
-/** @file c_plus/path.h  File path manipulation, directory listing.
+/** @file path.c  File path manipulation.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -27,12 +25,26 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
-#include "string.h"
+#include "c_plus/path.h"
 
-#define iPathSeparator  "/"
+iBool isAbsolute_Path(const iString *d) {
+    return startsWith_String(d, iPathSeparator);
+}
 
-iBool       isAbsolute_Path(const iString *);
+void append_Path(iString *d, const iString *path) {
+    if (isAbsolute_Path(path)) {
+        set_String(d, path);
+    }
+    else {
+        if (!endsWith_String(d, iPathSeparator)) {
+            appendCStr_String(d, iPathSeparator);
+        }
+        append_String(d, path);
+    }
+}
 
-void        append_Path (iString *, const iString *path);
-iString *   concat_Path (const iString *, const iString *path);
+iString *concat_Path(const iString *d, const iString *path) {
+    iString *base = copy_String(d);
+    append_Path(base, path);
+    return base;
+}

@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/array.h>
 #include <c_plus/block.h>
 #include <c_plus/class.h>
+#include <c_plus/fileinfo.h>
 #include <c_plus/garbage.h>
 #include <c_plus/hash.h>
 #include <c_plus/map.h>
@@ -159,6 +160,21 @@ int main(int argc, char *argv[]) {
                date.year, date.month, date.day, date.dayOfWeek,
                date.hour, date.minute, date.second, date.nsecs,
                date.gmtOffsetSeconds/60);
+    }
+    /* File information. */ {
+        iBeginCollect();
+        iFileInfo *curDir = iReleaseLater(newCStr_FileInfo("."));
+        iAssert(isDirectory_FileInfo(curDir));
+        printf("Path: %s\n", cstr_String(path_FileInfo(curDir)));
+        iDirFileInfo *dir = iReleaseLater(directoryContents_FileInfo(curDir));
+        iForEach(DirFileInfo, i, dir) {
+            printf("%10li %s %12li %s\n",
+                   size_FileInfo(i.value),
+                   isDirectory_FileInfo(i.value)? "(dir)" : "     ",
+                   lastModified_FileInfo(i.value).ts.tv_sec,
+                   cstrPath_FileInfo(i.value));
+        }
+        iEndCollect();
     }
     /* Test array insertion and removal. */ {
         printf("Array insertions/removals:\n");

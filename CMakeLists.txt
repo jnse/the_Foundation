@@ -61,6 +61,7 @@ set (SOURCES
     src/math.c
     src/object.c
     src/objectlist.c
+    src/path.c
     src/ptrarray.c
     src/ptrset.c
     src/sortedarray.c

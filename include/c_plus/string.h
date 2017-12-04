@@ -66,6 +66,7 @@ void            delete_String   (iString *);
 void            init_String     (iString *, const iBlock *chars);
 void            initCStr_String (iString *, const char *cstr);
 void            initCStrN_String(iString *, const char *cstr, size_t size);
+void            initCopy_String (iString *, const iString *other);
 void            deinit_String   (iString *);
 
 const char *    cstr_String     (const iString *);
@@ -98,6 +99,10 @@ size_t          lastIndexOfCStr_String      (const iString *, const char *cstr);
 
 void            set_String      (iString *, const iString *other);
 void            setCStr_String  (iString *, const char *cstr);
+
+void            append_String       (iString *, const iString *other);
+void            appendCStr_String   (iString *, const char *cstr);
+void            prepend_String      (iString *, const iString *other);
 
 void            truncate_String (iString *, size_t len);
 

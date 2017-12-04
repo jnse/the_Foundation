@@ -29,20 +29,50 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 #include "string.h"
+#include "object.h"
+
+iDeclareClass(FileInfo)
+iDeclareClass(DirFileInfo)
 
 iDeclareType(FileInfo)
+iDeclareType(DirFileInfo)
 iDeclareType(Time)
 
+#define iFileInfoUnknownSize ((long) -1)
+
 iFileInfo * new_FileInfo    (const iString *path);
-void        delete_FileInfo (iFileInfo *);
+iFileInfo * newCStr_FileInfo(const char *path);
+
+void        init_FileInfo   (iFileInfo *, const iString *path);
+void        deinit_FileInfo (iFileInfo *);
 
 iBool       exists_FileInfo         (const iFileInfo *);
 const iString * path_FileInfo       (const iFileInfo *);
 long        size_FileInfo           (const iFileInfo *);
-iBool       isDir_FileInfo          (const iFileInfo *);
+iBool       isDirectory_FileInfo    (const iFileInfo *);
 iTime       lastModified_FileInfo   (const iFileInfo *);
+
+#define     cstrPath_FileInfo(d)    cstr_String(path_FileInfo(d))
 
 iBool       fileExists_FileInfo     (const iString *path);
 iBool       fileExistsCStr_FileInfo (const char *path);
 long        fileSize_FileInfo       (const iString *path);
 long        fileSizeCStr_FileInfo   (const char *path);
+
+#define     directoryContents_FileInfo(d)   new_DirFileInfo(d)
+
+//---------------------------------------------------------------------------------------
+
+iDirFileInfo *  new_DirFileInfo       (const iFileInfo *d);
+
+void            init_DirFileInfo      (iDirFileInfo *, const iFileInfo *d);
+void            deinit_DirFileInfo    (iDirFileInfo *);
+
+/** @name Iterators */
+///@{
+iDeclareIterator(DirFileInfo, iDirFileInfo *)
+struct IteratorImpl_DirFileInfo {
+    const iFileInfo *value;
+    iDirFileInfo *dir;
+};
+///@}

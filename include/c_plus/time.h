@@ -66,6 +66,7 @@ void    initCurrent_Time    (iTime *);
 iTime   now_Time            (void);
 double  seconds_Time        (const iTime *);
 
+#define isValid_Time(d)     ((d)->ts.tv_sec > 0)
 #define intSeconds_Time(d)  ((d)->ts.tv_sec)
 #define nanoSeconds_Time(d) ((d)->ts.tv_nsec)
 

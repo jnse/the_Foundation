@@ -79,6 +79,10 @@ void initCStrN_String(iString *d, const char *cstr, size_t size) {
     initData_Block(&d->chars, cstr, size);
 }
 
+void initCopy_String(iString *d, const iString *other) {
+    initCopy_Block(&d->chars, &other->chars);
+}
+
 void deinit_String(iString *d) {
     deinit_Block(&d->chars);
 }
@@ -167,6 +171,22 @@ size_t indexOfCStr_String(const iString *d, const char *cstr) {
         return found - chars;
     }
     return iInvalidPos;
+}
+
+void append_String(iString *d, const iString *other) {
+    append_Block(&d->chars, &other->chars);
+}
+
+void appendCStr_String(iString *d, const char *cstr) {
+    appendCStr_Block(&d->chars, cstr);
+}
+
+void prepend_String(iString *d, const iString *other) {
+    iString pre;
+    initCopy_String(&pre, other);
+    append_String(&pre, d);
+    set_String(d, &pre);
+    deinit_String(&pre);
 }
 
 iStringList *split_String(const iString *d, const char *separator) {

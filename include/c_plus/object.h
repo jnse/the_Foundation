@@ -72,7 +72,7 @@ iAnyObject *    new_Object      (const iAnyClass *class);
 void            deinit_Object   (iAnyObject *);
 
 iAnyObject *    ref_Object      (const iAnyObject *);
-void            deref_Object    (iAnyObject *);
+void            deref_Object    (const iAnyObject *);
 
 const iClass *  class_Object    (const iAnyObject *);
 
