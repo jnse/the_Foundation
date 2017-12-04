@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 void init_CPlus(void) {
     printf("[c_Plus] version: %i.%i.%i\n", version_CPlus.major, version_CPlus.minor, version_CPlus.patch);
-    const iTime now = nowUtc_Time();
+    const iTime now = now_Time();
     /* Random number generator. */ {
         unsigned seed = nanoSeconds_Time(&now) ^ (now.ts.tv_sec % 1000);
         srand(seed);

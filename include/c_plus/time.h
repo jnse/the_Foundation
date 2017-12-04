@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/time.h  Time manipulation.
+/** @file c_plus/time.h  Time and date manipulation.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -31,12 +31,43 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <time.h>
 
 iDeclareType(Time)
+iDeclareType(Date)
 
 struct Impl_Time {
     struct timespec ts;
 };
 
-iTime   nowUtc_Time         (void);
+enum iDateWeekday {
+    sunday_DateWeekday,
+    monday_DateWeekday,
+    tuesday_DateWeekday,
+    wednesday_DateWeekday,
+    thursday_DateWeekday,
+    friday_DateWeekday,
+    saturday_DateWeekday,
+};
+
+struct Impl_Date {
+    int year;
+    int month;
+    int day;
+    enum iDateWeekday dayOfWeek;
+    int dayOfYear;
+    int hour;
+    int minute;
+    int second;
+    long nsecs;
+    long gmtOffsetSeconds;
+};
+
+void    init_Time           (iTime *, const iDate *);
+void    initCurrent_Time    (iTime *);
+
+iTime   now_Time            (void);
 double  seconds_Time        (const iTime *);
 
+#define intSeconds_Time(d)  ((d)->ts.tv_sec)
 #define nanoSeconds_Time(d) ((d)->ts.tv_nsec)
+
+void    init_Date           (iDate *, const iTime *);
+void    initCurrent_Date    (iDate *);

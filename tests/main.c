@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/stringarray.h>
 #include <c_plus/stringlist.h>
 #include <c_plus/stringhash.h>
+#include <c_plus/time.h>
 #include <c_plus/treenode.h>
 
 #include <stdio.h>
@@ -150,6 +151,15 @@ int main(int argc, char *argv[]) {
     iUnused(argc);
     iUnused(argv);
     init_CPlus();
+    /* Test time and date. */ {
+        const iTime now = now_Time();
+        iDate date;
+        init_Date(&date, &now);
+        printf("Today is %i-%02i-%02i (week day %i) and the time is %02i:%02i:%02i.%li (GMT offset: %li mins)\n",
+               date.year, date.month, date.day, date.dayOfWeek,
+               date.hour, date.minute, date.second, date.nsecs,
+               date.gmtOffsetSeconds/60);
+    }
     /* Test array insertion and removal. */ {
         printf("Array insertions/removals:\n");
         iArray *list = new_Array(2);

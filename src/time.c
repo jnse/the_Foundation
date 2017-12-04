@@ -1,4 +1,4 @@
-/** @file time.c  Time manipulation.
+/** @file time.c  Time and date manipulation.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -27,13 +27,53 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "c_plus/time.h"
 
-iTime nowUtc_Time(void) {
+static time_t initStdTime_(const iDate *date, struct tm *tm) {
+    tm->tm_year = date->year - 1900;
+    tm->tm_mon = date->month - 1;
+    tm->tm_mday = date->day;
+    tm->tm_hour = date->hour;
+    tm->tm_hour = date->minute;
+    tm->tm_sec = date->second;
+    tm->tm_gmtoff = date->gmtOffsetSeconds;
+    return mktime(tm);
+}
+
+void init_Time(iTime *d, const iDate *date) {
+    struct tm tm;
+    d->ts.tv_sec = initStdTime_(date, &tm);
+    d->ts.tv_nsec = date->nsecs;
+}
+
+iTime now_Time(void) {
     iTime time;
-    //timespec_get(&time.ts, TIME_UTC);
-    clock_gettime(CLOCK_REALTIME, &time.ts);
+    initCurrent_Time(&time);
     return time;
+}
+
+void initCurrent_Time(iTime *d) {
+    clock_gettime(CLOCK_REALTIME, &d->ts);
 }
 
 double seconds_Time(const iTime *d) {
     return (double) d->ts.tv_sec + (double) d->ts.tv_nsec / 1.0e9;
+}
+
+void init_Date(iDate *d, const iTime *time) {
+    struct tm t;
+    localtime_r(&time->ts.tv_sec, &t);
+    d->year = t.tm_year + 1900;
+    d->month = t.tm_mon + 1;
+    d->day = t.tm_mday;
+    d->dayOfWeek = t.tm_wday;
+    d->dayOfYear = t.tm_yday + 1;
+    d->hour = t.tm_hour;
+    d->minute = t.tm_min;
+    d->second = t.tm_sec;
+    d->nsecs = nanoSeconds_Time(time);
+    d->gmtOffsetSeconds = t.tm_gmtoff;
+}
+
+void initCurrent_Date(iDate *d) {
+    const iTime now = now_Time();
+    init_Date(d, &now);
 }
