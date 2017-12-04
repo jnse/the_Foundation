@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/stringarray.h"
 
 #include <stdlib.h>
+#include <stdarg.h>
 
 #define iStringListMaxStringsPerNode    1024
 
