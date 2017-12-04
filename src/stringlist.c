@@ -193,7 +193,11 @@ void pushBack_StringList(iStringList *d, const iString *str) {
 }
 
 void pushBackCStr_StringList(iStringList *d, const char *cstr) {
-    iString str; initCStr_String(&str, cstr);
+    pushBackCStrN_StringList(d, cstr, strlen(cstr));
+}
+
+void pushBackCStrN_StringList(iStringList *d, const char *cstr, size_t size) {
+    iString str; initCStrN_String(&str, cstr, size);
     pushBack_StringList(d, &str);
     deinit_String(&str);
 }

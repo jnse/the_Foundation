@@ -1,6 +1,4 @@
-#pragma once
-
-/** @file c_plus/stream.h  Base class for streams.
+/** @file time.c  Time manipulation.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -27,42 +25,15 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
-#include "object.h"
+#include "c_plus/time.h"
 
-iDeclareType(Block)
-iDeclareType(Stream)
-iDeclareType(StringList)
+iTime nowUtc_Time(void) {
+    iTime time;
+    //timespec_get(&time.ts, TIME_UTC);
+    clock_gettime(CLOCK_REALTIME, &time.ts);
+    return time;
+}
 
-iBeginDeclareClass(Stream)
-    long        (*seek) (iStream *, long offset);
-    size_t      (*read) (iStream *, size_t size, void *data_out);
-    size_t      (*write)(iStream *, const void *data, size_t size);
-    void        (*flush)(iStream *);
-iEndDeclareClass(Stream)
-
-struct Impl_Stream {
-    iObject object;
-    long size;
-    long pos;
-};
-
-void        init_Stream     (iStream *);
-void        deinit_Stream   (iStream *);
-
-void        setSize_Stream  (iStream *, long size);
-
-#define     size_Stream(d)      ((d)->size)
-#define     pos_Stream(d)       ((d)->pos)
-#define     atEnd_Stream(d)     ((d)->pos == (d)->size)
-
-void        seek_Stream         (iStream *, long offset);
-iBlock *    read_Stream         (iStream *, size_t size);
-size_t      readBlock_Stream    (iStream *, size_t size, iBlock *data_out);
-iBlock *    readAll_Stream      (iStream *);
-size_t      write_Stream        (iStream *, const iBlock *data);
-size_t      writeData_Stream    (iStream *, const void *data, size_t size);
-
-iStringList *readLines_Stream   (iStream *);
-
-void        flush_Stream    (iStream *);
+double seconds_Time(const iTime *d) {
+    return (double) d->ts.tv_sec + (double) d->ts.tv_nsec / 1.0e9;
+}

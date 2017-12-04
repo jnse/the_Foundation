@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "c_plus/defs.h"
 #include "c_plus/string.h"
+#include "c_plus/time.h"
 #include "c_plus/version.h"
 
 #include <stdio.h>
@@ -36,10 +37,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 void init_CPlus(void) {
     printf("[c_Plus] version: %i.%i.%i\n", version_CPlus.major, version_CPlus.minor, version_CPlus.patch);
+    const iTime now = nowUtc_Time();
     /* Random number generator. */ {
-        time_t seed = time(NULL);
+        unsigned seed = nanoSeconds_Time(&now) ^ (now.ts.tv_sec % 1000);
         srand(seed);
-        printf("[c_Plus] random seed: %li\n", seed);
+        printf("[c_Plus] random seed: %u\n", seed);
     }
     /* Locale. */ {
         const char *lc = getenv("LC_CTYPE");

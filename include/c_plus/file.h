@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/stream.h  Base class for streams.
+/** @file file.h  File stream.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -27,42 +27,47 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
-#include "object.h"
+#include "stream.h"
 
-iDeclareType(Block)
-iDeclareType(Stream)
-iDeclareType(StringList)
+#include <stdio.h>
 
-iBeginDeclareClass(Stream)
-    long        (*seek) (iStream *, long offset);
-    size_t      (*read) (iStream *, size_t size, void *data_out);
-    size_t      (*write)(iStream *, const void *data, size_t size);
-    void        (*flush)(iStream *);
-iEndDeclareClass(Stream)
+iDeclareType(File)
+iDeclareType(String)
 
-struct Impl_Stream {
-    iObject object;
-    long size;
-    long pos;
+enum iFileFlags {
+    read_FileFlag       = 0x1,
+    readOnly_FileFlag   = 0x1,
+    write_FileFlag      = 0x2,
+    writeOnly_FileFlag  = 0x2,
+    append_FileFlag     = 0x4 | write_FileFlag,
+    text_FileFlag       = 0x8,
+
+    readWrite_FileFlag  = read_FileFlag | write_FileFlag,
 };
 
-void        init_Stream     (iStream *);
-void        deinit_Stream   (iStream *);
+struct Impl_File {
+    iStream stream;
+    iString *path;
+    int flags;
+    FILE *file;
+};
 
-void        setSize_Stream  (iStream *, long size);
+iFile *     new_File        (const iString *path);
+iFile *     newCStr_File    (const char *path);
 
-#define     size_Stream(d)      ((d)->size)
-#define     pos_Stream(d)       ((d)->pos)
-#define     atEnd_Stream(d)     ((d)->pos == (d)->size)
+void        deinit_File     (iFile *);
 
-void        seek_Stream         (iStream *, long offset);
-iBlock *    read_Stream         (iStream *, size_t size);
-size_t      readBlock_Stream    (iStream *, size_t size, iBlock *data_out);
-iBlock *    readAll_Stream      (iStream *);
-size_t      write_Stream        (iStream *, const iBlock *data);
-size_t      writeData_Stream    (iStream *, const void *data, size_t size);
+iBool       open_File       (iFile *, int flags);
+void        close_File      (iFile *);
 
-iStringList *readLines_Stream   (iStream *);
+#define     isOpen_File(d)  ((d)->file != NULL)
 
-void        flush_Stream    (iStream *);
+#define     flags_File(d)   ((d)->flags)
+#define     pos_File(d)     pos_Stream(&(d)->stream)
+#define     size_File(d)    size_Stream(&(d)->stream)
+#define     atEnd_File(d)   atEnd_Stream(&(d)->stream)
+
+long        seek_File       (iFile *, long offset);
+size_t      read_File       (iFile *, size_t size, void *data_out);
+size_t      write_File      (iFile *, const void *data, size_t size);
+void        flush_File      (iFile *);

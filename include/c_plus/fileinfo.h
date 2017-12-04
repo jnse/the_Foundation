@@ -27,3 +27,22 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
+#include "defs.h"
+#include "string.h"
+
+iDeclareType(FileInfo)
+iDeclareType(Time)
+
+iFileInfo * new_FileInfo    (const iString *path);
+void        delete_FileInfo (iFileInfo *);
+
+iBool       exists_FileInfo         (const iFileInfo *);
+const iString * path_FileInfo       (const iFileInfo *);
+long        size_FileInfo           (const iFileInfo *);
+iBool       isDir_FileInfo          (const iFileInfo *);
+iTime       lastModified_FileInfo   (const iFileInfo *);
+
+iBool       fileExists_FileInfo     (const iString *path);
+iBool       fileExistsCStr_FileInfo (const char *path);
+long        fileSize_FileInfo       (const iString *path);
+long        fileSizeCStr_FileInfo   (const char *path);

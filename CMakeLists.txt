@@ -22,8 +22,9 @@ set (HEADERS
     include/c_plus/block.h
     include/c_plus/blockhash.h
     include/c_plus/class.h
-    include/c_plus/garbage.h
+    include/c_plus/file.h
     include/c_plus/fileinfo.h
+    include/c_plus/garbage.h
     include/c_plus/hash.h
     include/c_plus/list.h
     include/c_plus/map.h
@@ -41,6 +42,7 @@ set (HEADERS
     include/c_plus/stringlist.h
     include/c_plus/stringhash.h
     include/c_plus/treenode.h
+    include/c_plus/time.h
     include/c_plus/version.h
 )
 set (SOURCES
@@ -50,6 +52,8 @@ set (SOURCES
     src/blockhash.c
     src/class.c
     src/crc32.c
+    src/file.c
+    src/fileinfo.c
     src/garbage.c
     src/hash.c
     src/list.c
@@ -65,6 +69,7 @@ set (SOURCES
     src/stringarray.c
     src/stringhash.c
     src/stringlist.c
+    src/time.c
     src/treenode.c
     src/version.c
 )

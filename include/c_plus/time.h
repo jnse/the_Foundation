@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/stream.h  Base class for streams.
+/** @file c_plus/time.h  Time manipulation.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -28,41 +28,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
-#include "object.h"
+#include <time.h>
 
-iDeclareType(Block)
-iDeclareType(Stream)
-iDeclareType(StringList)
+iDeclareType(Time)
 
-iBeginDeclareClass(Stream)
-    long        (*seek) (iStream *, long offset);
-    size_t      (*read) (iStream *, size_t size, void *data_out);
-    size_t      (*write)(iStream *, const void *data, size_t size);
-    void        (*flush)(iStream *);
-iEndDeclareClass(Stream)
-
-struct Impl_Stream {
-    iObject object;
-    long size;
-    long pos;
+struct Impl_Time {
+    struct timespec ts;
 };
 
-void        init_Stream     (iStream *);
-void        deinit_Stream   (iStream *);
+iTime   nowUtc_Time         (void);
+double  seconds_Time        (const iTime *);
 
-void        setSize_Stream  (iStream *, long size);
-
-#define     size_Stream(d)      ((d)->size)
-#define     pos_Stream(d)       ((d)->pos)
-#define     atEnd_Stream(d)     ((d)->pos == (d)->size)
-
-void        seek_Stream         (iStream *, long offset);
-iBlock *    read_Stream         (iStream *, size_t size);
-size_t      readBlock_Stream    (iStream *, size_t size, iBlock *data_out);
-iBlock *    readAll_Stream      (iStream *);
-size_t      write_Stream        (iStream *, const iBlock *data);
-size_t      writeData_Stream    (iStream *, const void *data, size_t size);
-
-iStringList *readLines_Stream   (iStream *);
-
-void        flush_Stream    (iStream *);
+#define nanoSeconds_Time(d) ((d)->ts.tv_nsec)

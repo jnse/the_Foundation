@@ -72,7 +72,11 @@ void init_String(iString *d, const iBlock *chars) {
 }
 
 void initCStr_String(iString *d, const char *cstr) {
-    initData_Block(&d->chars, cstr, strlen(cstr));
+    initCStrN_String(d, cstr, strlen(cstr));
+}
+
+void initCStrN_String(iString *d, const char *cstr, size_t size) {
+    initData_Block(&d->chars, cstr, size);
 }
 
 void deinit_String(iString *d) {
@@ -166,8 +170,21 @@ size_t indexOfCStr_String(const iString *d, const char *cstr) {
 }
 
 iStringList *split_String(const iString *d, const char *separator) {
+    const size_t seprSize = strlen(separator);
     iStringList *parts = new_StringList();
-
+    iRangecc range;
+    range.start = range.end = constData_Block(&d->chars);
+    while (*range.start) {
+        const char *found = strstr(range.start, separator);
+        if (!found) {
+            range.end = constEnd_Block(&d->chars);
+            break;
+        }
+        range.end = found;
+        pushBackCStrRange_StringList(parts, &range);
+        range.start = range.end + seprSize;
+    }
+    pushBackCStrRange_StringList(parts, &range);
     return parts;
 }
 

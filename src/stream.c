@@ -42,7 +42,11 @@ void deinit_Stream(iStream *d) {
     iUnused(d);
 }
 
-void seek_Stream(iStream *d, int64_t offset) {
+void setSize_Stream(iStream *d, long size) {
+    d->size = size;
+}
+
+void seek_Stream(iStream *d, long offset) {
     d->pos = class_Stream(d)->seek(d, offset);
 }
 

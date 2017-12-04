@@ -65,6 +65,7 @@ void            delete_String   (iString *);
 
 void            init_String     (iString *, const iBlock *chars);
 void            initCStr_String (iString *, const char *cstr);
+void            initCStrN_String(iString *, const char *cstr, size_t size);
 void            deinit_String   (iString *);
 
 const char *    cstr_String     (const iString *);

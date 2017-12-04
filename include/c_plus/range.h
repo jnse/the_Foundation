@@ -61,8 +61,14 @@ struct Impl_Ranged {
     double end;
 };
 
+struct Impl_Rangecc {
+    const char *start;
+    const char *end;
+};
+
 iDeclareType(Rangei)
 iDeclareType(Rangeui)
 iDeclareType(Ranges)
 iDeclareType(Rangef)
 iDeclareType(Ranged)
+iDeclareType(Rangecc)
