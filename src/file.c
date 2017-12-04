@@ -57,16 +57,19 @@ iFile *newCStr_File(const char *path) {
 }
 
 void deinit_File(iFile *d) {
-    if (d->file) {
-        fclose(d->file);
+    if (isOpen_File(d)) {
+        close_File(d);
     }
     delete_String(d->path);
 }
 
-iBool open_File(iFile *d, int flags) {
+iBool open_File(iFile *d, int modeFlags) {
     if (isOpen_File(d)) return iFalse;
     setSize_Stream(&d->stream, fileSize_FileInfo(d->path));
-    d->flags = (flags? flags : readOnly_FileFlag);
+    d->flags = modeFlags;
+    if (~d->flags & (readWrite_FileFlag | append_FileFlag)) {
+        d->flags |= read_FileFlag;
+    }
     char mode[4], *m = mode;
     if (d->flags & append_FileFlag) {
         *m++ = 'a';
@@ -102,14 +105,14 @@ long seek_File(iFile *d, long offset) {
 
 size_t read_File(iFile *d, size_t size, void *data_out) {
     if (isOpen_File(d)) {
-        return fread(data_out, size, 1, d->file);
+        return fread(data_out, 1, size, d->file);
     }
     return 0;
 }
 
 size_t write_File(iFile *d, const void *data, size_t size) {
     if (isOpen_File(d)) {
-        return fwrite(data, size, 1, d->file);
+        return fwrite(data, 1, size, d->file);
     }
     return 0;
 }

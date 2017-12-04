@@ -57,15 +57,16 @@ iFile *     newCStr_File    (const char *path);
 
 void        deinit_File     (iFile *);
 
-iBool       open_File       (iFile *, int flags);
+iBool       open_File       (iFile *, int modeFlags);
 void        close_File      (iFile *);
 
 #define     isOpen_File(d)  ((d)->file != NULL)
 
-#define     flags_File(d)   ((d)->flags)
-#define     pos_File(d)     pos_Stream(&(d)->stream)
-#define     size_File(d)    size_Stream(&(d)->stream)
-#define     atEnd_File(d)   atEnd_Stream(&(d)->stream)
+#define     flags_File(d)       ((d)->flags)
+#define     pos_File(d)         pos_Stream(&(d)->stream)
+#define     size_File(d)        size_Stream(&(d)->stream)
+#define     atEnd_File(d)       atEnd_Stream(&(d)->stream)
+#define     readLines_File(d)   readLines_Stream(&(d)->stream)
 
 long        seek_File       (iFile *, long offset);
 size_t      read_File       (iFile *, size_t size, void *data_out);

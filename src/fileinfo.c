@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "c_plus/fileinfo.h"
+#include "c_plus/file.h"
 #include "c_plus/time.h"
 #include "c_plus/path.h"
 
@@ -125,6 +126,12 @@ iDirFileInfo *directoryContents_FileInfo(const iFileInfo *fileInfo) {
     iDirFileInfo *d = iNew(DirFileInfo);
     initInfo_DirFileInfo(d, fileInfo);
     return d;
+}
+
+iFile *open_FileInfo(const iFileInfo *d, int modeFlags) {
+    iFile *f = new_File(path_FileInfo(d));
+    open_File(f, modeFlags);
+    return f;
 }
 
 iBool fileExists_FileInfo(const iString *path) {

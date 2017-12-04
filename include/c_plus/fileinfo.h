@@ -36,6 +36,7 @@ iDeclareClass(DirFileInfo)
 
 iDeclareType(FileInfo)
 iDeclareType(DirFileInfo)
+iDeclareType(File)
 iDeclareType(Time)
 
 #define iFileInfoUnknownSize ((long) -1)
@@ -60,6 +61,8 @@ long        fileSize_FileInfo       (const iString *path);
 long        fileSizeCStr_FileInfo   (const char *path);
 
 iDirFileInfo *  directoryContents_FileInfo  (const iFileInfo *);
+
+iFile *     open_FileInfo   (const iFileInfo *, int modeFlags);
 
 //---------------------------------------------------------------------------------------
 

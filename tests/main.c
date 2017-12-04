@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/array.h>
 #include <c_plus/block.h>
 #include <c_plus/class.h>
+#include <c_plus/file.h>
 #include <c_plus/fileinfo.h>
 #include <c_plus/garbage.h>
 #include <c_plus/hash.h>
@@ -232,12 +233,15 @@ int main(int argc, char *argv[]) {
         iRelease(sar);
     }
     /* Test a list of strings. */ {
-        iStringList *list = new_StringList();
-        // Read all lines from a file.
-        iForEach(StringList, i, list) {
-            printf("%4zu: \"%s\"\n", i.pos, cstr_String(i.value));
+        iFile *file = newCStr_File("/Users/jaakko/src/cplus/CMakeLists.txt");
+        if (open_File(file, text_FileFlag)) {
+            iStringList *list = readLines_File(file);
+            iConstForEach(StringList, i, list) {
+                printf("%4zu: \"%s\"\n", i.pos, cstr_String(i.value));
+            }
+            iRelease(list);
         }
-        iRelease(list);
+        iRelease(file);
     }
     /* Test an object list. */ {
         iObjectList *olist = new_ObjectList();

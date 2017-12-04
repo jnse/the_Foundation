@@ -196,14 +196,14 @@ iStringList *split_String(const iString *d, const char *separator) {
     range.start = range.end = constData_Block(&d->chars);
     while (*range.start) {
         const char *found = strstr(range.start, separator);
-        if (!found) {
-            range.end = constEnd_Block(&d->chars);
-            break;
-        }
+        if (!found) break;
         range.end = found;
+        iAssert(range.start <= range.end);
         pushBackCStrRange_StringList(parts, &range);
         range.start = range.end + seprSize;
     }
+    range.end = constEnd_Block(&d->chars);
+    iAssert(range.start <= range.end);
     pushBackCStrRange_StringList(parts, &range);
     return parts;
 }
