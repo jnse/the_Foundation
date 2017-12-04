@@ -66,21 +66,21 @@ struct Impl_BlockHash {
     const iBlockHashNodeClass *nodeClass;
 };
 
-iBlockHash *    new_BlockHash     (void);
+iBlockHash *        new_BlockHash     (void);
 
-void            init_BlockHash    (iBlockHash *);
-void            deinit_BlockHash  (iBlockHash *);
+void                init_BlockHash    (iBlockHash *);
+void                deinit_BlockHash  (iBlockHash *);
 
-void            setNodeClass_BlockHash  (iBlockHash *, const iBlockHashNodeClass *class);
+void                setNodeClass_BlockHash  (iBlockHash *, const iBlockHashNodeClass *class);
 
-#define         size_BlockHash(d)       size_Hash(&(d)->hash)
-#define         isEmpty_BlockHash(d)    isEmpty_Hash(&(d)->hash)
+#define             size_BlockHash(d)       size_Hash(&(d)->hash)
+#define             isEmpty_BlockHash(d)    isEmpty_Hash(&(d)->hash)
 
-iBool               contains_BlockHash    (const iBlockHash *, const iBlock *key);
-const iAnyObject *  constValue_BlockHash  (const iBlockHash *, const iBlock *key);
-iAnyObject *        value_BlockHash       (iBlockHash *, const iBlock *key);
+iBool               contains_BlockHash      (const iBlockHash *, const iBlock *key);
+const iAnyObject *  constValue_BlockHash    (const iBlockHash *, const iBlock *key);
+iAnyObject *        value_BlockHash         (iBlockHash *, const iBlock *key);
 
-void            clear_BlockHash        (iBlockHash *);
+void                clear_BlockHash         (iBlockHash *);
 
 /**
  * Inserts a key-value node into the BlockHash.
@@ -91,12 +91,12 @@ void            clear_BlockHash        (iBlockHash *);
  * @return @c iTrue, if the a new key-value node was added and the size of the hash
  * increased as a result. @c False, if an existing one was replaced.
  */
-iBool           insert_BlockHash       (iBlockHash *, const iBlock *key, const iAnyObject *value);
+iBool       insert_BlockHash       (iBlockHash *, const iBlock *key, const iAnyObject *value);
 
-iBool           remove_BlockHash       (iBlockHash *, const iBlock *key);
+iBool       remove_BlockHash       (iBlockHash *, const iBlock *key);
 
-void            insertValues_BlockHash       (iBlockHash *, const iBlock *key, const iAnyObject *value, ...);
-void            insertValuesCStr_BlockHash   (iBlockHash *, const char *key, const iAnyObject *value, ...);
+void        insertValues_BlockHash       (iBlockHash *, const iBlock *key, const iAnyObject *value, ...);
+void        insertValuesCStr_BlockHash   (iBlockHash *, const char *key, const iAnyObject *value, ...);
 
 /** @name Iterators */
 ///@{

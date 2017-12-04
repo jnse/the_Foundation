@@ -49,15 +49,15 @@ enum iDateWeekday {
 
 struct Impl_Date {
     int year;
-    int month;
-    int day;
-    enum iDateWeekday dayOfWeek;
-    int dayOfYear;
-    int hour;
-    int minute;
-    int second;
+    short month;
+    short day;
+    short dayOfYear;
+    short hour;
+    short minute;
+    short second;
     long nsecs;
     long gmtOffsetSeconds;
+    enum iDateWeekday dayOfWeek;
 };
 
 void    init_Time           (iTime *, const iDate *);

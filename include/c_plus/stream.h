@@ -62,7 +62,6 @@ size_t      readBlock_Stream    (iStream *, size_t size, iBlock *data_out);
 iBlock *    readAll_Stream      (iStream *);
 size_t      write_Stream        (iStream *, const iBlock *data);
 size_t      writeData_Stream    (iStream *, const void *data, size_t size);
+void        flush_Stream        (iStream *);
 
-iStringList *readLines_Stream   (iStream *);
-
-void        flush_Stream    (iStream *);
+iStringList *   readLines_Stream   (iStream *);
