@@ -149,6 +149,14 @@ static int compareIntegers(iMapKey a, iMapKey b) {
     return iCmp(a, b);
 }
 
+static int compareTestObjects(const void *a, const void *b) {
+    const iTestObject *x = object_ObjectListNode(a);
+    const iTestObject *y = object_ObjectListNode(b);
+    iAssert(a != b);
+    iDebug("comparing: (%p) %i and (%p) %i\n", x, x->value, y, y->value);
+    return iCmp(x->value, y->value);
+}
+
 int main(int argc, char *argv[]) {
     iUnused(argc);
     iUnused(argv);
@@ -246,8 +254,9 @@ int main(int argc, char *argv[]) {
     /* Test an object list. */ {
         iObjectList *olist = new_ObjectList();
         pushBack_ObjectList(olist, iReleaseLater(new_TestObject(500)));
-        pushBack_ObjectList(olist, iReleaseLater(new_TestObject(600)));
-        pushFront_ObjectList(olist, iReleaseLater(new_TestObject(400)));
+        pushBack_ObjectList(olist, iReleaseLater(new_TestObject(400)));
+        pushFront_ObjectList(olist, iReleaseLater(new_TestObject(600)));
+        sort_List(list_ObjectList(olist), compareTestObjects);
         printf("List of objects:");
         iConstForEach(ObjectList, i, olist) {
             printf("%4i", ((const iTestObject *) i.object)->value);

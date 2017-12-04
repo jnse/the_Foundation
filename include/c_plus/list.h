@@ -79,6 +79,10 @@ iAny *      remove_List         (iList *, iAny *node);
 iAny *      popFront_List       (iList *);
 iAny *      popBack_List        (iList *);
 
+typedef int (*iListCompareFunc)(const iAny *, const iAny *);
+
+void        sort_List           (iList *, iListCompareFunc cmp);
+
 /** @name Iterators */
 ///@{
 iDeclareIterator(List, iList *)

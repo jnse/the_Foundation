@@ -76,13 +76,24 @@ iAny *pushFront_List(iList *d, iAny *node) {
     return insertAfter_List(d, &d->root, node);
 }
 
+static void insertAfter_ListNode_(iListNode *d, iListNode *after) {
+    d->next = after->next;
+    after->next->prev = d;
+    d->prev = after;
+    after->next = d;
+}
+
+static void insertBefore_ListNode_(iListNode *d, iListNode *before) {
+    d->prev = before->prev;
+    before->prev->next = d;
+    d->next = before;
+    before->prev = d;
+}
+
 iAny *insertAfter_List(iList *d, iAny *after, iAny *node) {
     iAssert(node);
     if (!after) after = d->root.prev;
-    iListNode_(node) ->next = iListNode_(after)->next;
-    iListNode_(after)->next->prev = node;
-    iListNode_(node) ->prev = after;
-    iListNode_(after)->next = node;
+    insertAfter_ListNode_(node, after);
     d->size++;
     return node;
 }
@@ -90,10 +101,7 @@ iAny *insertAfter_List(iList *d, iAny *after, iAny *node) {
 iAny *insertBefore_List(iList *d, iAny *before, iAny *node) {
     iAssert(node);
     if (!before) before = d->root.next;
-    iListNode_(node)  ->prev = iListNode_(before)->prev;
-    iListNode_(before)->prev->next = node;
-    iListNode_(node)  ->next = before;
-    iListNode_(before)->prev = node;
+    insertBefore_ListNode_(node, before);
     d->size++;
     return node;
 }
@@ -108,14 +116,71 @@ iAny *popBack_List(iList *d) {
     return remove_List(d, back_List(d));
 }
 
+static void remove_ListNode_(iListNode *d) {
+    d->next->prev = d->prev;
+    d->prev->next = d->next;
+    d->next = d->prev = NULL;
+}
+
 iAny *remove_List(iList *d, iAny *node) {
     iAssert(node);
     iAssert(d->size > 0);
     d->size--;
-    iListNode_(node)->next->prev = iListNode_(node)->prev;
-    iListNode_(node)->prev->next = iListNode_(node)->next;
-    iListNode_(node)->next = iListNode_(node)->prev = NULL;
+    remove_ListNode_(node);
     return node;
+}
+
+static void swapNodes_ListNode_(iListNode *d, iListNode *other) {
+    iAssert(d != other);
+    if (d->next == other) {
+        remove_ListNode_(other);
+        insertBefore_ListNode_(other, d);
+    }
+    else if (d->prev == other) {
+        remove_ListNode_(other);
+        insertAfter_ListNode_(other, d);
+    }
+    else {
+        iListNode *mark = d->prev;
+        remove_ListNode_(d);
+        insertAfter_ListNode_(d, other);
+        remove_ListNode_(other);
+        insertAfter_ListNode_(other, mark);
+    }
+}
+
+static iListNode *quicksortPartition_ListNode_(iListNode *low, iListNode *high,
+                                               iListCompareFunc cmp) {
+    iListNode *pivot = high;
+    iListNode *i = low->prev;
+    for (iListNode *j = low; j != high; j = j->next) {
+        if (cmp(j, pivot) < 0) {
+            i = i->next;
+            swapNodes_ListNode_(i, j); {
+                // Iteration must continue unaffected.
+                iListNode *k = i; i = j; j = k;
+            }
+        }
+    }
+    if (cmp(high, i->next) < 0) {
+        swapNodes_ListNode_(i->next, high);
+    }
+    return i->next;
+}
+
+static void quicksort_ListNode_(iListNode *low, iListNode *high,
+                                iListCompareFunc cmp) {
+    if (low != high) {
+        iListNode *p = quicksortPartition_ListNode_(low, high, cmp);
+        quicksort_ListNode_(low, p->prev, cmp);
+        quicksort_ListNode_(p->next, high, cmp);
+    }
+}
+
+void sort_List(iList *d, iListCompareFunc cmp) {
+    if (size_List(d) >= 2) {
+        quicksort_ListNode_(front_List(d), back_List(d), cmp);
+    }
 }
 
 //---------------------------------------------------------------------------------------

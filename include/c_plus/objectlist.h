@@ -49,8 +49,9 @@ struct Impl_ObjectListNode {
     iObject *object;
 };
 
-#define next_ObjectListNode(d)  ((iObjectListNode *) ((d)? (d)->node.next : NULL))
-#define prev_ObjectListNode(d)  ((iObjectListNode *) ((d)? (d)->node.prev : NULL))
+#define next_ObjectListNode(d)      ((iObjectListNode *) ((d)? (d)->node.next : NULL))
+#define prev_ObjectListNode(d)      ((iObjectListNode *) ((d)? (d)->node.prev : NULL))
+#define object_ObjectListNode(d)    ((iAnyObject *) ((const iObjectListNode *) (d))->object)
 
 iObjectList *   new_ObjectList          (void);
 
@@ -59,6 +60,7 @@ void            deinit_ObjectList       (iObjectList *);
 
 #define         isEmpty_ObjectList(d)   isEmpty_List(&(d)->list)
 #define         size_ObjectList(d)      size_List(&(d)->list)
+#define         list_ObjectList(d)      (&(d)->list)
 
 iObject *       front_ObjectList        (const iObjectList *);
 iObject *       back_ObjectList         (const iObjectList *);
