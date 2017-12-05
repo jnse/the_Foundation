@@ -62,7 +62,7 @@ long        fileSizeCStr_FileInfo   (const char *path);
 
 iDirFileInfo *  directoryContents_FileInfo  (const iFileInfo *);
 
-iFile *     open_FileInfo   (const iFileInfo *, int modeFlags);
+iFile *     open_FileInfo   (const iFileInfo *, int mode);
 
 //---------------------------------------------------------------------------------------
 

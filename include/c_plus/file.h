@@ -34,15 +34,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iDeclareType(File)
 iDeclareType(String)
 
-enum iFileFlags {
-    read_FileFlag       = 0x1,
-    readOnly_FileFlag   = 0x1,
-    write_FileFlag      = 0x2,
-    writeOnly_FileFlag  = 0x2,
-    append_FileFlag     = 0x4 | write_FileFlag,
-    text_FileFlag       = 0x8,
+enum iFileMode {
+    read_FileMode       = 0x1,
+    readOnly_FileMode   = 0x1,
+    write_FileMode      = 0x2,
+    writeOnly_FileMode  = 0x2,
+    append_FileMode     = 0x4 | write_FileMode,
+    text_FileMode       = 0x8,
 
-    readWrite_FileFlag  = read_FileFlag | write_FileFlag,
+    readWrite_FileMode  = read_FileMode | write_FileMode,
 };
 
 struct Impl_File {
@@ -57,7 +57,7 @@ iFile *     newCStr_File    (const char *path);
 
 void        deinit_File     (iFile *);
 
-iBool       open_File       (iFile *, int modeFlags);
+iBool       open_File       (iFile *, enum iFileMode mode);
 void        close_File      (iFile *);
 
 long        seek_File       (iFile *, long offset);

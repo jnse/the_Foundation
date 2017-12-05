@@ -43,7 +43,7 @@ iFile *new_File(const iString *path) {
     iFile *d = new_Object(&Class_File);
     init_Stream(&d->stream);
     d->path = copy_String(path);
-    d->flags = readOnly_FileFlag;
+    d->flags = readOnly_FileMode;
     d->file = NULL;
     return d;
 }
@@ -63,26 +63,26 @@ void deinit_File(iFile *d) {
     delete_String(d->path);
 }
 
-iBool open_File(iFile *d, int modeFlags) {
+iBool open_File(iFile *d, enum iFileMode modeFlags) {
     if (isOpen_File(d)) return iFalse;
     setSize_Stream(&d->stream, fileSize_FileInfo(d->path));
     d->flags = modeFlags;
-    if (~d->flags & (readWrite_FileFlag | append_FileFlag)) {
-        d->flags |= read_FileFlag;
+    if (~d->flags & (readWrite_FileMode | append_FileMode)) {
+        d->flags |= read_FileMode;
     }
     char mode[4], *m = mode;
-    if (d->flags & append_FileFlag) {
+    if (d->flags & append_FileMode) {
         *m++ = 'a';
-        if (d->flags & read_FileFlag) { *m++ = '+'; }
+        if (d->flags & read_FileMode) { *m++ = '+'; }
     }
     else {
-        if (d->flags & read_FileFlag) { *m++ = 'r'; }
-        if (d->flags & write_FileFlag) {
-            if (d->flags & read_FileFlag) { *m++ = '+'; }
+        if (d->flags & read_FileMode) { *m++ = 'r'; }
+        if (d->flags & write_FileMode) {
+            if (d->flags & read_FileMode) { *m++ = '+'; }
             else { *m++ = 'w'; }
         }
     }
-    if (d->flags & text_FileFlag) { *m++ = 't'; } else { *m++ = 'b'; }
+    if (d->flags & text_FileMode) { *m++ = 't'; } else { *m++ = 'b'; }
     *m = 0;
     d->file = fopen(cstr_String(d->path), mode);
     return isOpen_File(d);

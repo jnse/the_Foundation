@@ -149,13 +149,13 @@ static int compareIntegers(iMapKey a, iMapKey b) {
     return iCmp(a, b);
 }
 
-static int compareTestObjects(const void *a, const void *b) {
+/*static int compareTestObjects(const void *a, const void *b) {
     const iTestObject *x = object_ObjectListNode(a);
     const iTestObject *y = object_ObjectListNode(b);
     iAssert(a != b);
     iDebug("comparing: (%p) %i and (%p) %i\n", x, x->value, y, y->value);
     return iCmp(x->value, y->value);
-}
+}*/
 
 int main(int argc, char *argv[]) {
     iUnused(argc);
@@ -242,7 +242,7 @@ int main(int argc, char *argv[]) {
     }
     /* Test a list of strings. */ {
         iFile *file = newCStr_File("/Users/jaakko/src/cplus/CMakeLists.txt");
-        if (open_File(file, text_FileFlag)) {
+        if (open_File(file, text_FileMode)) {
             iStringList *list = readLines_File(file);
             iConstForEach(StringList, i, list) {
                 printf("%4zu: \"%s\"\n", i.pos, cstr_String(i.value));
