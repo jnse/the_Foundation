@@ -256,7 +256,7 @@ int main(int argc, char *argv[]) {
         pushBack_ObjectList(olist, iReleaseLater(new_TestObject(500)));
         pushBack_ObjectList(olist, iReleaseLater(new_TestObject(400)));
         pushFront_ObjectList(olist, iReleaseLater(new_TestObject(600)));
-        sort_List(list_ObjectList(olist), compareTestObjects);
+        //sort_List(list_ObjectList(olist), compareTestObjects);
         printf("List of objects:");
         iConstForEach(ObjectList, i, olist) {
             printf("%4i", ((const iTestObject *) i.object)->value);

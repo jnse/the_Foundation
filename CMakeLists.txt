@@ -17,6 +17,7 @@ configure_file (config.h.in config.h)
 #----------------------------------------------------------------------------------------
 
 set (HEADERS
+    include/c11threads.h
     include/c_plus/defs.h
     include/c_plus/array.h
     include/c_plus/block.h
@@ -88,6 +89,8 @@ if (CMAKE_COMPILER_IS_GNUCC)
 else ()
     target_compile_options (cplus PRIVATE -Wno-format-pedantic)
 endif ()
+# Dependencies.
+target_link_libraries (cplus PRIVATE pthread)
 if (ZLIB_FOUND)
     target_include_directories (cplus PRIVATE ${ZLIB_INCLUDE_DIRS})
     target_link_libraries      (cplus PRIVATE ${ZLIB_LIBRARIES})

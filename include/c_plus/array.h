@@ -71,15 +71,15 @@ void        delete_Array        (iArray *);
 void        init_Array      (iArray *, size_t elementSize);
 void        deinit_Array    (iArray *);
 
-#define     isEmpty_Array(d)    isEmpty_Range(&(d)->range)
-#define     size_Array(d)       size_Range(&(d)->range)
-#define     front_Array(d)      at_Array(d, 0)
-#define     back_Array(d)       at_Array(d, size_Array(d) - 1)
-
 void *      data_Array      (iArray *);
 const void *constData_Array (const iArray *);
 void *      at_Array        (const iArray *, size_t pos);
 const void *constEnd_Array  (const iArray *);
+
+static inline iBool     isEmpty_Array   (const iArray *d) { return isEmpty_Range(&d->range); }
+static inline size_t    size_Array      (const iArray *d) { return size_Range(&d->range); }
+static inline void *    front_Array     (iArray *d) { return at_Array(d, 0); }
+static inline void *    back_Array      (iArray *d) { return at_Array(d, size_Array(d) - 1); }
 
 void        reserve_Array   (iArray *, size_t reservedSize);
 void        clear_Array     (iArray *);
@@ -87,8 +87,6 @@ void        resize_Array    (iArray *, size_t size);
 void        fill_Array      (iArray *, char value);
 void        sort_Array      (iArray *, int (*cmp)(const void *, const void *));
 
-#define     set_Array(d, pos, v)        setN_Array      (d, pos, v, 1)
-#define     pushBack_Array(d, v)        pushBackN_Array (d, v, 1)
 #define     pushFront_Array(d, v)       pushFrontN_Array(d, v, 1)
 #define     popBack_Array(d)            popBackN_Array  (d, 1)
 #define     popFront_Array(d)           popFrontN_Array (d, 1)
@@ -106,6 +104,10 @@ size_t      takeN_Array     (iArray *, size_t pos, void *value_out, size_t count
 void        insertN_Array   (iArray *, size_t pos, const void *value, size_t count);
 void        removeN_Array   (iArray *, size_t pos, size_t count);
 void        move_Array      (iArray *, const iRanges *range, iArray *dest, size_t destPos);
+
+static inline void  set_Array       (iArray *d, size_t pos, const void *value)  { setN_Array(d, pos, value, 1); }
+static inline void  pushBack_Array  (iArray *d, const void *value)              { pushBackN_Array(d, value, 1); }
+
 
 /** @name Iterators */
 ///@{

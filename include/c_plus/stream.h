@@ -52,9 +52,9 @@ void        deinit_Stream   (iStream *);
 
 void        setSize_Stream  (iStream *, long size);
 
-#define     size_Stream(d)      ((d)->size)
-#define     pos_Stream(d)       ((d)->pos)
-#define     atEnd_Stream(d)     ((d)->pos == (d)->size)
+static inline long  size_Stream     (const iStream *d) { return d->size; }
+static inline long  pos_Stream      (const iStream *d) { return d->pos; }
+static inline iBool atEnd_Stream    (const iStream *d) { return d->pos == d->size; }
 
 void        seek_Stream         (iStream *, long offset);
 iBlock *    read_Stream         (iStream *, size_t size);
