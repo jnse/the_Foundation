@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
+#include "garbage.h"
 #include "list.h"
 #include "class.h"
 
@@ -61,13 +62,13 @@ iMap *      new_Map     (iMapNodeCmpFunc cmp);
 
 void        delete_Map  (iMap *);
 
-#define     collect_Map(d)  iCollectDel(d, delete_Map)
+static inline iMap *    collect_Map(iMap *d) { return iCollectDel(d, delete_Map); }
 
 void        init_Map    (iMap *, iMapNodeCmpFunc cmp);
 void        deinit_Map  (iMap *);
 
-#define     size_Map(d)     ((d)->size)
-#define     isEmpty_Map(d)  (size_Map(d) == 0)
+static inline size_t    size_Map    (const iMap *d) { return d->size; }
+static inline iBool     isEmpty_Map (const iMap *d) { return size_Map(d) == 0; }
 
 iBool       contains_Map    (const iMap *, iMapKey key);
 iMapNode *  value_Map       (const iMap *, iMapKey key);
@@ -84,9 +85,10 @@ void        clear_Map   (iMap *);
  * make room for the new node. The caller should delete the node or take any other
  * necessary actions, since it is no longer part of the hash.
  */
-iMapNode *  insert_Map (iMap *, iMapNode *node);
+iMapNode *  insert_Map      (iMap *, iMapNode *node);
 
 iMapNode *  remove_Map      (iMap *, iMapKey key);
+
 iMapNode *  removeNode_Map  (iMap *, iMapNode *node);
 
 /** @name Iterators */

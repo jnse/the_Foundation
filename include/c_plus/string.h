@@ -61,7 +61,7 @@ iString *       newBlock_String (const iBlock *data);
 iString *       copy_String     (const iString *);
 void            delete_String   (iString *);
 
-#define         collect_String(d)   iCollectDel(d, delete_String)
+static inline iString * collect_String(iString *d) { return iCollectDel(d, delete_String); }
 
 void            init_String     (iString *, const iBlock *chars);
 void            initCStr_String (iString *, const char *cstr);

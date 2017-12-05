@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
+#include "garbage.h"
 #include "class.h"
 
 /**
@@ -56,18 +57,18 @@ typedef void iAnyNode;
 iHash *     new_Hash    (void);
 void        delete_Hash (iHash *);
 
-#define     collect_Hash(d) iCollectDel(d, delete_Hash)
+static inline iHash *   collect_Hash(iHash *d) { return iCollectDel(d, delete_Hash); }
 
 void        init_Hash   (iHash *);
 void        deinit_Hash (iHash *);
-
-#define     size_Hash(d)    ((d)->size)
-#define     isEmpty_Hash(d) (size_Hash(d) == 0)
 
 iBool       contains_Hash   (const iHash *, iHashKey key);
 iHashNode * value_Hash      (const iHash *, iHashKey key);
 
 void        clear_Hash  (iHash *);
+
+static inline size_t    size_Hash       (const iHash *d) { return d->size; }
+static inline iBool     isEmpty_Hash    (const iHash *d) { return size_Hash(d) == 0; }
 
 /**
  * Inserts a node into the hash.

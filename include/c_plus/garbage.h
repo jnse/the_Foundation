@@ -29,15 +29,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
-iAny *      collect_Garbage(iAny *ptr, iDeleteFunc del);
+#include <stdlib.h>
 
-void        beginScope_Garbage(void);
-void        endScope_Garbage(void);
-void        recycle_Garbage(void);
+void        beginScope_Garbage  (void);
+void        endScope_Garbage    (void);
+void        recycle_Garbage     (void);
+iAny *      collect_Garbage     (iAny *ptr, iDeleteFunc del);
 
-#define     iCollect(ptr)           collect_Garbage(ptr, free)
-#define     iCollectDel(ptr, del)   collect_Garbage(ptr, (iDeleteFunc) del)
-#define     iBeginCollect()         beginScope_Garbage()
-#define     iEndCollect()           endScope_Garbage()
+static inline iAny *iCollect(iAny *ptr) {
+    return collect_Garbage(ptr, free);
+}
 
-#define     iRecycle()              recycle_Garbage()
+#define iCollectDel(ptr, del)   collect_Garbage(ptr, (iDeleteFunc) (del))
+
+static inline void      iBeginCollect (void) { beginScope_Garbage(); }
+static inline void      iEndCollect   (void) { endScope_Garbage(); }
+static inline void      iRecycle      (void) { recycle_Garbage(); }

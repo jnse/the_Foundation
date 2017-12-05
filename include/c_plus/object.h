@@ -32,10 +32,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 #include "class.h"
+#include "garbage.h"
 
 #define iNew(typeName)      ((i##typeName *) new_Object(&Class_##typeName))
-#define iRelease(d)         deref_Object(d)
-#define iReleaseLater(d)    collect_Object(d)
 
 #define iDefineObjectConstruction(typeName) \
     i##typeName *new_##typeName(void) { \
@@ -67,14 +66,16 @@ typedef void iAnyObject;
  */
 iAnyObject *    new_Object      (const iAnyClass *class);
 
-#define         collect_Object(d)   iCollectDel(d, deref_Object)
-
 void            deinit_Object   (iAnyObject *);
 
 iAnyObject *    ref_Object      (const iAnyObject *);
 void            deref_Object    (const iAnyObject *);
-
 const iClass *  class_Object    (const iAnyObject *);
+
+static inline iAnyObject * collect_Object (iAnyObject *d) { return iCollectDel(d, (iDeleteFunc) deref_Object); }
+
+static inline void   iRelease      (const iAny *d) { deref_Object(d); }
+static inline iAny * iReleaseLater (const iAny *d) { return collect_Object(iConstCast(iAny *, d)); }
 
 #if !defined (NDEBUG)
 int             totalCount_Object   (void);
