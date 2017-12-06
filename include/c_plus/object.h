@@ -32,9 +32,30 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 #include "class.h"
-#include "garbage.h"
 
 #define iNew(typeName)      ((i##typeName *) new_Object(&Class_##typeName))
+
+#define iDeclareObjectConstruction(typeName) \
+    i##typeName *new_##typeName(void); \
+    static inline i##typeName *collect_##typeName(i##typeName *d) { \
+        return iCollectDel(d, (iDeleteFunc) deref_Object); \
+    } \
+    void init_##typeName(i##typeName *d); \
+    void deinit_##typeName(i##typeName *d); \
+    static inline const i##typeName##Class *class_##typeName(const i##typeName *d) { \
+        return (const i##typeName##Class *) class_Object(d);\
+    }
+
+#define iDeclareObjectConstructionArgs(typeName, ...) \
+    i##typeName *new_##typeName(__VA_ARGS__); \
+    static inline i##typeName *collect_##typeName(i##typeName *d) { \
+        return iCollectDel(d, (iDeleteFunc) deref_Object); \
+    } \
+    void init_##typeName(i##typeName *d, __VA_ARGS__); \
+    void deinit_##typeName(i##typeName *d); \
+    static inline const i##typeName##Class *class_##typeName(const i##typeName *d) { \
+        return (const i##typeName##Class *) class_Object(d);\
+    }
 
 #define iDefineObjectConstruction(typeName) \
     i##typeName *new_##typeName(void) { \
@@ -72,11 +93,18 @@ iAnyObject *    ref_Object      (const iAnyObject *);
 void            deref_Object    (const iAnyObject *);
 const iClass *  class_Object    (const iAnyObject *);
 
-static inline iAnyObject * collect_Object (iAnyObject *d) { return iCollectDel(d, (iDeleteFunc) deref_Object); }
-
-static inline void   iRelease      (const iAny *d) { deref_Object(d); }
-static inline iAny * iReleaseLater (const iAny *d) { return collect_Object(iConstCast(iAny *, d)); }
-
 #if !defined (NDEBUG)
 int             totalCount_Object   (void);
 #endif
+
+static inline iAnyObject *collect_Object(const iAnyObject *d) {
+    return collect_Garbage(iConstCast(iAnyObject *, d), (iDeleteFunc) deref_Object);
+}
+
+static inline void iRelease(const iAnyObject *d) {
+    deref_Object(d);
+}
+
+static inline iAnyObject *iReleaseLater(const iAnyObject *d) {
+    return collect_Object(d);
+}

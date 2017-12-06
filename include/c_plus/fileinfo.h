@@ -41,11 +41,9 @@ iDeclareType(Time)
 
 #define iFileInfoUnknownSize ((long) -1)
 
-iFileInfo * new_FileInfo    (const iString *path);
-iFileInfo * newCStr_FileInfo(const char *path);
+iDeclareObjectConstructionArgs(FileInfo, const iString *path)
 
-void        init_FileInfo   (iFileInfo *, const iString *path);
-void        deinit_FileInfo (iFileInfo *);
+iFileInfo * newCStr_FileInfo(const char *path);
 
 iBool       exists_FileInfo         (const iFileInfo *);
 const iString * path_FileInfo       (const iFileInfo *);
@@ -66,12 +64,11 @@ iFile *     open_FileInfo   (const iFileInfo *, int mode);
 
 //---------------------------------------------------------------------------------------
 
-iDirFileInfo *  new_DirFileInfo         (const iString *path);
+iDeclareObjectConstructionArgs(DirFileInfo, const iString *path)
+
 iDirFileInfo *  newCStr_DirFileInfo     (const char *path);
 
-void            init_DirFileInfo        (iDirFileInfo *, const iString *path);
 void            initInfo_DirFileInfo    (iDirFileInfo *, const iFileInfo *d);
-void            deinit_DirFileInfo      (iDirFileInfo *);
 
 /** @name Iterators */
 ///@{

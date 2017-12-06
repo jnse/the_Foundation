@@ -43,7 +43,7 @@ const iString *key_StringHashNode(const iStringHashNode *d) {
 }
 
 void initKey_StringHashNode(const iStringHashNode *d, iString *key) {
-    init_String(key, &d->keyBlock);
+    initBlock_String(key, &d->keyBlock);
 }
 
 void initBlock_StringHashKey(const iString *d, iBlock *block) {

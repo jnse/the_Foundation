@@ -53,10 +53,7 @@ struct Impl_ObjectListNode {
 #define prev_ObjectListNode(d)      ((iObjectListNode *) ((d)? (d)->node.prev : NULL))
 #define object_ObjectListNode(d)    ((iAnyObject *) ((const iObjectListNode *) (d))->object)
 
-iObjectList *   new_ObjectList          (void);
-
-void            init_ObjectList         (iObjectList *);
-void            deinit_ObjectList       (iObjectList *);
+iDeclareObjectConstruction(ObjectList)
 
 #define         isEmpty_ObjectList(d)   isEmpty_List(&(d)->list)
 #define         size_ObjectList(d)      size_List(&(d)->list)

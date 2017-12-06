@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iString *new_String(void) {
     iString *d = iMalloc(String);
-    init_Block(&d->chars, 0);
+    init_String(d);
     return d;
 }
 
@@ -67,7 +67,11 @@ void delete_String(iString *d) {
     }
 }
 
-void init_String(iString *d, const iBlock *chars) {
+void init_String(iString *d) {
+    init_Block(&d->chars, 0);
+}
+
+void initBlock_String(iString *d, const iBlock *chars) {
     initCopy_Block(&d->chars, chars);
 }
 

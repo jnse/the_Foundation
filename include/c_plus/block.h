@@ -28,7 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
-#include "garbage.h"
 #include "range.h"
 
 iDeclareType(Block)
@@ -38,18 +37,14 @@ struct Impl_Block {
     iBlockData *i;
 };
 
-iBlock *        new_Block           (size_t size);
+iDeclareTypeConstructionArgs(Block, size_t size)
+
 iBlock *        newCStr_Block       (const char *cstr);
 iBlock *        newData_Block       (const void *data, size_t size);
 iBlock *        copy_Block          (const iBlock *);
-void            delete_Block        (iBlock *);
 
-static inline iBlock * collect_Block(iBlock *d) { return iCollectDel(d, delete_Block); }
-
-void            init_Block          (iBlock *, size_t size);
 void            initData_Block      (iBlock *, const void *data, size_t size);
 void            initCopy_Block      (iBlock *, const iBlock *other);
-void            deinit_Block        (iBlock *);
 
 size_t          size_Block          (const iBlock *);
 char            at_Block            (const iBlock *, size_t pos);
@@ -57,6 +52,7 @@ char            front_Block         (const iBlock *);
 char            back_Block          (const iBlock *);
 iBlock *        mid_Block           (const iBlock *, size_t start, size_t count);
 iBlock *        concat_Block        (const iBlock *, const iBlock *other);
+
 const void *    constData_Block     (const iBlock *);
 const char *    constBegin_Block    (const iBlock *);
 const char *    constEnd_Block      (const iBlock *);

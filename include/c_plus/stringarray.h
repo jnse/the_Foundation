@@ -39,13 +39,10 @@ struct Impl_StringArray {
     iPtrArray strings;
 };
 
-iStringArray *  new_StringArray     (void);
+iDeclareObjectConstruction(StringArray)
 
 iStringArray *  newStrings_StringArray      (const iString *, ...);
 iStringArray *  newStringsCStr_StringArray  (const char *, ...);
-
-void            init_StringArray    (iStringArray *);
-void            deinit_StringArray  (iStringArray *);
 
 #define         isEmpty_StringArray(d)      isEmpty_Array(&(d)->strings)
 #define         size_StringArray(d)         size_Array(&(d)->strings)

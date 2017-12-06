@@ -31,11 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 typedef iSortedArray iPtrSet;
 
-iPtrSet *   new_PtrSet      (void);
-void        delete_PtrSet   (iPtrSet *);
-
-#define     init_PtrSet(d)      init_SortedArray(d)
-#define     deinit_PtrSet(d)    deinit_SortedArray(d)
+iDeclareTypeConstruction(PtrSet)
 
 iBool       contains_PtrSet (const iPtrSet *, void *ptr);
 iBool       locate_PtrSet   (const iPtrSet *, void *ptr, iRanges *outLoc);

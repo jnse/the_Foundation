@@ -51,31 +51,18 @@ struct Impl_SortedArray {
     iSortedArrayCompareElemFunc cmp;
 };
 
-/**
- * Constructs a new sorted array.
- *
- * @param elementSize   Size of array elements (bytes).
- * @param cmp           Element comparison function.
- *
- * @return SortedArray instance.
- */
-iSortedArray *  new_SortedArray     (size_t elementSize, iSortedArrayCompareElemFunc cmp);
+iDeclareTypeConstructionArgs(SortedArray, size_t elementSize, iSortedArrayCompareElemFunc cmp)
 
-void            delete_SortedArray  (iSortedArray *);
+size_t      size_SortedArray    (const iSortedArray *);
+iBool       contains_SortedArray(const iSortedArray *, const void *value);
+iBool       locate_SortedArray  (const iSortedArray *, const void *value, iRanges *outLoc);
 
-void            init_SortedArray    (iSortedArray *d, size_t elementSize, iSortedArrayCompareElemFunc cmp);
-void            deinit_SortedArray  (iSortedArray *d);
+#define     at_SortedArray(d, pos)  at_Array(&(d)->values, pos)
+#define     isEmpty_SortedArray(d)  isEmpty_Array(&(d)->values)
 
-size_t          size_SortedArray    (const iSortedArray *);
-iBool           contains_SortedArray(const iSortedArray *, const void *value);
-iBool           locate_SortedArray  (const iSortedArray *, const void *value, iRanges *outLoc);
-
-#define         at_SortedArray(d, pos)  at_Array(&(d)->values, pos)
-#define         isEmpty_SortedArray(d)  isEmpty_Array(&(d)->values)
-
-void            clear_SortedArray   (iSortedArray *);
-iBool           insert_SortedArray  (iSortedArray *, const void *value);
-iBool           remove_SortedArray  (iSortedArray *, const void *value);
+void        clear_SortedArray   (iSortedArray *);
+iBool       insert_SortedArray  (iSortedArray *, const void *value);
+iBool       remove_SortedArray  (iSortedArray *, const void *value);
 
 /** @name Iterators */
 ///@{

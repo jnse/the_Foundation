@@ -49,6 +49,7 @@ void init_List(iList *d) {
 
 void deinit_List(iList *d) {
     // List doesn't own any memory, so nothing needs to be deinitialized.
+    iUnused(d);
 }
 
 size_t size_List(const iList *d) {

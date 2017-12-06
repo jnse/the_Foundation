@@ -53,21 +53,18 @@ struct Impl_String {
     iBlock chars;
 };
 
-iString *       new_String      (void);
+iDeclareTypeConstruction(String)
 
 iString *       newCStr_String  (const char *cstr);
 iString *       newCStrN_String (const char *cstr, size_t len);
 iString *       newBlock_String (const iBlock *data);
 iString *       copy_String     (const iString *);
-void            delete_String   (iString *);
 
-static inline iString * collect_String(iString *d) { return iCollectDel(d, delete_String); }
-
-void            init_String     (iString *, const iBlock *chars);
+void            init_String     (iString *);
 void            initCStr_String (iString *, const char *cstr);
 void            initCStrN_String(iString *, const char *cstr, size_t size);
+void            initBlock_String(iString *, const iBlock *chars);
 void            initCopy_String (iString *, const iString *other);
-void            deinit_String   (iString *);
 
 const char *    cstr_String     (const iString *);
 size_t          length_String   (const iString *);

@@ -51,18 +51,10 @@ struct Impl_StringList {
     size_t size;
 };
 
-/**
- * Constructs a new list of strings.
-
- * @return StringList object.
- */
-iStringList *   new_StringList      (void);
+iDeclareObjectConstruction(StringList)
 
 iStringList *   newStrings_StringList       (const iString *, ...);
 iStringList *   newStringsCStr_StringList   (const char *, ...);
-
-void            init_StringList     (iStringList *);
-void            deinit_StringList   (iStringList *);
 
 void            clear_StringList    (iStringList *);
 
@@ -80,8 +72,8 @@ void            pushBackCStrN_StringList(iStringList *, const char *cstr, size_t
 
 void            pushFront_StringList    (iStringList *, const iString *str);
 void            pushFrontCStr_StringList(iStringList *, const char *cstr);
-void            popBack_StringList  (iStringList *);
-void            popFront_StringList (iStringList *);
+void            popBack_StringList      (iStringList *);
+void            popFront_StringList     (iStringList *);
 
 void            insert_StringList       (iStringList *, size_t pos, const iString *str);
 void            insertCStr_StringList   (iStringList *, size_t pos, const char *cstr);

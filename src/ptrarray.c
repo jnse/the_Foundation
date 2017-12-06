@@ -29,9 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdarg.h>
 
-iPtrArray *new_PtrArray(void) {
-    return new_Array(sizeof(void *));
-}
+iDefineTypeConstruction(PtrArray)
 
 iPtrArray *newPointers_PtrArray(void *ptr, ...) {
     iPtrArray *d = new_PtrArray();
@@ -39,8 +37,12 @@ iPtrArray *newPointers_PtrArray(void *ptr, ...) {
     return d;
 }
 
-void delete_PtrArray(iPtrArray *d) {
-    delete_Array(d);
+void init_PtrArray(iPtrArray *d) {
+    init_Array(d, sizeof(void *));
+}
+
+void deinit_PtrArray(iPtrArray *d) {
+    deinit_Array(d);
 }
 
 const void **constData_PtrArray(const iPtrArray *d) {

@@ -31,12 +31,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 typedef iArray iPtrArray;
 
-iPtrArray * new_PtrArray            (void);
-iPtrArray * newPointers_PtrArray    (void *ptr, ...); // NULL-terminated
-void        delete_PtrArray         (iPtrArray *);
+iDeclareTypeConstruction(PtrArray)
 
-#define     init_PtrArray(d)        init_Array(d, sizeof(void *))
-#define     deinit_PtrArray(d)      deinit_Array(d)
+iPtrArray * newPointers_PtrArray    (void *ptr, ...); // NULL-terminated
 
 #define     isEmpty_PtrArray(d)     isEmpty_Array(d)
 #define     size_PtrArray(d)        size_Array(d)

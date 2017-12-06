@@ -66,10 +66,7 @@ struct Impl_BlockHash {
     const iBlockHashNodeClass *nodeClass;
 };
 
-iBlockHash *        new_BlockHash     (void);
-
-void                init_BlockHash    (iBlockHash *);
-void                deinit_BlockHash  (iBlockHash *);
+iDeclareObjectConstruction(BlockHash)
 
 void                setNodeClass_BlockHash  (iBlockHash *, const iBlockHashNodeClass *class);
 
@@ -138,10 +135,7 @@ struct ConstIteratorImpl_BlockHash {
     i##valueType *          value_##typeName##Node      (const i##typeName##Node *); \
     void                    initBlock_##typeName##Key   (const i##keyType *key, iBlock *); \
     \
-    i##typeName *           new_##typeName      (void); \
-    \
-    void                    init_##typeName     (i##typeName *); \
-    void                    deinit_##typeName   (i##typeName *); \
+    iDeclareObjectConstruction(typeName) \
     \
     size_t                  size_##typeName     (const i##typeName *); \
     iBool                   isEmpty_##typeName  (const i##typeName *); \
@@ -156,6 +150,7 @@ struct ConstIteratorImpl_BlockHash {
     iBool                   remove_##typeName   (i##typeName *, const i##keyType *key); \
     \
     iDeclareIterator(typeName, i##typeName *) \
+    \
     const i##keyType *      key_##typeName##Iterator(i##typeName##Iterator *); \
     void                    remove_##typeName##Iterator(i##typeName##Iterator *); \
     struct IteratorImpl_##typeName { \
@@ -164,6 +159,7 @@ struct ConstIteratorImpl_BlockHash {
     }; \
     \
     iDeclareConstIterator(typeName, const i##typeName *) \
+    \
     const i##keyType * key_##typeName##ConstIterator(i##typeName##ConstIterator *); \
     struct ConstIteratorImpl_##typeName { \
         iHashConstIterator iter; \

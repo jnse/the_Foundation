@@ -29,12 +29,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stddef.h>
 #include <stdint.h> // prefer to use int{n}_t/uint{n}_t
+#include <stdbool.h>
 #include <string.h>
 
 #include "config.h"
 
-#define iFalse  0
-#define iTrue   1
+#define iFalse  false
+#define iTrue   true
 
 #define iInvalidPos     ((size_t) -1)
 #define iInvalidSize    ((size_t) -1)
@@ -45,11 +46,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define iCmp(a, b)              ((a) == (b)? 0 : (a) < (b)? -1 : 1)
 
 // Types.
-typedef int iBool;
+typedef bool iBool;
 typedef void iAny;
 typedef void iAnyObject;
 typedef void (*iDeinitFunc)(iAny *);
 typedef void (*iDeleteFunc)(iAny *);
+
+#include "garbage.h"
 
 void        init_CPlus  (void);
 uint32_t    iCrc32      (const char *data, size_t size);
@@ -60,6 +63,24 @@ uint32_t    iCrc32      (const char *data, size_t size);
 #define iMalloc(typeName)       malloc(sizeof(i##typeName))
 
 #define iDeclareType(typeName)  typedef struct Impl_##typeName i##typeName;
+
+#define iDeclareTypeConstruction(typeName) \
+    i##typeName *new_##typeName(void); \
+    void delete_##typeName(i##typeName *); \
+    static inline i##typeName *collect_##typeName (i##typeName *d) { \
+        return iCollectDel(d, delete_##typeName); \
+    } \
+    void init_##typeName(i##typeName *); \
+    void deinit_##typeName(i##typeName *);
+
+#define iDeclareTypeConstructionArgs(typeName, ...) \
+    i##typeName *new_##typeName(__VA_ARGS__); \
+    void delete_##typeName(i##typeName *); \
+    static inline i##typeName *collect_##typeName (i##typeName *d) { \
+        return iCollectDel(d, delete_##typeName); \
+    } \
+    void init_##typeName(i##typeName *, __VA_ARGS__); \
+    void deinit_##typeName(i##typeName *);
 
 #define iDefineTypeConstruction(typeName) \
     i##typeName *new_##typeName(void) { \

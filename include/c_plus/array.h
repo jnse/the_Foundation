@@ -54,22 +54,11 @@ struct Impl_Array {
 
 iDeclareType(Array)
 
-/**
- * Constructs a new array.
- *
- * @param elementSize  Size of an element in bytes.
- *
- * @return Empty array.
- */
-iArray *    new_Array           (size_t elementSize);
+iDeclareTypeConstructionArgs(Array, size_t elementSize)
 
 iArray *    newN_Array          (size_t elementSize, const void *value, size_t count);
 iArray *    newElements_Array   (size_t elementSize, const void *value, ...);
 iArray *    copy_Array          (const iArray *);
-void        delete_Array        (iArray *);
-
-void        init_Array      (iArray *, size_t elementSize);
-void        deinit_Array    (iArray *);
 
 void *      data_Array      (iArray *);
 const void *constData_Array (const iArray *);

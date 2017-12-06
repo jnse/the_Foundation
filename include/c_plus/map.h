@@ -33,7 +33,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
-#include "garbage.h"
 #include "list.h"
 #include "class.h"
 
@@ -58,14 +57,7 @@ struct Impl_MapNode {
     iMapKey key;
 };
 
-iMap *      new_Map     (iMapNodeCmpFunc cmp);
-
-void        delete_Map  (iMap *);
-
-static inline iMap *    collect_Map(iMap *d) { return iCollectDel(d, delete_Map); }
-
-void        init_Map    (iMap *, iMapNodeCmpFunc cmp);
-void        deinit_Map  (iMap *);
+iDeclareTypeConstructionArgs(Map, iMapNodeCmpFunc cmp)
 
 static inline size_t    size_Map    (const iMap *d) { return d->size; }
 static inline iBool     isEmpty_Map (const iMap *d) { return size_Map(d) == 0; }

@@ -52,10 +52,11 @@ struct Impl_File {
     FILE *file;
 };
 
-iFile *     new_File        (const iString *path);
-iFile *     newCStr_File    (const char *path);
+typedef iStreamClass iFileClass;
 
-void        deinit_File     (iFile *);
+iDeclareObjectConstructionArgs(File, const iString *path)
+
+iFile *     newCStr_File    (const char *path);
 
 iBool       open_File       (iFile *, enum iFileMode mode);
 void        close_File      (iFile *);

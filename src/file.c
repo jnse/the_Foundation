@@ -29,8 +29,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/fileinfo.h"
 #include "c_plus/string.h"
 
-typedef iStreamClass iFileClass;
-
 static iBeginDefineClass(File)
     .super  = &Class_Stream,
     .seek   = (long (*)(iStream *, long))                   seek_File,
@@ -41,10 +39,7 @@ iEndDefineClass(File)
 
 iFile *new_File(const iString *path) {
     iFile *d = new_Object(&Class_File);
-    init_Stream(&d->stream);
-    d->path = copy_String(path);
-    d->flags = readOnly_FileMode;
-    d->file = NULL;
+    init_File(d, path);
     return d;
 }
 
@@ -54,6 +49,13 @@ iFile *newCStr_File(const char *path) {
     iFile *d = new_File(&str);
     deinit_String(&str);
     return d;
+}
+
+void init_File(iFile *d, const iString *path) {
+    init_Stream(&d->stream);
+    d->path = copy_String(path);
+    d->flags = readOnly_FileMode;
+    d->file = NULL;
 }
 
 void deinit_File(iFile *d) {

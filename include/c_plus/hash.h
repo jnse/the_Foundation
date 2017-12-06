@@ -28,7 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
-#include "garbage.h"
 #include "class.h"
 
 /**
@@ -54,13 +53,7 @@ struct Impl_HashNode {
 
 typedef void iAnyNode;
 
-iHash *     new_Hash    (void);
-void        delete_Hash (iHash *);
-
-static inline iHash *   collect_Hash(iHash *d) { return iCollectDel(d, delete_Hash); }
-
-void        init_Hash   (iHash *);
-void        deinit_Hash (iHash *);
+iDeclareTypeConstruction(Hash)
 
 iBool       contains_Hash   (const iHash *, iHashKey key);
 iHashNode * value_Hash      (const iHash *, iHashKey key);

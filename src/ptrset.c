@@ -33,12 +33,14 @@ static int cmp_PtrSet_(const void *a, const void *b) {
     return iCmp(*(const iPtr *) a, *(const iPtr *) b);
 }
 
-iPtrSet *new_PtrSet(void) {
-    return new_SortedArray(sizeof(iPtr), cmp_PtrSet_);
+iDefineTypeConstruction(PtrSet)
+
+void init_PtrSet(iPtrSet *d) {
+    init_SortedArray(d, sizeof(iPtr), cmp_PtrSet_);
 }
 
-void delete_PtrSet(iPtrSet *d) {
-    delete_SortedArray(d);
+void deinit_PtrSet(iPtrSet *d) {
+    deinit_SortedArray(d);
 }
 
 iBool contains_PtrSet(const iPtrSet *d, void *ptr) {
