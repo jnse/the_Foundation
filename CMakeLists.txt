@@ -13,7 +13,6 @@ endif ()
 if (ZLIB_FOUND)
     set (iHaveZlib YES)
 endif ()
-configure_file (config.h.in config.h)
 check_include_file (threads.h iHaveC11Threads)
 
 #----------------------------------------------------------------------------------------
@@ -82,18 +81,23 @@ set (SOURCES
     src/version.c
 )
 if (APPLE)
+    set (iPlatformApple YES)
     set (SOURCES ${SOURCES} src/platform_apple.c)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set (iPlatformLinux YES)
     set (SOURCES ${SOURCES} src/platform_linux.c)
 elseif (WIN32)
+    set (iPlatformWindows YES)
     set (SOURCES ${SOURCES} src/platform_windows.c)
 else ()
+    set (iPlatformOther YES)
     set (SOURCES ${SOURCES} src/platform_generic.c)
 endif ()
 if (PCRE_FOUND)
     set (SOURCES ${SOURCES} src/regexp.c)
     set (HEADERS ${HEADERS} include/c_plus/regexp.h)
 endif ()
+configure_file (config.h.in config.h)
 
 add_library (cplus STATIC ${SOURCES} ${HEADERS})
 

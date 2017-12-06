@@ -27,11 +27,15 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
+#define iCPlusLibraryVersion { ${c_Plus_VERSION_MAJOR}, ${c_Plus_VERSION_MINOR}, ${c_Plus_VERSION_PATCH} }
+
 #cmakedefine iHaveC11Threads
 #cmakedefine iHavePcre
 #cmakedefine iHaveZlib
-
-#define iCPlusBuildVersion { ${c_Plus_VERSION_MAJOR}, ${c_Plus_VERSION_MINOR}, ${c_Plus_VERSION_PATCH} }
+#cmakedefine iPlatformApple
+#cmakedefine iPlatformLinux
+#cmakedefine iPlatformWindows
+#cmakedefine iPlatformOther
 
 /*
  * The iCPlusAPI macro is used for declaring exported symbols. It must be

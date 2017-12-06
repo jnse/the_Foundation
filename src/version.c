@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "c_plus/version.h"
 
-const iVersion version_CPlus = iCPlusBuildVersion;
+const iVersion version_CPlus = iCPlusLibraryVersion;
 
 int cmp_Version(const iVersion *d, const iVersion *other) {
     for (int i = 0; i < 3; ++i) {
