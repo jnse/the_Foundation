@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/time.h  Time and date manipulation.
+/** @file thread.h  Thread object.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -28,48 +28,52 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
-#include <time.h>
+#include "object.h"
+#include "time.h"
+#include "blockhash.h"
+#include "mutex.h"
 
-iDeclareType(Time)
-iDeclareType(Date)
+#if defined (iHaveC11Threads)
+#   include <threads.h>
+#else
+#   include <c11threads.h>
+#endif
 
-struct Impl_Time {
-    struct timespec ts;
+iDeclareClass(Thread)
+iDeclareType(Thread)
+
+typedef thrd_t iThreadId;
+typedef int (*iThreadRunFunc)(iThread *);
+
+struct Impl_Thread {
+    iObject object;
+    iThreadRunFunc run;
+    iThreadId id;
+    int result;
 };
 
-enum iDateWeekday {
-    sunday_DateWeekday,
-    monday_DateWeekday,
-    tuesday_DateWeekday,
-    wednesday_DateWeekday,
-    thursday_DateWeekday,
-    friday_DateWeekday,
-    saturday_DateWeekday,
-};
+iDeclareObjectConstructionArgs(Thread, iThreadRunFunc run)
 
-struct Impl_Date {
-    int year;
-    short month;
-    short day;
-    short dayOfYear;
-    short hour;
-    short minute;
-    short second;
-    long nsecs;
-    long gmtOffsetSeconds;
-    enum iDateWeekday dayOfWeek;
-};
+iBool   isRunning_Thread    (const iThread *);
 
-void    init_Time           (iTime *, const iDate *);
-void    initCurrent_Time    (iTime *);
-void    initSeconds_Time    (iTime *, double seconds);
+/**
+ * Returns the result value of the thread. If the thread is still running, the method
+ * will block until the result is available. In other words, when the method exits,
+ * the thread will always be not running any more.
+ *
+ * @return Thread result value.
+ */
+int     result_Thread       (const iThread *);
 
-iTime   now_Time            (void);
-double  seconds_Time        (const iTime *);
+void    start_Thread        (iThread *);
+void    join_Thread         (iThread *);
 
-#define isValid_Time(d)         ((d)->ts.tv_sec > 0)
-#define integralSeconds_Time(d) ((d)->ts.tv_sec)
-#define nanoSeconds_Time(d)     ((d)->ts.tv_nsec)
+void        sleep_Thread    (double seconds);
+iThread *   current_Thread  (void);
 
-void    init_Date           (iDate *, const iTime *);
-void    initCurrent_Date    (iDate *);
+static inline thrd_t id_Thread(const iThread *d) {
+    return d->id;
+}
+
+iDeclareBlockHash(ThreadHash, ThreadId, Thread)
+iDeclareLockableObject(ThreadHash)

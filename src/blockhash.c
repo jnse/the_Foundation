@@ -87,10 +87,13 @@ void clear_BlockHash(iBlockHash *d) {
 }
 
 iBool insert_BlockHash(iBlockHash *d, const iBlock *key, const iAnyObject *value) {
-    iDebug("%s: inserting \"%s\" => %s %p\n",
-           d->object.class->name,
-           constData_Block(key),
-           class_Object(value)->name, value);
+#if !defined (NDEBUG)
+    iDebug("[%s] inserting (%zu)[", d->object.class->name, size_Block(key));
+    for (size_t i = 0; i < size_Block(key); ++i) {
+        iDebug(" %02x", (uint8_t) at_Block(key, i));
+    }
+#endif
+    iDebug(" ] => %s %p\n", class_Object(value)->name, value);
     iHashNode *node = (iHashNode *) d->nodeClass->new(key, value);
     node->key = d->nodeClass->hashKey(key);
     iAnyNode *old = insert_Hash(&d->hash, node);

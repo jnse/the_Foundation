@@ -31,9 +31,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 
+void        recycle_Garbage     (void);
 void        beginScope_Garbage  (void);
 void        endScope_Garbage    (void);
-void        recycle_Garbage     (void);
 iAny *      collect_Garbage     (iAny *ptr, iDeleteFunc del);
 
 static inline iAny *iCollect(iAny *ptr) {

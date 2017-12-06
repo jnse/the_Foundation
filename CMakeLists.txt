@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 3.1)
 project (c_Plus VERSION 1.0.0 LANGUAGES C)
+include (CheckIncludeFile)
 find_package (PkgConfig)
 
 #----------------------------------------------------------------------------------------
@@ -13,6 +14,7 @@ if (ZLIB_FOUND)
     set (iHaveZlib YES)
 endif ()
 configure_file (config.h.in config.h)
+check_include_file (threads.h iHaveC11Threads)
 
 #----------------------------------------------------------------------------------------
 
@@ -30,6 +32,7 @@ set (HEADERS
     include/c_plus/list.h
     include/c_plus/map.h
     include/c_plus/math.h
+    include/c_plus/mutex.h
     include/c_plus/object.h
     include/c_plus/objectlist.h
     include/c_plus/path.h
@@ -42,6 +45,7 @@ set (HEADERS
     include/c_plus/stringarray.h
     include/c_plus/stringlist.h
     include/c_plus/stringhash.h
+    include/c_plus/thread.h
     include/c_plus/treenode.h
     include/c_plus/time.h
     include/c_plus/version.h
@@ -59,6 +63,7 @@ set (SOURCES
     src/hash.c
     src/list.c
     src/map.c
+    src/mutex.c
     src/math.c
     src/object.c
     src/objectlist.c
@@ -71,6 +76,7 @@ set (SOURCES
     src/stringarray.c
     src/stringhash.c
     src/stringlist.c
+    src/thread.c
     src/time.c
     src/treenode.c
     src/version.c

@@ -1,6 +1,4 @@
-#pragma once
-
-/** @file c_plus/time.h  Time and date manipulation.
+/** @file mutex.c  Mutual exclusion.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -27,49 +25,46 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
-#include <time.h>
+#include "c_plus/mutex.h"
 
-iDeclareType(Time)
-iDeclareType(Date)
+#if defined (iHaveC11Threads)
+#   include <threads.h>
+#else
+#   include <c11threads.h>
+#endif
 
-struct Impl_Time {
-    struct timespec ts;
+struct Impl_Mutex {
+    mtx_t mutex;
 };
 
-enum iDateWeekday {
-    sunday_DateWeekday,
-    monday_DateWeekday,
-    tuesday_DateWeekday,
-    wednesday_DateWeekday,
-    thursday_DateWeekday,
-    friday_DateWeekday,
-    saturday_DateWeekday,
-};
+static void init_Mutex_(iMutex *d, enum iMutexType type) {
+    mtx_init(&d->mutex, type == recursive_MutexType? mtx_recursive : mtx_plain);
+}
 
-struct Impl_Date {
-    int year;
-    short month;
-    short day;
-    short dayOfYear;
-    short hour;
-    short minute;
-    short second;
-    long nsecs;
-    long gmtOffsetSeconds;
-    enum iDateWeekday dayOfWeek;
-};
+iDefineTypeConstruction(Mutex)
 
-void    init_Time           (iTime *, const iDate *);
-void    initCurrent_Time    (iTime *);
-void    initSeconds_Time    (iTime *, double seconds);
+iMutex *newType_Mutex(enum iMutexType type) {
+    iMutex *d = iMalloc(Mutex);
+    init_Mutex_(d, type);
+    return d;
+}
 
-iTime   now_Time            (void);
-double  seconds_Time        (const iTime *);
+void init_Mutex(iMutex *d) {
+    init_Mutex_(d, recursive_MutexType);
+}
 
-#define isValid_Time(d)         ((d)->ts.tv_sec > 0)
-#define integralSeconds_Time(d) ((d)->ts.tv_sec)
-#define nanoSeconds_Time(d)     ((d)->ts.tv_nsec)
+void deinit_Mutex(iMutex *d) {
+    mtx_destroy(&d->mutex);
+}
 
-void    init_Date           (iDate *, const iTime *);
-void    initCurrent_Date    (iDate *);
+iBool lock_Mutex(iMutex *d) {
+    return mtx_lock(&d->mutex) == thrd_success;
+}
+
+iBool tryLock_Mutex(iMutex *d) {
+    return mtx_trylock(&d->mutex) == thrd_success;
+}
+
+void unlock_Mutex(iMutex *d) {
+    mtx_unlock(&d->mutex);
+}

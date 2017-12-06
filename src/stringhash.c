@@ -31,11 +31,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdlib.h>
 #include <stdarg.h>
 
-static iBeginDefineClass(StringHashNode)
-    .new = (iBlockHashNode *(*)(const iBlock *, const iAnyObject *)) new_StringHashNode,
-    .hashKey = hashKey_BlockHashNode,
-iEndDefineClass(StringHashNode)
-
 iDefineBlockHash(StringHash, String, AnyObject)
 
 const iString *key_StringHashNode(const iStringHashNode *d) {

@@ -27,6 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "c_plus/time.h"
 
+#include <math.h>
+
 static time_t initStdTime_(const iDate *date, struct tm *tm) {
     tm->tm_year = date->year - 1900;
     tm->tm_mon = date->month - 1;
@@ -52,6 +54,13 @@ iTime now_Time(void) {
 
 void initCurrent_Time(iTime *d) {
     clock_gettime(CLOCK_REALTIME, &d->ts);
+}
+
+void initSeconds_Time(iTime *d, double seconds) {
+    double integral;
+    double fractional = modf(seconds, &integral);
+    d->ts.tv_sec  = (time_t) integral;
+    d->ts.tv_nsec = (long)  (fractional * 1.0e9);
 }
 
 double seconds_Time(const iTime *d) {

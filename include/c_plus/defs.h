@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stddef.h>
 #include <stdint.h> // prefer to use int{n}_t/uint{n}_t
 #include <stdbool.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "config.h"
@@ -163,8 +164,9 @@ uint32_t    iCrc32      (const char *data, size_t size);
 #   define iAssert(cond)
 #   define iDebug(...)
 #else
-#   include <stdio.h>
 #   include <assert.h>
 #   define iAssert(cond)    assert(cond)
 #   define iDebug(...)      fprintf(stdout, __VA_ARGS__)
 #endif
+
+#define iWarning(...)       fprintf(stderr, __VA_ARGS__)

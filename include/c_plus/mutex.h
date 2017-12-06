@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/time.h  Time and date manipulation.
+/** @file mutex.h  Mutual exclusion.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -28,48 +28,41 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
-#include <time.h>
 
-iDeclareType(Time)
-iDeclareType(Date)
+#define iDeclareLockableObject(typeName) \
+    iDeclareType(Lockable##typeName) \
+    struct Impl_Lockable##typeName { \
+        iMutex *mutex; \
+        i##typeName *value; \
+    }; \
+    iDeclareTypeConstruction(Lockable##typeName)
 
-struct Impl_Time {
-    struct timespec ts;
+#define iDefineLockableObject(typeName) \
+    iDefineTypeConstruction(Lockable##typeName) \
+    void init_Lockable##typeName(iLockable##typeName *d) { \
+        d->mutex = new_Mutex(); \
+        d->value = new_##typeName(); \
+    } \
+    void deinit_Lockable##typeName(iLockable##typeName *d) { \
+        delete_Mutex(d->mutex); \
+        deref_Object(d->value); \
+    }
+
+#define iLock(d)        lock_Mutex((d)->mutex)
+#define iUnlock(d)      unlock_Mutex((d)->mutex)
+#define iGuard(d, stmt) {iLock(d); stmt; iUnlock(d);}
+
+iDeclareType(Mutex)
+
+enum iMutexType {
+    nonRecursive_MutexType  = 0,
+    recursive_MutexType     = 1,
 };
 
-enum iDateWeekday {
-    sunday_DateWeekday,
-    monday_DateWeekday,
-    tuesday_DateWeekday,
-    wednesday_DateWeekday,
-    thursday_DateWeekday,
-    friday_DateWeekday,
-    saturday_DateWeekday,
-};
+iDeclareTypeConstruction(Mutex)
 
-struct Impl_Date {
-    int year;
-    short month;
-    short day;
-    short dayOfYear;
-    short hour;
-    short minute;
-    short second;
-    long nsecs;
-    long gmtOffsetSeconds;
-    enum iDateWeekday dayOfWeek;
-};
+iMutex *    newType_Mutex(enum iMutexType type);
 
-void    init_Time           (iTime *, const iDate *);
-void    initCurrent_Time    (iTime *);
-void    initSeconds_Time    (iTime *, double seconds);
-
-iTime   now_Time            (void);
-double  seconds_Time        (const iTime *);
-
-#define isValid_Time(d)         ((d)->ts.tv_sec > 0)
-#define integralSeconds_Time(d) ((d)->ts.tv_sec)
-#define nanoSeconds_Time(d)     ((d)->ts.tv_nsec)
-
-void    init_Date           (iDate *, const iTime *);
-void    initCurrent_Date    (iDate *);
+iBool       lock_Mutex      (iMutex *);
+iBool       tryLock_Mutex   (iMutex *);
+void        unlock_Mutex    (iMutex *);

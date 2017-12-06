@@ -43,6 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/stringlist.h>
 #include <c_plus/stringhash.h>
 #include <c_plus/time.h>
+#include <c_plus/thread.h>
 #include <c_plus/treenode.h>
 
 #include <stdio.h>
@@ -157,14 +158,31 @@ static int compareIntegers(iMapKey a, iMapKey b) {
     return iCmp(x->value, y->value);
 }*/
 
+static int run_WorkerThread(iThread *d) {
+    printf("Worker thread %p started\n", d);
+    sleep_Thread(0.1);
+    printf("Worker thread %p is done\n", d);
+    return 12345;
+}
+
 int main(int argc, char *argv[]) {
     iUnused(argc);
     iUnused(argv);
     init_CPlus();
+    /* Test a thread. */ {
+        iThread *worker = new_Thread(run_WorkerThread);
+        start_Thread(worker);
+        printf("Result from worker: %i\n", result_Thread(worker));
+        iAssert(result_Thread(worker) == 12345);
+        iRelease(worker);
+    }
+    return 1;
     /* Test time and date. */ {
         const iTime now = now_Time();
         iDate date;
         init_Date(&date, &now);
+        printf("sizeof(iTime) == %zu bytes\n", sizeof(iTime));
+        printf("sizeof(iDate) == %zu bytes\n", sizeof(iDate));
         printf("Today is %i-%02i-%02i (week day %i) and the time is %02i:%02i:%02i.%li (GMT offset: %li mins)\n",
                date.year, date.month, date.day, date.dayOfWeek,
                date.hour, date.minute, date.second, date.nsecs,

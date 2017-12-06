@@ -203,7 +203,7 @@ void deinit_Hash(iHash *d) {
 }
 
 iBool contains_Hash(const iHash *d, iHashKey key) {
-    return value_Hash(d, key) == NULL;
+    return value_Hash(d, key) != NULL;
 }
 
 iHashNode *value_Hash(const iHash *d, iHashKey key) {

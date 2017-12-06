@@ -137,14 +137,14 @@ struct ConstIteratorImpl_BlockHash {
     \
     iDeclareObjectConstruction(typeName) \
     \
-    size_t                  size_##typeName     (const i##typeName *); \
-    iBool                   isEmpty_##typeName  (const i##typeName *); \
+    static inline size_t    size_##typeName     (const i##typeName *d) { return size_BlockHash(d); } \
+    static inline iBool     isEmpty_##typeName  (const i##typeName *d) { return isEmpty_BlockHash(d); } \
     \
     iBool                   contains_##typeName     (const i##typeName *, const i##keyType *key); \
     const i##valueType *    constValue_##typeName   (const i##typeName *, const i##keyType *key); \
     i##valueType *          value_##typeName        (i##typeName *, const i##keyType *key); \
     \
-    void                    clear_##typeName    (i##typeName *); \
+    static inline void      clear_##typeName    (i##typeName *d) { clear_BlockHash(d); } \
     \
     iBool                   insert_##typeName   (i##typeName *, const i##keyType *key, const i##valueType *value); \
     iBool                   remove_##typeName   (i##typeName *, const i##keyType *key); \
@@ -176,6 +176,11 @@ struct ConstIteratorImpl_BlockHash {
     iDefineClass(typeName) \
     iDefineObjectConstruction(typeName) \
     \
+    static iBeginDefineClass(typeName##Node) \
+        .new = (iBlockHashNode *(*)(const iBlock *, const iAnyObject *)) new_##typeName##Node, \
+        .hashKey = hashKey_BlockHashNode, \
+    iEndDefineClass(typeName##Node) \
+    \
     i##typeName##Node *new_##typeName##Node(const i##keyType *key, const i##valueType *object) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
         void *elem = new_BlockHashNode(&bkey, object); \
@@ -184,6 +189,7 @@ struct ConstIteratorImpl_BlockHash {
     } \
     \
     void deinit_##typeName##Node(i##typeName##Node *d) { deinit_BlockHashNode(d); } \
+    \
     i##valueType *value_##typeName##Node(const i##typeName##Node *d) { \
         return (i##valueType *) d->object; \
     } \
@@ -196,12 +202,6 @@ struct ConstIteratorImpl_BlockHash {
     void deinit_##typeName(i##typeName *d) { \
         deinit_BlockHash(d); \
     } \
-    \
-    size_t size_##typeName(const i##typeName *d) { return size_BlockHash(d); } \
-    \
-    iBool isEmpty_##typeName(const i##typeName *d) { return isEmpty_BlockHash(d); } \
-    \
-    void clear_##typeName(i##typeName *d) { clear_BlockHash(d); } \
     \
     iBool contains_##typeName(const i##typeName *d, const i##keyType *key) { \
         iBlock bkey; initBlock_##typeName##Key(key, &bkey); \
@@ -268,4 +268,20 @@ struct ConstIteratorImpl_BlockHash {
     \
     const i##keyType *key_##typeName##ConstIterator(i##typeName##ConstIterator *d) { \
         return key_##typeName##Node(d->value); \
+    }
+
+#define iDefinePlainKeyBlockHash(typeName, keyType, valueType) \
+    iDefineBlockHash(typeName, keyType, valueType) \
+    \
+    const i##keyType *key_##typeName##Node(const i##typeName##Node *d) { \
+        return constData_Block(&d->keyBlock); \
+    } \
+    \
+    void initKey_##typeName##Node(const i##typeName##Node *d, i##keyType *key) { \
+        iAssert(size_Block(&d->keyBlock) == sizeof(i##keyType)); \
+        memcpy(key, constData_Block(&d->keyBlock), sizeof(i##keyType)); \
+    } \
+    \
+    void initBlock_##typeName##Key(const i##keyType *d, iBlock *block) { \
+        initData_Block(block, d, sizeof(i##keyType)); \
     }
