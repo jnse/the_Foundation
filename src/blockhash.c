@@ -116,12 +116,12 @@ void insertValues_BlockHash(iBlockHash *d, const iBlock *key, const iAnyObject *
 }
 
 void insertValuesCStr_BlockHash(iBlockHash *d, const char *key, const iAnyObject *value, ...) {
-    insert_BlockHash(d, iReleaseLater(newCStr_Block(key)), value);
+    insert_BlockHash(d, iClob(newCStr_Block(key)), value);
     va_list args;
     for (va_start(args, value);;) {
         key = va_arg(args, const char *);
         if (!key) break;
-        insert_BlockHash(d, iReleaseLater(newCStr_Block(key)), va_arg(args, const iAnyObject *));
+        insert_BlockHash(d, iClob(newCStr_Block(key)), va_arg(args, const iAnyObject *));
     }
     va_end(args);
 }

@@ -105,6 +105,8 @@ void            truncate_String (iString *, size_t len);
 
 iStringList *   split_String    (const iString *, const char *separator);
 
+int             toInt_String    (const iString *);
+
 /** @name Iterators */
 ///@{
 iDeclareConstIterator(String, const iString *)

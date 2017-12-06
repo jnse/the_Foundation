@@ -81,11 +81,22 @@ set (SOURCES
     src/treenode.c
     src/version.c
 )
+if (APPLE)
+    set (SOURCES ${SOURCES} src/platform_apple.c)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set (SOURCES ${SOURCES} src/platform_linux.c)
+elseif (WIN32)
+    set (SOURCES ${SOURCES} src/platform_windows.c)
+else ()
+    set (SOURCES ${SOURCES} src/platform_generic.c)
+endif ()
 if (PCRE_FOUND)
     set (SOURCES ${SOURCES} src/regexp.c)
     set (HEADERS ${HEADERS} include/c_plus/regexp.h)
 endif ()
+
 add_library (cplus STATIC ${SOURCES} ${HEADERS})
+
 target_compile_definitions (cplus PRIVATE iIsLibraryBuild)
 set_property (TARGET cplus PROPERTY C_STANDARD 11)
 target_include_directories (cplus PUBLIC include ${CMAKE_CURRENT_BINARY_DIR})
@@ -95,6 +106,7 @@ if (CMAKE_COMPILER_IS_GNUCC)
 else ()
     target_compile_options (cplus PRIVATE -Wno-format-pedantic)
 endif ()
+
 # Dependencies.
 target_link_libraries (cplus PRIVATE pthread)
 if (ZLIB_FOUND)

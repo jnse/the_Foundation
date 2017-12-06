@@ -212,6 +212,10 @@ iStringList *split_String(const iString *d, const char *separator) {
     return parts;
 }
 
+int toInt_String(const iString *d) {
+    return atoi(cstr_String(d));
+}
+
 //---------------------------------------------------------------------------------------
 
 static void decodeNextMultibyte_StringConstIterator_(iStringConstIterator *d) {

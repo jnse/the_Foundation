@@ -160,6 +160,7 @@ static int compareIntegers(iMapKey a, iMapKey b) {
 
 static int run_WorkerThread(iThread *d) {
     printf("Worker thread %p started\n", d);
+    printf("Ideal concurrent thread count: %i\n", idealConcurrentCount_Thread());
     sleep_Thread(0.1);
     printf("Worker thread %p is done\n", d);
     return 12345;
@@ -182,7 +183,7 @@ int main(int argc, char *argv[]) {
     }
     /* File information. */ {
         iBeginCollect();
-        iForEach(DirFileInfo, i, iReleaseLater(newCStr_DirFileInfo("."))) {
+        iForEach(DirFileInfo, i, iClob(newCStr_DirFileInfo("."))) {
             printf("%10li %s %12li %s\n",
                    size_FileInfo(i.value),
                    isDirectory_FileInfo(i.value)? "(dir)" : "     ",
@@ -263,9 +264,9 @@ int main(int argc, char *argv[]) {
     }
     /* Test an object list. */ {
         iObjectList *olist = new_ObjectList();
-        pushBack_ObjectList(olist, iReleaseLater(new_TestObject(500)));
-        pushBack_ObjectList(olist, iReleaseLater(new_TestObject(400)));
-        pushFront_ObjectList(olist, iReleaseLater(new_TestObject(600)));
+        pushBack_ObjectList(olist, iClob(new_TestObject(500)));
+        pushBack_ObjectList(olist, iClob(new_TestObject(400)));
+        pushFront_ObjectList(olist, iClob(new_TestObject(600)));
         //sort_List(list_ObjectList(olist), compareTestObjects);
         printf("List of objects:");
         iConstForEach(ObjectList, i, olist) {
@@ -277,8 +278,8 @@ int main(int argc, char *argv[]) {
     /* Test a string hash. */ {
         iStringHash *h = new_StringHash();
         insertValuesCStr_StringHash(h,
-              "one", iReleaseLater(new_TestObject(1000)),
-              "two", iReleaseLater(new_TestObject(1001)), NULL);
+              "one", iClob(new_TestObject(1000)),
+              "two", iClob(new_TestObject(1001)), NULL);
         printf("Hash has %zu nodes:\n", size_StringHash(h));
         iConstForEach(StringHash, i, h) {
             printf("  %s: %i\n",

@@ -1,6 +1,4 @@
-#pragma once
-
-/** @file thread.h  Thread object.
+/** @file platform_linux.c  Linux specific functionality.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -27,58 +25,28 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
-#include "object.h"
-#include "time.h"
-#include "blockhash.h"
-#include "mutex.h"
+#include "c_plus/defs.h"
+#include "c_plus/thread.h"
+#include "c_plus/string.h"
+#include "c_plus/file.h"
+#include "c_plus/regexp.h"
 
-#if defined (iHaveC11Threads)
-#   include <threads.h>
-#else
-#   include <c11threads.h>
-#endif
-
-iDeclareClass(Thread)
-iDeclareType(Thread)
-
-typedef thrd_t iThreadId;
-typedef int (*iThreadRunFunc)(iThread *);
-
-struct Impl_Thread {
-    iObject object;
-    iThreadRunFunc run;
-    iThreadId id;
-    int result;
-};
-
-iDeclareObjectConstructionArgs(Thread, iThreadRunFunc run)
-
-iBool   isRunning_Thread    (const iThread *);
-
-/**
- * Returns the result value of the thread. If the thread is still running, the method
- * will block until the result is available. In other words, when the method exits,
- * the thread will always be not running any more.
- *
- * @return Thread result value.
- */
-int     result_Thread       (const iThread *);
-
-void    start_Thread        (iThread *);
-void    join_Thread         (iThread *);
-
-void        sleep_Thread    (double seconds);
-iThread *   current_Thread  (void);
-
-/**
- * Determines the number of CPU cores on the system.
- */
-int     idealConcurrentCount_Thread (void);
-
-static inline thrd_t id_Thread(const iThread *d) {
-    return d->id;
+int idealConcurrentCount_Thread(void) {
+    static int ncpu;
+    if (ncpu == 0) {
+        iBeginCollect();
+        iFile *f = iClob(newCStr_File("/proc/cpuinfo"));
+        if (open_File(f, readOnly_FileMode)) {
+            const iString *cpuinfo = iClob(newBlock_String(iClob(readAll_File(f))));
+            const iRegExp *processorN = iClob(new_RegExp("processor\\s+:\\s+([0-9]+)", 0));
+            iRegExpMatch match;
+            while (matchString_RegExp(processorN, cpuinfo, &match)) {
+                iString *cap = captured_RegExpMatch(&match, 1);
+                const int cpuNumber = toInt_String(cap) + 1;
+                ncpu = iMax(ncpu, cpuNumber);
+                delete_String(cap);
+            }
+        }
+        iEndCollect();
+    }
 }
-
-iDeclareBlockHash(ThreadHash, ThreadId, Thread)
-iDeclareLockableObject(ThreadHash)

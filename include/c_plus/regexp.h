@@ -30,10 +30,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "range.h"
 #include "class.h"
+#include "string.h"
 
 iDeclareType(RegExp)
 iDeclareType(RegExpMatch)
-iDeclareType(String)
 
 iDeclareClass(RegExp)
 
@@ -64,7 +64,9 @@ void        deinit_RegExp(iRegExp *);
 
 iBool       match_RegExp(const iRegExp *, const char *subject, size_t len, iRegExpMatch *match);
 
-#define     matchString_RegExp(d, str, m)   match_RegExp(d, cstr_String(str), size_String(str), m)
+static inline iBool matchString_RegExp(const iRegExp *d, const iString *str, iRegExpMatch *match) {
+    return match_RegExp(d, cstr_String(str), size_String(str), match);
+}
 
 struct Impl_RegExpMatch {
     const char *subject;

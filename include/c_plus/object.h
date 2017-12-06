@@ -108,3 +108,6 @@ static inline void iRelease(const iAnyObject *d) {
 static inline iAnyObject *iReleaseLater(const iAnyObject *d) {
     return collect_Object(d);
 }
+
+#define iClob(d)     iReleaseLater(d) // clob == collect object
+
