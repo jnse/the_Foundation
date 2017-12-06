@@ -125,4 +125,10 @@ endif ()
 #----------------------------------------------------------------------------------------
 
 add_executable (c+test tests/main.c)
+target_compile_options (c+test PRIVATE -Wall -Wpedantic -Werror)
 target_link_libraries (c+test PRIVATE cplus)
+if (CMAKE_COMPILER_IS_GNUCC)
+    target_compile_options (c+test PRIVATE -Wno-format)
+else ()
+    target_compile_options (c+test PRIVATE -Wno-format-pedantic)
+endif ()

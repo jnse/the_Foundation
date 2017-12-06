@@ -55,7 +55,7 @@ static int run_Threads_(void *arg) {
     d->result = d->run(d);
     // Deregister the thread since it's stopping.
     iGuard(runningThreads_, remove_ThreadHash(runningThreads_->value, &d->id));
-    d->id = NULL;
+    d->id = 0;
     return d->result;
 }
 
@@ -67,7 +67,7 @@ iDefineObjectConstructionArgs(Thread, (iThreadRunFunc run), run)
 void init_Thread(iThread *d, iThreadRunFunc run) {
     d->result = 0;
     d->run = run;
-    d->id = NULL;
+    d->id = 0;
 }
 
 void deinit_Thread(iThread *d) {

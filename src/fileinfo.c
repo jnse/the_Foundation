@@ -37,6 +37,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <unistd.h>
 #include <dirent.h>
 
+#if defined (iPlatformLinux)
+#   define st_mtimespec st_mtim
+#endif
+
 enum FileInfoFlags {
     exists_FileInfoFlag,
     directory_FileInfoFlag,
@@ -78,7 +82,11 @@ void init_FileInfo(iFileInfo *d, const iString *path) {
 
 static void initDirEntry_FileInfo_(iFileInfo *d, const iString *dirPath, struct dirent *ent) {
     iString entryName;
+#if defined (iPlatformApple)
     initCStrN_String(&entryName, ent->d_name, ent->d_namlen);
+#else
+    initCStr_String(&entryName, ent->d_name);
+#endif
     d->path = concat_Path(dirPath, &entryName);
     deinit_String(&entryName);
 

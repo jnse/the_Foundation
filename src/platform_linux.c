@@ -49,4 +49,5 @@ int idealConcurrentCount_Thread(void) {
         }
         iEndCollect();
     }
+    return ncpu;
 }
