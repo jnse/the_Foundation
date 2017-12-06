@@ -169,14 +169,6 @@ int main(int argc, char *argv[]) {
     iUnused(argc);
     iUnused(argv);
     init_CPlus();
-    /* Test a thread. */ {
-        iThread *worker = new_Thread(run_WorkerThread);
-        start_Thread(worker);
-        printf("Result from worker: %i\n", result_Thread(worker));
-        iAssert(result_Thread(worker) == 12345);
-        iRelease(worker);
-    }
-    return 1;
     /* Test time and date. */ {
         const iTime now = now_Time();
         iDate date;
@@ -401,6 +393,13 @@ int main(int argc, char *argv[]) {
         printf("ö is at: %zu %zu\n", indexOfCStr_String(s, "ö"), indexOf_String(s, u'ö'));
         truncate_String(s, 3);
         printf("Truncated: %s\n", cstr_String(s));
+    }
+    /* Test a thread. */ {
+        iThread *worker = new_Thread(run_WorkerThread);
+        start_Thread(worker);
+        printf("Result from worker: %i\n", result_Thread(worker));
+        iAssert(result_Thread(worker) == 12345);
+        iRelease(worker);
     }
 #if defined (iHavePcre)
     /* Test regular expressions. */ {

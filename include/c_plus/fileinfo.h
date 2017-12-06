@@ -51,8 +51,6 @@ long        size_FileInfo           (const iFileInfo *);
 iBool       isDirectory_FileInfo    (const iFileInfo *);
 iTime       lastModified_FileInfo   (const iFileInfo *);
 
-#define     cstrPath_FileInfo(d)    cstr_String(path_FileInfo(d))
-
 iBool       fileExists_FileInfo     (const iString *path);
 iBool       fileExistsCStr_FileInfo (const char *path);
 long        fileSize_FileInfo       (const iString *path);
@@ -61,6 +59,10 @@ long        fileSizeCStr_FileInfo   (const char *path);
 iDirFileInfo *  directoryContents_FileInfo  (const iFileInfo *);
 
 iFile *     open_FileInfo   (const iFileInfo *, int mode);
+
+static inline const char *cstrPath_FileInfo(const iFileInfo *d) {
+    return cstr_String(path_FileInfo(d));
+}
 
 //---------------------------------------------------------------------------------------
 
