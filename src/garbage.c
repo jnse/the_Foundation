@@ -75,8 +75,6 @@ static void delete_GarbageNode_(iGarbageNode *d) {
 
 iDeclareType(Collected)
 
-static tss_t threadLocalKey_Garbage_;
-
 struct Impl_Collected { // Thread-specific.
     iList collected;
 };
@@ -129,23 +127,25 @@ static void push_Collected_(iCollected *d, void *ptr, iDeleteFunc del) {
 
 //---------------------------------------------------------------------------------------
 
+static tss_t threadLocal_Garbage_;
+
 static void deinitForThread_Garbage_(void) {
-    iCollected *d = tss_get(threadLocalKey_Garbage_);
+    iCollected *d = tss_get(threadLocal_Garbage_);
     if (d) {
         delete_Collected_(d);
-        tss_set(threadLocalKey_Garbage_, NULL);
+        tss_set(threadLocal_Garbage_, NULL);
     }
 }
 
 void init_Garbage(void) {
-    tss_create(&threadLocalKey_Garbage_, (tss_dtor_t) delete_Collected_);
+    tss_create(&threadLocal_Garbage_, (tss_dtor_t) delete_Collected_);
     atexit(deinitForThread_Garbage_);
 }
 
 static iCollected *initForThread_Garbage_(void) {
-    iCollected *d = tss_get(threadLocalKey_Garbage_);
+    iCollected *d = tss_get(threadLocal_Garbage_);
     if (!d) {
-        tss_set(threadLocalKey_Garbage_, d = new_Collected_());
+        tss_set(threadLocal_Garbage_, d = new_Collected_());
     }
     return d;
 }
@@ -172,7 +172,7 @@ void endScope_Garbage(void) {
 }
 
 void recycle_Garbage(void) {
-    iCollected * d = tss_get(threadLocalKey_Garbage_);
+    iCollected * d = tss_get(threadLocal_Garbage_);
     if (d) {
         recycle_Collected_(d);
     }
