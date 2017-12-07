@@ -150,13 +150,13 @@ static int compareIntegers(iMapKey a, iMapKey b) {
     return iCmp(a, b);
 }
 
-/*static int compareTestObjects(const void *a, const void *b) {
+static int compareTestObjects(const void *a, const void *b) {
     const iTestObject *x = object_ObjectListNode(a);
     const iTestObject *y = object_ObjectListNode(b);
     iAssert(a != b);
-    iDebug("comparing: (%p) %i and (%p) %i\n", x, x->value, y, y->value);
+    //iDebug("comparing: (%p) %i and (%p) %i\n", x, x->value, y, y->value);
     return iCmp(x->value, y->value);
-}*/
+}
 
 static int run_WorkerThread(iThread *d) {
     iBeginCollect();
@@ -183,7 +183,6 @@ int main(int argc, char *argv[]) {
                date.hour, date.minute, date.second, date.nsecs,
                date.gmtOffsetSeconds/60);
     }
-#if 0
     /* File information. */ {
         iBeginCollect();
         iForEach(DirFileInfo, i, iClob(newCStr_DirFileInfo("."))) {
@@ -195,7 +194,6 @@ int main(int argc, char *argv[]) {
         }
         iEndCollect();
     }
-#endif
     /* Test array insertion and removal. */ {
         printf("Array insertions/removals:\n");
         iArray *list = new_Array(2);
@@ -268,10 +266,10 @@ int main(int argc, char *argv[]) {
     }
     /* Test an object list. */ {
         iObjectList *olist = new_ObjectList();
-        pushBack_ObjectList(olist, iClob(new_TestObject(500)));
-        pushBack_ObjectList(olist, iClob(new_TestObject(400)));
-        pushFront_ObjectList(olist, iClob(new_TestObject(600)));
-        //sort_List(list_ObjectList(olist), compareTestObjects);
+        for (int i = 0; i < 10; ++i) {
+            pushBack_ObjectList(olist, iClob(new_TestObject(iRandom(1, 1000))));
+        }
+        sort_List(list_ObjectList(olist), compareTestObjects);
         printf("List of objects:");
         iConstForEach(ObjectList, i, olist) {
             printf("%4i", ((const iTestObject *) i.object)->value);

@@ -131,56 +131,49 @@ iAny *remove_List(iList *d, iAny *node) {
     return node;
 }
 
-static void swapNodes_ListNode_(iListNode *d, iListNode *other) {
-    iAssert(d != other);
-    if (d->next == other) {
-        remove_ListNode_(other);
-        insertBefore_ListNode_(other, d);
-    }
-    else if (d->prev == other) {
-        remove_ListNode_(other);
-        insertAfter_ListNode_(other, d);
-    }
-    else {
-        iListNode *mark = d->prev;
-        remove_ListNode_(d);
-        insertAfter_ListNode_(d, other);
-        remove_ListNode_(other);
-        insertAfter_ListNode_(other, mark);
-    }
-}
-
-static iListNode *quicksortPartition_ListNode_(iListNode *low, iListNode *high,
+static iListNode *quicksortPartition_ListNode_(iListNode **low, iListNode **high,
                                                iListCompareFunc cmp) {
-    iListNode *pivot = high;
-    iListNode *i = low->prev;
-    for (iListNode *j = low; j != high; j = j->next) {
-        if (cmp(j, pivot) < 0) {
-            i = i->next;
-            swapNodes_ListNode_(i, j); {
-                // Iteration must continue unaffected.
-                iListNode *k = i; i = j; j = k;
-            }
+    iListNode *pivot = *high;
+    iListNode *prev;
+    for (iListNode *i = pivot->prev; i != *low; i = prev) {
+        prev = i->prev;
+        if (cmp(i, pivot) > 0) {
+            remove_ListNode_(i);
+            insertAfter_ListNode_(i, pivot);
+            if (*high == pivot) *high = i;
         }
     }
-    if (cmp(high, i->next) < 0) {
-        swapNodes_ListNode_(i->next, high);
+    if (cmp(*low, pivot) > 0) {
+        iListNode *i = *low;
+        *low = i->next;
+        remove_ListNode_(i);
+        insertAfter_ListNode_(i, pivot);
+        if (*high == pivot) *high = i;
     }
-    return i->next;
+    return pivot;
 }
 
-static void quicksort_ListNode_(iListNode *low, iListNode *high,
+static void quicksort_ListNode_(iListNode **start, iListNode **end,
                                 iListCompareFunc cmp) {
-    if (low != high) {
-        iListNode *p = quicksortPartition_ListNode_(low, high, cmp);
-        quicksort_ListNode_(low, p->prev, cmp);
-        quicksort_ListNode_(p->next, high, cmp);
+    if (*start != *end) {
+        iListNode *p = quicksortPartition_ListNode_(start, end, cmp);
+        // Recurse to both halves.
+        if (p != *start) {
+            iListNode *firstHalf = p->prev;
+            quicksort_ListNode_(start, &firstHalf, cmp);
+        }
+        if (p != *end) {
+            iListNode *secondHalf = p->next;
+            quicksort_ListNode_(&secondHalf, end, cmp);
+        }
     }
 }
 
 void sort_List(iList *d, iListCompareFunc cmp) {
     if (size_List(d) >= 2) {
-        quicksort_ListNode_(front_List(d), back_List(d), cmp);
+        iListNode *start = front_List(d);
+        iListNode *end   = back_List(d);
+        quicksort_ListNode_(&start, &end, cmp);
     }
 }
 
