@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <locale.h>
 
 void init_CPlus(void) {
+    init_Garbage();
     printf("[c_Plus] version: %i.%i.%i cstd:%li\n",
            version_CPlus.major, version_CPlus.minor, version_CPlus.patch,
            __STDC_VERSION__);

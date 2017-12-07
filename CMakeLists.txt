@@ -19,6 +19,7 @@ check_include_file (threads.h iHaveC11Threads)
 
 set (HEADERS
     include/c11threads.h
+    include/stdthreads.h
     include/c_plus/defs.h
     include/c_plus/array.h
     include/c_plus/block.h

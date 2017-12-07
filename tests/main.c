@@ -159,10 +159,12 @@ static int compareIntegers(iMapKey a, iMapKey b) {
 }*/
 
 static int run_WorkerThread(iThread *d) {
+    iBeginCollect();
     printf("Worker thread %p started\n", d);
     printf("Ideal concurrent thread count: %i\n", idealConcurrentCount_Thread());
     sleep_Thread(0.1);
     printf("Worker thread %p is done\n", d);
+    iEndCollect();
     return 12345;
 }
 
@@ -181,6 +183,7 @@ int main(int argc, char *argv[]) {
                date.hour, date.minute, date.second, date.nsecs,
                date.gmtOffsetSeconds/60);
     }
+#if 0
     /* File information. */ {
         iBeginCollect();
         iForEach(DirFileInfo, i, iClob(newCStr_DirFileInfo("."))) {
@@ -192,6 +195,7 @@ int main(int argc, char *argv[]) {
         }
         iEndCollect();
     }
+#endif
     /* Test array insertion and removal. */ {
         printf("Array insertions/removals:\n");
         iArray *list = new_Array(2);

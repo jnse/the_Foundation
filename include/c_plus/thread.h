@@ -33,11 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "blockhash.h"
 #include "mutex.h"
 
-#if defined (iHaveC11Threads)
-#   include <threads.h>
-#else
-#   include <c11threads.h>
-#endif
+#include <stdthreads.h>
 
 iDeclareClass(Thread)
 iDeclareType(Thread)
@@ -79,6 +75,12 @@ int     idealConcurrentCount_Thread (void);
 static inline thrd_t id_Thread(const iThread *d) {
     return d->id;
 }
+
+//---------------------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------------------
 
 iDeclareBlockHash(ThreadHash, ThreadId, Thread)
 iDeclareLockableObject(ThreadHash)

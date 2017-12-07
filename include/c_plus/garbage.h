@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 
+void        init_Garbage        (void);
+
 void        recycle_Garbage     (void);
 void        beginScope_Garbage  (void);
 void        endScope_Garbage    (void);

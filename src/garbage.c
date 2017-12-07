@@ -30,32 +30,31 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdthreads.h>
 
-#define iCollectedMax   16
+iDeclareType(GarbageNode)
 
-static iList *collected_; // Should be thread-local...
+#define iGarbageNodeMax   16
 
-iDeclareType(Collected)
-
-struct Impl_Collected {
+struct Impl_GarbageNode {
     iListNode node;
     int count;
     struct {
         void *ptr;
         iDeleteFunc del;
-    } allocs[iCollectedMax];
+    } allocs[iGarbageNodeMax];
 };
 
-#define isEmpty_Collected_(d)   ((d)->count == 0)
-#define isFull_Collected_(d)    ((d)->count == iCollectedMax)
+static inline iBool isEmpty_GarbageNode_(const iGarbageNode *d) { return d->count == 0; }
+static inline iBool isFull_GarbageNode_ (const iGarbageNode *d) { return d->count == iGarbageNodeMax; }
 
-static iCollected *new_Collected_(void) {
-    iCollected *d = iMalloc(Collected);
+static iGarbageNode *new_GarbageNode_(void) {
+    iGarbageNode *d = iMalloc(GarbageNode);
     d->count = 0;
     return d;
 }
 
-static iBool popBack_Collected_(iCollected *d) {
+static iBool popBack_GarbageNode_(iGarbageNode *d) {
     if (d->count > 0) {
         if (d->allocs[--d->count].del) {
             d->allocs[d->count].del(d->allocs[d->count].ptr);
@@ -65,46 +64,98 @@ static iBool popBack_Collected_(iCollected *d) {
     return iFalse;
 }
 
-static void delete_Collected_(iCollected *d) {
+static void delete_GarbageNode_(iGarbageNode *d) {
     while (d->count > 0) {
-        popBack_Collected_(d);
+        popBack_GarbageNode_(d);
     }
     free(d);
 }
 
-static void deinit_Garbage_(void) {
-    recycle_Garbage();
-    delete_List(collected_);
-    collected_ = NULL;
+//---------------------------------------------------------------------------------------
+
+iDeclareType(Collected)
+
+static tss_t threadLocalKey_Garbage_;
+
+struct Impl_Collected { // Thread-specific.
+    iList collected;
+};
+
+static iCollected *new_Collected_(void) {
+    iCollected *d = iMalloc(Collected);
+    iDebug("[Garbage] created Collected %p\n", d);
+    init_List(&d->collected);
+    return d;
 }
 
-static iList *init_Garbage_(void) {
-    if (!collected_) {
-        collected_ = new_List();
-        atexit(deinit_Garbage_);
+static void recycle_Collected_(iCollected *d) {
+    if (!isEmpty_List(&d->collected)) {
+        iDebug("[Garbage] recycling %zu allocations\n", size_List(&d->collected));
+        iReverseForEach(List, i, &d->collected) {
+            delete_GarbageNode_((iGarbageNode *) i.value);
+        }
+        clear_List(&d->collected);
     }
-    return collected_;
+}
+
+static void delete_Collected_(iCollected *d) {
+    recycle_Collected_(d);
+    deinit_List(&d->collected);
+    free(d);
+    iDebug("[Garbage] deleted Collected %p\n", d);
+}
+
+static iBool pop_Collected_(iCollected *d) {
+    if (isEmpty_List(&d->collected)) {
+        return iFalse;
+    }
+    iGarbageNode *node = back_List(&d->collected);
+    if (isEmpty_GarbageNode_(node) && size_List(&d->collected) > 1) {
+        popBack_List(&d->collected);
+        delete_GarbageNode_(node);
+    }
+    return popBack_GarbageNode_(back_List(&d->collected));
+}
+
+static void push_Collected_(iCollected *d, void *ptr, iDeleteFunc del) {
+    iGarbageNode *node = back_List(&d->collected);
+    if (!node || isFull_GarbageNode_(node)) {
+        pushBack_List(&d->collected, node = new_GarbageNode_());
+    }
+    node->allocs[node->count].ptr = ptr;
+    node->allocs[node->count].del = del;
+    node->count++;
+}
+
+//---------------------------------------------------------------------------------------
+
+static void deinitForThread_Garbage_(void) {
+    iCollected *d = tss_get(threadLocalKey_Garbage_);
+    if (d) {
+        delete_Collected_(d);
+        tss_set(threadLocalKey_Garbage_, NULL);
+    }
+}
+
+void init_Garbage(void) {
+    tss_create(&threadLocalKey_Garbage_, (tss_dtor_t) delete_Collected_);
+    atexit(deinitForThread_Garbage_);
+}
+
+static iCollected *initForThread_Garbage_(void) {
+    iCollected *d = tss_get(threadLocalKey_Garbage_);
+    if (!d) {
+        tss_set(threadLocalKey_Garbage_, d = new_Collected_());
+    }
+    return d;
 }
 
 static iBool pop_Garbage_(void) {
-    if (!collected_ || isEmpty_List(collected_)) return iFalse;
-    iCollected *d = back_List(collected_);
-    if (isEmpty_Collected_(d) && size_List(collected_) > 1) {
-        popBack_List(collected_);
-        delete_Collected_(d);
-    }
-    return popBack_Collected_(back_List(collected_));
+    return pop_Collected_(initForThread_Garbage_());
 }
 
 void *collect_Garbage(void *ptr, iDeleteFunc del) {
-    iList *list = init_Garbage_();
-    iCollected *d = back_List(list);
-    if (!d || isFull_Collected_(d)) {
-        pushBack_List(list, d = new_Collected_());
-    }
-    d->allocs[d->count].ptr = ptr;
-    d->allocs[d->count].del = del;
-    d->count++;
+    push_Collected_(initForThread_Garbage_(), ptr, del);
     return ptr;
 }
 
@@ -121,11 +172,8 @@ void endScope_Garbage(void) {
 }
 
 void recycle_Garbage(void) {
-    if (collected_) {
-        iDebug("[Garbage] recycling %zu allocations\n", size_List(collected_));
-        iReverseForEach(List, i, collected_) {
-            delete_Collected_((iCollected *) i.value);
-        }
-        clear_List(collected_);
+    iCollected * d = tss_get(threadLocalKey_Garbage_);
+    if (d) {
+        recycle_Collected_(d);
     }
 }
