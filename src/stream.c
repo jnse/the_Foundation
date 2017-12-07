@@ -61,11 +61,20 @@ size_t readBlock_Stream(iStream *d, size_t size, iBlock *data_out) {
     const size_t readSize = class_Stream(d)->read(d, size, data_Block(data_out));
     truncate_Block(data_out, readSize);
     d->pos += readSize;
+    d->size = iMax(d->size, d->pos);
     return readSize;
 }
 
 iBlock *readAll_Stream(iStream *d) {
-    return read_Stream(d, d->size - d->pos);
+    iBlock *data = new_Block(0);
+    iBlock *chunk = new_Block(0);
+    for (;;) {
+        size_t readSize = readBlock_Stream(d, 128 * 1024, chunk);
+        if (!readSize) break;
+        append_Block(data, chunk);
+    }
+    delete_Block(chunk);
+    return data;
 }
 
 size_t write_Stream(iStream *d, const iBlock *data) {

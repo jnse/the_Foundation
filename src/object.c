@@ -30,10 +30,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <stdlib.h>
 
+#define iObjectSignature    0x4a424f69 // iOBJ
+
 #if !defined (NDEBUG)
 static int totalCount_;
 int totalCount_Object(void) {
     return totalCount_;
+}
+
+void checkSignature_Object(const iAnyObject *d) {
+    iAssert(d != NULL);
+    iAssert(((const iObject *) d)->__signature == iObjectSignature);
 }
 #endif
 
@@ -53,19 +60,27 @@ iAnyObject *new_Object(const iAnyClass *class) {
     d->class = class;
     d->refCount = 1;
 #if !defined (NDEBUG)
+    d->__signature = iObjectSignature;
     totalCount_++;
 #endif
     iDebug("[Object] constructed %s %p\n", d->class->name, d);
     return d;
 }
 
-void deinit_Object(iAnyObject *d) {
-    deinit_Class(((iObject *) d)->class, d);
+void deinit_Object(iAnyObject *any) {
+    iObject *d = (iObject *) any;
+#if !defined (NDEBUG)
+    checkSignature_Object(d);
+#endif    
+    deinit_Class(d->class, d);
 }
 
 iAnyObject *ref_Object(const iAnyObject *any) {
     if (any) {
         iObject *d = iConstCast(iObject *, any);
+#if !defined (NDEBUG)
+        checkSignature_Object(d);
+#endif
         d->refCount++;
         return d;
     }
@@ -75,6 +90,9 @@ iAnyObject *ref_Object(const iAnyObject *any) {
 void deref_Object(const iAnyObject *any) {
     if (any) {
         iObject *d = iConstCast(iObject *, any);
+#if !defined (NDEBUG)
+        checkSignature_Object(d);
+#endif
         iAssert(d->refCount > 0);
         if (--d->refCount == 0) {
             free_Object_(d);
@@ -84,6 +102,9 @@ void deref_Object(const iAnyObject *any) {
 
 const iClass *class_Object(const iAnyObject *d) {
     if (d) {
+#if !defined (NDEBUG)
+        checkSignature_Object(d);
+#endif
         return ((const iObject *) d)->class;
     }
     return NULL;

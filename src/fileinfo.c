@@ -210,11 +210,15 @@ void deinit_DirFileInfo(iDirFileInfo *d) {
 
 static iBool readNextEntry_DirFileInfo_(iDirFileInfo *d) {
     deinit_FileInfo(&d->entry);
+    struct dirent *result = NULL;
+#if defined (iPlatformApple)
     struct dirent ent;
-    struct dirent *result;
     readdir_r(d->fd, &ent, &result);
+#else
+    result = readdir(d->fd);
+#endif
     iZap(d->entry);
-    if (result == &ent) {
+    if (result) {
         initDirEntry_FileInfo_(&d->entry, path_FileInfo(d->dirInfo), result);
         return iTrue;
     }

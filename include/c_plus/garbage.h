@@ -38,7 +38,7 @@ void        beginScope_Garbage  (void);
 void        endScope_Garbage    (void);
 iAny *      collect_Garbage     (iAny *ptr, iDeleteFunc del);
 
-static inline iAny *iCollect(iAny *ptr) {
+static inline iAny *iCollectMem(iAny *ptr) {
     return collect_Garbage(ptr, free);
 }
 

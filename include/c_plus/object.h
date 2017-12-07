@@ -76,6 +76,9 @@ iDeclareType(Object)
 struct Impl_Object {
     const iClass *class;
     int refCount;
+#if !defined (NDEBUG)
+    uint32_t __signature;
+#endif
 };
 
 typedef void iAnyObject;
@@ -94,10 +97,14 @@ void            deref_Object    (const iAnyObject *);
 const iClass *  class_Object    (const iAnyObject *);
 
 #if !defined (NDEBUG)
-int             totalCount_Object   (void);
+int             totalCount_Object       (void);
+void            checkSignature_Object   (const iAnyObject *);
 #endif
 
 static inline iAnyObject *collect_Object(const iAnyObject *d) {
+#if !defined (NDEBUG)
+    checkSignature_Object(d);
+#endif
     return collect_Garbage(iConstCast(iAnyObject *, d), (iDeleteFunc) deref_Object);
 }
 

@@ -81,7 +81,6 @@ struct Impl_Collected { // Thread-specific.
 
 static iCollected *new_Collected_(void) {
     iCollected *d = iMalloc(Collected);
-    iDebug("[Garbage] created Collected %p\n", d);
     init_List(&d->collected);
     return d;
 }
@@ -100,7 +99,6 @@ static void delete_Collected_(iCollected *d) {
     recycle_Collected_(d);
     deinit_List(&d->collected);
     free(d);
-    iDebug("[Garbage] deleted Collected %p\n", d);
 }
 
 static iBool pop_Collected_(iCollected *d) {

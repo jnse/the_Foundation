@@ -37,7 +37,7 @@ int idealConcurrentCount_Thread(void) {
         iBeginCollect();
         iFile *f = iClob(newCStr_File("/proc/cpuinfo"));
         if (open_File(f, readOnly_FileMode)) {
-            const iString *cpuinfo = iClob(newBlock_String(iClob(readAll_File(f))));
+            iString *cpuinfo = newBlock_String(collect_Block(readAll_File(f)));
             const iRegExp *processorN = iClob(new_RegExp("processor\\s+:\\s+([0-9]+)", 0));
             iRegExpMatch match;
             while (matchString_RegExp(processorN, cpuinfo, &match)) {
@@ -46,6 +46,7 @@ int idealConcurrentCount_Thread(void) {
                 ncpu = iMax(ncpu, cpuNumber);
                 delete_String(cap);
             }
+            delete_String(cpuinfo);
         }
         iEndCollect();
     }

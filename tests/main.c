@@ -295,7 +295,7 @@ int main(int argc, char *argv[]) {
     /* Test a hash. */ {
         iHash *h = new_Hash();
         for (int i = 0; i < 10; ++i) {
-            iHashNode *node = iCollect(iMalloc(HashNode));
+            iHashNode *node = iCollectMem(iMalloc(HashNode));
             node->key = i;
             insert_Hash(h, node);
         }
@@ -319,7 +319,7 @@ int main(int argc, char *argv[]) {
         printf("Keys: ["); {
             iForEach(Map, i, map) {
                 printf(" %2lli", i.value->key);
-                iCollect(i.value);
+                iCollectMem(i.value);
             }
         }
         printf(" ]\n");
