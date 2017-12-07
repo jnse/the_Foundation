@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdthreads.h>
 
 iDeclareClass(Thread)
+
 iDeclareType(Thread)
 
 typedef thrd_t iThreadId;
@@ -76,11 +77,7 @@ static inline thrd_t id_Thread(const iThread *d) {
     return d->id;
 }
 
-//---------------------------------------------------------------------------------------
-
-
-
-//---------------------------------------------------------------------------------------
-
+/** @cond */
 iDeclareBlockHash(ThreadHash, ThreadId, Thread)
 iDeclareLockableObject(ThreadHash)
+/** @endcond */

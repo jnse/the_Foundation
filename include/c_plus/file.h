@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdio.h>
 
+typedef iStreamClass iFileClass;
+
 iDeclareType(File)
 iDeclareType(String)
 
@@ -51,8 +53,6 @@ struct Impl_File {
     int flags;
     FILE *file;
 };
-
-typedef iStreamClass iFileClass;
 
 iDeclareObjectConstructionArgs(File, const iString *path)
 

@@ -43,6 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "string.h"
 
 iDeclareClass(StringList)
+
 iDeclareType(StringList)
 
 struct Impl_StringList {

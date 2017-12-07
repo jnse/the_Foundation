@@ -29,6 +29,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
+/**
+ * Defines a lockable object type. In practice, this is an object paired with a mutex.
+ * Both the objcet and the mutex are created when the lockable object is initialized.
+ * @param typeName  Type of the value object.
+ */
 #define iDeclareLockableObject(typeName) \
     iDeclareType(Lockable##typeName) \
     struct Impl_Lockable##typeName { \

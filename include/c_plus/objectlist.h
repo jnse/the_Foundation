@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "object.h"
 
 iDeclareClass(ObjectList)
+
 iDeclareType(ObjectList)
 iDeclareType(ObjectListNode)
 

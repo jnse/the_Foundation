@@ -32,10 +32,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "class.h"
 #include "string.h"
 
+iDeclareClass(RegExp)
+
 iDeclareType(RegExp)
 iDeclareType(RegExpMatch)
-
-iDeclareClass(RegExp)
 
 #define iRegExpMaxSubstrings  32
 

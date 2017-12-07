@@ -33,16 +33,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdthreads.h>
 
 iDeclareType(GarbageNode)
+iDeclareType(CollectedPtr)
 
 #define iGarbageNodeMax   16
+
+struct Impl_CollectedPtr {
+    void *ptr;
+    iDeleteFunc del;
+};
 
 struct Impl_GarbageNode {
     iListNode node;
     int count;
-    struct {
-        void *ptr;
-        iDeleteFunc del;
-    } allocs[iGarbageNodeMax];
+    iCollectedPtr allocs[iGarbageNodeMax];
 };
 
 static inline iBool isEmpty_GarbageNode_(const iGarbageNode *d) { return d->count == 0; }
@@ -56,8 +59,9 @@ static iGarbageNode *new_GarbageNode_(void) {
 
 static iBool popBack_GarbageNode_(iGarbageNode *d) {
     if (d->count > 0) {
-        if (d->allocs[--d->count].del) {
-            d->allocs[d->count].del(d->allocs[d->count].ptr);
+        const iCollectedPtr *alloc = d->allocs + (--d->count);
+        if (alloc->del) {
+            alloc->del(alloc->ptr);
             return iTrue;
         }
     }
