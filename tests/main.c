@@ -53,8 +53,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 //---------------------------------------------------------------------------------------
 
-iDeclareType(TestNode)
 iDeclareStaticClass(TestNode)
+iDeclareType(TestNode)
 
 struct Impl_TestNode {
     iTreeNode node;
@@ -80,8 +80,8 @@ iTestNode *new_TestNode(int value) {
 
 //---------------------------------------------------------------------------------------
 
-iDeclareType(SuperNode)
 iDeclareStaticClass(SuperNode)
+iDeclareType(SuperNode)
 
 struct Impl_SuperNode {
     iTestNode testNode;
@@ -108,8 +108,8 @@ iSuperNode *new_SuperNode(int value, int member) {
 
 //---------------------------------------------------------------------------------------
 
-iDeclareType(TestObject)
 iDeclareStaticClass(TestObject)
+iDeclareType(TestObject)
 
 struct Impl_TestObject {
     iObject object;
@@ -159,12 +159,10 @@ static int compareTestObjects(const void *a, const void *b) {
 }
 
 static int run_WorkerThread(iThread *d) {
-    iBeginCollect();
     printf("Worker thread %p started\n", d);
     printf("Ideal concurrent thread count: %i\n", idealConcurrentCount_Thread());
     sleep_Thread(0.1);
     printf("Worker thread %p is done\n", d);
-    iEndCollect();
     return 12345;
 }
 
