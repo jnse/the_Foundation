@@ -117,14 +117,12 @@ static iBool pop_Collected_(iCollected *d) {
     return popBack_GarbageNode_(back_List(&d->collected));
 }
 
-static void push_Collected_(iCollected *d, void *ptr, iDeleteFunc del) {
+static void push_Collected_(iCollected *d, iCollectedPtr colptr) {
     iGarbageNode *node = back_List(&d->collected);
     if (!node || isFull_GarbageNode_(node)) {
         pushBack_List(&d->collected, node = new_GarbageNode_());
     }
-    node->allocs[node->count].ptr = ptr;
-    node->allocs[node->count].del = del;
-    node->count++;
+    node->allocs[node->count++] = colptr;
 }
 
 //---------------------------------------------------------------------------------------
@@ -157,7 +155,7 @@ static iBool pop_Garbage_(void) {
 }
 
 void *collect_Garbage(void *ptr, iDeleteFunc del) {
-    push_Collected_(initForThread_Garbage_(), ptr, del);
+    push_Collected_(initForThread_Garbage_(), (iCollectedPtr){ ptr, del });
     return ptr;
 }
 
