@@ -167,8 +167,7 @@ static int run_WorkerThread(iThread *d) {
 }
 
 int main(int argc, char *argv[]) {
-    iUnused(argc);
-    iUnused(argv);
+    iUnused(argc, argv);
     init_CPlus();
     /* Test time and date. */ {
         const iTime now = now_Time();

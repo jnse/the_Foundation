@@ -38,8 +38,7 @@ static int run_Worker_(iThread *d) {
 }
 
 int main(int argc, char *argv[]) {
-    iUnused(argc);
-    iUnused(argv);
+    iUnused(argc, argv);
     init_CPlus();
     /* Run a few threads in a pool. */ {
         iThreadPool *pool = new_ThreadPool();
