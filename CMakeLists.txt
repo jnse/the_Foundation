@@ -140,4 +140,5 @@ macro (cplus_add_test target sources)
 endmacro ()
 
 cplus_add_test (c+test      tests/main.c)
+cplus_add_test (c+strings   tests/strings.c)
 cplus_add_test (c+threading tests/threading.c)

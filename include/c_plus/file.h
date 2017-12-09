@@ -71,6 +71,7 @@ static inline int   flags_File  (const iFile *d) { return d->flags ;}
 static inline long  pos_File    (const iFile *d) { return pos_Stream(&d->stream); }
 static inline long  size_File   (const iFile *d) { return size_Stream(&d->stream); }
 static inline iBool atEnd_File  (const iFile *d) { return atEnd_Stream(&(d)->stream); }
+static inline const iString *path_File(const iFile *d) { return d->path; }
 
 static inline iBlock *      readAll_File  (iFile *d) { return readAll_Stream(&d->stream); }
 static inline iStringList * readLines_File(iFile *d) { return readLines_Stream(&d->stream); }

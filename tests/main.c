@@ -243,25 +243,6 @@ int main(int argc, char *argv[]) {
         }
         delete_PtrArray(par);
     }
-    /* Test an array of strings. */ {
-        iStringArray *sar = newStringsCStr_StringArray("Hello World", "Another string", "3rd text", NULL);
-        printf("StringArray contents:\n");
-        iConstForEach(StringArray, i, sar) {
-            printf("%4zu: \"%s\"\n", index_StringArrayConstIterator(&i), cstr_String(*i.value));
-        }
-        iRelease(sar);
-    }
-    /* Test a list of strings. */ {
-        iFile *file = newCStr_File("/Users/jaakko/src/cplus/CMakeLists.txt");
-        if (open_File(file, text_FileMode)) {
-            iStringList *list = readLines_File(file);
-            iConstForEach(StringList, i, list) {
-                printf("%4zu: \"%s\"\n", i.pos, cstr_String(i.value));
-            }
-            iRelease(list);
-        }
-        iRelease(file);
-    }
     /* Test an object list. */ {
         iObjectList *olist = new_ObjectList();
         for (int i = 0; i < 10; ++i) {
@@ -375,25 +356,6 @@ int main(int argc, char *argv[]) {
         printf("c-Block: %s\n", constData_Block(c));
         printf("mid: %s\n", constData_Block(collect_Block(mid_Block(b, 3, 4))));
         iEndCollect();
-    }
-    /* Test Unicode strings. */ {
-        iString *s = collect_String(newCStr_String("A_Äö\U0001f698a"));
-        printf("String: %s length: %zu size: %zu\n", cstr_String(s), length_String(s), size_String(s)); {
-            iConstForEach(String, i, s) {
-                printf(" char: %04x [%lc]\n", i.value, i.value);
-            }
-        }
-        printf("Backwards:\n"); {
-            iReverseConstForEach(String, i , s) {
-                printf(" char: %04x [%lc]\n", i.value, i.value);
-            }
-        }
-        printf("Starts with: %i %i\n", startsWith_String(s, "a"), startsWithCase_String(s, "a"));
-        printf("Ends with: %i %i\n", endsWith_String(s, "a"), endsWithCase_String(s, "A"));
-        printf("Mid: %s\n", cstr_String(collect_String(mid_String(s, 3, 1))));
-        printf("ö is at: %zu %zu\n", indexOfCStr_String(s, "ö"), indexOf_String(s, u'ö'));
-        truncate_String(s, 3);
-        printf("Truncated: %s\n", cstr_String(s));
     }
     /* Test a thread. */ {
         iThread *worker = new_Thread(run_WorkerThread);

@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdlib.h>
 #include <stdarg.h>
 
-#define iStringListMaxStringsPerNode    1024
+#define iStringListMaxStringsPerNode    64 //1024
 
 iDeclareType(StringListNode)
 
@@ -151,13 +151,22 @@ static iStringListNode *frontNode_StringList_(iStringList *d) {
     return front_List(&d->list);
 }
 
+static void debug_StringList_(const iStringList *d) {
+    printf("%4zu", size_StringList(d));
+    iConstForEach(List, i, &d->list) {
+        const iStringListNode *node = (const iAny *) i.value;
+        printf(" [%2zu]", size_StringArray(&node->strings));
+    }
+    printf("\n");
+}
+
 static void splitNode_StringList_(iStringList *d, iStringListNode *node) {
     const size_t count = size_StringListNode_(node);
     if (count > iStringListMaxStringsPerNode) {
         iStringListNode *half = new_StringListNode_();
-        iRanges range = { count/2, count };
-        move_StringArray(&node->strings, &range, &half->strings, 0);
+        move_StringArray(&node->strings, &(iRanges){ count/2, count }, &half->strings, 0);
         insertAfter_List(&d->list, node, half);
+        debug_StringList_(d);
     }
 }
 
@@ -170,6 +179,7 @@ static void mergeIntoAndRemoveNode_StringList_(iStringList *d, iStringListNode *
                      to == prev_StringListNode_(from)? size_StringListNode_(to) : 0);
     remove_List(&d->list, from);
     delete_StringListNode_(from);
+    debug_StringList_(d);
 }
 
 static void mergeNode_StringList_(iStringList *d, iStringListNode *node) {
