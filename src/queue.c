@@ -44,36 +44,36 @@ void deinit_Queue(iQueue *d) {
 
 void put_Queue(iQueue *d, iQueueItem *item) {
     iAssert(item != NULL);
-    lock_Mutex(&d->mutex);
-    pushBack_ObjectList(&d->items, item);
-    unlock_Mutex(&d->mutex);
+    iAssertIsObject(item);
+    iGuardMutex(&d->mutex, pushBack_ObjectList(&d->items, item));
     cnd_signal(&d->cond);
 }
 
 iQueueItem *take_Queue(iQueue *d) {
-    lock_Mutex(&d->mutex);
     iQueueItem *item = NULL;
-    for (;;) {
-        item = takeFront_ObjectList(&d->items);
-        if (item) break;
-        cnd_wait(&d->cond, &d->mutex.mtx);
-    }
-    unlock_Mutex(&d->mutex);
+    iGuardMutex(&d->mutex, {
+        for (;;) {
+            item = takeFront_ObjectList(&d->items);
+            if (item) break;
+            cnd_wait(&d->cond, &d->mutex.mtx);
+        }
+    });
+    iAssertIsObject(item);
     return item;
 }
 
 iQueueItem *takeTimeout_Queue(iQueue *d, double timeoutSeconds) {
     iTime until;
     initTimeout_Time(&until, timeoutSeconds);
-    lock_Mutex(&d->mutex);
     iQueueItem *item = NULL;
-    for (;;) {
-        item = takeFront_ObjectList(&d->items);
-        if (item || cnd_timedwait(&d->cond, &d->mutex.mtx, &until.ts) == thrd_timedout) {
-            break;
+    iGuardMutex(&d->mutex, {
+        for (;;) {
+            item = takeFront_ObjectList(&d->items);
+            if (item || cnd_timedwait(&d->cond, &d->mutex.mtx, &until.ts) == thrd_timedout) {
+                break;
+            }
         }
-    }
-    unlock_Mutex(&d->mutex);
+    });
     return item;
 }
 

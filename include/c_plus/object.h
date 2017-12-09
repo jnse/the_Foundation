@@ -33,6 +33,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "class.h"
 
+#include <stdatomic.h>
+
 #define iNew(typeName)      ((i##typeName *) new_Object(&Class_##typeName))
 
 #define iDeclareObjectConstruction(typeName) \
@@ -75,7 +77,7 @@ iDeclareType(Object)
 
 struct Impl_Object {
     const iClass *class;
-    int refCount;
+    atomic_int refCount;
 #if !defined (NDEBUG)
     uint32_t __signature;
 #endif
@@ -99,12 +101,13 @@ const iClass *  class_Object    (const iAnyObject *);
 #if !defined (NDEBUG)
 int             totalCount_Object       (void);
 void            checkSignature_Object   (const iAnyObject *);
+#define iAssertIsObject(d)  checkSignature_Object(d)
+#else
+#define iAssertIsObject(d)
 #endif
 
 static inline iAnyObject *collect_Object(const iAnyObject *d) {
-#if !defined (NDEBUG)
-    checkSignature_Object(d);
-#endif
+    iAssertIsObject(d);
     return collect_Garbage(iConstCast(iAnyObject *, d), (iDeleteFunc) deref_Object);
 }
 

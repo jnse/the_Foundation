@@ -82,8 +82,8 @@ void            popBack_ObjectList      (iObjectList *);
  * Pops the front object. Caller is responsible for releasing the returned object.
  */
 static inline iAnyObject *takeFront_ObjectList(iObjectList *d) {
-    if (isEmpty_ObjectList(d)) return NULL;
     iAnyObject *obj = ref_Object(front_ObjectList(d));
+    if (obj) iAssertIsObject(d);
     popFront_ObjectList(d);
     return obj;
 }
@@ -92,7 +92,6 @@ static inline iAnyObject *takeFront_ObjectList(iObjectList *d) {
  * Pops the back object. Caller is responsible for releasing the returned object.
  */
 static inline iAnyObject *takeBack_ObjectList(iObjectList *d) {
-    if (isEmpty_ObjectList(d)) return NULL;
     iAnyObject *obj = ref_Object(back_ObjectList(d));
     popBack_ObjectList(d);
     return obj;

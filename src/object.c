@@ -32,8 +32,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #define iObjectSignature    0x4a424f69 // iOBJ
 
+#if 0
+#   define iObjectDebug(...)    iDebug(__VA_ARGS__)
+#else
+#   define iObjectDebug(...)
+#endif
+
 #if !defined (NDEBUG)
-static int totalCount_;
+static atomic_int totalCount_;
+
 int totalCount_Object(void) {
     return totalCount_;
 }
@@ -46,7 +53,8 @@ void checkSignature_Object(const iAnyObject *d) {
 
 static void free_Object_(iObject *d) {
     deinit_Object(d);
-    iDebug("[Object] deleting %s %p\n", d->class->name, d);
+    iObjectDebug("[Object] deleting %s %p\n", d->class->name, d);
+    d->__signature = 0xDeadBeef;
     free(d);
 #if !defined (NDEBUG)
     totalCount_--;
@@ -63,24 +71,20 @@ iAnyObject *new_Object(const iAnyClass *class) {
     d->__signature = iObjectSignature;
     totalCount_++;
 #endif
-    iDebug("[Object] constructed %s %p\n", d->class->name, d);
+    iObjectDebug("[Object] constructed %s %p\n", d->class->name, d);
     return d;
 }
 
 void deinit_Object(iAnyObject *any) {
     iObject *d = (iObject *) any;
-#if !defined (NDEBUG)
-    checkSignature_Object(d);
-#endif    
+    iAssertIsObject(d);
     deinit_Class(d->class, d);
 }
 
 iAnyObject *ref_Object(const iAnyObject *any) {
     if (any) {
         iObject *d = iConstCast(iObject *, any);
-#if !defined (NDEBUG)
-        checkSignature_Object(d);
-#endif
+        iAssertIsObject(d);
         d->refCount++;
         return d;
     }
@@ -90,9 +94,7 @@ iAnyObject *ref_Object(const iAnyObject *any) {
 void deref_Object(const iAnyObject *any) {
     if (any) {
         iObject *d = iConstCast(iObject *, any);
-#if !defined (NDEBUG)
-        checkSignature_Object(d);
-#endif
+        iAssertIsObject(d);
         iAssert(d->refCount > 0);
         if (--d->refCount == 0) {
             free_Object_(d);
@@ -102,9 +104,7 @@ void deref_Object(const iAnyObject *any) {
 
 const iClass *class_Object(const iAnyObject *d) {
     if (d) {
-#if !defined (NDEBUG)
-        checkSignature_Object(d);
-#endif
+        iAssertIsObject(d);
         return ((const iObject *) d)->class;
     }
     return NULL;
