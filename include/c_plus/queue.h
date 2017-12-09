@@ -1,4 +1,10 @@
-/** @file mutex.c  Mutual exclusion.
+#pragma once
+
+/** @file c_plus/queue.h  Thread-safe queue of objects.
+
+Queue is derived from ObjectList, so it keeps a reference to each object in the queue.
+When objects are taken from the queue the reference is passed to the caller, so they are
+responsible for releasing taken objects.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -25,36 +31,36 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/mutex.h"
+#include "defs.h"
+#include "mutex.h"
+#include "objectlist.h"
 
-static void init_Mutex_(iMutex *d, enum iMutexType type) {
-    mtx_init(&d->mtx, type == recursive_MutexType? mtx_recursive : mtx_plain);
-}
+#include <stdthreads.h>
 
-iDefineTypeConstruction(Mutex)
+iDeclareClass(Queue)
+iDeclareType(Queue)
 
-iMutex *newType_Mutex(enum iMutexType type) {
-    iMutex *d = iMalloc(Mutex);
-    init_Mutex_(d, type);
-    return d;
-}
+iDeclareObjectConstruction(Queue)
 
-void init_Mutex(iMutex *d) {
-    init_Mutex_(d, recursive_MutexType);
-}
+struct Impl_Queue {
+    iObjectList items;
+    iMutex mutex;
+    cnd_t cond;
+};
 
-void deinit_Mutex(iMutex *d) {
-    mtx_destroy(&d->mtx);
-}
+typedef iAnyObject iQueueItem;
 
-iBool lock_Mutex(iMutex *d) {
-    return mtx_lock(&d->mtx) == thrd_success;
-}
+void        init_Queue          (iQueue *);
+void        deinit_Queue        (iQueue *);
 
-iBool tryLock_Mutex(iMutex *d) {
-    return mtx_trylock(&d->mtx) == thrd_success;
-}
+void        put_Queue           (iQueue *, iQueueItem *item);
 
-void unlock_Mutex(iMutex *d) {
-    mtx_unlock(&d->mtx);
+iQueueItem *take_Queue          (iQueue *);
+iQueueItem *takeTimeout_Queue   (iQueue *, double timeoutSeconds);
+iQueueItem *tryTake_Queue       (iQueue *);
+
+size_t      size_Queue          (const iQueue *d);
+
+static inline iBool isEmpty_Queue(const iQueue *d) {
+    return size_Queue(d) == 0;
 }

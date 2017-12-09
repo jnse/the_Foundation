@@ -50,12 +50,7 @@ struct Impl_Stream {
 void        init_Stream     (iStream *);
 void        deinit_Stream   (iStream *);
 
-void        setSize_Stream  (iStream *, long size);
-
-static inline long  size_Stream     (const iStream *d) { return d->size; }
-static inline long  pos_Stream      (const iStream *d) { return d->pos; }
-static inline iBool atEnd_Stream    (const iStream *d) { return d->pos == d->size; }
-
+void        setSize_Stream      (iStream *, long size);
 void        seek_Stream         (iStream *, long offset);
 iBlock *    read_Stream         (iStream *, size_t size);
 size_t      readBlock_Stream    (iStream *, size_t size, iBlock *data_out);
@@ -65,3 +60,7 @@ size_t      writeData_Stream    (iStream *, const void *data, size_t size);
 void        flush_Stream        (iStream *);
 
 iStringList *   readLines_Stream   (iStream *);
+
+static inline long  size_Stream     (const iStream *d) { return d->size; }
+static inline long  pos_Stream      (const iStream *d) { return d->pos; }
+static inline iBool atEnd_Stream    (const iStream *d) { return d->pos == d->size; }

@@ -63,9 +63,26 @@ void initSeconds_Time(iTime *d, double seconds) {
     d->ts.tv_nsec = (long)  (fractional * 1.0e9);
 }
 
+void initTimeout_Time(iTime *d, double seconds) {
+    initSeconds_Time(d, seconds);
+    const iTime now = now_Time();
+    add_Time(d, &now);
+}
+
 double seconds_Time(const iTime *d) {
     return (double) d->ts.tv_sec + (double) d->ts.tv_nsec / 1.0e9;
 }
+
+void add_Time(iTime *d, const iTime *time) {
+    d->ts.tv_sec += time->ts.tv_sec;
+    d->ts.tv_nsec += time->ts.tv_nsec;
+    while (d->ts.tv_nsec >= 1000000000L) {
+        d->ts.tv_sec++;
+        d->ts.tv_nsec -= 1000000000L;
+    }
+}
+
+//---------------------------------------------------------------------------------------
 
 void init_Date(iDate *d, const iTime *time) {
     struct tm t;

@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
+#include <stdthreads.h>
+
 /**
  * Defines a lockable object type. In practice, this is an object paired with a mutex.
  * Both the objcet and the mutex are created when the lockable object is initialized.
@@ -53,11 +55,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
         deref_Object(d->value); \
     }
 
-#define iLock(d)        lock_Mutex((d)->mutex)
-#define iUnlock(d)      unlock_Mutex((d)->mutex)
-#define iGuard(d, stmt) {iLock(d); stmt; iUnlock(d);}
+#define iLock(d)                lock_Mutex((d)->mutex)
+#define iUnlock(d)              unlock_Mutex((d)->mutex)
+#define iGuard(d, stmt)         {iLock(d); stmt; iUnlock(d);}
+
+#define iGuardMutex(d, stmt)    {lock_Mutex  (iConstCast(iMutex *, d)); stmt; \
+                                 unlock_Mutex(iConstCast(iMutex *, d));}
 
 iDeclareType(Mutex)
+
+struct Impl_Mutex {
+    mtx_t mtx;
+};
 
 enum iMutexType {
     nonRecursive_MutexType  = 0,

@@ -1,5 +1,4 @@
-/** @file mutex.c  Mutual exclusion.
-
+/**
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
 @par License
@@ -25,36 +24,28 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/mutex.h"
+#include <c_plus/threadpool.h>
+#include <c_plus/math.h>
 
-static void init_Mutex_(iMutex *d, enum iMutexType type) {
-    mtx_init(&d->mtx, type == recursive_MutexType? mtx_recursive : mtx_plain);
+static int run_Worker_(iThread *d) {
+    int value = iRandom(0, 1000000);
+    //printf("Thread %p: value %i\n", d, value);
+    return value;
 }
 
-iDefineTypeConstruction(Mutex)
-
-iMutex *newType_Mutex(enum iMutexType type) {
-    iMutex *d = iMalloc(Mutex);
-    init_Mutex_(d, type);
-    return d;
-}
-
-void init_Mutex(iMutex *d) {
-    init_Mutex_(d, recursive_MutexType);
-}
-
-void deinit_Mutex(iMutex *d) {
-    mtx_destroy(&d->mtx);
-}
-
-iBool lock_Mutex(iMutex *d) {
-    return mtx_lock(&d->mtx) == thrd_success;
-}
-
-iBool tryLock_Mutex(iMutex *d) {
-    return mtx_trylock(&d->mtx) == thrd_success;
-}
-
-void unlock_Mutex(iMutex *d) {
-    mtx_unlock(&d->mtx);
+int main(int argc, char *argv[]) {
+    iUnused(argc);
+    iUnused(argv);
+    init_CPlus();
+    /* Run a few threads in a pool. */ {
+        iThreadPool *pool = new_ThreadPool();
+        for (int i = 0; i < 100000; ++i) {
+            iThread *t = new_Thread(run_Worker_);
+            run_ThreadPool(pool, t);
+            iRelease(t);
+        }
+        printf("Waiting for threads to finish...\n");
+        iRelease(pool);
+    }
+    return 0;
 }

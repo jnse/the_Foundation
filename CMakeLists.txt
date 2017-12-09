@@ -3,6 +3,16 @@ project (c_Plus VERSION 1.0.0 LANGUAGES C)
 include (CheckIncludeFile)
 find_package (PkgConfig)
 
+macro (cplus_set_compile_options target)
+    set_property (TARGET ${target} PROPERTY C_STANDARD 11)
+    target_compile_options (${target} PRIVATE -Wall -Wpedantic -Werror)
+    if (CMAKE_COMPILER_IS_GNUCC)
+        target_compile_options (${target} PRIVATE -Wno-format)
+    else ()
+        target_compile_options (${target} PRIVATE -Wno-format-pedantic)
+    endif ()
+endmacro ()
+
 #----------------------------------------------------------------------------------------
 
 pkg_check_modules (PCRE libpcre)
@@ -38,6 +48,7 @@ set (HEADERS
     include/c_plus/path.h
     include/c_plus/ptrarray.h
     include/c_plus/ptrset.h
+    include/c_plus/queue.h
     include/c_plus/range.h
     include/c_plus/sortedarray.h
     include/c_plus/stream.h
@@ -46,6 +57,7 @@ set (HEADERS
     include/c_plus/stringlist.h
     include/c_plus/stringhash.h
     include/c_plus/thread.h
+    include/c_plus/threadpool.h
     include/c_plus/treenode.h
     include/c_plus/time.h
     include/c_plus/version.h
@@ -70,6 +82,7 @@ set (SOURCES
     src/path.c
     src/ptrarray.c
     src/ptrset.c
+    src/queue.c
     src/sortedarray.c
     src/stream.c
     src/string.c
@@ -77,6 +90,7 @@ set (SOURCES
     src/stringhash.c
     src/stringlist.c
     src/thread.c
+    src/threadpool.c
     src/time.c
     src/treenode.c
     src/version.c
@@ -103,14 +117,8 @@ configure_file (config.h.in config.h)
 add_library (cplus STATIC ${SOURCES} ${HEADERS})
 
 target_compile_definitions (cplus PRIVATE iIsLibraryBuild)
-set_property (TARGET cplus PROPERTY C_STANDARD 11)
 target_include_directories (cplus PUBLIC include ${CMAKE_CURRENT_BINARY_DIR})
-target_compile_options     (cplus PRIVATE -Wall -Wpedantic -Werror)
-if (CMAKE_COMPILER_IS_GNUCC)
-    target_compile_options (cplus PRIVATE -Wno-format)
-else ()
-    target_compile_options (cplus PRIVATE -Wno-format-pedantic)
-endif ()
+cplus_set_compile_options (cplus)
 
 # Dependencies.
 target_link_libraries (cplus PRIVATE pthread)
@@ -125,11 +133,11 @@ endif ()
 
 #----------------------------------------------------------------------------------------
 
-add_executable (c+test tests/main.c)
-target_compile_options (c+test PRIVATE -Wall -Wpedantic -Werror)
-target_link_libraries (c+test PRIVATE cplus)
-if (CMAKE_COMPILER_IS_GNUCC)
-    target_compile_options (c+test PRIVATE -Wno-format)
-else ()
-    target_compile_options (c+test PRIVATE -Wno-format-pedantic)
-endif ()
+macro (cplus_add_test target sources)
+    add_executable (${target} ${sources})
+    target_link_libraries (${target} PRIVATE cplus)
+    cplus_set_compile_options (${target})
+endmacro ()
+
+cplus_add_test (c+test      tests/main.c)
+cplus_add_test (c+threading tests/threading.c)

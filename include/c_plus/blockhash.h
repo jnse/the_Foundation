@@ -31,11 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "block.h"
 #include "object.h"
 
-/**
- * @name BlockHashNode
- */
+/** @name BlockHashNode */
 ///@{
-
 iDeclareType(BlockHashNode)
 
 iBeginDeclareClass(BlockHashNode)
@@ -54,7 +51,6 @@ iHashKey            hashKey_BlockHashNode   (const iBlock *key);
 void                deinit_BlockHashNode    (iBlockHashNode *);
 
 #define             key_BlockHashNode(d)    iConstCast(iBlock *, (&((const iBlockHashNode *) (d))->keyBlock))
-
 ///@}
 
 iDeclareClass(BlockHash)

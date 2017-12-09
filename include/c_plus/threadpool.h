@@ -1,4 +1,6 @@
-/** @file mutex.c  Mutual exclusion.
+#pragma once
+
+/** @file c_plus/threadpool.h  Thread pool.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -25,36 +27,21 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/mutex.h"
+#include "thread.h"
+#include "queue.h"
 
-static void init_Mutex_(iMutex *d, enum iMutexType type) {
-    mtx_init(&d->mtx, type == recursive_MutexType? mtx_recursive : mtx_plain);
-}
+iDeclareClass(ThreadPool)
 
-iDefineTypeConstruction(Mutex)
+iDeclareType(ThreadPool)
 
-iMutex *newType_Mutex(enum iMutexType type) {
-    iMutex *d = iMalloc(Mutex);
-    init_Mutex_(d, type);
-    return d;
-}
+struct Impl_ThreadPool {
+    iQueue queue;
+    iObjectList *threads;
+};
 
-void init_Mutex(iMutex *d) {
-    init_Mutex_(d, recursive_MutexType);
-}
+iDeclareObjectConstruction(ThreadPool)
 
-void deinit_Mutex(iMutex *d) {
-    mtx_destroy(&d->mtx);
-}
+void init_ThreadPool    (iThreadPool *);
+void deinit_ThreadPool  (iThreadPool *);
 
-iBool lock_Mutex(iMutex *d) {
-    return mtx_lock(&d->mtx) == thrd_success;
-}
-
-iBool tryLock_Mutex(iMutex *d) {
-    return mtx_trylock(&d->mtx) == thrd_success;
-}
-
-void unlock_Mutex(iMutex *d) {
-    mtx_unlock(&d->mtx);
-}
+void run_ThreadPool     (iThreadPool *, iThread *thread);

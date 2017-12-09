@@ -63,6 +63,7 @@ struct Impl_Date {
 void    init_Time           (iTime *, const iDate *);
 void    initCurrent_Time    (iTime *);
 void    initSeconds_Time    (iTime *, double seconds);
+void    initTimeout_Time    (iTime *, double seconds);
 
 iTime   now_Time            (void);
 double  seconds_Time        (const iTime *);
@@ -70,6 +71,8 @@ double  seconds_Time        (const iTime *);
 #define isValid_Time(d)         ((d)->ts.tv_sec > 0)
 #define integralSeconds_Time(d) ((d)->ts.tv_sec)
 #define nanoSeconds_Time(d)     ((d)->ts.tv_nsec)
+
+void    add_Time            (iTime *, const iTime *time);
 
 void    init_Date           (iDate *, const iTime *);
 void    initCurrent_Date    (iDate *);
