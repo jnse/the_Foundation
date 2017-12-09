@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #define element_Array_(d, index) (&(d)->data[(d)->elementSize * (index)])
 
-static void move_Array_(iArray *d, const iRanges *moved, int delta) {
+static void moveElements_Array_(iArray *d, const iRanges *moved, int delta) {
     if (delta != 0) {
         char *ptr = element_Array_(d, moved->start);
         memmove(ptr + delta * d->elementSize, ptr, d->elementSize * size_Range(moved));
@@ -44,7 +44,7 @@ static void shift_Array_(iArray *d, int delta) {
     if (delta != 0) {
         iAssert(d->range.start + delta >= 0);
         iAssert(d->range.end   + delta <= d->allocSize);
-        move_Array_(d, &d->range, delta);
+        moveElements_Array_(d, &d->range, delta);
         shift_Range(&d->range, delta);
     }
 }
@@ -193,13 +193,12 @@ void insertN_Array(iArray *d, size_t pos, const void *value, size_t count) {
                  pos - d->range.start < d->range.end - pos)) {
             const iRanges moved = { d->range.start, pos };
             pos -= count;
-            move_Array_(d, &moved, -(int)count);
+            moveElements_Array_(d, &moved, -(int)count);
             d->range.start -= count;
             memcpy(element_Array_(d, pos), value, count * d->elementSize);
         }
         else { // Shift forward.
-            const iRanges moved = { pos, d->range.end };
-            move_Array_(d, &moved, count);
+            moveElements_Array_(d, &(iRanges) { pos, d->range.end }, count);
             d->range.end += count;
             memcpy(element_Array_(d, pos), value, count * d->elementSize);
         }
@@ -217,13 +216,11 @@ void removeN_Array(iArray *d, size_t pos, size_t count) {
         d->range.start += count;
     }
     else if (pos - d->range.start > d->range.end - pos) {
-        const iRanges moved = { pos + count, d->range.end };
-        move_Array_(d, &moved, -(int)count);
+        moveElements_Array_(d, &(iRanges){ pos + count, d->range.end }, -(int)count);
         d->range.end -= count;
     }
     else {
-        const iRanges moved = { d->range.start, pos };
-        move_Array_(d, &moved, count);
+        moveElements_Array_(d, &(iRanges){ d->range.start, pos }, count);
         d->range.start += count;
     }
 }
@@ -240,9 +237,10 @@ void move_Array(iArray *d, const iRanges *range, iArray *dest, size_t destPos) {
     iAssert(d->elementSize == dest->elementSize);
     const int count = size_Range(range);
     const int oldDestSize = size_Array(dest);
-    const iRanges moved = { destPos, oldDestSize };
     resize_Array(dest, oldDestSize + count); // dest size increased
-    move_Array_(dest, &moved, count);
+    // Make room for the moved elements.
+    moveElements_Array_(dest, &(iRanges){ dest->range.start + destPos,
+                                          dest->range.start + oldDestSize }, count);
     memcpy(element_Array_(dest, dest->range.start + destPos),
            element_Array_(   d,    d->range.start + range->start),
            d->elementSize * count);

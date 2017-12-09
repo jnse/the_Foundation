@@ -164,8 +164,9 @@ static void splitNode_StringList_(iStringList *d, iStringListNode *node) {
 static void mergeIntoAndRemoveNode_StringList_(iStringList *d, iStringListNode *from,
                                                iStringListNode *to) {
     // Move all the strings to the previous node.
-    const iRanges range = { 0, size_StringListNode_(from) };
-    move_StringArray(&from->strings, &range, &to->strings,
+    move_StringArray(&from->strings,
+                     &(iRanges){ 0, size_StringListNode_(from) },
+                     &to->strings,
                      to == prev_StringListNode_(from)? size_StringListNode_(to) : 0);
     remove_List(&d->list, from);
     delete_StringListNode_(from);
