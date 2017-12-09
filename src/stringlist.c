@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdlib.h>
 #include <stdarg.h>
 
-#define iStringListMaxStringsPerNode    64 //1024
+#define iStringListMaxStringsPerNode    1024
 
 iDeclareType(StringListNode)
 
