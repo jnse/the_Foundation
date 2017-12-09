@@ -58,7 +58,10 @@ typedef void (*iDeleteFunc)(iAny *);
 void        init_CPlus  (void);
 uint32_t    iCrc32      (const char *data, size_t size);
 
-#define iUnused(var)            ((void)(var))
+#define iUnusedMany_(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, ...) \
+    ((void)(_0), (void)(_1), (void)(_2), (void)(_3), (void)(_4), \
+     (void)(_5), (void)(_6), (void)(_7), (void)(_8), (void)(_9))
+#define iUnused(...)            iUnusedMany_(__VA_ARGS__, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 #define iZap(var)               memset(&(var), 0, sizeof(var));
 #define iConstCast(type, ptr)   ((type) (intptr_t) (ptr))
 #define iMalloc(typeName)       malloc(sizeof(i##typeName))
