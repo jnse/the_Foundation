@@ -53,19 +53,36 @@ struct Impl_SortedArray {
 
 iDeclareTypeConstructionArgs(SortedArray, size_t elementSize, iSortedArrayCompareElemFunc cmp)
 
-size_t      size_SortedArray    (const iSortedArray *);
+static inline size_t    size_SortedArray    (const iSortedArray *d) { return size_Array(&d->values); }
+
 iBool       contains_SortedArray(const iSortedArray *, const void *value);
-iBool       locate_SortedArray  (const iSortedArray *, const void *value, iRanges *outLoc);
+iBool       locate_SortedArray  (const iSortedArray *, const void *value, size_t *pos_out);
+
+/**
+ * Locates a range of elements in the array.
+ *
+ * @param value     Value to be used for comparisons.
+ * @param relaxed   Optional comparison function that is more relaxed than the array's
+ *                  own element comparison function. This allows locating a range of
+ *                  elements that match partially. The relaxed comparison must be
+ *                  compatible with the array's comparison function.. Set to NULL to use
+ *                  the array's comparison function.
+ *
+ * @return Located range of elements. This is an empty range if nothing was found to match.
+ */
+iRanges     locateRange_SortedArray (const iSortedArray *, const void *value, iSortedArrayCompareElemFunc relaxed);
 
 #define     at_SortedArray(d, pos)  at_Array(&(d)->values, pos)
 #define     isEmpty_SortedArray(d)  isEmpty_Array(&(d)->values)
+
+static inline const void * constAt_SortedArray      (const iSortedArray *d, size_t pos) { return constAt_Array(&d->values, pos); }
+static inline const void * constFront_SortedArray   (const iSortedArray *d) { return constFront_Array(&d->values); }
+static inline const void * constBack_SortedArray    (const iSortedArray *d) { return constBack_Array(&d->values); }
 
 void        clear_SortedArray   (iSortedArray *);
 iBool       insert_SortedArray  (iSortedArray *, const void *value);
 iBool       remove_SortedArray  (iSortedArray *, const void *value);
 
-/** @name Iterators */
-///@{
-iDeclareIterator(SortedArray, iSortedArray *)
-iDeclareConstIterator(SortedArray, const iSortedArray *)
-///@}
+static inline void removeRange_SortedArray(iSortedArray *d, const iRanges *range) {
+    removeRange_Array(&d->values, range);
+}

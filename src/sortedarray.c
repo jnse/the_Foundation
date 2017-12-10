@@ -42,53 +42,86 @@ void deinit_SortedArray(iSortedArray *d) {
     deinit_Array(&d->values);
 }
 
-size_t size_SortedArray(const iSortedArray *d) {
-    return size_Array(&d->values);
-}
-
 iBool contains_SortedArray(const iSortedArray *d, const void *value) {
     return locate_SortedArray(d, value, NULL);
 }
 
-iBool locate_SortedArray(const iSortedArray *d, const void *value, iRanges *span) {
-    iRanges loc;
-    if (!span) span = &loc;
+iBool locate_SortedArray(const iSortedArray *d, const void *value, size_t *pos_out) {
     // We will narrow down the span until the pointer is found or we'll know where
     // it would be if it were inserted.
-    span->start = 0;
-    span->end = size_Array(&d->values);
-    while (!isEmpty_Range(span)) {
+    iRanges span = { 0, size_Array(&d->values) };
+    while (!isEmpty_Range(&span)) {
         // Arrived at a single item?
-        if (size_Range(span) == 1) {
-            if (d->cmp(value, at_SortedArray(d, span->start)) == 0) {
+        /*if (size_Range(&span) == 1) {
+            if (d->cmp(value, constAt_SortedArray(d, span.start)) == 0) {
+                if (pos_out) *pos_out = span.start;
                 return iTrue; // Found it.
             }
             // Then the value would go before or after this position.
-            if (d->cmp(value, at_SortedArray(d, span->start)) < 0) {
-                span->end = span->start;
+            if (d->cmp(value, constAt_SortedArray(d, span.start)) > 0) {
+                span.start = span.end; // After...
             }
-            else {
-                span->start = span->end;
-            }
-            return iFalse;
-        }
+            break;
+        }*/
         // Narrow down the search by a half.
-        const size_t rightHalf = (span->start + span->end + 1) / 2;
-        const void *mid = at_SortedArray(d, rightHalf);
-        if (d->cmp(value, mid) == 0) {
+        const size_t mid = (span.start + span.end) / 2;
+        const int cmp = d->cmp(value, constAt_SortedArray(d, mid));
+        if (cmp == 0) {
             // Oh, it's here.
-            span->start = rightHalf;
-            span->end   = rightHalf + 1;
+            if (pos_out) *pos_out = mid;
             return iTrue;
         }
-        else if (d->cmp(value, mid) > 0) {
-            span->start = rightHalf;
+        else if (cmp > 0) {
+            span.start = mid + 1;
         }
         else {
-            span->end = rightHalf;
+            span.end = mid;
         }
     }
+    if (pos_out) *pos_out = span.start;
     return iFalse;
+}
+
+iRanges locateRange_SortedArray(const iSortedArray *d, const void *value,
+                                iSortedArrayCompareElemFunc relaxed) {
+    const iSortedArrayCompareElemFunc cmpFunc = (relaxed? relaxed : d->cmp);
+    if (isEmpty_SortedArray(d) ||
+        cmpFunc(value, constFront_SortedArray(d)) < 0) {
+        return (iRanges){ 0, 0 };
+    }
+    if (cmpFunc(value, constBack_SortedArray(d)) > 0) {
+        return (iRanges){ size_SortedArray(d), size_SortedArray(d) };
+    }
+    iRanges range;
+    /* Find the beginning of the range. */ {
+        iRanges span = { 0, size_SortedArray(d) };
+        while (!isEmpty_Range(&span)) {
+            //const size_t mid = span.start + ((span.end - 1 - span.start)/2);
+            const size_t mid = (span.start + span.end) / 2;
+            if (cmpFunc(constAt_SortedArray(d, mid), value) >= 0) {
+                span.end = mid;
+            }
+            else {
+                span.start = mid + 1;
+            }
+        }
+        range.start = span.end;
+    }
+    /* Find the end of the range. */ {
+        iRanges span = { 0, size_SortedArray(d) };
+        while (!isEmpty_Range(&span)) {
+            //const size_t mid = span.start + ((span.end - 1 - span.start)/2);
+            const size_t mid = (span.start + span.end) / 2;
+            if (cmpFunc(constAt_SortedArray(d, mid), value) > 0) {
+                span.end = mid;
+            }
+            else {
+                span.start = mid + 1;
+            }
+        }
+        range.end = span.start;
+    }
+    return range;
 }
 
 void clear_SortedArray(iSortedArray *d) {
@@ -96,21 +129,21 @@ void clear_SortedArray(iSortedArray *d) {
 }
 
 iBool insert_SortedArray(iSortedArray *d, const void *value) {
-    iRanges loc;
-    if (locate_SortedArray(d, value, &loc)) {
+    size_t pos;
+    if (locate_SortedArray(d, value, &pos)) {
         // The value already exists in the set. It is written anyway, since some
         // contents of the element may have changed.
-        set_Array(&d->values, loc.start, value);
+        set_Array(&d->values, pos, value);
         return iFalse; // No new elements.
     }
-    insert_Array(&d->values, loc.start, value);
+    insert_Array(&d->values, pos, value);
     return iTrue;
 }
 
 iBool remove_SortedArray(iSortedArray *d, const void *value) {
-    iRanges loc;
-    if (locate_SortedArray(d, value, &loc)) {
-        remove_Array(&d->values, loc.start);
+    size_t pos;
+    if (locate_SortedArray(d, value, &pos)) {
+        remove_Array(&d->values, pos);
         return iTrue;
     }
     return iFalse;

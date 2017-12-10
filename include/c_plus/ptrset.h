@@ -34,8 +34,8 @@ typedef iSortedArray iPtrSet;
 iDeclareTypeConstruction(PtrSet)
 
 iBool       contains_PtrSet (const iPtrSet *, void *ptr);
-iBool       locate_PtrSet   (const iPtrSet *, void *ptr, iRanges *outLoc);
-void *      at_PtrSet       (const iPtrSet *, size_t pos);
+iBool       locate_PtrSet   (const iPtrSet *, void *ptr, size_t *pos_out);
+void *      at_PtrSet       (iPtrSet *, size_t pos);
 
 #define     isEmpty_PtrSet(d)   isEmpty_SortedArray(d)
 #define     size_PtrSet(d)      size_SortedArray(d)

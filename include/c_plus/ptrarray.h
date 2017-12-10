@@ -40,7 +40,8 @@ iPtrArray * newPointers_PtrArray    (void *ptr, ...); // NULL-terminated
 
 void **         data_PtrArray       (iPtrArray *);
 const void **   constData_PtrArray  (const iPtrArray *);
-void *          at_PtrArray         (const iPtrArray *, size_t pos);
+void *          at_PtrArray         (iPtrArray *, size_t pos);
+const void *    constAt_PtrArray    (const iPtrArray *, size_t pos);
 void            set_PtrArray        (iPtrArray *, size_t pos, const void *ptr);
 
 void        pushBack_PtrArray       (iPtrArray *, const void *ptr);

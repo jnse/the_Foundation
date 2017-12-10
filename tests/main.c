@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/objectlist.h>
 #include <c_plus/ptrarray.h>
 #include <c_plus/regexp.h>
+#include <c_plus/sortedarray.h>
 #include <c_plus/string.h>
 #include <c_plus/stringarray.h>
 #include <c_plus/stringlist.h>
@@ -131,19 +132,47 @@ iTestObject *new_TestObject(int value) {
 
 //---------------------------------------------------------------------------------------
 
-void printArray(const iArray *list) {
-    printf("%4lu %4lu -> %-4lu : %4lu [", size_Array(list), list->range.start, list->range.end, list->allocSize);
-    for (int i = 0; i < list->allocSize * list->elementSize; ++i) {
-        if (i/list->elementSize < list->range.start || i/list->elementSize >= list->range.end)
+void printArray(const iArray *d) {
+    printf("%4lu %4lu -> %-4lu : %4lu [", size_Array(d), d->range.start, d->range.end, d->allocSize);
+    for (size_t i = 0; i < d->allocSize * d->elementSize; ++i) {
+        if (i/d->elementSize < d->range.start || i/d->elementSize >= d->range.end)
             printf(" _");
         else
-            printf(" %c", list->data[i]);
+            printf(" %c", d->data[i]);
     }
     printf(" ]\n");
 }
 
+static void printIntArray(const iArray *d) {
+    printf("%4lu :", size_Array(d));
+    iConstForEach(Array, i, d) {
+        printf(" %2i", *(const int *) i.value);
+    }
+    printf("\n");
+}
+
+static void printIntPairArray(const iArray *d) {
+    printf("%4lu :", size_Array(d));
+    iConstForEach(Array, i, d) {
+        const int *pair = (const int *) i.value;
+        printf(" (%2i, %2i)", pair[0], pair[1]);
+    }
+    printf("\n");
+}
+
 static int compareTextElements(const void *a, const void *b) {
     return iCmpStrN(a, b, 2);
+}
+
+static int compareIntElements(const void *a, const void *b) {
+    return iCmp(*(const int *) a, *(const int *) b);
+}
+
+static int compareIntPairElements(const void *a, const void *b) {
+    const int cmp = compareIntElements(a, b);
+    if (cmp != 0) return cmp;
+    const int *x = a, *y = b;
+    return iCmp(x[1], y[1]);
 }
 
 static int compareIntegers(iMapKey a, iMapKey b) {
@@ -234,6 +263,27 @@ int main(int argc, char *argv[]) {
         }
         delete_Array(list);
     }
+    /* Test a sorted array. */ {
+        iSortedArray *ints = new_SortedArray(sizeof(int), compareIntElements);
+        printf("Sorted array of integers:\n");
+        for (int i = 0; i < 6; ++i) {
+            insert_SortedArray(ints, &(int){ iRandom(0, 10) });
+        }
+        printIntArray(&ints->values);
+        delete_SortedArray(ints);
+
+        iSortedArray *pairs = new_SortedArray(sizeof(int[2]), compareIntPairElements);
+        printf("Sorted array of integer pairs:\n");
+        for (int i = 0; i < 6; ++i) {
+            insert_SortedArray(pairs, &(int[2]){ iRandom(0, 3), iRandom(0, 10) });
+        }
+        printIntPairArray(&pairs->values);
+        const iRanges ones = locateRange_SortedArray(pairs, &(int[2]){ 1, 0 },
+                compareIntElements);
+        printf("Major 1s are located at [%zu, %zu)\n", ones.start, ones.end);
+        delete_SortedArray(pairs);
+    }
+    return 12345;
     /* Test an array of pointers. */ {
         iPtrArray *par = newPointers_PtrArray("Entry One", "Entry Two", NULL);
         printf("Iterating the pointer array:\n");

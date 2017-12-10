@@ -95,7 +95,12 @@ const void *constData_Array(const iArray *d) {
     return element_Array_(d, d->range.start);
 }
 
-void *at_Array(const iArray *d, size_t pos) {
+void *at_Array(iArray *d, size_t pos) {
+    iAssert(pos < size_Range(&d->range));
+    return element_Array_(d, d->range.start + pos);
+}
+
+const void *constAt_Array(const iArray *d, size_t pos) {
     iAssert(pos < size_Range(&d->range));
     return element_Array_(d, d->range.start + pos);
 }
@@ -206,6 +211,7 @@ void insertN_Array(iArray *d, size_t pos, const void *value, size_t count) {
 }
 
 void removeN_Array(iArray *d, size_t pos, size_t count) {
+    if (count == 0) return;
     iAssert(pos < size_Array(d));
     iAssert(pos + count <= size_Array(d));
     pos += d->range.start;
@@ -272,9 +278,13 @@ size_t index_ArrayIterator(const iArrayIterator *d) {
     return d->pos;
 }
 
+void remove_ArrayIterator(iArrayIterator *d) {
+    remove_Array(d->array, d->pos--);
+}
+
 void init_ArrayConstIterator(iArrayConstIterator *d, const iArray *array) {
     d->array = array;
-    d->value = (!isEmpty_Array(array)? at_Array(array, 0) : NULL);
+    d->value = (!isEmpty_Array(array)? constAt_Array(array, 0) : NULL);
     d->end = element_Array_(d->array, d->array->range.end);
 }
 

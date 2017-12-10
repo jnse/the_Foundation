@@ -82,7 +82,7 @@ iString *at_StringArray(iStringArray *d, size_t pos) {
 }
 
 const iString *constAt_StringArray(const iStringArray *d, size_t pos) {
-    return at_PtrArray(&d->strings, pos);
+    return constAt_PtrArray(&d->strings, pos);
 }
 
 void set_StringArray(iStringArray *d, size_t pos, const iString *str) {

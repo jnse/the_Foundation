@@ -49,8 +49,12 @@ const void **constData_PtrArray(const iPtrArray *d) {
     return *(void * const *) constData_Array(d);
 }
 
-void *at_PtrArray(const iPtrArray *d, size_t pos) {
+void *at_PtrArray(iPtrArray *d, size_t pos) {
     return *(void **) at_Array(d, pos);
+}
+
+const void *constAt_PtrArray(const iPtrArray *d, size_t pos) {
+    return *(void * const *) constAt_Array(d, pos);
 }
 
 void set_PtrArray(iPtrArray *d, size_t pos, const void *ptr) {

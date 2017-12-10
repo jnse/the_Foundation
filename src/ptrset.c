@@ -47,8 +47,8 @@ iBool contains_PtrSet(const iPtrSet *d, void *ptr) {
     return contains_SortedArray(d, &ptr);
 }
 
-iBool locate_PtrSet(const iPtrSet *d, void *ptr, iRanges *outLoc) {
-    return locate_SortedArray(d, &ptr, outLoc);
+iBool locate_PtrSet(const iPtrSet *d, void *ptr, size_t *pos_out) {
+    return locate_SortedArray(d, &ptr, pos_out);
 }
 
 iBool insert_PtrSet(iPtrSet *d, void *ptr) {
@@ -59,6 +59,6 @@ iBool remove_PtrSet(iPtrSet *d, void *ptr) {
     return remove_SortedArray(d, &ptr);
 }
 
-void *at_PtrSet(const iPtrSet *d, size_t pos) {
+void *at_PtrSet(iPtrSet *d, size_t pos) {
     return *(iPtr *) at_SortedArray(d, pos);
 }

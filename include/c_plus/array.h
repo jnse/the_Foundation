@@ -60,15 +60,18 @@ iArray *    newN_Array          (size_t elementSize, const void *value, size_t c
 iArray *    newElements_Array   (size_t elementSize, const void *value, ...);
 iArray *    copy_Array          (const iArray *);
 
-void *      data_Array      (iArray *);
-const void *constData_Array (const iArray *);
-void *      at_Array        (const iArray *, size_t pos);
-const void *constEnd_Array  (const iArray *);
+void *       data_Array      (iArray *);
+const void * constData_Array (const iArray *);
+void *       at_Array        (iArray *, size_t pos);
+const void * constAt_Array   (const iArray *, size_t pos);
+const void * constEnd_Array  (const iArray *);
 
 static inline iBool     isEmpty_Array   (const iArray *d) { return isEmpty_Range(&d->range); }
 static inline size_t    size_Array      (const iArray *d) { return size_Range(&d->range); }
 static inline void *    front_Array     (iArray *d) { return at_Array(d, 0); }
 static inline void *    back_Array      (iArray *d) { return at_Array(d, size_Array(d) - 1); }
+static inline const void * constFront_Array (const iArray *d) { return constAt_Array(d, 0); }
+static inline const void * constBack_Array  (const iArray *d) { return constAt_Array(d, size_Array(d) - 1); }
 
 void        reserve_Array   (iArray *, size_t reservedSize);
 void        clear_Array     (iArray *);
@@ -105,6 +108,8 @@ size_t index_ArrayIterator(const iArrayIterator *);
 size_t index_ArrayConstIterator(const iArrayConstIterator *);
 size_t index_ArrayReverseIterator(const iArrayReverseIterator *);
 size_t index_ArrayReverseConstIterator(const iArrayReverseConstIterator *);
+
+void   remove_ArrayIterator (iArrayIterator *);
 
 struct IteratorImpl_Array {
     void *value; // address of element
