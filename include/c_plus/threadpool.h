@@ -44,4 +44,4 @@ iDeclareObjectConstruction(ThreadPool)
 void init_ThreadPool    (iThreadPool *);
 void deinit_ThreadPool  (iThreadPool *);
 
-void run_ThreadPool     (iThreadPool *, iThread *thread);
+iThread *run_ThreadPool (iThreadPool *, iThread *thread);

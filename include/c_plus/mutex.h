@@ -61,7 +61,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #define iGuardMutex(d, stmt)    {lock_Mutex  (iConstCast(iMutex *, d)); stmt; \
                                  unlock_Mutex(iConstCast(iMutex *, d));}
-
 iDeclareType(Mutex)
 
 struct Impl_Mutex {

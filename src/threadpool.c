@@ -27,6 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "c_plus/threadpool.h"
 
+void finish_Thread_(iThread *); // thread.c
+
 iDeclareClass(PooledThread)
 iDeclareType(PooledThread)
 
@@ -35,13 +37,16 @@ struct Impl_PooledThread {
     iThreadPool *pool;
 };
 
-static int run_PooledThread_(iThread *thread) {
+static iThreadResult run_PooledThread_(iThread *thread) {
     iPooledThread *d = (iAny *) thread;
     for (;;) {
         iThread *job = (iAny *) take_Queue(&d->pool->queue);
         if (job == (void *) d->pool) break; // Terminated.
         // Run the job in this thread.
+        iAssert(job->state == created_ThreadState);
+        job->state = running_ThreadState;
         job->result = job->run(job);
+        finish_Thread_(job);
         iRelease(job);
     }
     return 0;
@@ -99,8 +104,9 @@ void deinit_ThreadPool(iThreadPool *d) {
     deinit_Queue(&d->queue);
 }
 
-void run_ThreadPool(iThreadPool *d, iThread *thread) {
+iThread *run_ThreadPool(iThreadPool *d, iThread *thread) {
     if (thread) {
         put_Queue(&d->queue, thread);
     }
+    return thread;
 }

@@ -38,6 +38,7 @@ set (HEADERS
     include/c_plus/class.h
     include/c_plus/file.h
     include/c_plus/fileinfo.h
+    include/c_plus/future.h
     include/c_plus/garbage.h
     include/c_plus/hash.h
     include/c_plus/list.h
@@ -73,6 +74,7 @@ set (SOURCES
     src/crc32.c
     src/file.c
     src/fileinfo.c
+    src/future.c
     src/garbage.c
     src/hash.c
     src/list.c

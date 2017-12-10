@@ -26,8 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "c_plus/audience.h"
-
-iDefineTypeConstruction(Audience)
+#include "c_plus/object.h"
 
 static int cmpObject_Observer_(const void *a, const void *b) {
     const iObserver *x = a, *y = b;
@@ -42,34 +41,80 @@ static int cmp_Observer_(const void *a, const void *b) {
     return iCmp((void *) x->func, (void *) y->func);
 }
 
+iDefineTypeConstruction(Audience)
+
 void init_Audience(iAudience *d) {
     init_SortedArray(&d->observers, sizeof(iObserver), cmp_Observer_);
 }
 
 void deinit_Audience(iAudience *d) {
+    // Tells members of this audience that the audience is going away.
+    iConstForEach(Audience, i, d) {
+        iAudienceMember *memberOf = ((const iObject *) i.value->object)->memberOf;
+        iAssert(memberOf != NULL);
+        remove_PtrSet(&memberOf->audiences, d);
+    }
     deinit_SortedArray(&d->observers);
 }
 
-iBool insert_Audience(iAudience *d, const iObserver *observer) {
-    return insert_SortedArray(&d->observers, observer);
+iBool insert_Audience(iAudience *d, iAnyObject *object, iObserverFunc func) {
+    // This object becomes an audience member.
+    insert_AudienceMember(audienceMember_Object(object), d);
+    return insert_SortedArray(&d->observers, &(iObserver){ object, func });
 }
 
-iBool remove_Audience(iAudience *d, const iObserver *observer) {
-    return remove_SortedArray(&d->observers, observer);
-}
-
-iBool removeObject_Audience(iAudience *d, const iAny *object) {
-    const iRanges range = locateRange_SortedArray(&d->observers, object, cmpObject_Observer_);
+static iBool removeObject_Audience_(iAudience *d, const iAnyObject *object) {
+    const iRanges range = locateRange_SortedArray(&d->observers, object,
+                                                  cmpObject_Observer_);
     removeRange_SortedArray(&d->observers, &range);
     return !isEmpty_Range(&range);
+
+}
+
+iBool remove_Audience(iAudience *d, iAnyObject *object, iObserverFunc func) {
+    // This object is no longer an audience member.
+    remove_AudienceMember(audienceMember_Object(object), d);
+    if (func) {
+        return remove_SortedArray(&d->observers, &(iObserver){ object, func });
+    }
+    return removeObject_Audience_(d, object);
 }
 
 //---------------------------------------------------------------------------------------
 
 void init_AudienceConstIterator(iAudienceConstIterator *d, const iAudience *audience) {
-    init_ArrayConstIterator(&d->iter, &audience->observers.values);
+    if (audience) {
+        init_ArrayConstIterator(&d->iter, &audience->observers.values);
+    }
+    else {
+        iZap(d->iter);
+    }
 }
 
 void next_AudienceConstIterator(iAudienceConstIterator *d) {
     next_ArrayConstIterator(&d->iter);
+}
+
+//---------------------------------------------------------------------------------------
+
+iDefineTypeConstructionArgs(AudienceMember, (iAnyObject *object), object)
+
+void init_AudienceMember(iAudienceMember *d, iAnyObject *object) {
+    init_PtrSet(&d->audiences);
+    d->object = object;
+}
+
+void deinit_AudienceMember(iAudienceMember *d) {
+    iForEach(PtrSet, i, &d->audiences) {
+        removeObject_Audience_(*(iAudience **) i.value, d->object);
+    }
+    deinit_PtrSet(&d->audiences);
+}
+
+void insert_AudienceMember(iAudienceMember *d, iAudience *audience) {
+    insert_PtrSet(&d->audiences, audience);
+}
+
+void remove_AudienceMember(iAudienceMember *d, iAudience *audience) {
+    remove_PtrSet(&d->audiences, audience);
 }

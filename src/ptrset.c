@@ -62,3 +62,21 @@ iBool remove_PtrSet(iPtrSet *d, void *ptr) {
 void *at_PtrSet(iPtrSet *d, size_t pos) {
     return *(iPtr *) at_SortedArray(d, pos);
 }
+
+//---------------------------------------------------------------------------------------
+
+void init_PtrSetIterator(iPtrSetIterator *d, iPtrSet *set) {
+    init_ArrayIterator(&d->iter, &set->values);
+}
+
+void next_PtrSetIterator(iPtrSetIterator *d) {
+    next_ArrayIterator(&d->iter);
+}
+
+void init_PtrSetConstIterator(iPtrSetConstIterator *d, const iPtrSet *set) {
+    init_ArrayConstIterator(&d->iter, &set->values);
+}
+
+void next_PtrSetConstIterator(iPtrSetConstIterator *d) {
+    next_ArrayConstIterator(&d->iter);
+}

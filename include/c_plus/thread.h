@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "time.h"
 #include "blockhash.h"
 #include "mutex.h"
+#include "audience.h"
 
 #include <stdthreads.h>
 
@@ -40,18 +41,29 @@ iDeclareClass(Thread)
 iDeclareType(Thread)
 
 typedef thrd_t iThreadId;
-typedef int (*iThreadRunFunc)(iThread *);
+typedef intptr_t iThreadResult;
+typedef iThreadResult (*iThreadRunFunc)(iThread *);
+typedef void (*iThreadFinished)(iAny *, iThread *);
+
+enum iThreadState {
+    created_ThreadState,
+    running_ThreadState,
+    finished_ThreadState,
+};
 
 struct Impl_Thread {
     iObject object;
     iThreadRunFunc run;
     iThreadId id;
-    int result;
+    atomic_int state; // enum iThreadState
+    iThreadResult result;
+    iAudience *finished;
 };
 
 iDeclareObjectConstructionArgs(Thread, iThreadRunFunc run)
 
 iBool   isRunning_Thread    (const iThread *);
+iBool   isFinished_Thread   (const iThread *);
 
 /**
  * Returns the result value of the thread. If the thread is still running, the method
@@ -60,10 +72,10 @@ iBool   isRunning_Thread    (const iThread *);
  *
  * @return Thread result value.
  */
-int     result_Thread       (const iThread *);
+iThreadResult result_Thread (const iThread *);
 
-void    start_Thread        (iThread *);
-void    join_Thread         (iThread *);
+void        start_Thread    (iThread *);
+void        join_Thread     (iThread *);
 
 void        sleep_Thread    (double seconds);
 iThread *   current_Thread  (void);
@@ -75,6 +87,15 @@ int     idealConcurrentCount_Thread (void);
 
 static inline thrd_t id_Thread(const iThread *d) {
     return d->id;
+}
+
+static inline enum iThreadState state_Thread(const iThread *d) {
+    return d->state;
+}
+
+static inline iAudience *finished_Thread(iThread *d) {
+    if (!d->finished) { d->finished = new_Audience(); }
+    return d->finished;
 }
 
 /** @cond */

@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "c_plus/object.h"
+#include "c_plus/audience.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,18 +48,18 @@ int totalCount_Object(void) {
 
 void checkSignature_Object(const iAnyObject *d) {
     iAssert(d != NULL);
-    iAssert(((const iObject *) d)->__signature == iObjectSignature);
+    iAssert(((const iObject *) d)->__sig == iObjectSignature);
 }
 #endif
 
 static void free_Object_(iObject *d) {
     deinit_Object(d);
     iObjectDebug("[Object] deleting %s %p\n", d->class->name, d);
-    d->__signature = 0xDeadBeef;
-    free(d);
 #if !defined (NDEBUG)
+    d->__sig = 0xdeadbeef;
     totalCount_--;
 #endif
+    free(d);
 }
 
 iAnyObject *new_Object(const iAnyClass *class) {
@@ -67,8 +68,9 @@ iAnyObject *new_Object(const iAnyClass *class) {
     iObject *d = malloc(((const iClass *) class)->size);
     d->class = class;
     d->refCount = 1;
+    d->memberOf = NULL;
 #if !defined (NDEBUG)
-    d->__signature = iObjectSignature;
+    d->__sig = iObjectSignature;
     totalCount_++;
 #endif
     iObjectDebug("[Object] constructed %s %p\n", d->class->name, d);
@@ -79,6 +81,9 @@ void deinit_Object(iAnyObject *any) {
     iObject *d = (iObject *) any;
     iAssertIsObject(d);
     deinit_Class(d->class, d);
+    if (d->memberOf) {
+        delete_AudienceMember(d->memberOf);
+    }
 }
 
 iAnyObject *ref_Object(const iAnyObject *any) {
@@ -106,6 +111,17 @@ const iClass *class_Object(const iAnyObject *d) {
     if (d) {
         iAssertIsObject(d);
         return ((const iObject *) d)->class;
+    }
+    return NULL;
+}
+
+iAudienceMember *audienceMember_Object(const iAnyObject *any) {
+    if (any) {
+        iObject *d = iConstCast(iObject *, any);
+        if (!d->memberOf) {
+            d->memberOf = new_AudienceMember(d);
+        }
+        return d->memberOf;
     }
     return NULL;
 }

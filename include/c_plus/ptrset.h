@@ -42,3 +42,21 @@ void *      at_PtrSet       (iPtrSet *, size_t pos);
 
 iBool       insert_PtrSet   (iPtrSet *, void *ptr);
 iBool       remove_PtrSet   (iPtrSet *, void *ptr);
+
+/** @name Iterators */
+///@{
+iDeclareIterator(PtrSet, iPtrSet *)
+iDeclareConstIterator(PtrSet, const iPtrSet *)
+struct IteratorImpl_PtrSet {
+    union {
+        void **value;
+        iArrayIterator iter;
+    };
+};
+struct ConstIteratorImpl_PtrSet {
+    union {
+        const void **value;
+        iArrayConstIterator iter;
+    };
+};
+///@}

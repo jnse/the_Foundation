@@ -93,8 +93,10 @@ uint32_t    iCrc32      (const char *data, size_t size);
         return d; \
     } \
     void delete_##typeName(i##typeName *d) { \
-        deinit_##typeName(d); \
-        free(d); \
+        if (d) { \
+            deinit_##typeName(d); \
+            free(d); \
+        } \
     }
 
 #define iDefineStaticTypeConstruction(typeName) \

@@ -24,14 +24,18 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
+#include <c_plus/future.h>
 #include <c_plus/threadpool.h>
 #include <c_plus/math.h>
 
 static atomic_int thrCounter;
 
-static int run_Worker_(iThread *d) {
+static iThreadResult run_Worker_(iThread *d) {
     iBeginCollect();
-    int value = iRandom(0, 1000000);
+    int value;
+    for (int i = 0; i < 10000; ++i) {
+        value = iRandom(0, 1000000);
+    }
     printf("%6i : Thread %p: value %i\n", ++thrCounter, d, value);
     iEndCollect();
     return value;
@@ -42,12 +46,19 @@ int main(int argc, char *argv[]) {
     init_CPlus();
     /* Run a few threads in a pool. */ {
         iThreadPool *pool = new_ThreadPool();
-        for (int i = 0; i < 10000; ++i) {
-            iThread *t = new_Thread(run_Worker_);
-            run_ThreadPool(pool, t);
-            iRelease(t);
+        iFuture *future = new_Future();
+        for (int i = 0; i < 100; ++i) {
+            runTaken_Future(future, new_Thread(run_Worker_), pool);
         }
         printf("Waiting for threads to finish...\n");
+        //wait_Future(future);
+        while (!isEmpty_Future(future)) {
+            iThread *result = nextResult_Future(future);
+            iAssert(isFinished_Thread(result));
+            printf("Result from future %p: %li\n", result, result_Thread(result));
+            iRelease(result);
+        }
+        iRelease(future);
         iRelease(pool);
     }
     return 0;

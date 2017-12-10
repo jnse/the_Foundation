@@ -74,12 +74,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
     } \
 
 iDeclareType(Object)
+iDeclareType(AudienceMember)
 
 struct Impl_Object {
     const iClass *class;
     atomic_int refCount;
+    iAudienceMember *memberOf;
 #if !defined (NDEBUG)
-    uint32_t __signature;
+    uint32_t __sig;
 #endif
 };
 
@@ -97,6 +99,8 @@ void            deinit_Object   (iAnyObject *);
 iAnyObject *    ref_Object      (const iAnyObject *);
 void            deref_Object    (const iAnyObject *);
 const iClass *  class_Object    (const iAnyObject *);
+
+iAudienceMember * audienceMember_Object (const iAnyObject *);
 
 #if !defined (NDEBUG)
 int             totalCount_Object       (void);

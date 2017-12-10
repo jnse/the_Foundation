@@ -107,11 +107,13 @@ void popBack_ObjectList(iObjectList *d) {
 void init_ObjectListIterator(iObjectListIterator *d, iObjectList *list) {
     d->list = list;
     d->value = front_List(&list->list);
+    d->object = (d->value? d->value->object : NULL);
     d->next = next_ObjectListNode(d->value);
 }
 
 void next_ObjectListIterator(iObjectListIterator *d) {
     d->value = d->next;
+    d->object = (d->value? d->value->object : NULL);
     if (d->value == end_ObjectList(d->list)) {
         d->value = NULL;
     }
@@ -127,11 +129,13 @@ void remove_ObjectListIterator(iObjectListIterator *d) {
 void init_ObjectListReverseIterator(iObjectListReverseIterator *d, iObjectList *list) {
     d->list = list;
     d->value = back_List(&list->list);
+    d->object = (d->value? d->value->object : NULL);
     d->next = prev_ObjectListNode(d->value);
 }
 
 void next_ObjectListReverseIterator(iObjectListReverseIterator *d) {
     d->value = d->next;
+    d->object = (d->value? d->value->object : NULL);
     if (d->value == end_ObjectList(d->list)) {
         d->value = NULL;
     }

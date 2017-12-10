@@ -29,14 +29,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 #include "sortedarray.h"
+#include "ptrset.h"
 
 iDeclareType(Audience)
 iDeclareType(Observer)
+iDeclareType(Object)
 
-typedef void (*iObserverFunc)(iAny *);
+typedef void (*iObserverFunc)(iAnyObject *);
 
 struct Impl_Observer {
-    iAny *object;
+    iAnyObject *object;
     iObserverFunc func;
 };
 
@@ -49,9 +51,12 @@ iDeclareTypeConstruction(Audience)
 void    init_Audience   (iAudience *);
 void    deinit_Audience (iAudience *);
 
-iBool   insert_Audience         (iAudience *d, const iObserver *observer);
-iBool   remove_Audience         (iAudience *d, const iObserver *observer);
-iBool   removeObject_Audience   (iAudience *d, const iAny *object);
+iBool   insert_Audience         (iAudience *d, iAnyObject *object, iObserverFunc func);
+iBool   remove_Audience         (iAudience *d, iAnyObject *object, iObserverFunc func);
+
+static inline iBool removeObject_Audience(iAudience *d, iAnyObject *object) {
+    return remove_Audience(d, object, NULL);
+}
 
 /** @name Iterators */
 ///@{
@@ -59,8 +64,25 @@ iDeclareConstIterator(Audience, const iAudience *)
 
 struct ConstIteratorImpl_Audience {
     union {
-        const iObserverFunc *value;
+        const iObserver *value;
         iArrayConstIterator iter;
     };
 };
 ///@}
+
+//---------------------------------------------------------------------------------------
+
+iDeclareType(AudienceMember)
+
+struct Impl_AudienceMember {
+    iPtrSet audiences;
+    iObject *object;
+};
+
+iDeclareTypeConstructionArgs(AudienceMember, iAnyObject *object)
+
+void    init_AudienceMember     (iAudienceMember *, iAnyObject *object);
+void    deinit_AudienceMember   (iAudienceMember *);
+
+void    insert_AudienceMember   (iAudienceMember *, iAudience *audience);
+void    remove_AudienceMember   (iAudienceMember *, iAudience *audience);

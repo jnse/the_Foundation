@@ -50,13 +50,22 @@ static iLockableThreadHash *init_Threads_(void) {
     return runningThreads_;
 }
 
+void finish_Thread_(iThread *d) {
+    d->state = finished_ThreadState;
+    iConstForEach(Audience, i, d->finished) {
+        ((iThreadFinished) i.value->func)(i.value->object, d);
+    }
+}
+
 static int run_Threads_(void *arg) {
     iThread *d = (iThread *) arg;
     d->result = d->run(d);
     // Deregister the thread since it's stopping.
     iGuard(runningThreads_, remove_ThreadHash(runningThreads_->value, &d->id));
     d->id = 0;
-    return d->result;
+    // Notify observers that the thread is done.
+    finish_Thread_(d);
+    return 0;
 }
 
 //---------------------------------------------------------------------------------------
@@ -68,16 +77,21 @@ void init_Thread(iThread *d, iThreadRunFunc run) {
     d->result = 0;
     d->run = run;
     d->id = 0;
+    d->state = created_ThreadState;
+    d->finished = NULL;
 }
 
 void deinit_Thread(iThread *d) {
-    if (isRunning_Thread(d)) {
+    if (d->state == running_ThreadState) {
         iWarning("[Thread] thread %p is being destroyed while still running\n", d);
     }
+    delete_Audience(d->finished);
 }
 
 void start_Thread(iThread *d) {
+    iAssert(d->state == created_ThreadState);
     iLockableThreadHash *threads = init_Threads_();
+    d->state = running_ThreadState;
     thrd_create(&d->id, run_Threads_, d);
     iDebug("[Thread] created thread ID %p\n", d->id);
     // Register this thread as a running thread.
@@ -85,23 +99,30 @@ void start_Thread(iThread *d) {
 }
 
 iBool isRunning_Thread(const iThread *d) {
-    if (!d->id) return iFalse;
+    return d->state == running_ThreadState;
+/*    if (!d->id) return iFalse;
     const iLockableThreadHash *threads = init_Threads_();
     iBool running;
     iGuard(threads, running = contains_ThreadHash(threads->value, &d->id));
-    return running;
+    return running;*/
 }
 
-int result_Thread(const iThread *d) {
+iBool isFinished_Thread(const iThread *d) {
+    return d->state == finished_ThreadState;
+}
+
+iThreadResult result_Thread(const iThread *d) {
     if (isRunning_Thread(d)) {
         thrd_join(d->id, NULL);
     }
+    iAssert(d->state == finished_ThreadState);
     return d->result;
 }
 
 void join_Thread(iThread *d) {
     if (isRunning_Thread(d)) {
         thrd_join(d->id, NULL);
+        iAssert(d->state == finished_ThreadState);
     }
 }
 

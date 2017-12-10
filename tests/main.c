@@ -187,7 +187,7 @@ static int compareTestObjects(const void *a, const void *b) {
     return iCmp(x->value, y->value);
 }
 
-static int run_WorkerThread(iThread *d) {
+static iThreadResult run_WorkerThread(iThread *d) {
     printf("Worker thread %p started\n", d);
     printf("Ideal concurrent thread count: %i\n", idealConcurrentCount_Thread());
     sleep_Thread(0.1);
@@ -409,7 +409,7 @@ int main(int argc, char *argv[]) {
     /* Test a thread. */ {
         iThread *worker = new_Thread(run_WorkerThread);
         start_Thread(worker);
-        printf("Result from worker: %i\n", result_Thread(worker));
+        printf("Result from worker: %li\n", result_Thread(worker));
         iAssert(result_Thread(worker) == 12345);
         iRelease(worker);
     }
