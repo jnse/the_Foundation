@@ -36,6 +36,7 @@ set (HEADERS
     include/c_plus/block.h
     include/c_plus/blockhash.h
     include/c_plus/class.h
+    include/c_plus/commandline.h
     include/c_plus/file.h
     include/c_plus/fileinfo.h
     include/c_plus/future.h
@@ -71,6 +72,7 @@ set (SOURCES
     src/block.c
     src/blockhash.c
     src/class.c
+    src/commandline.c
     src/crc32.c
     src/file.c
     src/fileinfo.c

@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/array.h>
 #include <c_plus/block.h>
 #include <c_plus/class.h>
+#include <c_plus/commandline.h>
 #include <c_plus/file.h>
 #include <c_plus/fileinfo.h>
 #include <c_plus/garbage.h>
@@ -196,8 +197,15 @@ static iThreadResult run_WorkerThread(iThread *d) {
 }
 
 int main(int argc, char *argv[]) {
-    iUnused(argc, argv);
     init_CPlus();
+    iCommandLine *cmdline = new_CommandLine(argc, argv);
+    /* Test command line options parsing. */ {
+        printf("Options from command line:\n");
+        iConstForEach(StringList, i, args_CommandLine(cmdline)) {
+            printf("%2zu: \"%s\"\n", i.pos, cstr_String(i.value));
+        }
+    }
+    return 12345;
     /* Test time and date. */ {
         const iTime now = now_Time();
         iDate date;
@@ -283,7 +291,6 @@ int main(int argc, char *argv[]) {
         printf("Major 1s are located at [%zu, %zu)\n", ones.start, ones.end);
         delete_SortedArray(pairs);
     }
-    return 12345;
     /* Test an array of pointers. */ {
         iPtrArray *par = newPointers_PtrArray("Entry One", "Entry Two", NULL);
         printf("Iterating the pointer array:\n");
@@ -446,5 +453,6 @@ int main(int argc, char *argv[]) {
         delete_Block(compr);
     }
 #endif
+    iRelease(cmdline);
     return 0;
 }
