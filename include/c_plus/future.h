@@ -61,15 +61,14 @@ void        deinit_Future   (iFuture *);
 void        add_Future      (iFuture *, iThread *thread);
 
 /**
- * Adds a thread to the future, taking ownership of it, and starts the thread in a
- * thread pool.
+ * Adds a thread to the future and starts the thread in a thread pool.
  *
- * @param thread_taken  Thread to run. Ownership of the thread is transferred to the
- *                      Future, so the caller does not need to release it. Note that
- *                      ownership is returned by nextResult_Future().
- * @param pool          Thread pool where to run the thread.
+ * @param thread    Thread to run.
+ * @param pool      Thread pool where to run the thread.
+ *
+ * @return The added thread.
  */
-void        runTaken_Future(iFuture *, iThread *thread_taken, iThreadPool *pool);
+iThread *   runPool_Future(iFuture *, iThread *thread, iThreadPool *pool);
 
 iBool       isReady_Future  (const iFuture *);
 void        wait_Future     (iFuture *);

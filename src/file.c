@@ -65,7 +65,7 @@ void deinit_File(iFile *d) {
     delete_String(d->path);
 }
 
-iBool open_File(iFile *d, enum iFileMode modeFlags) {
+iBool open_File(iFile *d, int modeFlags) {
     if (isOpen_File(d)) return iFalse;
     setSize_Stream(&d->stream, fileSize_FileInfo(d->path));
     d->flags = modeFlags;
@@ -123,4 +123,11 @@ void flush_File(iFile *d) {
     if (isOpen_File(d)) {
         fflush(d->file);
     }
+}
+
+iString *readString_File(iFile *d) {
+    iBlock *chars = readAll_Stream(&d->stream);
+    iString *str = newBlock_String(chars);
+    delete_Block(chars);
+    return str;
 }

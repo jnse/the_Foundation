@@ -72,10 +72,10 @@ void add_Future(iFuture *d, iThread *thread) {
     });
 }
 
-void runTaken_Future(iFuture *d, iThread *thread_taken, iThreadPool *pool) {
-    add_Future(d, thread_taken);
-    run_ThreadPool(pool, thread_taken);
-    iRelease(thread_taken);
+iThread *runPool_Future(iFuture *d, iThread *thread, iThreadPool *pool) {
+    add_Future(d, thread);
+    run_ThreadPool(pool, thread);
+    return thread;
 }
 
 iBool isReady_Future(const iFuture *d) {

@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 #include <strings.h>
+#include <ctype.h>
 
 iString *new_String(void) {
     iString *d = iMalloc(String);
@@ -89,6 +90,10 @@ void initCopy_String(iString *d, const iString *other) {
 
 void deinit_String(iString *d) {
     deinit_Block(&d->chars);
+}
+
+void clear_String(iString *d) {
+    clear_Block(&d->chars);
 }
 
 void truncate_String(iString *d, size_t len) {
@@ -214,6 +219,13 @@ iStringList *split_String(const iString *d, const char *separator) {
 
 int toInt_String(const iString *d) {
     return atoi(cstr_String(d));
+}
+
+const char *skipSpace_String(const char *cstr) {
+    while (*cstr && isspace(*cstr)) {
+        cstr++;
+    }
+    return cstr;
 }
 
 //---------------------------------------------------------------------------------------

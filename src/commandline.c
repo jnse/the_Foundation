@@ -26,92 +26,74 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "c_plus/commandline.h"
+#include "c_plus/file.h"
+#include "c_plus/block.h"
 
 iDefineClass(CommandLine)
 iDefineObjectConstructionArgs(CommandLine, (int argc, char **argv), argc, argv)
 
 static void loadArgumentsFile_CommandLine_(iCommandLine *d, const char *path) {
-    //
-#if 0
-    void CommandLine::parse(String const &cmdLine)
-    {
-        String::const_iterator i = cmdLine.begin();
-
-        // This is unset if we encounter a terminator token.
-        bool isDone = false;
-
-        // Are we currently inside quotes?
-        bool quote = false;
-
-        while (i != cmdLine.end() && !isDone)
-        {
-            // Skip initial whitespace.
-            String::skipSpace(i, cmdLine.end());
-
-            // Check for response files.
-            bool isResponse = false;
-            if (*i == '@')
-            {
-                isResponse = true;
-                String::skipSpace(++i, cmdLine.end());
+    iBeginCollect();
+    const iString *input;
+    /* Read the argument file contents. */ {
+        iFile *file = iClob(newCStr_File(path));
+        if (!open_File(file, readOnly_FileMode | text_FileMode)) {
+            iEndCollect();
+            return;
+        }
+        input = collect_String(readString_File(file));
+        close_File(file);
+    }
+    // Parse into separate arguments.
+    const char *i = cstr_String(input);
+    iBool isDone = iFalse;
+    iBool inQuote = iFalse;
+    iBlock *word = collect_Block(new_Block(0));
+    while (i != constEnd_String(input) && !isDone) {
+        // Skip initial whitespace.
+        i = skipSpace_String(i);
+        // Check for a nested argument file.
+        iBool isResponse = iFalse;
+        if (*i == '@') {
+            isResponse = iTrue;
+            i = skipSpace_String(i + 1);
+        }
+        clear_Block(word);
+        while (*i && (inQuote || !isspace(*i))) {
+            iBool copyChar = iTrue;
+            if (!inQuote) {
+                if (*i == '"') {
+                    inQuote = iTrue;
+                    copyChar = iFalse;
+                }
             }
-
-            String word;
-
-            while (i != cmdLine.end() && (quote || !(*i).isSpace()))
-            {
-                bool copyChar = true;
-                if (!quote)
-                {
-                    // We're not inside quotes.
-                    if (*i == '\"') // Quote begins.
-                    {
-                        quote = true;
-                        copyChar = false;
+            else { // Inside quotes.
+                if (*i == '"') { // Quote ends.
+                    if (i[1] == '"') { // Doubled?
+                        // Normal processing, but output only one quote.
+                        i++;
+                    }
+                    else {
+                        inQuote = iFalse;
+                        copyChar = iFalse;
                     }
                 }
-                else
-                {
-                    // We're inside quotes.
-                    if (*i == '\"') // Quote ends.
-                    {
-                        if (i + 1 != cmdLine.end() && *(i + 1) == '\"') // Doubles?
-                        {
-                            // Normal processing, but output only one quote.
-                            i++;
-                        }
-                        else
-                        {
-                            quote = false;
-                            copyChar = false;
-                        }
-                    }
-                }
-
-                if (copyChar)
-                {
-                    word.push_back(*i);
-                }
-
-                i++;
             }
-
-            // Word has been extracted, examine it.
-            if (isResponse) // Response file?
-            {
-                parseResponseFile(word);
-            }
-            else if (word == "--") // End of arguments.
-            {
-                isDone = true;
-            }
-            else if (!word.empty()) // Make sure there *is *a word.
-            {
-                d->appendArg(word);
-            }
+            if (copyChar) pushBack_Block(word, *i);
+            i++;
+        }
+        // Word has been extracted, examine it.
+        if (isResponse) {
+            loadArgumentsFile_CommandLine_(d, constData_Block(word));
+        }
+        else if (!cmpCStr_Block(word, "--")) { // End of arguments.
+            isDone = iTrue;
+        }
+        else if (!isEmpty_Block(word)) {
+            pushBackCStr_StringList(&d->args, constData_Block(word));
         }
     }
-#endif
+    iEndCollect();
 }
 
 void init_CommandLine(iCommandLine *d, int argc, char **argv) {
@@ -135,8 +117,8 @@ iBool contains_CommandLine(const iCommandLine *d, const char *arg) {
 
 }
 
-iCommandLineArg *checkArgumentWithValues_CommandLine(const iCommandLine *d, const char *arg,
-                                                     int minCount, int maxCount) {
+iCommandLineArg *checkArgumentWithValues_CommandLine
+    (const iCommandLine *d, const char *arg, int minCount, int maxCount) {
 
 }
 

@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
         iThreadPool *pool = new_ThreadPool();
         iFuture *future = new_Future();
         for (int i = 0; i < 100; ++i) {
-            runTaken_Future(future, new_Thread(run_Worker_), pool);
+            iRelease(runPool_Future(future, new_Thread(run_Worker_), pool));
         }
         printf("Waiting for threads to finish...\n");
         //wait_Future(future);

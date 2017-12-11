@@ -71,6 +71,8 @@ size_t          length_String   (const iString *);
 size_t          size_String     (const iString *);
 iString *       mid_String      (const iString *, size_t start, size_t count);
 
+static inline const char *constEnd_String(const iString *d) { return cstr_String(d) + size_String(d); }
+
 int             cmpSc_String        (const iString *, const char *cstr, const iStringComparison *);
 
 #define         cmp_String(d, cstr)             cmpSc_String(d, cstr, &iCaseSensitive)
@@ -101,11 +103,13 @@ void            append_String       (iString *, const iString *other);
 void            appendCStr_String   (iString *, const char *cstr);
 void            prepend_String      (iString *, const iString *other);
 
+void            clear_String    (iString *);
 void            truncate_String (iString *, size_t len);
 
 iStringList *   split_String    (const iString *, const char *separator);
-
 int             toInt_String    (const iString *);
+
+const char *    skipSpace_String(const char *cstr);
 
 /** @name Iterators */
 ///@{
