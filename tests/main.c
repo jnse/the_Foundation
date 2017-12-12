@@ -141,7 +141,7 @@ void printArray(const iArray *d) {
         else
             printf(" %c", d->data[i]);
     }
-    printf(" ]\n");
+    puts(" ]");
 }
 
 static void printIntArray(const iArray *d) {
@@ -149,7 +149,7 @@ static void printIntArray(const iArray *d) {
     iConstForEach(Array, i, d) {
         printf(" %2i", *(const int *) i.value);
     }
-    printf("\n");
+    puts("");
 }
 
 static void printIntPairArray(const iArray *d) {
@@ -158,7 +158,7 @@ static void printIntPairArray(const iArray *d) {
         const int *pair = (const int *) i.value;
         printf(" (%2i, %2i)", pair[0], pair[1]);
     }
-    printf("\n");
+    puts("");
 }
 
 static int compareTextElements(const void *a, const void *b) {
@@ -200,7 +200,7 @@ int main(int argc, char *argv[]) {
     init_CPlus();
     iCommandLine *cmdline = new_CommandLine(argc, argv);
     /* Test command line options parsing. */ {
-        printf("Options from command line:\n");
+        puts("Options from command line:");
         iConstForEach(StringList, i, args_CommandLine(cmdline)) {
             printf("%2zu: \"%s\"\n", i.pos, cstr_String(i.value));
         }
@@ -211,7 +211,7 @@ int main(int argc, char *argv[]) {
             iConstForEach(StringList, j, values_CommandLineArg(arg)) {
                 printf(" [%s]", cstr_String(j.value));
             }
-            printf("\n");
+            puts("");
         }
         arg = iClob(checkArgumentN_CommandLine(cmdline, "V;value", 1));
         if (arg) {
@@ -227,7 +227,6 @@ int main(int argc, char *argv[]) {
             puts("d option");
         }
     }
-    return 12345;
     /* Test time and date. */ {
         const iTime now = now_Time();
         iDate date;
@@ -251,11 +250,11 @@ int main(int argc, char *argv[]) {
         iEndCollect();
     }
     /* Test array insertion and removal. */ {
-        printf("Array insertions/removals:\n");
+        puts("Array insertions/removals:");
         iArray *list = new_Array(2);
         printArray(list);
         {
-            printf("Iterating the empty array:\n");
+            puts("Iterating the empty array:");
             iForEach(Array, i, list) {
                 printf("- %p\n", i.value);
             }
@@ -286,7 +285,7 @@ int main(int argc, char *argv[]) {
         remove_Array(list, 3); printArray(list);
         remove_Array(list, 2); printArray(list);
         {
-            printf("Iterating the array:\n");
+            puts("Iterating the array:");
             iConstForEach(Array, i, list) {
                 printf("- %p\n", i.value);
             }
@@ -295,7 +294,7 @@ int main(int argc, char *argv[]) {
     }
     /* Test a sorted array. */ {
         iSortedArray *ints = new_SortedArray(sizeof(int), compareIntElements);
-        printf("Sorted array of integers:\n");
+        puts("Sorted array of integers:");
         for (int i = 0; i < 6; ++i) {
             insert_SortedArray(ints, &(int){ iRandom(0, 10) });
         }
@@ -303,7 +302,7 @@ int main(int argc, char *argv[]) {
         delete_SortedArray(ints);
 
         iSortedArray *pairs = new_SortedArray(sizeof(int[2]), compareIntPairElements);
-        printf("Sorted array of integer pairs:\n");
+        puts("Sorted array of integer pairs:");
         for (int i = 0; i < 6; ++i) {
             insert_SortedArray(pairs, &(int[2]){ iRandom(0, 3), iRandom(0, 10) });
         }
@@ -315,7 +314,7 @@ int main(int argc, char *argv[]) {
     }
     /* Test an array of pointers. */ {
         iPtrArray *par = newPointers_PtrArray("Entry One", "Entry Two", NULL);
-        printf("Iterating the pointer array:\n");
+        puts("Iterating the pointer array:");
         iConstForEach(PtrArray, i, par) {
             printf("- %s\n", i.ptr);
         }
@@ -331,7 +330,7 @@ int main(int argc, char *argv[]) {
         iConstForEach(ObjectList, i, olist) {
             printf("%4i", ((const iTestObject *) i.object)->value);
         }
-        printf("\n");
+        puts("");
         iRelease(olist);
     }
     /* Test a string hash. */ {
@@ -354,7 +353,7 @@ int main(int argc, char *argv[]) {
             node->key = i;
             insert_Hash(h, node);
         }
-        printf("Hash iteration:\n");
+        puts("Hash iteration:");
         int counter = 0;
         iForEach(Hash, i, h) {
             printf("%4i: %i\n", counter++, i.value->key);
@@ -363,7 +362,7 @@ int main(int argc, char *argv[]) {
     }
     /* Test a map. */ {
         iBeginCollect();
-        printf("Testing a map.\n");
+        puts("Testing a map.");
         iMap *map = new_Map(compareIntegers);
         for (int i = 0; i < 20; ++i) {
             iMapNode *node = iMalloc(MapNode);
@@ -377,13 +376,13 @@ int main(int argc, char *argv[]) {
                 iCollectMem(i.value);
             }
         }
-        printf(" ]\n");
+        puts(" ]");
         printf("Keys in reverse: ["); {
             iReverseConstForEach(Map, i, map) {
                 printf(" %2lli", i.value->key);
             }
         }
-        printf(" ]\n");
+        puts(" ]");
         const int fullSize = size_Map(map);
         int remCount = 0;
         for (int i = 0; i < 300; ++i) {
@@ -405,7 +404,7 @@ int main(int argc, char *argv[]) {
         iSuperNode *c = new_SuperNode(3, 100);
         setParent_TreeNode(b, a);
         setParent_TreeNode(c, a);
-        printf("Children:\n");
+        puts("Children:");
         iConstForEach(List, i, a->node.children) {
             printf("- %p\n", i.value);
         }
@@ -415,8 +414,8 @@ int main(int argc, char *argv[]) {
     /* Test reference counting. */ {
         iTestObject *a = new_TestObject(123);
         iTestObject *b = ref_Object(a);
-        printf("deref a...\n"); deref_Object(a);
-        printf("deref b...\n"); deref_Object(b);
+        puts("deref a..."); deref_Object(a);
+        puts("deref b..."); deref_Object(b);
     }
     /* Test blocks and garbage collector. */ {
         iBeginCollect();

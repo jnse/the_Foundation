@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
                 printf(" char: %04x [%lc]\n", i.value, i.value);
             }
         }
-        printf("Backwards:\n"); {
+        puts("Backwards:"); {
             iReverseConstForEach(String, i , s) {
                 printf(" char: %04x [%lc]\n", i.value, i.value);
             }
@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
     }
     /* Test an array of strings. */ {
         iStringArray *sar = newStringsCStr_StringArray("Hello World", "Another string", "3rd text", NULL);
-        printf("StringArray contents:\n");
+        puts("StringArray contents:");
         iConstForEach(StringArray, i, sar) {
             printf("%4zu: \"%s\"\n", index_StringArrayConstIterator(&i), cstr_String(*i.value));
         }

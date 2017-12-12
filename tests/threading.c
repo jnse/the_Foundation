@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < 100; ++i) {
             iRelease(runPool_Future(future, new_Thread(run_Worker_), pool));
         }
-        printf("Waiting for threads to finish...\n");
+        puts("Waiting for threads to finish...");
         //wait_Future(future);
         while (!isEmpty_Future(future)) {
             iThread *result = nextResult_Future(future);
