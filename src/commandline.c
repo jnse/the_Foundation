@@ -51,12 +51,12 @@ static void loadArgumentsFile_CommandLine_(iCommandLine *d, const char *path) {
     iBlock *word = collect_Block(new_Block(0));
     while (i != constEnd_String(input) && !isDone) {
         // Skip initial whitespace.
-        i = skipSpace_String(i);
+        i = skipSpace_CStr(i);
         // Check for a nested argument file.
         iBool isResponse = iFalse;
         if (*i == '@') {
             isResponse = iTrue;
-            i = skipSpace_String(i + 1);
+            i = skipSpace_CStr(i + 1);
         }
         clear_Block(word);
         while (*i && (inQuote || !isspace(*i))) {
@@ -101,7 +101,7 @@ void init_CommandLine(iCommandLine *d, int argc, char **argv) {
     for (int i = 0; i < argc; ++i) {
         // Load response files.
         if (!iCmpStrN(argv[i], "@", 1)) {
-            loadArgumentsFile_CommandLine_(d, argv[1] + 1);
+            loadArgumentsFile_CommandLine_(d, argv[i] + 1);
         }
         else {
             pushBackCStr_StringList(&d->args, argv[i]);
@@ -113,13 +113,98 @@ void deinit_CommandLine(iCommandLine *d) {
     deinit_StringList(&d->args);
 }
 
-iBool contains_CommandLine(const iCommandLine *d, const char *arg) {
+static int cmpArg_(const iRangecc *entry, const iRangecc *arg) {
+    iAssert(*arg->start != '-');
+    iAssert(*entry->start != '-');
+    if (size_Range(arg) == 1) {
+        // Single-letter arguments can be joined in a longer entry.
+        return findAscii_Rangecc(entry, *arg->start)? 0 : 1;
+    }
+    const char *eql = findAscii_Rangecc(entry, '=');
+    const size_t entryLen = (eql? eql - entry->start : size_Range(entry));
+    if (size_Range(arg) != entryLen) {
+        return iCmp(size_Range(arg), entryLen);
+    }
+    return iCmpStrN(entry->start, arg->start, size_Range(arg));
+}
 
+static size_t findArg_CommandLine_(const iCommandLine *d, const iRangecc *arg) {
+    iAssert(*arg->start != '-');
+    iConstForEach(StringList, i, &d->args) {
+        iRangecc entry = range_String(i.value);
+        if (*entry.start != '-') continue;
+        entry.start++;
+        if (size_Range(arg) > 1) { // Long args must have two dashes.
+            if (*entry.start != '-') continue;
+            entry.start++;
+        }
+        else if (*entry.start == '-') {
+            continue; // Want short, got long.
+        }
+        if (!cmpArg_(&entry, arg)) {
+            return i.pos;
+        }
+    }
+    return iInvalidPos;
+}
+
+iBool contains_CommandLine(const iCommandLine *d, const char *arg) {
+    const iRangecc args = range_CStr(arg);
+    iRangecc range = { NULL, NULL };
+    while (nextSplit_Rangecc(&args, ";", &range)) {
+        if (findArg_CommandLine_(d, &range) != iInvalidPos)
+            return iTrue;
+    }
+    return iFalse;
+}
+
+static iCommandLineArg *checkArgumentWithValues_CommandLine_
+    (const iCommandLine *d, const iRangecc *arg, int minCount, int maxCount) {
+    const size_t pos = findArg_CommandLine_(d, arg);
+    if (pos == iInvalidPos) return NULL;
+    const iString *lineEntry = constAt_StringList(&d->args, pos);
+    size_t equalPos;
+    if ((equalPos = indexOf_String(lineEntry, '=')) != iInvalidPos) {
+        if (minCount > 1 || maxCount == 0) return NULL;
+        // There is a single value included in the entry.
+        iCommandLineArg *clArg = new_CommandLineArg();
+        clArg->pos = pos;
+        set_String(&clArg->arg, lineEntry);
+        pushBackCStr_StringList(&clArg->values, cstr_String(lineEntry) + equalPos + 1);
+        truncate_String(&clArg->arg, equalPos);
+        return clArg;
+    }
+    // Check how many values are provided.
+    size_t endPos;
+    for (endPos = pos + 1;
+         endPos < size_StringList(&d->args) &&
+             !startsWith_String(constAt_StringList(&d->args, endPos), "-");
+         endPos++) {}
+    int valueCount = (int) (endPos - pos - 1);
+    if (valueCount < minCount) {
+        return NULL;
+    }
+    if (maxCount != unlimitedValues_CommandLine) {
+        valueCount = iMin(valueCount, maxCount);
+    }
+    iCommandLineArg *clArg = new_CommandLineArg();
+    clArg->pos = pos;
+    set_String(&clArg->arg, lineEntry);
+    for (size_t i = pos + 1; i < endPos; ++i) {
+        pushBack_StringList(&clArg->values, constAt_StringList(&d->args, i));
+    }
+    return clArg;
 }
 
 iCommandLineArg *checkArgumentWithValues_CommandLine
     (const iCommandLine *d, const char *arg, int minCount, int maxCount) {
-
+    const iRangecc args = range_CStr(arg);
+    iRangecc range = { NULL, NULL };
+    while (nextSplit_Rangecc(&args, ";", &range)) {
+        iCommandLineArg *clArg = checkArgumentWithValues_CommandLine_(d, &range, minCount, maxCount);
+        if (clArg) return clArg;
+    }
+    return NULL;
 }
 
 //---------------------------------------------------------------------------------------
@@ -129,10 +214,10 @@ iDefineObjectConstruction(CommandLineArg)
 
 void init_CommandLineArg(iCommandLineArg *d) {
     init_StringList(&d->values);
-    init_String(&d->option);
+    init_String(&d->arg);
 }
 
 void deinit_CommandLineArg(iCommandLineArg *d) {
-    deinit_String(&d->option);
+    deinit_String(&d->arg);
     deinit_StringList(&d->values);
 }

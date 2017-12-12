@@ -43,9 +43,9 @@ iString *newCStr_String(const char *cstr) {
     return newCStrN_String(cstr, strlen(cstr));
 }
 
-iString *newCStrN_String(const char *cstr, size_t len) {
+iString *newCStrN_String(const char *cstr, size_t size) {
     iString *d = iMalloc(String);
-    initData_Block(&d->chars, cstr, len);
+    initData_Block(&d->chars, cstr, size);
     return d;
 }
 
@@ -108,6 +108,10 @@ void truncate_String(iString *d, size_t len) {
 
 const char *cstr_String(const iString *d) {
     return constData_Block(&d->chars);
+}
+
+iRangecc range_String(const iString *d) {
+    return (iRangecc){ constData_Block(&d->chars), constEnd_Block(&d->chars) };
 }
 
 size_t length_String(const iString *d) {
@@ -198,22 +202,31 @@ void prepend_String(iString *d, const iString *other) {
     deinit_String(&pre);
 }
 
-iStringList *split_String(const iString *d, const char *separator) {
-    const size_t seprSize = strlen(separator);
-    iStringList *parts = new_StringList();
-    iRangecc range;
-    range.start = range.end = constData_Block(&d->chars);
-    while (*range.start) {
-        const char *found = strstr(range.start, separator);
-        if (!found) break;
-        range.end = found;
-        iAssert(range.start <= range.end);
-        pushBackCStrRange_StringList(parts, &range);
-        range.start = range.end + seprSize;
+iBool nextSplit_Rangecc(const iRangecc *str, const char *separator, iRangecc *range) {
+    if (!range->start) {
+        range->start = range->end = str->start;
     }
-    range.end = constEnd_Block(&d->chars);
-    iAssert(range.start <= range.end);
-    pushBackCStrRange_StringList(parts, &range);
+    else if (range->start == str->end) {
+        return iFalse;
+    }
+    else {
+        range->start = range->end + strlen(separator);
+        if (range->start >= str->end) {
+            return iFalse;
+        }
+    }
+    const char *found = strstr(range->start, separator);
+    range->end = (found && found < str->end? found : str->end);
+    iAssert(range->start <= range->end);
+    return iTrue;
+}
+
+iStringList *split_Rangecc(const iRangecc *d, const char *separator) {
+    iStringList *parts = new_StringList();
+    iRangecc range = { NULL, NULL };
+    while (nextSplit_Rangecc(d, separator, &range)) {
+        pushBackRange_StringList(parts, &range);
+    }
     return parts;
 }
 
@@ -221,11 +234,17 @@ int toInt_String(const iString *d) {
     return atoi(cstr_String(d));
 }
 
-const char *skipSpace_String(const char *cstr) {
+const char *skipSpace_CStr(const char *cstr) {
     while (*cstr && isspace(*cstr)) {
         cstr++;
     }
     return cstr;
+}
+
+const char *findAscii_Rangecc(const iRangecc *str, char ch) {
+    const char *pos = strchr(str->start, ch);
+    if (!pos || pos >= str->end) return NULL;
+    return pos;
 }
 
 //---------------------------------------------------------------------------------------

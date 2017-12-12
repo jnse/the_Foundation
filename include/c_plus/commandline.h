@@ -47,7 +47,19 @@ void        deinit_CommandLine      (iCommandLine *);
 
 iBool       contains_CommandLine    (const iCommandLine *, const char *arg);
 
-iCommandLineArg *checkArgumentWithValues_CommandLine  (const iCommandLine *, const char *arg, int minCount, int maxCount);
+/**
+ * Finds an argument and its values from the command line.
+ *
+ * @param arg       Argument(s) to find. This can be a single argument or a list of
+ *                  semicolon-separated arguments. The check is done in the specified
+ *                  order.
+ * @param minCount  Minimum number of values.
+ * @param maxCount  Maximum number of values, or unlimitedValues_CommandLine.
+ *
+ * @return New CommandLineArg object with the found argument and values, or @c NULL.
+ */
+iCommandLineArg *checkArgumentWithValues_CommandLine  (const iCommandLine *, const char *arg,
+                                                       int minCount, int maxCount);
 
 static inline const iStringList *args_CommandLine(const iCommandLine *d) {
     return &d->args;
@@ -69,7 +81,7 @@ static inline iCommandLineArg *checkArgumentN_CommandLine(const iCommandLine *d,
 
 struct Impl_CommandLineArg {
     iStringList values;
-    iString option;
+    iString arg;
     size_t pos;
 };
 
@@ -78,3 +90,11 @@ iDeclareObjectConstruction(CommandLineArg)
 
 void        init_CommandLineArg     (iCommandLineArg *);
 void        deinit_CommandLineArg   (iCommandLineArg *);
+
+static inline const iString *value_CommandLineArg(const iCommandLineArg *d, size_t pos) {
+    return constAt_StringList(&d->values, pos);
+}
+
+static inline const iStringList *values_CommandLineArg(const iCommandLineArg *d) {
+    return &d->values;
+}

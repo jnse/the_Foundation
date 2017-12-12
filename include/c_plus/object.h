@@ -111,8 +111,11 @@ void            checkSignature_Object   (const iAnyObject *);
 #endif
 
 static inline iAnyObject *collect_Object(const iAnyObject *d) {
-    iAssertIsObject(d);
-    return collect_Garbage(iConstCast(iAnyObject *, d), (iDeleteFunc) deref_Object);
+    if (d) {
+        iAssertIsObject(d);
+        return collect_Garbage(iConstCast(iAnyObject *, d), (iDeleteFunc) deref_Object);
+    }
+    return NULL;
 }
 
 static inline void iRelease(const iAnyObject *d) {

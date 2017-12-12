@@ -69,7 +69,7 @@ void            pushBack_StringList     (iStringList *, const iString *str);
 void            pushBackCStr_StringList (iStringList *, const char *cstr);
 void            pushBackCStrN_StringList(iStringList *, const char *cstr, size_t size);
 
-#define         pushBackCStrRange_StringList(d, range)  pushBackCStrN_StringList(d, (range)->start, size_Range(range))
+static inline void pushBackRange_StringList(iStringList *d, const iRangecc *range) { pushBackCStrN_StringList(d, range->start, size_Range(range)); }
 
 void            pushFront_StringList    (iStringList *, const iString *str);
 void            pushFrontCStr_StringList(iStringList *, const char *cstr);

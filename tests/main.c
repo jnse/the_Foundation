@@ -204,6 +204,28 @@ int main(int argc, char *argv[]) {
         iConstForEach(StringList, i, args_CommandLine(cmdline)) {
             printf("%2zu: \"%s\"\n", i.pos, cstr_String(i.value));
         }
+        iCommandLineArg *arg;
+        arg = iClob(checkArgument_CommandLine(cmdline, "file"));
+        if (arg) {
+            printf("file option:");
+            iConstForEach(StringList, j, values_CommandLineArg(arg)) {
+                printf(" [%s]", cstr_String(j.value));
+            }
+            printf("\n");
+        }
+        arg = iClob(checkArgumentN_CommandLine(cmdline, "V;value", 1));
+        if (arg) {
+            printf("value option: %s\n", cstr_String(value_CommandLineArg(arg, 0)));
+        }
+        if (contains_CommandLine(cmdline, "x")) {
+            puts("x option");
+        }
+        if (contains_CommandLine(cmdline, "f")) {
+            puts("f option");
+        }
+        if (contains_CommandLine(cmdline, "d")) {
+            puts("d option");
+        }
     }
     return 12345;
     /* Test time and date. */ {

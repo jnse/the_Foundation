@@ -66,7 +66,7 @@ struct Impl_Rangecc {
     const char *end;
 };
 
-#define size_Range(d)               ((d)->end - (d)->start)
+#define size_Range(d)               ((size_t) ((d)->end - (d)->start))
 #define isEmpty_Range(d)            ((d)->end == (d)->start)
 #define contains_Range(d, value)    ((value) >= (d)->start && (value) < (d)->end)
 

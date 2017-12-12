@@ -56,7 +56,7 @@ struct Impl_String {
 iDeclareTypeConstruction(String)
 
 iString *       newCStr_String  (const char *cstr);
-iString *       newCStrN_String (const char *cstr, size_t len);
+iString *       newCStrN_String (const char *cstr, size_t size);
 iString *       newBlock_String (const iBlock *data);
 iString *       copy_String     (const iString *);
 
@@ -67,6 +67,7 @@ void            initBlock_String(iString *, const iBlock *chars);
 void            initCopy_String (iString *, const iString *other);
 
 const char *    cstr_String     (const iString *);
+iRangecc        range_String    (const iString *);
 size_t          length_String   (const iString *);
 size_t          size_String     (const iString *);
 iString *       mid_String      (const iString *, size_t start, size_t count);
@@ -96,6 +97,10 @@ size_t          lastIndexOfCStr_String      (const iString *, const char *cstr);
 #define         indexOfString_String(d, s)      indexOfCStr_String(d, cstr_String(s))
 #define         lastIndexOfString_String(d, s)  lastIndexOfCStr_String(d, cstr_String(s))
 
+static inline iBool contains_String(const iString *d, iChar ch) {
+    return indexOf_String(d, ch) != iInvalidPos;
+}
+
 void            set_String      (iString *, const iString *other);
 void            setCStr_String  (iString *, const char *cstr);
 
@@ -106,10 +111,25 @@ void            prepend_String      (iString *, const iString *other);
 void            clear_String    (iString *);
 void            truncate_String (iString *, size_t len);
 
-iStringList *   split_String    (const iString *, const char *separator);
 int             toInt_String    (const iString *);
 
-const char *    skipSpace_String(const char *cstr);
+const char *    skipSpace_CStr  (const char *);
+
+static inline iRangecc rangeN_CStr  (const char *cstr, size_t size) { return (iRangecc){ cstr, cstr + size }; }
+static inline iRangecc range_CStr   (const char *cstr) { return rangeN_CStr(cstr, strlen(cstr)); }
+
+iStringList *   split_Rangecc       (const iRangecc *, const char *separator);
+iBool           nextSplit_Rangecc   (const iRangecc *, const char *separator, iRangecc *range);
+const char *    findAscii_Rangecc   (const iRangecc *, char ch);
+
+static inline iStringList *split_String(const iString *d, const char *separator) {
+    const iRangecc range = range_String(d);
+    return split_Rangecc(&range, separator);
+}
+
+static inline iStringList *split_CStr(const char *cstr, const char *separator) {
+    return split_Rangecc(&(iRangecc){ cstr, cstr + strlen(cstr) }, separator);
+}
 
 /** @name Iterators */
 ///@{
