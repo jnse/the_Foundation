@@ -32,6 +32,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iDefineClass(CommandLine)
 iDefineObjectConstructionArgs(CommandLine, (int argc, char **argv), argc, argv)
 
+iDeclareStaticClass(DefinedArg)
+iDeclareType(DefinedArg)
+struct Impl_DefinedArg {
+    iObject object;
+    int minCount;
+    int maxCount;
+};
+
+void init_DefinedArg(iDefinedArg *d, int min, int max) {
+    d->minCount = min;
+    d->maxCount = max;
+}
+
+void deinit_DefinedArg(iDefinedArg *d) {
+    iUnused(d);
+}
+
+static iDefineClass(DefinedArg)
+
+iDefineObjectConstructionArgs(DefinedArg, (int min, int max), min, max)
+
 static void loadArgumentsFile_CommandLine_(iCommandLine *d, const char *path) {
     iBeginCollect();
     const iString *input;
@@ -96,23 +117,6 @@ static void loadArgumentsFile_CommandLine_(iCommandLine *d, const char *path) {
     iEndCollect();
 }
 
-void init_CommandLine(iCommandLine *d, int argc, char **argv) {
-    init_StringList(&d->args);
-    for (int i = 0; i < argc; ++i) {
-        // Load response files.
-        if (!iCmpStrN(argv[i], "@", 1)) {
-            loadArgumentsFile_CommandLine_(d, argv[i] + 1);
-        }
-        else {
-            pushBackCStr_StringList(&d->args, argv[i]);
-        }
-    }
-}
-
-void deinit_CommandLine(iCommandLine *d) {
-    deinit_StringList(&d->args);
-}
-
 static int cmpArg_(const iRangecc *entry, const iRangecc *arg) {
     iAssert(*arg->start != '-');
     iAssert(*entry->start != '-');
@@ -148,6 +152,42 @@ static size_t findArg_CommandLine_(const iCommandLine *d, const iRangecc *arg) {
     return iInvalidPos;
 }
 
+void init_CommandLine(iCommandLine *d, int argc, char **argv) {
+    init_StringList(&d->args);
+    d->defined = NULL;
+    for (int i = 0; i < argc; ++i) {
+        // Load response files.
+        if (!iCmpStrN(argv[i], "@", 1)) {
+            loadArgumentsFile_CommandLine_(d, argv[i] + 1);
+        }
+        else {
+            pushBackCStr_StringList(&d->args, argv[i]);
+        }
+    }
+}
+
+void deinit_CommandLine(iCommandLine *d) {
+    iRelease(d->defined);
+    deinit_StringList(&d->args);
+}
+
+void defineValues_CommandLine(iCommandLine *d, const char *arg, int valueCount) {
+    defineValuesN_CommandLine(d, arg, valueCount, valueCount);
+}
+
+void defineValuesN_CommandLine(iCommandLine *d, const char *arg, int minCount, int maxCount) {
+    if (!d->defined) {
+        d->defined = new_StringHash();
+    }
+    iDefinedArg *defined = new_DefinedArg(minCount, maxCount);
+    const iRangecc args = range_CStr(arg);
+    iRangecc range;
+    while (nextSplit_Rangecc(&args, ";", &range)) {
+        insertCStrN_StringHash(d->defined, range.start, size_Range(&range), defined);
+    }
+    iRelease(defined);
+}
+
 iBool contains_CommandLine(const iCommandLine *d, const char *arg) {
     const iRangecc args = range_CStr(arg);
     iRangecc range = { NULL, NULL };
@@ -158,7 +198,7 @@ iBool contains_CommandLine(const iCommandLine *d, const char *arg) {
     return iFalse;
 }
 
-static iCommandLineArg *checkArgumentWithValues_CommandLine_
+static iCommandLineArg *checkArgumentValuesN_CommandLine_
     (const iCommandLine *d, const iRangecc *arg, int minCount, int maxCount) {
     const size_t pos = findArg_CommandLine_(d, arg);
     if (pos == iInvalidPos) return NULL;
@@ -196,12 +236,12 @@ static iCommandLineArg *checkArgumentWithValues_CommandLine_
     return clArg;
 }
 
-iCommandLineArg *checkArgumentWithValues_CommandLine
+iCommandLineArg *checkArgumentValuesN_CommandLine
     (const iCommandLine *d, const char *arg, int minCount, int maxCount) {
     const iRangecc args = range_CStr(arg);
     iRangecc range = { NULL, NULL };
     while (nextSplit_Rangecc(&args, ";", &range)) {
-        iCommandLineArg *clArg = checkArgumentWithValues_CommandLine_(d, &range, minCount, maxCount);
+        iCommandLineArg *clArg = checkArgumentValuesN_CommandLine_(d, &range, minCount, maxCount);
         if (clArg) return clArg;
     }
     return NULL;
@@ -220,4 +260,21 @@ void init_CommandLineArg(iCommandLineArg *d) {
 void deinit_CommandLineArg(iCommandLineArg *d) {
     deinit_String(&d->arg);
     deinit_StringList(&d->values);
+}
+
+iCommandLineArg *checkArgument_CommandLine(const iCommandLine *d, const char *arg) {
+    int minCount = 0, maxCount = 0; // By default, no values expected.
+    const iRangecc args = range_CStr(arg);
+    iRangecc range;
+    while (nextSplit_Rangecc(&args, ";", &range)) {
+        iString key; initCStr_String(&key, arg);
+        const iDefinedArg *defined = constValue_StringHash(d->defined, &key);
+        deinit_String(&key);
+        if (defined) {
+            minCount = defined->minCount;
+            maxCount = defined->maxCount;
+            break;
+        }
+    }
+    return checkArgumentWithValues_CommandLine(d, arg, minCount, maxCount);
 }

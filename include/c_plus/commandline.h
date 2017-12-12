@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "stringlist.h"
+#include "stringhash.h"
 
 iDeclareClass(CommandLine)
 
@@ -36,6 +37,7 @@ iDeclareType(CommandLineArg)
 
 struct Impl_CommandLine {
     iStringList args;
+    iStringHash *defined;
 };
 
 enum { unlimitedValues_CommandLine = -1 };
@@ -45,7 +47,12 @@ iDeclareObjectConstructionArgs(CommandLine, int argc, char **argv)
 void        init_CommandLine        (iCommandLine *, int argc, char **argv);
 void        deinit_CommandLine      (iCommandLine *);
 
+void        defineValues_CommandLine  (iCommandLine *, const char *arg, int valueCount);
+void        defineValuesN_CommandLine (iCommandLine *, const char *arg, int minCount, int maxCount);
+
 iBool       contains_CommandLine    (const iCommandLine *, const char *arg);
+
+iCommandLineArg *checkArgument_CommandLine(const iCommandLine *d, const char *arg);
 
 /**
  * Finds an argument and its values from the command line.
@@ -58,8 +65,8 @@ iBool       contains_CommandLine    (const iCommandLine *, const char *arg);
  *
  * @return New CommandLineArg object with the found argument and values, or @c NULL.
  */
-iCommandLineArg *checkArgumentWithValues_CommandLine  (const iCommandLine *, const char *arg,
-                                                       int minCount, int maxCount);
+iCommandLineArg *checkArgumentValuesN_CommandLine  (const iCommandLine *, const char *arg,
+                                                   int minCount, int maxCount);
 
 static inline const iStringList *args_CommandLine(const iCommandLine *d) {
     return &d->args;
@@ -69,13 +76,16 @@ static inline const iString *at_CommandLine(const iCommandLine *d, size_t pos) {
     return constAt_StringList(&d->args, pos);
 }
 
-static inline iCommandLineArg *checkArgument_CommandLine(const iCommandLine *d, const char *arg) {
-    return checkArgumentWithValues_CommandLine(d, arg, 0, unlimitedValues_CommandLine);
+static inline iCommandLineArg *checkArgumentValues_CommandLine(const iCommandLine *d, const char *arg, int count) {
+    return checkArgumentValuesN_CommandLine(d, arg, count, count);
 }
 
-static inline iCommandLineArg *checkArgumentN_CommandLine(const iCommandLine *d, const char *arg, int count) {
-    return checkArgumentWithValues_CommandLine(d, arg, count, count);
-}
+iDeclareConstIterator(CommandLine, const iCommandLine *)
+
+struct IteratorImpl_CommandLine {
+
+    const iCommandLine *cmdLine;
+};
 
 //---------------------------------------------------------------------------------------
 

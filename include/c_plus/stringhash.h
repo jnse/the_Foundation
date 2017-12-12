@@ -32,5 +32,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iDeclareBlockHash(StringHash, String, AnyObject)
 
-void        insertValues_StringHash       (iStringHash *, const iString *key, iAnyObject *value, ...);
-void        insertValuesCStr_StringHash   (iStringHash *, const char *key, iAnyObject *value, ...);
+iBool       insertCStr_StringHash       (iStringHash *, const char *key, iAnyObject *value);
+iBool       insertCStrN_StringHash      (iStringHash *, const char *key, size_t size, iAnyObject *value);
+
+void        insertValues_StringHash     (iStringHash *, const iString *key, iAnyObject *value, ...);
+void        insertValuesCStr_StringHash (iStringHash *, const char *key, iAnyObject *value, ...);

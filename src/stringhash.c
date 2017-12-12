@@ -45,26 +45,38 @@ void initBlock_StringHashKey(const iString *d, iBlock *block) {
     initCopy_Block(block, &d->chars);
 }
 
+iBool insertCStr_StringHash(iStringHash *d, const char *key, iAnyObject *value) {
+    return insertCStrN_StringHash(d, key, strlen(key), value);
+}
+
+iBool insertCStrN_StringHash(iStringHash *d, const char *key, size_t size, iAnyObject *value) {
+    iString keyStr;
+    initCStrN_String(&keyStr, key, size);
+    const iBool res = insert_StringHash(d, &keyStr, value);
+    deinit_String(&keyStr);
+    return res;
+}
+
 void insertValues_StringHash(iStringHash *d, const iString *key, iAnyObject *value, ...) {
-    insert_StringHash(d, copy_String(key), value);
+    insert_StringHash(d, key, value);
     va_list args;
     for (va_start(args, value);;) {
         key = va_arg(args, const iString *);
         if (!key) break;
         value = va_arg(args, iAnyObject *);
-        insert_StringHash(d, copy_String(key), value);
+        insert_StringHash(d, key, value);
     }
     va_end(args);
 }
 
 void insertValuesCStr_StringHash(iStringHash *d, const char *key, iAnyObject *value, ...) {
-    insert_StringHash(d, newCStr_String(key), value);
+    insertCStr_StringHash(d, key, value);
     va_list args;
     for (va_start(args, value);;) {
         key = va_arg(args, const char *);
         if (!key) break;
         value = va_arg(args, iAnyObject *);
-        insert_StringHash(d, newCStr_String(key), value);
+        insertCStr_StringHash(d, key, value);
     }
     va_end(args);
 }
