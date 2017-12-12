@@ -29,29 +29,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/file.h"
 #include "c_plus/block.h"
 
-iDefineClass(CommandLine)
-iDefineObjectConstructionArgs(CommandLine, (int argc, char **argv), argc, argv)
-
-iDeclareStaticClass(DefinedArg)
 iDeclareType(DefinedArg)
+iDeclareStaticClass(DefinedArg)
+
+iDefinedArg *new_DefinedArg(int minCount, int maxCount);
+
 struct Impl_DefinedArg {
     iObject object;
     int minCount;
     int maxCount;
 };
 
-void init_DefinedArg(iDefinedArg *d, int min, int max) {
-    d->minCount = min;
-    d->maxCount = max;
-}
-
-void deinit_DefinedArg(iDefinedArg *d) {
-    iUnused(d);
-}
-
-static iDefineClass(DefinedArg)
-
-iDefineObjectConstructionArgs(DefinedArg, (int min, int max), min, max)
+iDefineClass(CommandLine)
+iDefineObjectConstructionArgs(CommandLine, (int argc, char **argv), argc, argv)
 
 static void loadArgumentsFile_CommandLine_(iCommandLine *d, const char *path) {
     iBeginCollect();
@@ -249,6 +239,21 @@ iCommandLineArg *checkArgumentValuesN_CommandLine
 
 //---------------------------------------------------------------------------------------
 
+void init_DefinedArg(iDefinedArg *d, int min, int max) {
+    d->minCount = min;
+    d->maxCount = max;
+}
+
+void deinit_DefinedArg(iDefinedArg *d) {
+    iUnused(d);
+}
+
+static iDefineClass(DefinedArg)
+
+iDefineObjectConstructionArgs(DefinedArg, (int min, int max), min, max)
+
+//---------------------------------------------------------------------------------------
+
 iDefineClass(CommandLineArg)
 iDefineObjectConstruction(CommandLineArg)
 
@@ -276,5 +281,5 @@ iCommandLineArg *checkArgument_CommandLine(const iCommandLine *d, const char *ar
             break;
         }
     }
-    return checkArgumentWithValues_CommandLine(d, arg, minCount, maxCount);
+    return checkArgumentValuesN_CommandLine(d, arg, minCount, maxCount);
 }

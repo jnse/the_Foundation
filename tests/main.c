@@ -213,7 +213,7 @@ int main(int argc, char *argv[]) {
             }
             puts("");
         }
-        arg = iClob(checkArgumentN_CommandLine(cmdline, "V;value", 1));
+        arg = iClob(checkArgumentValues_CommandLine(cmdline, "V;value", 1));
         if (arg) {
             printf("value option: %s\n", cstr_String(value_CommandLineArg(arg, 0)));
         }

@@ -52,14 +52,25 @@ void        defineValuesN_CommandLine (iCommandLine *, const char *arg, int minC
 
 iBool       contains_CommandLine    (const iCommandLine *, const char *arg);
 
-iCommandLineArg *checkArgument_CommandLine(const iCommandLine *d, const char *arg);
+/**
+ * Finds an argument and its defined values from the command line. If no values have
+ * been defined for the argument, it is assumed that is has none.
+ *
+ * @param arg   Argument(s) to find. This can be a single argument or a list of
+ *              semicolon-separated arguments. The first match is returned. Matching
+ *              is done in the specified order.
+ *
+ * @return New CommandLineArg object with the found argument and values, or @c NULL.
+ */
+iCommandLineArg *checkArgument_CommandLine(const iCommandLine *, const char *arg);
 
 /**
- * Finds an argument and its values from the command line.
+ * Finds an argument and its values from the command line. Any previously defined
+ * values for the argument(s) are ignored.
  *
  * @param arg       Argument(s) to find. This can be a single argument or a list of
- *                  semicolon-separated arguments. The check is done in the specified
- *                  order.
+ *                  semicolon-separated arguments. The first match is returned. Matching
+ *                  is done in the specified order.
  * @param minCount  Minimum number of values.
  * @param maxCount  Maximum number of values, or unlimitedValues_CommandLine.
  *
