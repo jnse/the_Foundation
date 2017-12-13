@@ -32,6 +32,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iDeclareBlockHash(StringHash, String, AnyObject)
 
+const iAnyObject *constValueRange_StringHash    (const iStringHash *, const iRangecc *key);
+
 iBool       insertCStr_StringHash       (iStringHash *, const char *key, iAnyObject *value);
 iBool       insertCStrN_StringHash      (iStringHash *, const char *key, size_t size, iAnyObject *value);
 

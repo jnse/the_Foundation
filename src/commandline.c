@@ -244,6 +244,33 @@ iCommandLineArg *checkArgumentValuesN_CommandLine
 
 //---------------------------------------------------------------------------------------
 
+void init_CommandLineConstIterator(iCommandLineConstIterator *d, const iCommandLine *cmdLine) {
+    d->value = 0;
+    d->cmdLine = cmdLine;
+    d->entry = (iRangecc){ NULL, NULL };
+    next_CommandLineConstIterator(d);
+}
+
+void next_CommandLineConstIterator(iCommandLineConstIterator *d) {
+    ++d->value;
+    if (d->value == size_StringList(&d->cmdLine->args)) {
+        d->value = 0;
+        return;
+    }
+    const iString *arg = constAt_StringList(&d->cmdLine->args, d->value);
+
+}
+
+iCommandLineArg *argument_CommandLineConstIterator(iCommandLineConstIterator *d) {
+
+}
+
+iString *value_CommandLineConstIterator(iCommandLineConstIterator *d) {
+
+}
+
+//---------------------------------------------------------------------------------------
+
 void init_DefinedArg(iDefinedArg *d, int min, int max) {
     d->minCount = min;
     d->maxCount = max;
@@ -274,12 +301,10 @@ void deinit_CommandLineArg(iCommandLineArg *d) {
 
 iCommandLineArg *checkArgument_CommandLine(const iCommandLine *d, const char *arg) {
     int minCount = 0, maxCount = 0; // By default, no values expected.
+    iRangecc key;
     const iRangecc args = range_CStr(arg);
-    iRangecc range;
-    while (nextSplit_Rangecc(&args, ";", &range)) {
-        iString key; initCStr_String(&key, arg);
-        const iDefinedArg *defined = constValue_StringHash(d->defined, &key);
-        deinit_String(&key);
+    while (nextSplit_Rangecc(&args, ";", &key)) {
+        const iDefinedArg *defined = constValueRange_StringHash(d->defined, &key);
         if (defined) {
             minCount = defined->minCount;
             maxCount = defined->maxCount;

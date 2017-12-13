@@ -45,6 +45,10 @@ void initBlock_StringHashKey(const iString *d, iBlock *block) {
     initCopy_Block(block, &d->chars);
 }
 
+const iAnyObject *constValueRange_StringHash(const iStringHash *d, const iRangecc *key) {
+    return constValue_BlockHash(d, &iBlockLiteral(key->start, size_Range(key), size_Range(key)));
+}
+
 iBool insertCStr_StringHash(iStringHash *d, const char *key, iAnyObject *value) {
     return insertCStrN_StringHash(d, key, strlen(key), value);
 }

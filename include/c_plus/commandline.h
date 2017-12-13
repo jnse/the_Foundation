@@ -98,7 +98,7 @@ static inline iCommandLineArg *checkArgumentValues_CommandLine(const iCommandLin
 
 iDeclareConstIterator(CommandLine, const iCommandLine *)
 
-struct IteratorImpl_CommandLine {
+struct ConstIteratorImpl_CommandLine {
     size_t value;
     iRangecc entry;
     iBool isArgument;

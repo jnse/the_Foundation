@@ -38,14 +38,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #   include <zlib.h>
 #endif
 
-struct Impl_BlockData {
-    int refCount;
-    char *data;
-    size_t size;
-    size_t allocSize;
+/// @todo Needs a ref-counting mutex.
+static iBlockData emptyBlockData = {
+    .refCount = 1,
+    .data = "",
+    .size = 0,
+    .allocSize = 1,
 };
-
-static iBlockData emptyBlockData = { 1, "", 0, 1 }; /// @todo Needs a ref-counting mutex.
 
 static iBlockData *new_BlockData_(size_t size, size_t allocSize) {
     iBlockData *d = malloc(sizeof(iBlockData));

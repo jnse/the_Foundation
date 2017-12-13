@@ -30,12 +30,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "range.h"
 
+#include <stdatomic.h>
+
 iDeclareType(Block)
 iDeclareType(BlockData)
 
 struct Impl_Block {
     iBlockData *i;
 };
+
+struct Impl_BlockData {
+    atomic_int refCount;
+    char *data;
+    size_t size;
+    size_t allocSize;
+};
+
+#define iBlockLiteral(ptr, sz, allocSz) \
+    (iBlock){ &(iBlockData){ .refCount = 2, .data = iConstCast(char *, ptr), .size = (sz), .allocSize = (allocSz) } }
 
 iDeclareTypeConstructionArgs(Block, size_t size)
 
