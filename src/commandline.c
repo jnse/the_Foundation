@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/file.h"
 #include "c_plus/block.h"
 
+#include <ctype.h>
+
 iDeclareType(DefinedArg)
 iDeclareStaticClass(DefinedArg)
 

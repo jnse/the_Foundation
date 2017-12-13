@@ -168,10 +168,12 @@ uint32_t    iCrc32      (const char *data, size_t size);
 #if defined (NDEBUG)
 #   define iAssert(cond)
 #   define iDebug(...)
+#   define iDebugOnly(...)  iUnused(__VA_ARGS__)
 #else
 #   include <assert.h>
 #   define iAssert(cond)    assert(cond)
 #   define iDebug(...)      fprintf(stdout, __VA_ARGS__)
+#   define iDebugOnly(...)
 #endif
 
 #define iWarning(...)       fprintf(stderr, __VA_ARGS__)

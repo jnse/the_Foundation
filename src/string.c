@@ -312,8 +312,13 @@ void next_StringReverseConstIterator(iStringConstIterator *d) {
 void init_MultibyteChar(iMultibyteChar *d, iChar ch) {
     mbstate_t mbs;
     iZap(mbs);
-    iZap(d->bytes);
-    wcrtomb(d->bytes, ch, &mbs);
+    const size_t count = wcrtomb(d->bytes, ch, &mbs);
+    if (count != iInvalidSize) {
+        d->bytes[count] = 0;
+    }
+    else {
+        d->bytes[0] = 0;
+    }
 }
 
 int iCmpStrCase(const char *a, const char *b) {

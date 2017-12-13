@@ -67,9 +67,8 @@ void init_TestNode(iTestNode *d, int value) {
     d->value = value;
 }
 
-void deinit_TestNode(iAnyObject *obj) {
-    iTestNode *d = (iTestNode *) obj;
-    iDebug("deinit TestNode: %i\n", d->value);
+void deinit_TestNode(iAny *any) {
+    iDebug("deinit TestNode: %i\n", ((iTestNode *) any)->value);
 }
 
 static iDefineClass(TestNode)
@@ -94,9 +93,8 @@ void init_SuperNode(iSuperNode *d, int member) {
     d->member = member;
 }
 
-void deinit_SuperNode(iAnyObject *any) {
-    iSuperNode *d = (iSuperNode *) any;
-    iDebug("deinit SuperNode: %i\n", d->member);
+void deinit_SuperNode(iAny *any) {
+    iDebug("deinit SuperNode: %i\n", ((iSuperNode *) any)->member);
 }
 
 static iDefineSubclass(SuperNode, TestNode)
@@ -119,8 +117,7 @@ struct Impl_TestObject {
 };
 
 static void deinit_TestObject(iAnyObject *any) {
-    iTestObject *d = (iTestObject *) any;
-    iDebug("deinit TestObject: %i\n", d->value);
+    iDebug("deinit TestObject: %i\n", ((iTestObject *) any)->value);
 }
 
 static iDefineClass(TestObject)
@@ -384,6 +381,7 @@ int main(int argc, char *argv[]) {
         }
         puts(" ]");
         const int fullSize = size_Map(map);
+        iDebugOnly(fullSize);
         int remCount = 0;
         for (int i = 0; i < 300; ++i) {
             iMapKey key = iRandom(0, 100);

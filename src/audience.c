@@ -38,7 +38,7 @@ static int cmp_Observer_(const void *a, const void *b) {
     if (cmp != 0) return cmp;
     // Same object.
     const iObserver *x = a, *y = b;
-    return iCmp((void *) x->func, (void *) y->func);
+    return iCmp((intptr_t) x->func, (intptr_t) y->func);
 }
 
 iDefineTypeConstruction(Audience)
