@@ -65,6 +65,8 @@ void            clear_StringList    (iStringList *);
 const iString * constAt_StringList  (const iStringList *, size_t pos);
 iString *       at_StringList       (iStringList *, size_t pos);
 
+static inline const iString *constFront_StringList(const iStringList *d) { return constAt_StringList(d, 0); }
+
 void            pushBack_StringList     (iStringList *, const iString *str);
 void            pushBackCStr_StringList (iStringList *, const char *cstr);
 void            pushBackCStrN_StringList(iStringList *, const char *cstr, size_t size);

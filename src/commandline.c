@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/commandline.h"
 #include "c_plus/file.h"
 #include "c_plus/block.h"
+#include "c_plus/path.h"
 
 #include <ctype.h>
 
@@ -156,9 +157,11 @@ void init_CommandLine(iCommandLine *d, int argc, char **argv) {
             pushBackCStr_StringList(&d->args, argv[i]);
         }
     }
+    d->execPath = makeAbsolute_Path(constFront_StringList(&d->args));
 }
 
 void deinit_CommandLine(iCommandLine *d) {
+    delete_String(d->execPath);
     iRelease(d->defined);
     deinit_StringList(&d->args);
 }

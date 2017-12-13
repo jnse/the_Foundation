@@ -110,10 +110,6 @@ const char *cstr_String(const iString *d) {
     return constData_Block(&d->chars);
 }
 
-iRangecc range_String(const iString *d) {
-    return (iRangecc){ constData_Block(&d->chars), constEnd_Block(&d->chars) };
-}
-
 size_t length_String(const iString *d) {
     size_t len = 0;
     iConstForEach(String, i, d) len++;
@@ -192,6 +188,10 @@ void append_String(iString *d, const iString *other) {
 
 void appendCStr_String(iString *d, const char *cstr) {
     appendCStr_Block(&d->chars, cstr);
+}
+
+void appendRange_String(iString *d, const iRangecc *range) {
+    appendData_Block(&d->chars, range->start, size_Range(range));
 }
 
 void prepend_String(iString *d, const iString *other) {
@@ -319,6 +319,16 @@ void init_MultibyteChar(iMultibyteChar *d, iChar ch) {
     else {
         d->bytes[0] = 0;
     }
+}
+
+int iCmpStrRange(const iRangecc *range, const char *cstr) {
+    const size_t clen = strlen(cstr);
+    const int cmp = iCmpStrN(range->start, cstr, size_Range(range));
+    if (clen == size_Range(range)) {
+        return cmp;
+    }
+    if (cmp == 0) return (size_Range(range) < clen? -1 : 1);
+    return cmp;
 }
 
 int iCmpStrCase(const char *a, const char *b) {

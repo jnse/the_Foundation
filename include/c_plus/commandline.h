@@ -38,6 +38,7 @@ iDeclareType(CommandLineArg)
 struct Impl_CommandLine {
     iStringList args;
     iStringHash *defined;
+    iString *execPath;
 };
 
 enum { unlimitedValues_CommandLine = -1 };
@@ -79,6 +80,10 @@ iCommandLineArg *checkArgument_CommandLine(const iCommandLine *, const char *arg
 iCommandLineArg *checkArgumentValuesN_CommandLine  (const iCommandLine *, const char *arg,
                                                    int minCount, int maxCount);
 
+static inline const iString *executablePath_CommandLine(const iCommandLine *d) {
+    return d->execPath;
+}
+
 static inline const iStringList *args_CommandLine(const iCommandLine *d) {
     return &d->args;
 }
@@ -94,9 +99,15 @@ static inline iCommandLineArg *checkArgumentValues_CommandLine(const iCommandLin
 iDeclareConstIterator(CommandLine, const iCommandLine *)
 
 struct IteratorImpl_CommandLine {
-
+    size_t value;
+    iRangecc entry;
+    iBool isArgument;
+    size_t valueCount;
     const iCommandLine *cmdLine;
 };
+
+iCommandLineArg *   argument_CommandLineConstIterator   (iCommandLineConstIterator *);
+iString *           value_CommandLineConstIterator      (iCommandLineConstIterator *);
 
 //---------------------------------------------------------------------------------------
 

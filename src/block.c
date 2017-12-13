@@ -56,9 +56,18 @@ static iBlockData *new_BlockData_(size_t size, size_t allocSize) {
     return d;
 }
 
+static iBlockData *newPrealloc_BlockData_(void *data, size_t size) {
+    iBlockData *d = malloc(sizeof(iBlockData));
+    d->refCount = 1;
+    d->size = size;
+    d->allocSize = size;
+    d->data = data;
+    return d;
+}
+
 static iBlockData *duplicate_BlockData_(const iBlockData *d, size_t allocSize) {
     iBlockData *dupl = new_BlockData_(d->size, allocSize);
-    memcpy(dupl->data, d->data, dupl->size + 1);
+    memcpy(dupl->data, d->data, iMin(d->allocSize, dupl->size + 1));
     return dupl;
 }
 
@@ -110,6 +119,12 @@ iBlock *newData_Block(const void *data, size_t size) {
     return d;
 }
 
+iBlock *newPrealloc_Block(void *data, size_t size) {
+    iBlock *d = iMalloc(Block);
+    initPrealloc_Block(d, data, size);
+    return d;
+}
+
 iBlock *copy_Block(const iBlock *d) {
     if (d) {
         iBlock *dupl = malloc(sizeof(iBlock));
@@ -137,6 +152,10 @@ void initData_Block(iBlock *d, const void *data, size_t size) {
     else {
         init_Block(d, size);
     }
+}
+
+void initPrealloc_Block(iBlock *d, void *data, size_t size) {
+    d->i = newPrealloc_BlockData_(data, size);
 }
 
 void initCopy_Block(iBlock *d, const iBlock *other) {

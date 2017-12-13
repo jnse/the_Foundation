@@ -37,6 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/hash.h>
 #include <c_plus/object.h>
 #include <c_plus/objectlist.h>
+#include <c_plus/path.h>
 #include <c_plus/ptrarray.h>
 #include <c_plus/regexp.h>
 #include <c_plus/sortedarray.h>
@@ -196,7 +197,9 @@ static iThreadResult run_WorkerThread(iThread *d) {
 int main(int argc, char *argv[]) {
     init_CPlus();
     iCommandLine *cmdline = new_CommandLine(argc, argv);
+    printf("Executable: \"%s\"\n", cstr_String(executablePath_CommandLine(cmdline)));
     /* Test command line options parsing. */ {
+        printf("Working directory: \"%s\"\n", cstr_String(collect_String(cwd_Path())));
         puts("Options from command line:");
         iConstForEach(StringList, i, args_CommandLine(cmdline)) {
             printf("%2zu: \"%s\"\n", i.pos, cstr_String(i.value));
@@ -205,8 +208,11 @@ int main(int argc, char *argv[]) {
         arg = iClob(checkArgument_CommandLine(cmdline, "file"));
         if (arg) {
             printf("file option:");
-            iConstForEach(StringList, j, values_CommandLineArg(arg)) {
-                printf(" [%s]", cstr_String(j.value));
+            iConstForEach(StringList, k, values_CommandLineArg(arg)) {
+                iString *clean = copy_String(k.value);
+                clean_Path(clean);
+                printf(" %s", cstr_String(clean));
+                delete_String(clean);
             }
             puts("");
         }
@@ -224,6 +230,7 @@ int main(int argc, char *argv[]) {
             puts("d option");
         }
     }
+    return -100;
     /* Test time and date. */ {
         const iTime now = now_Time();
         iDate date;

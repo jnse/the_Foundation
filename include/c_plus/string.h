@@ -67,10 +67,11 @@ void            initBlock_String(iString *, const iBlock *chars);
 void            initCopy_String (iString *, const iString *other);
 
 const char *    cstr_String     (const iString *);
-iRangecc        range_String    (const iString *);
 size_t          length_String   (const iString *);
 size_t          size_String     (const iString *);
 iString *       mid_String      (const iString *, size_t start, size_t count);
+
+#define         range_String(d) (iRangecc){ constData_Block(&d->chars), constEnd_Block(&d->chars) }
 
 static inline const char *constEnd_String(const iString *d) { return cstr_String(d) + size_String(d); }
 
@@ -106,6 +107,7 @@ void            setCStr_String  (iString *, const char *cstr);
 
 void            append_String       (iString *, const iString *other);
 void            appendCStr_String   (iString *, const char *cstr);
+void            appendRange_String  (iString *, const iRangecc *range);
 void            prepend_String      (iString *, const iString *other);
 
 void            clear_String    (iString *);
@@ -119,7 +121,18 @@ static inline iRangecc rangeN_CStr  (const char *cstr, size_t size) { return (iR
 static inline iRangecc range_CStr   (const char *cstr) { return rangeN_CStr(cstr, strlen(cstr)); }
 
 iStringList *   split_Rangecc       (const iRangecc *, const char *separator);
+
+/**
+ * Finds the next range between separators.
+ *
+ * @param separator  Separator string.
+ * @param range      Next range. Before the first call to the function, this must be
+ *                   initialized to zero.
+ *
+ * @return @c iTrue, if a next range was found.
+ */
 iBool           nextSplit_Rangecc   (const iRangecc *, const char *separator, iRangecc *range);
+
 const char *    findAscii_Rangecc   (const iRangecc *, char ch);
 
 static inline iStringList *split_String(const iString *d, const char *separator) {
@@ -159,6 +172,8 @@ struct Impl_StringComparison {
 
 #define         iCmpStr(a, b)       strcmp(a, b)
 #define         iCmpStrN(a, b, len) strncmp(a, b, len)
+
+int             iCmpStrRange(const iRangecc *range, const char *cstr);
 
 int             iCmpStrCase (const char *a, const char *b);
 int             iCmpStrNCase(const char *a, const char *b, size_t len);

@@ -88,6 +88,7 @@ static void initDirEntry_FileInfo_(iFileInfo *d, const iString *dirPath, struct 
     initCStr_String(&entryName, ent->d_name);
 #endif
     d->path = concat_Path(dirPath, &entryName);
+    clean_Path(d->path);
     deinit_String(&entryName);
 
     d->flags = exists_FileInfoFlag;
