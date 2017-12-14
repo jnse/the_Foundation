@@ -251,7 +251,6 @@ int main(int argc, char *argv[]) {
             puts("d option");
         }
     }
-    return -100;
     /* Test time and date. */ {
         const iTime now = now_Time();
         iDate date;
