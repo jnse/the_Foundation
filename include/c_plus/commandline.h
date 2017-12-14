@@ -98,10 +98,16 @@ static inline iCommandLineArg *checkArgumentValues_CommandLine(const iCommandLin
 
 iDeclareConstIterator(CommandLine, const iCommandLine *)
 
+enum iCommandLineArgType {
+    value_CommandLineArgType,
+    shortArgument_CommandLineArgType,
+    longArgument_CommandLineArgType,
+};
+
 struct ConstIteratorImpl_CommandLine {
     size_t value;
     iRangecc entry;
-    iBool isArgument;
+    enum iCommandLineArgType argType;
     size_t valueCount;
     const iCommandLine *cmdLine;
 };

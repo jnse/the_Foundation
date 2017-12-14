@@ -242,23 +242,96 @@ iCommandLineArg *checkArgumentValuesN_CommandLine
     return NULL;
 }
 
+static enum iCommandLineArgType argumentType_CommandLine_(const iCommandLine *d, size_t pos) {
+    const iString *arg = constAt_StringList(&d->args, pos);
+    if (startsWith_String(arg, "-")  && size_String(arg) > 1) {
+        return shortArgument_CommandLineArgType;
+    }
+    if (startsWith_String(arg, "--") && size_String(arg) > 2) {
+        return longArgument_CommandLineArgType;
+    }
+    return value_CommandLineArgType;
+}
+
+static size_t valueCountForArgument_CommandLine_
+    (const iCommandLine *d, const iRangecc *arg, size_t pos) {
+    const iDefinedArg *defined = constValueRange_StringHash(d->defined, arg);
+    if (defined) {
+        size_t count = 0;
+        while (pos < size_StringList(&d->args) &&
+               argumentType_CommandLine_(d, pos) == value_CommandLineArgType) {
+            pos++;
+            count++;
+        }
+        if (defined->maxCount != unlimitedValues_CommandLine) {
+            count = iMin(count, (size_t) defined->maxCount);
+        }
+        return count;
+    }
+    return 0;
+}
+
 //---------------------------------------------------------------------------------------
 
 void init_CommandLineConstIterator(iCommandLineConstIterator *d, const iCommandLine *cmdLine) {
     d->value = 0;
+    d->argType = value_CommandLineArgType;
     d->cmdLine = cmdLine;
+    d->valueCount = 0;
     d->entry = (iRangecc){ NULL, NULL };
     next_CommandLineConstIterator(d);
 }
 
 void next_CommandLineConstIterator(iCommandLineConstIterator *d) {
-    ++d->value;
-    if (d->value == size_StringList(&d->cmdLine->args)) {
+    if (d->argType == shortArgument_CommandLineArgType) {
+        // Go to the next short argument, if there is one.
+        if (*d->entry.end && *d->entry.end != '=') {
+            shift_Range(&d->entry, 1);
+            // The last short option may have arguments.
+            if (!*d->entry.end) {
+                d->valueCount = valueCountForArgument_CommandLine_(d->cmdLine, &d->entry, d->value + 1);
+            }
+            else {
+                d->valueCount = (*d->entry.end == '=')? 1 : 0;
+            }
+            return;
+        }
+    }
+    // Advance to the next entry.
+    d->value = d->valueCount + 1;
+    if (d->value == size_StringList(&d->cmdLine->args)) { // Done?
         d->value = 0;
         return;
     }
     const iString *arg = constAt_StringList(&d->cmdLine->args, d->value);
-
+    d->entry = range_String(arg);
+    d->argType = argumentType_CommandLine_(d->cmdLine, d->value);
+    switch (d->argType) {
+        case value_CommandLineArgType:
+            d->valueCount = 1;
+            break;
+        case shortArgument_CommandLineArgType:
+            d->entry.start++;
+            d->entry.end = d->entry.start + 1;
+            if (!*d->entry.end) {
+                d->valueCount = valueCountForArgument_CommandLine_(d->cmdLine, &d->entry, d->value + 1);
+            }
+            else {
+                d->valueCount = (*d->entry.end == '=')? 1 : 0;
+            }
+            break;
+        case longArgument_CommandLineArgType: {
+            d->entry.start += 2;
+            const char *eql = findAscii_Rangecc(&d->entry, '=');
+            if (eql) {
+                d->entry.end = eql;
+                d->valueCount = 1;
+            }
+            else {
+                d->valueCount = valueCountForArgument_CommandLine_(d->cmdLine, &d->entry, d->value + 1);
+            }
+            break; }
+    }
 }
 
 iCommandLineArg *argument_CommandLineConstIterator(iCommandLineConstIterator *d) {
