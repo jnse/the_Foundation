@@ -216,9 +216,9 @@ int main(int argc, char *argv[]) {
                    j.valueCount,
                    cstr_String(e));
             const iCommandLineArg *arg = argument_CommandLineConstIterator(&j);
-            if (arg && !isEmpty_StringList(&arg->values)) {
+            if (arg && !isEmpty_StringList(values_CommandLineArg(arg))) {
                 printf("  arguments for \"%s\":\n", cstr_String(&arg->arg));
-                iConstForEach(StringList, i, &arg->values) {
+                iConstForEach(StringList, i, values_CommandLineArg(arg)) {
                     printf("    %2zu: \"%s\"\n", i.pos, cstr_String(i.value));
                 }
                 iRelease(arg);
