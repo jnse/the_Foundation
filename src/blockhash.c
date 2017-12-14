@@ -72,11 +72,13 @@ iBool contains_BlockHash(const iBlockHash *d, const iBlock *key) {
 }
 
 const iAnyNode *constValue_BlockHash(const iBlockHash *d, const iBlock *key) {
-    return value_Hash(&d->hash, d->nodeClass->hashKey(key));
+    const iBlockHashNode *node = (const void *) value_Hash(&d->hash, d->nodeClass->hashKey(key));
+    return (node? node->object : NULL);
 }
 
 iAnyNode *value_BlockHash(iBlockHash *d, const iBlock *key) {
-    return value_Hash(&d->hash, d->nodeClass->hashKey(key));
+    iBlockHashNode *node = (void *) value_Hash(&d->hash, d->nodeClass->hashKey(key));
+    return (node? node->object : NULL);
 }
 
 void clear_BlockHash(iBlockHash *d) {

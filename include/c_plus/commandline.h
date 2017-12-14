@@ -109,11 +109,12 @@ struct ConstIteratorImpl_CommandLine {
     iRangecc entry;
     enum iCommandLineArgType argType;
     size_t valueCount;
+    iBool isAssignedValue;
     const iCommandLine *cmdLine;
 };
 
 iCommandLineArg *   argument_CommandLineConstIterator   (iCommandLineConstIterator *);
-iString *           value_CommandLineConstIterator      (iCommandLineConstIterator *);
+const iString *     value_CommandLineConstIterator      (iCommandLineConstIterator *);
 
 //---------------------------------------------------------------------------------------
 

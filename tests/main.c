@@ -196,13 +196,34 @@ static iThreadResult run_WorkerThread(iThread *d) {
 
 int main(int argc, char *argv[]) {
     init_CPlus();
-    iCommandLine *cmdline = new_CommandLine(argc, argv);
-    printf("Executable: \"%s\"\n", cstr_String(executablePath_CommandLine(cmdline)));
     /* Test command line options parsing. */ {
+        iCommandLine *cmdline = iClob(new_CommandLine(argc, argv));
+        defineValues_CommandLine(cmdline, "file;f", unlimitedValues_CommandLine);
+        defineValues_CommandLine(cmdline, "value;V", 1);
+        printf("Executable: \"%s\"\n", cstr_String(executablePath_CommandLine(cmdline)));
         printf("Working directory: \"%s\"\n", cstr_String(collect_String(cwd_Path())));
         puts("Options from command line:");
         iConstForEach(StringList, i, args_CommandLine(cmdline)) {
             printf("%2zu: \"%s\"\n", i.pos, cstr_String(i.value));
+        }
+        puts("Iterated:");
+        iConstForEach(CommandLine, j, cmdline) {
+            iString *e = newRange_String(&j.entry);
+            printf("[%2zu] %5s vc:%zu \"%s\"\n",
+                   j.value,
+                   ( j.argType == value_CommandLineArgType? "value"
+                   : j.argType == shortArgument_CommandLineArgType? "short" : "long" ),
+                   j.valueCount,
+                   cstr_String(e));
+            const iCommandLineArg *arg = argument_CommandLineConstIterator(&j);
+            if (arg && !isEmpty_StringList(&arg->values)) {
+                printf("  arguments for \"%s\":\n", cstr_String(&arg->arg));
+                iConstForEach(StringList, i, &arg->values) {
+                    printf("    %2zu: \"%s\"\n", i.pos, cstr_String(i.value));
+                }
+                iRelease(arg);
+            }
+            delete_String(e);
         }
         iCommandLineArg *arg;
         arg = iClob(checkArgument_CommandLine(cmdline, "file"));
@@ -479,6 +500,5 @@ int main(int argc, char *argv[]) {
         delete_Block(compr);
     }
 #endif
-    iRelease(cmdline);
     return 0;
 }

@@ -60,6 +60,8 @@ iString *       newCStrN_String (const char *cstr, size_t size);
 iString *       newBlock_String (const iBlock *data);
 iString *       copy_String     (const iString *);
 
+static inline iString *newRange_String(const iRangecc *range) { return newCStrN_String(range->start, size_Range(range)); }
+
 void            init_String     (iString *);
 void            initCStr_String (iString *, const char *cstr);
 void            initCStrN_String(iString *, const char *cstr, size_t size);
