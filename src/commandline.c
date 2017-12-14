@@ -52,6 +52,7 @@ static void loadArgumentsFile_CommandLine_(iCommandLine *d, const char *path) {
     /* Read the argument file contents. */ {
         iFile *file = iClob(newCStr_File(path));
         if (!open_File(file, readOnly_FileMode | text_FileMode)) {
+            iWarning("[CommandLine] arguments file \"%s\" not found\n", path);
             iEndCollect();
             return;
         }
@@ -279,7 +280,7 @@ static size_t valueCountForArgument_CommandLine_
 
 iCommandLineArg *checkArgument_CommandLine(const iCommandLine *d, const char *arg) {
     int minCount = 0, maxCount = 0; // By default, no values expected.
-    iRangecc key;
+    iRangecc key = { NULL, NULL };
     const iRangecc args = range_CStr(arg);
     while (d->defined && nextSplit_Rangecc(&args, ";", &key)) {
         const iDefinedArg *defined = constValueRange_StringHash(d->defined, &key);

@@ -57,29 +57,34 @@ iString *makeAbsolute_Path(const iString *d) {
 
 #define iPathMaxSegments 128
 
-static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments, size_t *count) {
+static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments,
+                                 size_t *count, iBool *changed) {
     iRangecc seg = { NULL, NULL };
     while (nextSplit_Rangecc(path, iPathSeparator, &seg)) {
         if (*count > 0 && size_Range(&seg) == 0) {
             // Skip repeated slashes.
+            *changed = iTrue;
             continue;
         }
         if (*count == 0 && !iCmpStrRange(&seg, "~")) {
             const char *home = getenv("HOME");
             if (home && iCmpStrN(home, "~", 1)) {
                 if (!splitSegments_Path_(&(iRangecc){ home, home + strlen(home) },
-                                         segments, count)) {
+                                         segments, count, changed)) {
                     return iFalse;
                 }
+                *changed = iTrue;
                 continue;
             }
         }
         if (!iCmpStrRange(&seg, ".")) {
+            *changed = iTrue;
             continue; // No change in directory.
         }
         if (!iCmpStrRange(&seg, "..")) {
             if (*count > 0) {
                 (*count)--; // Go up a directory.
+                *changed = iTrue;
                 continue;
             }
         }
@@ -95,16 +100,19 @@ static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments, size_
 void clean_Path(iString *d) {
     iRangecc segments[iPathMaxSegments];
     size_t count = 0;
-    splitSegments_Path_(&range_String(d), segments, &count);
+    iBool changed = iFalse;
+    splitSegments_Path_(&range_String(d), segments, &count, &changed);
     // Recompose the remaining segments.
-    iString cleaned;
-    init_String(&cleaned);
-    for (size_t i = 0; i < count; ++i) {
-        if (i != 0) appendCStr_String(&cleaned, iPathSeparator);
-        appendRange_String(&cleaned, segments + i);
+    if (changed) {
+        iString cleaned;
+        init_String(&cleaned);
+        for (size_t i = 0; i < count; ++i) {
+            if (i != 0) appendCStr_String(&cleaned, iPathSeparator);
+            appendRange_String(&cleaned, segments + i);
+        }
+        set_String(d, &cleaned);
+        deinit_String(&cleaned);
     }
-    set_String(d, &cleaned);
-    deinit_String(&cleaned);
 }
 
 void append_Path(iString *d, const iString *path) {

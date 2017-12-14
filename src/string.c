@@ -203,6 +203,7 @@ void prepend_String(iString *d, const iString *other) {
 }
 
 iBool nextSplit_Rangecc(const iRangecc *str, const char *separator, iRangecc *range) {
+    iAssert(range->start == NULL || contains_Range(str, range->start));
     if (!range->start) {
         range->start = range->end = str->start;
     }

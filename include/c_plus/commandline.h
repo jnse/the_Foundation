@@ -51,6 +51,10 @@ void        deinit_CommandLine      (iCommandLine *);
 void        defineValues_CommandLine  (iCommandLine *, const char *arg, int valueCount);
 void        defineValuesN_CommandLine (iCommandLine *, const char *arg, int minCount, int maxCount);
 
+/**
+ * Checks if the command line contains a specific argument.
+ * @param arg  Argument (without any dashes).
+ */
 iBool       contains_CommandLine    (const iCommandLine *, const char *arg);
 
 /**

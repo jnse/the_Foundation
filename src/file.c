@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "c_plus/file.h"
 #include "c_plus/fileinfo.h"
+#include "c_plus/path.h"
 #include "c_plus/string.h"
 
 static iBeginDefineClass(File)
@@ -54,6 +55,7 @@ iFile *newCStr_File(const char *path) {
 void init_File(iFile *d, const iString *path) {
     init_Stream(&d->stream);
     d->path = copy_String(path);
+    clean_Path(d->path);
     d->flags = readOnly_FileMode;
     d->file = NULL;
 }
