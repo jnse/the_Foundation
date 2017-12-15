@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "c_plus/path.h"
+#include "c_plus/string.h"
 
 #include <unistd.h>
 
@@ -59,7 +60,7 @@ iString *makeAbsolute_Path(const iString *d) {
 
 static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments,
                                  size_t *count, iBool *changed) {
-    iRangecc seg = { NULL, NULL };
+    iRangecc seg = iNullRange;
     while (nextSplit_Rangecc(path, iPathSeparator, &seg)) {
         if (*count > 0 && size_Range(&seg) == 0) {
             // Skip repeated slashes.
@@ -98,12 +99,17 @@ static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments,
 }
 
 void clean_Path(iString *d) {
+    if (isEmpty_String(d)) return;
     iRangecc segments[iPathMaxSegments];
     size_t count = 0;
     iBool changed = iFalse;
     splitSegments_Path_(&range_String(d), segments, &count, &changed);
     // Recompose the remaining segments.
     if (changed) {
+        if (count == 0) {
+            set_String(d, &iStringLiteral("."));
+            return;
+        }
         iString cleaned;
         init_String(&cleaned);
         for (size_t i = 0; i < count; ++i) {

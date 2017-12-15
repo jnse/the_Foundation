@@ -224,7 +224,7 @@ iBool nextSplit_Rangecc(const iRangecc *str, const char *separator, iRangecc *ra
 
 iStringList *split_Rangecc(const iRangecc *d, const char *separator) {
     iStringList *parts = new_StringList();
-    iRangecc range = { NULL, NULL };
+    iRangecc range = iNullRange;
     while (nextSplit_Rangecc(d, separator, &range)) {
         pushBackRange_StringList(parts, &range);
     }

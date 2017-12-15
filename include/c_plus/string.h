@@ -53,6 +53,8 @@ struct Impl_String {
     iBlock chars;
 };
 
+#define iStringLiteral(str)     (iString){ iBlockLiteral(str, strlen(str), strlen(str) + 1) }
+
 iDeclareTypeConstruction(String)
 
 iString *       newCStr_String  (const char *cstr);
@@ -75,7 +77,8 @@ iString *       mid_String      (const iString *, size_t start, size_t count);
 
 #define         range_String(d) (iRangecc){ constData_Block(&d->chars), constEnd_Block(&d->chars) }
 
-static inline const char *constEnd_String(const iString *d) { return cstr_String(d) + size_String(d); }
+static inline iBool         isEmpty_String  (const iString *d) { return size_String(d) == 0; }
+static inline const char *  constEnd_String (const iString *d) { return cstr_String(d) + size_String(d); }
 
 int             cmpSc_String        (const iString *, const char *cstr, const iStringComparison *);
 
@@ -106,6 +109,7 @@ static inline iBool contains_String(const iString *d, iChar ch) {
 
 void            set_String      (iString *, const iString *other);
 void            setCStr_String  (iString *, const char *cstr);
+void            setBlock_String (iString *, const iBlock *block);
 
 void            append_String       (iString *, const iString *other);
 void            appendCStr_String   (iString *, const char *cstr);

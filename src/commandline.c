@@ -177,7 +177,7 @@ void defineValuesN_CommandLine(iCommandLine *d, const char *arg, int minCount, i
     }
     iDefinedArg *def = new_DefinedArg(minCount, maxCount);
     const iRangecc args = range_CStr(arg);
-    iRangecc range = { NULL, NULL };
+    iRangecc range = iNullRange;
     while (nextSplit_Rangecc(&args, ";", &range)) {
         insertCStrN_StringHash(d->defined, range.start, size_Range(&range), def);
     }
@@ -186,7 +186,7 @@ void defineValuesN_CommandLine(iCommandLine *d, const char *arg, int minCount, i
 
 iBool contains_CommandLine(const iCommandLine *d, const char *arg) {
     const iRangecc args = range_CStr(arg);
-    iRangecc range = { NULL, NULL };
+    iRangecc range = iNullRange;
     while (nextSplit_Rangecc(&args, ";", &range)) {
         if (findArg_CommandLine_(d, &range) != iInvalidPos)
             return iTrue;
@@ -240,7 +240,7 @@ static iCommandLineArg *checkArgumentValuesN_CommandLine_
 iCommandLineArg *checkArgumentValuesN_CommandLine
     (const iCommandLine *d, const char *arg, int minCount, int maxCount) {
     const iRangecc args = range_CStr(arg);
-    iRangecc range = { NULL, NULL };
+    iRangecc range = iNullRange;
     while (nextSplit_Rangecc(&args, ";", &range)) {
         iCommandLineArg *clArg = checkArgumentValuesN_CommandLine_(d, &range, minCount, maxCount);
         if (clArg) return clArg;
@@ -280,7 +280,7 @@ static size_t valueCountForArgument_CommandLine_
 
 iCommandLineArg *checkArgument_CommandLine(const iCommandLine *d, const char *arg) {
     int minCount = 0, maxCount = 0; // By default, no values expected.
-    iRangecc key = { NULL, NULL };
+    iRangecc key = iNullRange;
     const iRangecc args = range_CStr(arg);
     while (d->defined && nextSplit_Rangecc(&args, ";", &key)) {
         const iDefinedArg *defined = constValueRange_StringHash(d->defined, &key);
