@@ -45,6 +45,7 @@ set (HEADERS
     include/c_plus/list.h
     include/c_plus/map.h
     include/c_plus/math.h
+    include/c_plus/math_sse.h
     include/c_plus/mutex.h
     include/c_plus/object.h
     include/c_plus/objectlist.h
@@ -83,6 +84,7 @@ set (SOURCES
     src/map.c
     src/mutex.c
     src/math.c
+    src/math_sse.c
     src/object.c
     src/objectlist.c
     src/path.c
@@ -148,3 +150,4 @@ endmacro ()
 cplus_add_test (c+test      tests/main.c)
 cplus_add_test (c+strings   tests/strings.c)
 cplus_add_test (c+threading tests/threading.c)
+cplus_add_test (c+math      tests/mathops.c)

@@ -1,7 +1,4 @@
-#pragma once
-
-/** @file c_plus/math.h  Math routines and constants.
-
+/**
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
 @par License
@@ -27,14 +24,28 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
+#include <c_plus/defs.h>
+#include <c_plus/math.h>
 
-#define iMathPi                 3.14159265358979323846
-#define iMathPif                3.14159265358979323846f
-#define iMathDegreeToRadianf(v) ((v) * iMathPif / 180.f)
-#define iMathRadianToDegreef(v) ((v) * 180.f / iMathPif)
+static void printv(iFloat4 v) {
+    iFloatVec4 vec = values_Float4(v);
+    printf("(%10f %10f %10f %10f)\n", vec.v[0], vec.v[1], vec.v[2], vec.v[3]);
+}
 
-int     iRandom(int start, int end);
-float   iRandomf(void);
-
-#include "math_sse.h"
+int main(int argc, char **argv) {
+    init_CPlus();
+    iUnused(argc, argv);
+    /* Basic vectoring. */ {
+        printv(zero_Float4());
+        printv(init_Float4(1, 2, 3, 4));
+        printv(zxy_Float4(init_Float4(1, 2, 3, 4)));
+        iFloat4 a = init_Float4(1.5, 2, 3.5, 4);
+        iFloat4 b = init_Float4(iRandomf(), iRandomf(), iRandomf(), 1);
+        printv(add_Float4(a, b));
+        printf("Length: %f\n", length_Float3(init_Float3(3, -3, 2)));
+        for (int i = 0; i <= 10; ++i) {
+            printf("%i: ", i);
+            printv(mix_Float4(a, b, i/10.f));
+        }
+    }
+}
