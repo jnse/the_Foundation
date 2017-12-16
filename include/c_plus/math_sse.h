@@ -23,6 +23,7 @@
 
 #include <math.h>
 #include <xmmintrin.h>
+#include <immintrin.h>
 
 iDeclareType(Float4)
 iDeclareType(FloatVec3)
@@ -46,6 +47,10 @@ struct Impl_FloatVec4 {
 
 static inline iFloat4 zero_F4(void) {
     return (iFloat4){ _mm_setzero_ps() };
+}
+
+static inline iFloat4 init1_F4(float x) {
+    return (iFloat4){ _mm_set1_ps(x) };
 }
 
 static inline iFloat4 init_F4(float x, float y, float z, float w) {
@@ -90,7 +95,13 @@ static inline iFloatVec4 values_F4(const iFloat4 d) {
     return vals;
 }
 
-#define iFloatShuffle3(d, X, Y, Z) (iFloat4){ _mm_shuffle_ps((d).m, (d).m, _MM_SHUFFLE(3, Z, Y, X)) }
+#define iFloatShuffle3(d, X, Y, Z)  (iFloat4){ _mm_shuffle_ps((d).m, (d).m, _MM_SHUFFLE(3, Z, Y, X)) }
+#define iFloat4Bitmask(x, y, z, w)  (((union { __m128 m; uint32_t m32[4]; }){ .m32 = { w, z, y, x } }).m)
+#define iFloat4Low92Bits            iFloat4Bitmask(0, 0xffffffff, 0xffffffff, 0xffffffff)
+
+static inline iFloat4 xyz_F4(const iFloat4 d) {
+    return (iFloat4){ _mm_and_ps(d.m, iFloat4Low92Bits) };
+}
 
 static inline iFloat4 yzx_F4(const iFloat4 d) {
     return iFloatShuffle3(d, 1, 2, 0);
@@ -144,6 +155,16 @@ static inline iFloat4 mulvf_F4  (iFloat4 *a, const float b)         { a->m = _mm
 static inline iFloat4 divv_F4   (iFloat4 *a, const iFloat4 b)       { a->m = _mm_div_ps(a->m, b.m); return *a; }
 static inline iFloat4 divvf_F4  (iFloat4 *a, const float b)         { a->m = _mm_div_ps(a->m, _mm_set1_ps(b)); return *a; }
 
+static inline iFloat4 leftv_F4(iFloat4 *a) {
+    a->m = _mm_shuffle_ps(a->m, a->m, _MM_SHUFFLE(0, 3, 2, 1));
+    return *a;
+}
+
+static inline iFloat4 rightv_F4(iFloat4 *a) {
+    a->m = _mm_shuffle_ps(a->m, a->m, _MM_SHUFFLE(2, 1, 0, 3));
+    return *a;
+}
+
 static inline iBool4 equal_F4   (const iFloat4 a, const iFloat4 b)  { return (iFloat4){ _mm_cmpeq_ps(a.m, b.m) }; }
 static inline iBool4 notEqual_F4(const iFloat4 a, const iFloat4 b)  { return (iFloat4){ _mm_cmpneq_ps(a.m, b.m) }; }
 static inline iBool4 less_F4    (const iFloat4 a, const iFloat4 b)  { return (iFloat4){ _mm_cmplt_ps(a.m, b.m) }; }
@@ -156,7 +177,7 @@ static inline iFloat4 max_F4    (const iFloat4 a, const iFloat4 b)  { return (iF
 
 static inline iFloat4 neg_F4    (const iFloat4 a)                   { return (iFloat4){ _mm_sub_ps(_mm_setzero_ps(), a.m) }; }
 
-#define iFloat4SignBits ((union { __m128 m; uint32_t m32[4]; }){ .m32 = { 0x80000000, 0x80000000, 0x80000000, 0x80000000 } }).m
+#define iFloat4SignBits     iFloat4Bitmask(0x80000000, 0x80000000, 0x80000000, 0x80000000)
 
 static inline iFloat4 abs_F4(const iFloat4 a) {
     return (iFloat4){ _mm_andnot_ps(iFloat4SignBits, a.m) };
@@ -168,7 +189,8 @@ static inline iBool all_Bool4       (const iBool4 a)    { return mask_F4(a) == 1
 
 static inline iFloat4 clamp_F4  (const iFloat4 t, const iFloat4 a, const iFloat4 b) { return min_F4(max_F4(t, a), b); }
 static inline float sum_F4      (const iFloat4 a)   { return x_F4(a) + y_F4(a) + z_F4(a) + w_F4(a); }
-static inline float dot_F4      (const iFloat4 a, const iFloat4 b) { return sum_F4(mul_F4(a, b)); }
+static inline float dot_F4      (const iFloat4 a, const iFloat4 b) { return _mm_cvtss_f32(_mm_dp_ps(a.m, b.m, 0xf1)); }
+//{ return sum_F4(mul_F4(a, b)); }
 static inline float lengthSq_F4 (const iFloat4 a)   { return dot_F4(a, a); }
 static inline float length_F4   (const iFloat4 a)   { return sqrtf(lengthSq_F4(a)); }
 static inline iFloat4 normalize_F4(const iFloat4 a) { return mulf_F4(a, 1.f / length_F4(a)); }
@@ -304,7 +326,7 @@ static inline iBool all_Bool3   (const iBool3 a)    { return mask_F3(a) == 7; }
 
 static inline iFloat3 clamp_F3  (const iFloat3 t, const iFloat3 a, const iFloat3 b) { return min_F3(max_F3(t, a), b); }
 static inline float sum_F3      (const iFloat3 a)       { return x_F3(a) + y_F3(a) + z_F3(a); }
-static inline float dot_F3      (const iFloat3 a, const iFloat3 b) { return sum_F3(mul_F3(a, b)); }
+static inline float dot_F3      (const iFloat3 a, const iFloat3 b) { return _mm_cvtss_f32(_mm_dp_ps(a.m, b.m, 0x71)); }
 static inline float lengthSq_F3 (const iFloat3 a)       { return dot_F3(a, a); }
 static inline float length_F3   (const iFloat3 a)       { return sqrtf(lengthSq_F3(a)); }
 static inline iFloat3 normalize_F3(const iFloat3 a)     { return mulf_F3(a, 1.f / length_F3(a)); }
@@ -312,4 +334,94 @@ static inline iFloat4 sqrt_F3   (const iFloat3 a)       { return (iFloat3){ _mm_
 
 static inline iFloat3 mix_F3   (const iFloat3 a, const iFloat3 b, float t) {
     return add_F3(a, mulf_F3(sub_F3(b, a), t));
+}
+
+//---------------------------------------------------------------------------------------
+
+iDeclareType(Mat4)
+
+struct Impl_Mat4 {
+    //float v[16];
+    __m128 col[4];
+};
+
+void init_Mat4  (iMat4 *);
+
+void store_Mat4 (const iMat4 *, float *v);
+
+static inline void copy_Mat4(iMat4 *d, const iMat4 *other) {
+    d->col[0] = other->col[0];
+    d->col[1] = other->col[1];
+    d->col[2] = other->col[2];
+    d->col[3] = other->col[3];
+}
+
+void mul_Mat4(iMat4 *, const iMat4 *b); //, iMat4 *m_out);
+
+static inline void translate_Mat4(iMat4 *d, iFloat3 v) {
+    //store_F4(add_F4(initv_F4(d->v + 12), xyz_F4(v)), d->v + 12);
+    //d->col[3] = _mm_add_ps(d->col[3], xyz_F4(v).m);
+    d->col[0] = _mm_add_ps(d->col[0], init_F4(0, 0, 0, x_F3(v)).m);
+    d->col[1] = _mm_add_ps(d->col[1], init_F4(0, 0, 0, y_F3(v)).m);
+    d->col[2] = _mm_add_ps(d->col[2], init_F4(0, 0, 0, z_F3(v)).m);
+}
+
+static inline void initTranslate_Mat4(iMat4 *d, iFloat3 v) {
+    init_Mat4(d);
+    /*const iFloatVec4 vec = values_F4(v);
+    d->v[ 3] += vec.v[0];
+    d->v[ 7] += vec.v[1];
+    d->v[11] += vec.v[2];*/
+    translate_Mat4(d, v);
+}
+
+static inline void initScale_Mat4(iMat4 *d, iFloat3 v) {
+/*    store_F4(init_F4(x_F4(v), 0.f, 0.f, 0.f), d->v);
+    store_F4(init_F4(0.f, y_F4(v), 0.f, 0.f), d->v + 4);
+    store_F4(init_F4(0.f, 0.f, z_F4(v), 0.f), d->v + 8);
+    store_F4(init_F4(0.f, 0.f, 0.f, w_F4(v)), d->v + 12);*/
+    d->col[0] = _mm_set_ps(0, 0, 0, x_F3(v));
+    d->col[1] = _mm_set_ps(0, 0, y_F3(v), 0);
+    d->col[2] = _mm_set_ps(0, z_F3(v), 0, 0);
+    d->col[3] = _mm_set_ps(1, 0, 0, 0);
+}
+
+static inline void scale_Mat4(iMat4 *d, iFloat3 v) {
+    /*const iFloatVec4 vec4 = values_F4(v);
+    d->v[ 0] *= vec4.v[0];
+    d->v[ 5] *= vec4.v[1];
+    d->v[10] *= vec4.v[2];
+    d->v[15] *= vec4.v[3];*/
+    /*d->col[0] = _mm_mul_ps(d->col[0], _mm_set_ps(1, 1, 1, x_F3(v)));
+    d->col[1] = _mm_mul_ps(d->col[1], _mm_set_ps(1, 1, y_F3(v), 1));
+    d->col[2] = _mm_mul_ps(d->col[2], _mm_set_ps(1, z_F3(v), 1, 1));*/
+    iMat4 s;
+    initScale_Mat4(&s, v);
+    mul_Mat4(d, &s);
+}
+
+static inline void initRotate_Mat4(iMat4 *d, iFloat3 axis, float degrees) {
+
+}
+
+static inline void scalef_Mat4(iMat4 *d, float v) {
+    //scale_Mat4(d, init1_F4(v));
+    d->col[0] = _mm_mul_ps(d->col[0], _mm_set_ps(1, 1, 1, v));
+    d->col[1] = _mm_mul_ps(d->col[1], _mm_set_ps(1, 1, v, 1));
+    d->col[2] = _mm_mul_ps(d->col[2], _mm_set_ps(1, v, 1, 1));
+}
+
+static inline iFloat4 mulF4_Mat4(const iMat4 *d, iFloat4 v) {
+/*    iFloat4 result = mul_F4(initv_F4(d->v),      v);
+    addv_F4(&result, mul_F4(initv_F4(d->v +  4), v));
+    addv_F4(&result, mul_F4(initv_F4(d->v +  8), v));
+    addv_F4(&result, mul_F4(initv_F4(d->v + 12), v));*/
+    //return result;
+    //return zero_F4();
+
+
+    return init_F4(dot_F4(init128_F4(d->col[0]), v),
+                   dot_F4(init128_F4(d->col[1]), v),
+                   dot_F4(init128_F4(d->col[2]), v),
+                   dot_F4(init128_F4(d->col[3]), v));
 }

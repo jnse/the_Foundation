@@ -32,6 +32,16 @@ static void printv(const char *msg, iFloat4 v) {
     printf("%9s: ( %10f %10f %10f %10f )\n", msg, vec.v[0], vec.v[1], vec.v[2], vec.v[3]);
 }
 
+static void printMat(const iMat4 *m) {
+    float vals[16];
+    store_Mat4(m, vals);
+    puts("[");
+    for (int i = 0; i < 16; i += 4) {
+        printf("    %10f %10f %10f %10f\n", vals[i], vals[i+1], vals[i+2], vals[i+3]);
+    }
+    puts("]");
+}
+
 int main(int argc, char **argv) {
     init_CPlus();
     iUnused(argc, argv);
@@ -56,5 +66,38 @@ int main(int argc, char **argv) {
             printf("%2i: ", i);
             printv("mix", mix_F4(a, b, i/10.f));
         }
+    }
+    /* Matrices. */ {
+        /*{
+            __m128 m1 = _mm_set_ps(4, 3, 2, 1);
+            __m128 m2 = _mm_set_ps(8, 7, 6, 5);
+            printv("m1  ", init128_F4(m1));
+            printv("m2  ", init128_F4(m2));
+            printv("shuf", init128_F4(_mm_shuffle_ps(m1, m2, _MM_SHUFFLE(0, 0, 3, 0))));
+        }*/
+        printf("dot3: %f\n", dot_F3(init_F4(1, 2, 3, 100), init_F4(3, 4, 2, 200)));
+
+        iMat4 mat, b, c;
+        init_Mat4(&mat);
+        printMat(&mat);
+        initScale_Mat4(&b, init1_F4(3));
+        printMat(&b);
+        mul_Mat4(&mat, &b);
+        printMat(&mat);
+        copy_Mat4(&c, &mat);
+        scalef_Mat4(&c, .1f);
+        printMat(&c);
+
+        iMat4 s;
+        initScale_Mat4(&s, init_F3(4, 3, 2));
+        printMat(&s);
+
+        printv("vec mul", mulF4_Mat4(&s, init1_F4(1)));
+
+        iMat4 t;
+        initTranslate_Mat4(&t, init_F3(1, 2, 3));
+        //init_Mat4(&t);
+        printMat(&t);
+        printv("vec trl", mulF4_Mat4(&t, init_F4(14, 13, 12, 1)));
     }
 }
