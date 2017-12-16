@@ -27,25 +27,34 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/defs.h>
 #include <c_plus/math.h>
 
-static void printv(iFloat4 v) {
-    iFloatVec4 vec = values_Float4(v);
-    printf("(%10f %10f %10f %10f)\n", vec.v[0], vec.v[1], vec.v[2], vec.v[3]);
+static void printv(const char *msg, iFloat4 v) {
+    iFloatVec4 vec = values_F4(v);
+    printf("%9s: ( %10f %10f %10f %10f )\n", msg, vec.v[0], vec.v[1], vec.v[2], vec.v[3]);
 }
 
 int main(int argc, char **argv) {
     init_CPlus();
     iUnused(argc, argv);
     /* Basic vectoring. */ {
-        printv(zero_Float4());
-        printv(init_Float4(1, 2, 3, 4));
-        printv(zxy_Float4(init_Float4(1, 2, 3, 4)));
-        iFloat4 a = init_Float4(1.5, 2, 3.5, 4);
-        iFloat4 b = init_Float4(iRandomf(), iRandomf(), iRandomf(), 1);
-        printv(add_Float4(a, b));
-        printf("Length: %f\n", length_Float3(init_Float3(3, -3, 2)));
+        printv("zero", zero_F4());
+        printv("init", init_F4(1, 2, 3, 4)); {
+            float f[4];
+            store_F4(init_F4(1, 2, 3, 4), f);
+            printf("stored: %f %f %f %f\n", f[0], f[1], f[2], f[3]);
+        }
+        printv("zxy", zxy_F4(init_F4(1, 2, 3, 4)));
+        iFloat4 a = init_F4(1.5, -2, 3.5, -4);
+        iFloat4 b = init_F4(iRandomf(), iRandomf(), iRandomf(), 1);
+        setW_F4(&b, 100.5f);
+        printv("a", a);
+        printv("neg(a)", neg_F4(a));
+        printv("abs(a)", abs_F4(a));
+        printv("b", b);
+        printv("a+b", add_F4(a, b));
+        printf("Length: %f\n", length_F3(init_F3(3, -3, 2)));
         for (int i = 0; i <= 10; ++i) {
-            printf("%i: ", i);
-            printv(mix_Float4(a, b, i/10.f));
+            printf("%2i: ", i);
+            printv("mix", mix_F4(a, b, i/10.f));
         }
     }
 }
