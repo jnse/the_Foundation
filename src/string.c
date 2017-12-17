@@ -252,12 +252,12 @@ const char *findAscii_Rangecc(const iRangecc *str, char ch) {
 
 static void decodeNextMultibyte_StringConstIterator_(iStringConstIterator *d) {
     const int rc = mbrtowc(&d->value, d->next, d->remaining, &d->mbs);
-    if (rc >= 0) {
+    if (rc > 0) {
         d->remaining -= rc;
         d->next += rc;
     }
     else {
-        // Invalid or incomplete.
+        // Finished, invalid or incomplete.
         d->value = 0;
     }
 }
