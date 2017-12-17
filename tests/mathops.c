@@ -116,8 +116,10 @@ int main(int argc, char **argv) {
         printMat("s*t", &s);
         printMat("t*s", &u);
 
-        iMat4 s_t; copy_Mat4(&s_t, &u);
+        iMat4 s_t; copy_Mat4(&s_t, &s);
+        iMat4 t_s; copy_Mat4(&t_s, &u);
 
-        printv3("vec trl", mulF3_Mat4(&s_t, init_F3(1, 1, 1)));
+        printv3("s_t * (1,1,1)", mulF3_Mat4(&s_t, init_F3(1, 1, 1)));
+        printv3("t_s * (1,1,1)", mulF3_Mat4(&t_s, init_F3(1, 1, 1)));
     }
 }

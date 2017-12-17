@@ -42,11 +42,11 @@ void store_Mat4(const iMat4 *d, float *v) {
 void mul_Mat4(iMat4 *d, const iMat4 *other) {
     iMat4 result;
     for (int i = 0; i < 4; ++i) {
-        const iFloat4 otherCol = initmm_F4(other->col[i]);
-        __m128 rl =         _mm_mul_ps(d->col[0], _mm_set1_ps(x_F4(otherCol)));
-        rl = _mm_add_ps(rl, _mm_mul_ps(d->col[1], _mm_set1_ps(y_F4(otherCol))));
-        rl = _mm_add_ps(rl, _mm_mul_ps(d->col[2], _mm_set1_ps(z_F4(otherCol))));
-        rl = _mm_add_ps(rl, _mm_mul_ps(d->col[3], _mm_set1_ps(w_F4(otherCol))));
+        const iFloat4 dCol = initmm_F4(d->col[i]);
+        __m128 rl =         _mm_mul_ps(other->col[0], _mm_set1_ps(x_F4(dCol)));
+        rl = _mm_add_ps(rl, _mm_mul_ps(other->col[1], _mm_set1_ps(y_F4(dCol))));
+        rl = _mm_add_ps(rl, _mm_mul_ps(other->col[2], _mm_set1_ps(z_F4(dCol))));
+        rl = _mm_add_ps(rl, _mm_mul_ps(other->col[3], _mm_set1_ps(w_F4(dCol))));
         result.col[i] = rl;
     }
     copy_Mat4(d, &result);
