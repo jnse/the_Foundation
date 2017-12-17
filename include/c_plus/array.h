@@ -47,9 +47,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 struct Impl_Array {
     char *data;
-    iRanges range;
-    size_t elementSize;
-    size_t allocSize;
+    iRanges range; // elements
+    size_t allocSize; // elements
+    size_t elementSize; // bytes
 };
 
 iDeclareType(Array)

@@ -51,18 +51,6 @@ iBool locate_SortedArray(const iSortedArray *d, const void *value, size_t *pos_o
     // it would be if it were inserted.
     iRanges span = { 0, size_Array(&d->values) };
     while (!isEmpty_Range(&span)) {
-        // Arrived at a single item?
-        /*if (size_Range(&span) == 1) {
-            if (d->cmp(value, constAt_SortedArray(d, span.start)) == 0) {
-                if (pos_out) *pos_out = span.start;
-                return iTrue; // Found it.
-            }
-            // Then the value would go before or after this position.
-            if (d->cmp(value, constAt_SortedArray(d, span.start)) > 0) {
-                span.start = span.end; // After...
-            }
-            break;
-        }*/
         // Narrow down the search by a half.
         const size_t mid = (span.start + span.end) / 2;
         const int cmp = d->cmp(value, constAt_SortedArray(d, mid));
@@ -96,7 +84,6 @@ iRanges locateRange_SortedArray(const iSortedArray *d, const void *value,
     /* Find the beginning of the range. */ {
         iRanges span = { 0, size_SortedArray(d) };
         while (!isEmpty_Range(&span)) {
-            //const size_t mid = span.start + ((span.end - 1 - span.start)/2);
             const size_t mid = (span.start + span.end) / 2;
             if (cmpFunc(constAt_SortedArray(d, mid), value) >= 0) {
                 span.end = mid;
@@ -110,7 +97,6 @@ iRanges locateRange_SortedArray(const iSortedArray *d, const void *value,
     /* Find the end of the range. */ {
         iRanges span = { 0, size_SortedArray(d) };
         while (!isEmpty_Range(&span)) {
-            //const size_t mid = span.start + ((span.end - 1 - span.start)/2);
             const size_t mid = (span.start + span.end) / 2;
             if (cmpFunc(constAt_SortedArray(d, mid), value) > 0) {
                 span.end = mid;
