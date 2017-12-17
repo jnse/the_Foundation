@@ -8,6 +8,9 @@ macro (cplus_set_compile_options target)
     target_compile_options (${target} PRIVATE -Wall -Wpedantic -Werror)
     if (CMAKE_COMPILER_IS_GNUCC)
         target_compile_options (${target} PRIVATE -Wno-format)
+        if (iHaveSSE4_1)
+            target_compile_options (${target} PUBLIC -msse4.1)
+        endif ()
     else ()
         target_compile_options (${target} PRIVATE -Wno-format-pedantic)
     endif ()
@@ -24,6 +27,12 @@ if (ZLIB_FOUND)
     set (iHaveZlib YES)
 endif ()
 check_include_file (threads.h iHaveC11Threads)
+check_include_file (smmintrin.h iHaveSSE4_1)
+if (iHaveSSE4_1)
+    set (mathSpec sse)
+else ()
+    set (mathSpec generic)
+endif ()
 
 #----------------------------------------------------------------------------------------
 
@@ -45,7 +54,7 @@ set (HEADERS
     include/c_plus/list.h
     include/c_plus/map.h
     include/c_plus/math.h
-    include/c_plus/math_sse.h
+    include/c_plus/math_${mathSpec}.h
     include/c_plus/mutex.h
     include/c_plus/object.h
     include/c_plus/objectlist.h
@@ -84,7 +93,7 @@ set (SOURCES
     src/map.c
     src/mutex.c
     src/math.c
-    src/math_sse.c
+    src/math_${mathSpec}.c
     src/object.c
     src/objectlist.c
     src/path.c
@@ -129,7 +138,7 @@ target_include_directories (cplus PUBLIC include ${CMAKE_CURRENT_BINARY_DIR})
 cplus_set_compile_options (cplus)
 
 # Dependencies.
-target_link_libraries (cplus PRIVATE pthread)
+target_link_libraries (cplus PRIVATE m pthread)
 if (ZLIB_FOUND)
     target_include_directories (cplus PRIVATE ${ZLIB_INCLUDE_DIRS})
     target_link_libraries      (cplus PRIVATE ${ZLIB_LIBRARIES})

@@ -26,28 +26,28 @@ void init_Mat4(iMat4 *d) {
 }
 
 void store_Mat4(const iMat4 *d, float *v) {
-    _mm_storeu_ps(v,      d->col[0]);
-    _mm_storeu_ps(v + 4,  d->col[1]);
-    _mm_storeu_ps(v + 8,  d->col[2]);
-    _mm_storeu_ps(v + 12, d->col[3]);
+    _Alignas(16) float f[16];
+    _mm_store_ps(f,      d->col[0]);
+    _mm_store_ps(f + 4,  d->col[1]);
+    _mm_store_ps(f + 8,  d->col[2]);
+    _mm_store_ps(f + 12, d->col[3]);
+    for (int i = 0; i < 16; i += 4) {
+        v[i + 0] = f[i + 1];
+        v[i + 1] = f[i + 2];
+        v[i + 2] = f[i + 3];
+        v[i + 3] = f[i + 0];
+    }
 }
 
-void mul_Mat4(iMat4 *a, const iMat4 *b) /*, iMat4 *m_out)*/ {
+void mul_Mat4(iMat4 *d, const iMat4 *other) {
     iMat4 result;
-    //for (int i = 0; i < 16; i += 4) {
     for (int i = 0; i < 4; ++i) {
-/*        iFloat4 rl = mul_F4(initv_F4(a->v), init1_F4(b->v[i]));
-        for (int j = 1; j < 4; j++) {
-            addv_F4(&rl, mul_F4(initv_F4(&a->v[j * 4]), init1_F4(b->v[i + j])));
-        }*/
-        const iFloat4 bCol = init128_F4(b->col[i]);
-        __m128 rl = _mm_mul_ps(a->col[0], _mm_set1_ps(x_F4(bCol))); //x_F4(init128_F4(b->col[i/4]))));
-        rl = _mm_add_ps(rl, _mm_mul_ps(a->col[1], _mm_set1_ps(y_F4(bCol))));
-        rl = _mm_add_ps(rl, _mm_mul_ps(a->col[2], _mm_set1_ps(z_F4(bCol))));
-        rl = _mm_add_ps(rl, _mm_mul_ps(a->col[3], _mm_set1_ps(w_F4(bCol))));
-
-        //store_F4(rl, m_out->v + i);
+        const iFloat4 otherCol = initmm_F4(other->col[i]);
+        __m128 rl =         _mm_mul_ps(d->col[0], _mm_set1_ps(x_F4(otherCol)));
+        rl = _mm_add_ps(rl, _mm_mul_ps(d->col[1], _mm_set1_ps(y_F4(otherCol))));
+        rl = _mm_add_ps(rl, _mm_mul_ps(d->col[2], _mm_set1_ps(z_F4(otherCol))));
+        rl = _mm_add_ps(rl, _mm_mul_ps(d->col[3], _mm_set1_ps(w_F4(otherCol))));
         result.col[i] = rl;
     }
-    copy_Mat4(a, &result);
+    copy_Mat4(d, &result);
 }

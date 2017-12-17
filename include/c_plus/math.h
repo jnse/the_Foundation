@@ -37,5 +37,34 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 int     iRandom(int start, int end);
 float   iRandomf(void);
 
-#include "math_sse.h"
+iDeclareType(FloatVec3)
+iDeclareType(FloatVec4)
 
+struct Impl_FloatVec3 {
+    union {
+        float v[3];
+        struct {
+            float x;
+            float y;
+            float z;
+        } value;
+    };
+};
+
+struct Impl_FloatVec4 {
+    union {
+        float v[4];
+        struct {
+            float x;
+            float y;
+            float z;
+            float w;
+        } value;
+    };
+};
+
+#if defined (iHaveSSE4_1)
+#   include "math_sse.h"
+#else
+#   include "math_generic.h"
+#endif

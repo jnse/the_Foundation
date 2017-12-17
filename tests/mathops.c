@@ -28,18 +28,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/math.h>
 
 static void printv(const char *msg, iFloat4 v) {
-    iFloatVec4 vec = values_F4(v);
+    const iFloatVec4 vec = values_F4(v);
     printf("%9s: ( %10f %10f %10f %10f )\n", msg, vec.v[0], vec.v[1], vec.v[2], vec.v[3]);
 }
 
-static void printMat(const iMat4 *m) {
+static void printv3(const char *msg, iFloat3 v) {
+    const iFloatVec3 vec = values_F3(v);
+    printf("%9s: ( %10f %10f %10f )\n", msg, vec.v[0], vec.v[1], vec.v[2]);
+}
+
+static void printMat(const char *msg, const iMat4 *m) {
     float vals[16];
     store_Mat4(m, vals);
-    puts("[");
+    printf("%s: [", msg);
     for (int i = 0; i < 16; i += 4) {
-        printf("    %10f %10f %10f %10f\n", vals[i], vals[i+1], vals[i+2], vals[i+3]);
+        printf("\n    %10f %10f %10f %10f", vals[i], vals[i+1], vals[i+2], vals[i+3]);
     }
-    puts("]");
+    puts(" ]");
 }
 
 int main(int argc, char **argv) {
@@ -47,7 +52,7 @@ int main(int argc, char **argv) {
     iUnused(argc, argv);
     /* Basic vectoring. */ {
         printv("zero", zero_F4());
-        printv("init", init_F4(1, 2, 3, 4)); {
+        printv("init4", init_F4(1, 2, 3, 4)); {
             float f[4];
             store_F4(init_F4(1, 2, 3, 4), f);
             printf("stored: %f %f %f %f\n", f[0], f[1], f[2], f[3]);
@@ -61,43 +66,58 @@ int main(int argc, char **argv) {
         printv("abs(a)", abs_F4(a));
         printv("b", b);
         printv("a+b", add_F4(a, b));
-        printf("Length: %f\n", length_F3(init_F3(3, -3, 2)));
+        printf("Length: %f %f %f\n",
+               length_F3(init_F3(-2, 0, 0)),
+               length_F3(init_F3(0, -2, 0)),
+               length_F3(init_F3(0, 0, -2)));
+        printv3("init3", init_F3(2, 3, 4)); {
+            iFloat3 v3 = init_F3(1, 1, 1);
+            setX_F3(&v3, 2);
+            printv3("set x", v3);
+            setY_F3(&v3, 3);
+            printv3("set y", v3);
+            setZ_F3(&v3, 4);
+            printv3("set z", v3);
+        }
         for (int i = 0; i <= 10; ++i) {
             printf("%2i: ", i);
             printv("mix", mix_F4(a, b, i/10.f));
         }
     }
     /* Matrices. */ {
-        /*{
-            __m128 m1 = _mm_set_ps(4, 3, 2, 1);
-            __m128 m2 = _mm_set_ps(8, 7, 6, 5);
-            printv("m1  ", init128_F4(m1));
-            printv("m2  ", init128_F4(m2));
-            printv("shuf", init128_F4(_mm_shuffle_ps(m1, m2, _MM_SHUFFLE(0, 0, 3, 0))));
-        }*/
-        printf("dot3: %f\n", dot_F3(init_F4(1, 2, 3, 100), init_F4(3, 4, 2, 200)));
+        printf("dot3: %f\n", dot_F3(init_F3(1, 2, 3), init_F3(3, 4, 2)));
 
         iMat4 mat, b, c;
         init_Mat4(&mat);
-        printMat(&mat);
-        initScale_Mat4(&b, init1_F4(3));
-        printMat(&b);
+        printMat("identity", &mat);
+        initScale_Mat4(&b, init1_F3(3));
+        printMat("3x", &b);
         mul_Mat4(&mat, &b);
-        printMat(&mat);
+        printMat("mult", &mat);
         copy_Mat4(&c, &mat);
         scalef_Mat4(&c, .1f);
-        printMat(&c);
+        printMat("scaled", &c);
 
         iMat4 s;
         initScale_Mat4(&s, init_F3(4, 3, 2));
-        printMat(&s);
+        printMat("scale", &s);
 
         printv("vec mul", mulF4_Mat4(&s, init1_F4(1)));
 
-        iMat4 t;
+        iMat4 t, u;
         initTranslate_Mat4(&t, init_F3(1, 2, 3));
-        //init_Mat4(&t);
-        printMat(&t);
-        printv("vec trl", mulF4_Mat4(&t, init_F4(14, 13, 12, 1)));
+        printMat("xlat", &t);
+        //printv3("vec trl", mulF3_Mat4(&t, init_F3(14, 13, 12)));
+        printv3("vec trl", mulF3_Mat4(&t, init_F3(iRandomf(), iRandomf(), iRandomf())));
+
+        copy_Mat4(&u, &t);
+        mul_Mat4(&u, &s);
+        mul_Mat4(&s, &t);
+        printMat("s*t", &s);
+        printMat("t*s", &u);
+
+        iMat4 s_t; copy_Mat4(&s_t, &u);
+
+        printv3("vec trl", mulF3_Mat4(&s_t, init_F3(1, 1, 1)));
     }
 }

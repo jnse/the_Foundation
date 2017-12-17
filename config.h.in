@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #define iCPlusLibraryVersion { ${c_Plus_VERSION_MAJOR}, ${c_Plus_VERSION_MINOR}, ${c_Plus_VERSION_PATCH} }
 
+#cmakedefine iHaveSSE4_1
 #cmakedefine iHaveC11Threads
 #cmakedefine iHavePcre
 #cmakedefine iHaveZlib
