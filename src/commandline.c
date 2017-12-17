@@ -300,6 +300,7 @@ void init_CommandLineConstIterator(iCommandLineConstIterator *d, const iCommandL
     d->argType = value_CommandLineArgType;
     d->cmdLine = cmdLine;
     d->valueCount = 0;
+    d->isAssignedValue = iFalse;
     d->entry = (iRangecc){ NULL, NULL };
     next_CommandLineConstIterator(d);
 }
@@ -327,7 +328,7 @@ void next_CommandLineConstIterator(iCommandLineConstIterator *d) {
     }
     // Advance to the next entry.
     d->value += d->valueCount + 1 + (d->isAssignedValue? -1 : 0);
-    if (d->value == size_StringList(&d->cmdLine->args)) { // Done?
+    if (d->value >= size_StringList(&d->cmdLine->args)) { // Done?
         d->value = 0;
         return;
     }
