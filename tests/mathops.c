@@ -27,14 +27,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/defs.h>
 #include <c_plus/math.h>
 
+static void printNum(float n) {
+    if (n == 0.f) {
+        printf("   .      ");
+    }
+    else {
+        printf("%10f", n);
+    }
+}
+
 static void printv(const char *msg, iFloat4 v) {
     const iFloatVec4 vec = values_F4(v);
-    printf("%9s: ( %10f %10f %10f %10f )\n", msg, vec.v[0], vec.v[1], vec.v[2], vec.v[3]);
+    printf("%9s: ( ", msg);
+    for (int i = 0; i < 4; ++i) printNum(vec.v[i]);
+    printf(" )\n");
 }
 
 static void printv3(const char *msg, iFloat3 v) {
     const iFloatVec3 vec = values_F3(v);
-    printf("%9s: ( %10f %10f %10f )\n", msg, vec.v[0], vec.v[1], vec.v[2]);
+    printf("%9s: ( ", msg);
+    for (int i = 0; i < 3; ++i) printNum(vec.v[i]);
+    printf(" )\n");
 }
 
 static void printMat(const char *msg, const iMat4 *m) {
@@ -42,7 +55,8 @@ static void printMat(const char *msg, const iMat4 *m) {
     store_Mat4(m, vals);
     printf("%s: [", msg);
     for (int i = 0; i < 16; i += 4) {
-        printf("\n    %10f %10f %10f %10f", vals[i], vals[i+1], vals[i+2], vals[i+3]);
+        printf("\n    ");
+        for (int j = 0; j < 4; ++j) printNum(vals[i+j]);
     }
     puts(" ]");
 }
