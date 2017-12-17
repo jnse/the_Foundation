@@ -135,5 +135,10 @@ int main(int argc, char **argv) {
 
         printv3("s_t * (1,1,1)", mulF3_Mat4(&s_t, init_F3(1, 1, 1)));
         printv3("t_s * (1,1,1)", mulF3_Mat4(&t_s, init_F3(1, 1, 1)));
+
+        iMat4 rot;
+        initRotate_Mat4(&rot, init_F3(0, 1, 0), 360 * iRandomf());
+        printMat("rot", &rot);
+        printv3("rotated", mulF3_Mat4(&rot, init_F3(0, 0, 1)));
     }
 }

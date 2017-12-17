@@ -342,12 +342,12 @@ static inline void copy_Mat4(iMat4 *d, const iMat4 *other) {
     d->col[3] = other->col[3];
 }
 
-void mul_Mat4(iMat4 *, const iMat4 *b); //, iMat4 *m_out);
+void mul_Mat4(iMat4 *, const iMat4 *b);
 
 static inline void translate_Mat4(iMat4 *d, iFloat3 v) {
-    d->col[0] = _mm_add_ss(d->col[0], init_F4(0, 0, 0, x_F3(v)).m);
-    d->col[1] = _mm_add_ss(d->col[1], init_F4(0, 0, 0, y_F3(v)).m);
-    d->col[2] = _mm_add_ss(d->col[2], init_F4(0, 0, 0, z_F3(v)).m);
+    d->col[0] = _mm_add_ss(d->col[0], _mm_shuffle_ps(v.m, v.m, _MM_SHUFFLE(3, 2, 1, 1)));
+    d->col[1] = _mm_add_ss(d->col[1], _mm_shuffle_ps(v.m, v.m, _MM_SHUFFLE(3, 2, 1, 2)));
+    d->col[2] = _mm_add_ss(d->col[2], _mm_shuffle_ps(v.m, v.m, _MM_SHUFFLE(3, 2, 1, 3)));
 }
 
 static inline void initTranslate_Mat4(iMat4 *d, iFloat3 v) {
@@ -368,14 +368,17 @@ static inline void scale_Mat4(iMat4 *d, iFloat3 v) {
     d->col[2] = _mm_mul_ps(d->col[2], _mm_set_ps(z_F3(v), 1, 1, 1));
 }
 
-static inline void initRotate_Mat4(iMat4 *d, iFloat3 axis, float degrees) {
-
-}
-
 static inline void scalef_Mat4(iMat4 *d, float v) {
     d->col[0] = _mm_mul_ps(d->col[0], _mm_set_ps(1, 1, v, 1));
     d->col[1] = _mm_mul_ps(d->col[1], _mm_set_ps(1, v, 1, 1));
     d->col[2] = _mm_mul_ps(d->col[2], _mm_set_ps(v, 1, 1, 1));
+}
+
+void initRotate_Mat4(iMat4 *d, iFloat3 axis, float degrees);
+
+static inline void rotate_Mat4(iMat4 *d, iFloat3 axis, float degrees) {
+    iMat4 rot; initRotate_Mat4(&rot, axis, degrees);
+    mul_Mat4(d, &rot);
 }
 
 static inline iFloat4 mulF4_Mat4(const iMat4 *d, iFloat4 v) {

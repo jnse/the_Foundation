@@ -18,16 +18,27 @@ endmacro ()
 
 #----------------------------------------------------------------------------------------
 
+option (CPLUS_ENABLE_SSE41 "Enable SSE 4.1 instructions" ON)
+
+# Regular expressions
 pkg_check_modules (PCRE libpcre)
-find_package (ZLIB)
 if (PCRE_FOUND)
     set (iHavePcre YES)
 endif ()
+
+# zlib
+find_package (ZLIB)
 if (ZLIB_FOUND)
     set (iHaveZlib YES)
 endif ()
+
+# C11 threads
 check_include_file (threads.h iHaveC11Threads)
-check_include_file (smmintrin.h iHaveSSE4_1)
+
+# SSE 4.1 instruction set
+if (CPLUS_ENABLE_SSE41)
+    check_include_file (smmintrin.h iHaveSSE4_1)
+endif ()
 if (iHaveSSE4_1)
     set (mathSpec sse)
 else ()
