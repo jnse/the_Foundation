@@ -44,3 +44,19 @@ void mul_Mat4(iMat4 *d, const iMat4 *a) {
     }
     copy_Mat4(d, &result);
 }
+
+void initRotate_Mat4(iMat4 *d, iFloat3 axis, float degrees) {
+    const float ang = iMathDegreeToRadianf(degrees);
+    const float c   = cosf(ang);
+    const float s   = sinf(ang);
+    const iFloat3 normAxis = normalize_F3(axis);
+    const float *ax = normAxis.v;
+    const iFloat4 axis4 = { .v = { normAxis.value.x, normAxis.value.y, normAxis.value.z, 0.f } };
+    for (int i = 0; i < 3; ++i) {
+        d->col[i] = mul_F4(mul_F4(axis4, init1_F4(ax[i])), init1_F4(1 - c));
+    }
+    addv_F4(&d->col[0], init_F4(+c,       +ax[2]*s,   -ax[1]*s,   0));
+    addv_F4(&d->col[1], init_F4(-ax[2]*s, +c,         +ax[0]*s,   0));
+    addv_F4(&d->col[2], init_F4(+ax[1]*s, -ax[0]*s,   +c,         0));
+    d->col[3] = init_F4(0, 0, 0, 1);
+}

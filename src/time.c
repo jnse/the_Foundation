@@ -81,6 +81,15 @@ void add_Time(iTime *d, const iTime *time) {
     }
 }
 
+void sub_Time(iTime *d, const iTime *time) {
+    d->ts.tv_sec  -= time->ts.tv_sec;
+    d->ts.tv_nsec -= time->ts.tv_nsec;
+    while (d->ts.tv_nsec < 0) {
+        d->ts.tv_sec--;
+        d->ts.tv_nsec += 1000000000L;
+    }
+}
+
 //---------------------------------------------------------------------------------------
 
 void init_Date(iDate *d, const iTime *time) {

@@ -73,6 +73,13 @@ double  seconds_Time        (const iTime *);
 #define nanoSeconds_Time(d)     ((d)->ts.tv_nsec)
 
 void    add_Time            (iTime *, const iTime *time);
+void    sub_Time            (iTime *, const iTime *time);
 
 void    init_Date           (iDate *, const iTime *);
 void    initCurrent_Date    (iDate *);
+
+static inline double elapsedSeconds_Time(const iTime *d) {
+    iTime elapsed = now_Time();
+    sub_Time(&elapsed, d);
+    return seconds_Time(&elapsed);
+}

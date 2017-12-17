@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <c_plus/defs.h>
 #include <c_plus/math.h>
+#include <c_plus/time.h>
 
 static void printNum(float n) {
     if (n == 0.f) {
@@ -136,9 +137,17 @@ int main(int argc, char **argv) {
         printv3("s_t * (1,1,1)", mulF3_Mat4(&s_t, init_F3(1, 1, 1)));
         printv3("t_s * (1,1,1)", mulF3_Mat4(&t_s, init_F3(1, 1, 1)));
 
-        iMat4 rot;
-        initRotate_Mat4(&rot, init_F3(0, 1, 0), 360 * iRandomf());
-        printMat("rot", &rot);
-        printv3("rotated", mulF3_Mat4(&rot, init_F3(0, 0, 1)));
+#define REPS 3000000
+        iFloat3 res[REPS];
+        const iTime start = now_Time();
+        for (int rep = 0; rep < REPS; ++rep) {
+            /* Perf test. */ {
+                iMat4 rot;
+                initRotate_Mat4(&rot, init_F3(0, 1, 0), 360 * iRandomf());
+                //printMat("rot", &rot);
+                res[rep] = /*printv3("rotated", */mulF3_Mat4(&rot, init_F3(0, 0, 1));
+            }
+        }
+        printf("Rotation: elapsed %lf seconds\n", elapsedSeconds_Time(&start));
     }
 }

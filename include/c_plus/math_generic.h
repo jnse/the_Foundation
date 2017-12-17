@@ -595,8 +595,11 @@ static inline void scale_Mat4(iMat4 *d, iFloat3 v) {
     d->col[2].value.z *= v.value.z;
 }
 
-static inline void initRotate_Mat4(iMat4 *d, iFloat3 axis, float degrees) {
+void initRotate_Mat4(iMat4 *d, iFloat3 axis, float degrees);
 
+static inline void rotate_Mat4(iMat4 *d, iFloat3 axis, float degrees) {
+    iMat4 rot; initRotate_Mat4(&rot, axis, degrees);
+    mul_Mat4(d, &rot);
 }
 
 static inline void scalef_Mat4(iMat4 *d, float v) {

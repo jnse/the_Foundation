@@ -38,6 +38,8 @@ check_include_file (threads.h iHaveC11Threads)
 # SSE 4.1 instruction set
 if (CPLUS_ENABLE_SSE41)
     check_include_file (smmintrin.h iHaveSSE4_1)
+else ()
+    set (iHaveSSE4_1 NO)
 endif ()
 if (iHaveSSE4_1)
     set (mathSpec sse)
