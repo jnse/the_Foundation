@@ -29,10 +29,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 static void printNum(float n) {
     if (n == 0.f) {
-        printf("   .      ");
+        printf("    .      ");
     }
     else {
-        printf("%10f", n);
+        printf("%11f", n);
     }
 }
 
