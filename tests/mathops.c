@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
         printv3("t_s * (1,1,1)", mulF3_Mat4(&t_s, init_F3(1, 1, 1)));
 
 #define REPS 3000000
-        iFloat3 res[REPS];
+        iFloat3 *res = malloc(sizeof(iFloat3) * REPS);
         const iTime start = now_Time();
         for (int rep = 0; rep < REPS; ++rep) {
             /* Perf test. */ {
@@ -149,5 +149,6 @@ int main(int argc, char **argv) {
             }
         }
         printf("Rotation: elapsed %lf seconds\n", elapsedSeconds_Time(&start));
+        free(res);
     }
 }
