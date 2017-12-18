@@ -24,18 +24,15 @@
 #include <smmintrin.h> // SSE 4.1
 
 static inline float iMinf(float a, float b) {
-    _mm_store_ss(&a, _mm_min_ss(_mm_set_ss(a), _mm_set_ss(b)));
-    return a;
+    return _mm_cvtss_f32(_mm_min_ss(_mm_set_ss(a), _mm_set_ss(b)));
 }
 
 static inline float iMaxf(float a, float b) {
-    _mm_store_ss(&a, _mm_max_ss(_mm_set_ss(a), _mm_set_ss(b)));
-    return a;
+    return _mm_cvtss_f32(_mm_max_ss(_mm_set_ss(a), _mm_set_ss(b)));
 }
 
 static inline float iClampf(float i, float low, float high) {
-    _mm_store_ss(&i, _mm_min_ss(_mm_max_ss(_mm_set_ss(i), _mm_set_ss(low)), _mm_set_ss(high)));
-    return i;
+    return _mm_cvtss_f32(_mm_min_ss(_mm_max_ss(_mm_set_ss(i), _mm_set_ss(low)), _mm_set_ss(high)));
 }
 
 iDeclareType(Float4)
