@@ -23,6 +23,21 @@
 #include <math.h>
 #include <smmintrin.h> // SSE 4.1
 
+static inline float iMinf(float a, float b) {
+    _mm_store_ss(&a, _mm_min_ss(_mm_set_ss(a), _mm_set_ss(b)));
+    return a;
+}
+
+static inline float iMaxf(float a, float b) {
+    _mm_store_ss(&a, _mm_max_ss(_mm_set_ss(a), _mm_set_ss(b)));
+    return a;
+}
+
+static inline float iClampf(float i, float low, float high) {
+    _mm_store_ss(&i, _mm_min_ss(_mm_max_ss(_mm_set_ss(i), _mm_set_ss(low)), _mm_set_ss(high)));
+    return i;
+}
+
 iDeclareType(Float4)
 iDeclareType(Float3)
 
@@ -173,7 +188,7 @@ static inline iBool any_Bool4   (const iBool4 a)    { return mask_F4(a) != 0; }
 static inline iBool all_Bool4   (const iBool4 a)    { return mask_F4(a) == 15; }
 
 static inline iFloat4 clamp_F4  (const iFloat4 t, const iFloat4 a, const iFloat4 b) { return min_F4(max_F4(t, a), b); }
-static inline float sum_F4      (const iFloat4 a)   { return x_F4(a) + y_F4(a) + z_F4(a) + w_F4(a); }
+static inline float sum_F4      (const iFloat4 a)   { return _mm_cvtss_f32(_mm_dp_ps(a.m, _mm_set1_ps(1.f), 0xf1)); }
 static inline float dot_F4      (const iFloat4 a, const iFloat4 b) { return _mm_cvtss_f32(_mm_dp_ps(a.m, b.m, 0xf1)); }
 static inline float lengthSq_F4 (const iFloat4 a)   { return dot_F4(a, a); }
 static inline float length_F4   (const iFloat4 a)   { return sqrtf(lengthSq_F4(a)); }
@@ -312,7 +327,7 @@ static inline iBool any_Bool3   (const iBool3 a)    { return mask_F3(a) != 0; }
 static inline iBool all_Bool3   (const iBool3 a)    { return mask_F3(a) == (8|4|2); }
 
 static inline iFloat3 clamp_F3  (const iFloat3 t, const iFloat3 a, const iFloat3 b) { return min_F3(max_F3(t, a), b); }
-static inline float sum_F3      (const iFloat3 a)       { return x_F3(a) + y_F3(a) + z_F3(a); }
+static inline float sum_F3      (const iFloat3 a)       { return _mm_cvtss_f32(_mm_dp_ps(a.m, _mm_set1_ps(1.f), 0xe1)); }
 static inline float dot_F3      (const iFloat3 a, const iFloat3 b) { return _mm_cvtss_f32(_mm_dp_ps(a.m, b.m, 0xe1)); }
 static inline float lengthSq_F3 (const iFloat3 a)       { return dot_F3(a, a); }
 static inline float length_F3   (const iFloat3 a)       { return sqrtf(lengthSq_F3(a)); }

@@ -22,6 +22,10 @@
 
 #include <math.h>
 
+static inline float iMinf(float a, float b) { return iMin(a, b); }
+static inline float iMaxf(float a, float b) { return iMax(a, b); }
+static inline float iClampf(float i, float low, float high) { return iClamp(i, low, high); }
+
 typedef iFloatVec3 iFloat3;
 typedef iFloatVec4 iFloat4;
 
