@@ -68,3 +68,6 @@ struct Impl_FloatVec4 {
 #else
 #   include "math_generic.h"
 #endif
+
+iBool inverse_Mat3(const iMat3 *d, iMat3 *inversed_out);
+iBool inverse_Mat4(const iMat4 *d, iMat4 *inversed_out);

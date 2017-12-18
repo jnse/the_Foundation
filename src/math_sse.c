@@ -18,13 +18,6 @@
 
 #include "c_plus/math.h"
 
-void init_Mat4(iMat4 *d) {
-    d->col[0] = init_F4(1, 0, 0, 0).m;
-    d->col[1] = init_F4(0, 1, 0, 0).m;
-    d->col[2] = init_F4(0, 0, 1, 0).m;
-    d->col[3] = init_F4(0, 0, 0, 1).m;
-}
-
 void store_Mat4(const iMat4 *d, float *v) {
     _mm_storeu_ps(v,      _mm_shuffle_ps(d->col[0], d->col[0], _MM_SHUFFLE(0, 3, 2, 1)));
     _mm_storeu_ps(v + 4,  _mm_shuffle_ps(d->col[1], d->col[1], _MM_SHUFFLE(0, 3, 2, 1)));
@@ -61,4 +54,20 @@ void initRotate_Mat4(iMat4 *d, iFloat3 axis, float degrees) {
     d->col[1] = _mm_add_ps(d->col[1], init_F4(-ax[2]*s, +c,         +ax[0]*s,   0).m);
     d->col[2] = _mm_add_ps(d->col[2], init_F4(+ax[1]*s, -ax[0]*s,   +c,         0).m);
     d->col[3] = init_F4(0, 0, 0, 1).m;
+}
+
+void store_Mat3(const iMat3 *d, float *v9) {
+    _Alignas(16) float vals[12];
+    _mm_store_ps(vals,     d->col[0]);
+    _mm_store_ps(vals + 4, d->col[1]);
+    _mm_store_ps(vals + 8, d->col[2]);
+    v9[0] = vals[1];
+    v9[1] = vals[2];
+    v9[2] = vals[3];
+    v9[3] = vals[5];
+    v9[4] = vals[6];
+    v9[5] = vals[7];
+    v9[6] = vals[9];
+    v9[7] = vals[10];
+    v9[8] = vals[11];
 }

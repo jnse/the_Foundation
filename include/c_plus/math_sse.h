@@ -331,9 +331,21 @@ struct Impl_Mat4 {
     __m128 col[4];
 };
 
-void init_Mat4  (iMat4 *);
+static inline void init_Mat4(iMat4 *d) {
+    d->col[0] = init_F4(1, 0, 0, 0).m;
+    d->col[1] = init_F4(0, 1, 0, 0).m;
+    d->col[2] = init_F4(0, 0, 1, 0).m;
+    d->col[3] = init_F4(0, 0, 0, 1).m;
+}
 
 void store_Mat4 (const iMat4 *, float *v);
+
+static inline void load_Mat4(iMat4 *d, const float *v) {
+    for (int i = 0; i < 4; ++i) {
+        d->col[i] = initv_F4(v + 4*i).m;
+        d->col[i] = _mm_shuffle_ps(d->col[i], d->col[i], _MM_SHUFFLE(2, 1, 0, 3));
+    }
+}
 
 static inline void copy_Mat4(iMat4 *d, const iMat4 *other) {
     d->col[0] = other->col[0];
@@ -391,4 +403,24 @@ static inline iFloat4 mulF4_Mat4(const iMat4 *d, iFloat4 v) {
 static inline iFloat3 mulF3_Mat4(const iMat4 *d, const iFloat3 v) {
     iFloat4 i = mulF4_Mat4(d, initmm_F4(_mm_move_ss(v.m, _mm_set1_ps(1.f))));
     return (iFloat3){ _mm_div_ps(i.m, _mm_set1_ps(_mm_cvtss_f32(i.m))) };
+}
+
+iDeclareType(Mat3)
+
+struct Impl_Mat3 {
+    __m128 col[3];
+};
+
+static inline void init_Mat3(iMat3 *d) {
+    d->col[0] = init_F3(1, 0, 0).m;
+    d->col[1] = init_F3(0, 1, 0).m;
+    d->col[2] = init_F3(0, 0, 1).m;
+}
+
+void store_Mat3 (const iMat3 *, float *v9);
+
+static inline void load_Mat3(iMat3 *d, const float *v9) {
+    d->col[0] = initv_F3(v9    ).m;
+    d->col[1] = initv_F3(v9 + 3).m;
+    d->col[2] = initv_F3(v9 + 6).m;
 }

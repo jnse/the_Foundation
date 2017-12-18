@@ -51,6 +51,17 @@ static void printv3(const char *msg, iFloat3 v) {
     printf(" )\n");
 }
 
+static void printMat3(const char *msg, const iMat3 *m) {
+    float vals[9];
+    store_Mat3(m, vals);
+    printf("%s: [", msg);
+    for (int i = 0; i < 9; i += 3) {
+        printf("\n    ");
+        for (int j = 0; j < 3; ++j) printNum(vals[i+j]);
+    }
+    puts(" ]");
+}
+
 static void printMat(const char *msg, const iMat4 *m) {
     float vals[16];
     store_Mat4(m, vals);
@@ -99,6 +110,11 @@ int main(int argc, char **argv) {
             printv("mix", mix_F4(a, b, i/10.f));
         }
     }
+    /* 3x3 matrix. */ {
+        iMat3 mat3;
+        init_Mat3(&mat3);
+        printMat3("mat3", &mat3);
+    }
     /* Matrices. */ {
         printf("dot3: %f\n", dot_F3(init_F3(1, 2, 3), init_F3(3, 4, 2)));
 
@@ -116,6 +132,10 @@ int main(int argc, char **argv) {
         iMat4 s;
         initScale_Mat4(&s, init_F3(4, 3, 2));
         printMat("scale", &s);
+
+        iMat4 inverseScale;
+        inverse_Mat4(&s, &inverseScale);
+        printMat("inv scale", &inverseScale);
 
         printv("vec mul", mulF4_Mat4(&s, init1_F4(1)));
 
@@ -143,9 +163,9 @@ int main(int argc, char **argv) {
         for (int rep = 0; rep < REPS; ++rep) {
             /* Perf test. */ {
                 iMat4 rot;
-                initRotate_Mat4(&rot, init_F3(0, 1, 0), 360 * iRandomf());
+                initRotate_Mat4(&rot, init_F3(0, 1, 0), -rep);
                 //printMat("rot", &rot);
-                res[rep] = /*printv3("rotated", */mulF3_Mat4(&rot, init_F3(0, 0, 1));
+                res[rep] = /*printv3("rotated", */mulF3_Mat4(&rot, init_F3(0, 0, rep));
             }
         }
         printf("Rotation: elapsed %lf seconds\n", elapsedSeconds_Time(&start));
