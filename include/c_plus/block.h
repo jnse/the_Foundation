@@ -99,6 +99,7 @@ void            popBack_Block       (iBlock *);
 void            set_Block           (iBlock *, const iBlock *other);
 void            setByte_Block       (iBlock *, size_t pos, char value);
 void            setData_Block       (iBlock *, const void *data, size_t size);
+void            setSubData_Block    (iBlock *, size_t pos, const void *data, size_t size);
 void            setCStr_Block       (iBlock *, const char *cstr);
 
 void            append_Block        (iBlock *, const iBlock *other);

@@ -126,10 +126,3 @@ void flush_File(iFile *d) {
         fflush(d->file);
     }
 }
-
-iString *readString_File(iFile *d) {
-    iBlock *chars = readAll_Stream(&d->stream);
-    iString *str = newBlock_String(chars);
-    delete_Block(chars);
-    return str;
-}

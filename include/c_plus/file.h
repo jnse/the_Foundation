@@ -66,14 +66,13 @@ size_t      read_File       (iFile *, size_t size, void *data_out);
 size_t      write_File      (iFile *, const void *data, size_t size);
 void        flush_File      (iFile *);
 
-iString *   readString_File (iFile *d);
-
 static inline iBool isOpen_File (const iFile *d) { return d->file != NULL; }
-static inline int   flags_File  (const iFile *d) { return d->flags ;}
+static inline int   mode_File   (const iFile *d) { return d->flags ;}
 static inline long  pos_File    (const iFile *d) { return pos_Stream(&d->stream); }
 static inline long  size_File   (const iFile *d) { return size_Stream(&d->stream); }
 static inline iBool atEnd_File  (const iFile *d) { return atEnd_Stream(&(d)->stream); }
 static inline const iString *path_File(const iFile *d) { return d->path; }
 
-static inline iBlock *      readAll_File  (iFile *d) { return readAll_Stream(&d->stream); }
-static inline iStringList * readLines_File(iFile *d) { return readLines_Stream(&d->stream); }
+static inline iBlock *      readAll_File    (iFile *d) { return readAll_Stream(&d->stream); }
+static inline iString *     readString_File (iFile *d) { return readString_Stream(&d->stream); }
+static inline iStringList * readLines_File  (iFile *d) { return readLines_Stream(&d->stream); }

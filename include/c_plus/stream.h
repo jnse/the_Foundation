@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iDeclareType(Block)
 iDeclareType(Stream)
+iDeclareType(String)
 iDeclareType(StringList)
 
 iBeginDeclareClass(Stream)
@@ -59,7 +60,8 @@ size_t      write_Stream        (iStream *, const iBlock *data);
 size_t      writeData_Stream    (iStream *, const void *data, size_t size);
 void        flush_Stream        (iStream *);
 
-iStringList *   readLines_Stream   (iStream *);
+iString *       readString_Stream   (iStream *);
+iStringList *   readLines_Stream    (iStream *);
 
 static inline long  size_Stream     (const iStream *d) { return d->size; }
 static inline long  pos_Stream      (const iStream *d) { return d->pos; }

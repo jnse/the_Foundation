@@ -281,6 +281,16 @@ void setData_Block(iBlock *d, const void *data, size_t size) {
     memcpyFrom_Block_(d, data, size);
 }
 
+void setSubData_Block(iBlock *d, size_t pos, const void *data, size_t size) {
+    reserve_Block(d, pos + size);
+    iAssert(pos < d->i->size);
+    memcpy(d->i->data + pos, data, size);
+    d->i->size = iMax(d->i->size, pos + size);
+    if (d->i->size == pos + size) {
+        d->i->data[d->i->size] = 0;
+    }
+}
+
 void setCStr_Block(iBlock *d, const char *cstr) {
     setData_Block(d, cstr, strlen(cstr));
 }

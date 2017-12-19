@@ -78,11 +78,14 @@ iBlock *readAll_Stream(iStream *d) {
 }
 
 size_t write_Stream(iStream *d, const iBlock *data) {
-    return class_Stream(d)->write(d, constData_Block(data), size_Block(data));
+    return writeData_Stream(d, constData_Block(data), size_Block(data));
 }
 
 size_t writeData_Stream(iStream *d, const void *data, size_t size) {
-    return class_Stream(d)->write(d, data, size);
+    const size_t n = class_Stream(d)->write(d, data, size);
+    d->pos += n;
+    d->size = iMax(d->pos, d->size);
+    return n;
 }
 
 iStringList *readLines_Stream(iStream *d) {
@@ -94,4 +97,11 @@ iStringList *readLines_Stream(iStream *d) {
 
 void flush_Stream(iStream *d) {
     class_Stream(d)->flush(d);
+}
+
+iString *readString_Stream(iStream *d) {
+    iBlock *chars = readAll_Stream(d);
+    iString *str = newBlock_String(chars);
+    delete_Block(chars);
+    return str;
 }
