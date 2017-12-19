@@ -22,10 +22,6 @@
 
 #include <math.h>
 
-static inline float iMinf(float a, float b) { return iMin(a, b); }
-static inline float iMaxf(float a, float b) { return iMax(a, b); }
-static inline float iClampf(float i, float low, float high) { return iClamp(i, low, high); }
-
 typedef iFloatVec3 iFloat3;
 typedef iFloatVec4 iFloat4;
 
@@ -565,6 +561,7 @@ struct Impl_Mat4 {
 void init_Mat4  (iMat4 *);
 
 void store_Mat4 (const iMat4 *, float *v);
+void load_Mat4  (iMat4 *, const float *v);
 
 static inline void copy_Mat4(iMat4 *d, const iMat4 *other) {
     d->col[0] = other->col[0];
@@ -624,3 +621,34 @@ static inline iFloat3 mulF3_Mat4(const iMat4 *d, const iFloat3 v) {
     return divf_F3(initv_F3(v4.v), v4.value.w);
 }
 
+iDeclareType(Mat3)
+
+struct Impl_Mat3 {
+    iFloat3 col[3];
+};
+
+static inline void init_Mat3(iMat3 *d) {
+    d->col[0] = init_F3(1, 0, 0);
+    d->col[1] = init_F3(0, 1, 0);
+    d->col[2] = init_F3(0, 0, 1);
+}
+
+void store_Mat3 (const iMat3 *, float *v9);
+
+static inline void load_Mat3(iMat3 *d, const float *v9) {
+    d->col[0] = initv_F3(v9    );
+    d->col[1] = initv_F3(v9 + 3);
+    d->col[2] = initv_F3(v9 + 6);
+}
+
+static inline iFloat3 mulF3_Mat3(const iMat3 *d, iFloat3 v) {
+    return init_F3(dot_F3(initv_F3(d->col[0].v), v),
+                   dot_F3(initv_F3(d->col[1].v), v),
+                   dot_F3(initv_F3(d->col[2].v), v));
+}
+
+//---------------------------------------------------------------------------------------
+
+static inline float iMinf(float a, float b) { return iMin(a, b); }
+static inline float iMaxf(float a, float b) { return iMax(a, b); }
+static inline float iClampf(float i, float low, float high) { return iClamp(i, low, high); }

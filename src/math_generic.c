@@ -16,7 +16,7 @@
  * http://www.gnu.org/licenses</small>
  */
 
-#include "c_plus/math_generic.h"
+#include "c_plus/math.h"
 
 void init_Mat4(iMat4 *d) {
     d->col[0] = init_F4(1, 0, 0, 0);
@@ -30,6 +30,13 @@ void store_Mat4(const iMat4 *d, float *v) {
     store_F4(d->col[1], v + 4);
     store_F4(d->col[2], v + 8);
     store_F4(d->col[3], v + 12);
+}
+
+void load_Mat4(iMat4 *d, const float *v) {
+    d->col[0] = initv_F4(v);
+    d->col[1] = initv_F4(v + 4);
+    d->col[2] = initv_F4(v + 8);
+    d->col[3] = initv_F4(v + 12);
 }
 
 void mul_Mat4(iMat4 *d, const iMat4 *a) {
@@ -59,4 +66,12 @@ void initRotate_Mat4(iMat4 *d, iFloat3 axis, float degrees) {
     addv_F4(&d->col[1], init_F4(-ax[2]*s, +c,         +ax[0]*s,   0));
     addv_F4(&d->col[2], init_F4(+ax[1]*s, -ax[0]*s,   +c,         0));
     d->col[3] = init_F4(0, 0, 0, 1);
+}
+
+void store_Mat3(const iMat3 *d, float *v9) {
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            v9[3*i + j] = d->col[i].v[j];
+        }
+    }
 }
