@@ -56,16 +56,15 @@ iBool       openData_Buffer (iBuffer *, iBlock *data);
 iBool       openEmpty_Buffer(iBuffer *);
 void        close_Buffer    (iBuffer *);
 
-long        seek_Buffer     (iBuffer *, long offset);
-size_t      read_Buffer     (iBuffer *, size_t size, void *data_out);
-size_t      write_Buffer    (iBuffer *, const void *data, size_t size);
-void        flush_Buffer    (iBuffer *);
+const iBlock *data_Buffer   (const iBuffer *);
 
 static inline iBool isOpen_Buffer (const iBuffer *d) { return d->data != NULL; }
 static inline int   mode_Buffer   (const iBuffer *d) { return d->mode ;}
 static inline long  pos_Buffer    (const iBuffer *d) { return pos_Stream(&d->stream); }
 static inline long  size_Buffer   (const iBuffer *d) { return size_Stream(&d->stream); }
 static inline iBool atEnd_Buffer  (const iBuffer *d) { return atEnd_Stream(&(d)->stream); }
+
+static inline size_t        writeData_Buffer    (iBuffer *d, const void *data, size_t size) { return writeData_Stream(&d->stream, data, size); }
 
 static inline iBlock *      readAll_Buffer      (iBuffer *d) { return readAll_Stream(&d->stream); }
 static inline iString *     readString_Buffer   (iBuffer *d) { return readString_Stream(&d->stream); }

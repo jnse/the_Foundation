@@ -28,13 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/buffer.h"
 #include "c_plus/string.h"
 
-static iBeginDefineClass(Buffer)
-    .super  = &Class_Stream,
-    .seek   = (long (*)(iStream *, long))                   seek_Buffer,
-    .read   = (size_t (*)(iStream *, size_t, void *))       read_Buffer,
-    .write  = (size_t (*)(iStream *, const void *, size_t)) write_Buffer,
-    .flush  = (void (*)(iStream *))                         flush_Buffer,
-iEndDefineClass(Buffer)
+static iBufferClass Class_Buffer;
 
 iDefineObjectConstruction(Buffer)
 
@@ -83,14 +77,14 @@ void close_Buffer(iBuffer *d) {
     }
 }
 
-long seek_Buffer(iBuffer *d, long offset) {
+static long seek_Buffer_(iBuffer *d, long offset) {
     if (isOpen_Buffer(d)) {
         return iMin(offset, (long) size_Block(d->data));
     }
     return pos_Stream(&d->stream);
 }
 
-size_t read_Buffer(iBuffer *d, size_t size, void *data_out) {
+static size_t read_Buffer_(iBuffer *d, size_t size, void *data_out) {
     if (isOpen_Buffer(d)) {
         if (atEnd_Buffer(d)) return 0;
         const iRanges range = { pos_Buffer(d), iMin(pos_Buffer(d) + size, size_Block(d->data)) };
@@ -100,14 +94,26 @@ size_t read_Buffer(iBuffer *d, size_t size, void *data_out) {
     return 0;
 }
 
-size_t write_Buffer(iBuffer *d, const void *data, size_t size) {
-    if (isOpen_Buffer(d) && (d->mode & readWrite_BufferMode)) {
+static size_t write_Buffer_(iBuffer *d, const void *data, size_t size) {
+    if (isOpen_Buffer(d) && (~d->mode & readOnly_BufferMode)) {
         setSubData_Block(d->data, pos_Buffer(d), data, size);
         return size;
     }
     return 0;
 }
 
-void flush_Buffer(iBuffer *d) {
+static void flush_Buffer_(iBuffer *d) {
     iUnused(d);
 }
+
+const iBlock *data_Buffer(const iBuffer *d) {
+    return d->data;
+}
+
+static iBeginDefineClass(Buffer)
+    .super  = &Class_Stream,
+    .seek   = (long   (*)(iStream *, long))                 seek_Buffer_,
+    .read   = (size_t (*)(iStream *, size_t, void *))       read_Buffer_,
+    .write  = (size_t (*)(iStream *, const void *, size_t)) write_Buffer_,
+    .flush  = (void   (*)(iStream *))                       flush_Buffer_,
+iEndDefineClass(Buffer)

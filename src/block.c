@@ -283,7 +283,7 @@ void setData_Block(iBlock *d, const void *data, size_t size) {
 
 void setSubData_Block(iBlock *d, size_t pos, const void *data, size_t size) {
     reserve_Block(d, pos + size);
-    iAssert(pos < d->i->size);
+    iAssert(pos <= d->i->size);
     memcpy(d->i->data + pos, data, size);
     d->i->size = iMax(d->i->size, pos + size);
     if (d->i->size == pos + size) {

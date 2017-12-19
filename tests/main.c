@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <c_plus/array.h>
 #include <c_plus/block.h>
+#include <c_plus/buffer.h>
 #include <c_plus/class.h>
 #include <c_plus/commandline.h>
 #include <c_plus/file.h>
@@ -465,6 +466,13 @@ int main(int argc, char *argv[]) {
         printf("Result from worker: %li\n", result_Thread(worker));
         iAssert(result_Thread(worker) == 12345);
         iRelease(worker);
+    }
+    /* Test a buffer. */ {
+        iBuffer *buf = new_Buffer();
+        openEmpty_Buffer(buf);
+        writeData_Buffer(buf, "Hello world", 11);
+        printf("Buffer contents: [%s]\n", constBegin_Block(data_Buffer(buf)));
+        iRelease(buf);
     }
 #if defined (iHavePcre)
     /* Test regular expressions. */ {

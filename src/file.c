@@ -30,13 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/path.h"
 #include "c_plus/string.h"
 
-static iBeginDefineClass(File)
-    .super  = &Class_Stream,
-    .seek   = (long (*)(iStream *, long))                   seek_File,
-    .read   = (size_t (*)(iStream *, size_t, void *))       read_File,
-    .write  = (size_t (*)(iStream *, const void *, size_t)) write_File,
-    .flush  = (void (*)(iStream *))                         flush_File,
-iEndDefineClass(File)
+static iFileClass Class_File;
 
 iFile *new_File(const iString *path) {
     iFile *d = new_Object(&Class_File);
@@ -99,7 +93,7 @@ void close_File(iFile *d) {
     }
 }
 
-long seek_File(iFile *d, long offset) {
+static long seek_File_(iFile *d, long offset) {
     if (isOpen_File(d)) {
         fseek(d->file, offset, SEEK_SET);
         return ftell(d->file);
@@ -107,22 +101,30 @@ long seek_File(iFile *d, long offset) {
     return pos_Stream(&d->stream);
 }
 
-size_t read_File(iFile *d, size_t size, void *data_out) {
+static size_t read_File_(iFile *d, size_t size, void *data_out) {
     if (isOpen_File(d)) {
         return fread(data_out, 1, size, d->file);
     }
     return 0;
 }
 
-size_t write_File(iFile *d, const void *data, size_t size) {
+static size_t write_File_(iFile *d, const void *data, size_t size) {
     if (isOpen_File(d)) {
         return fwrite(data, 1, size, d->file);
     }
     return 0;
 }
 
-void flush_File(iFile *d) {
+static void flush_File_(iFile *d) {
     if (isOpen_File(d)) {
         fflush(d->file);
     }
 }
+
+static iBeginDefineClass(File)
+    .super  = &Class_Stream,
+    .seek   = (long   (*)(iStream *, long))                 seek_File_,
+    .read   = (size_t (*)(iStream *, size_t, void *))       read_File_,
+    .write  = (size_t (*)(iStream *, const void *, size_t)) write_File_,
+    .flush  = (void   (*)(iStream *))                       flush_File_,
+iEndDefineClass(File)

@@ -61,11 +61,6 @@ iFile *     newCStr_File    (const char *path);
 iBool       open_File       (iFile *, int mode);
 void        close_File      (iFile *);
 
-long        seek_File       (iFile *, long offset);
-size_t      read_File       (iFile *, size_t size, void *data_out);
-size_t      write_File      (iFile *, const void *data, size_t size);
-void        flush_File      (iFile *);
-
 static inline iBool isOpen_File (const iFile *d) { return d->file != NULL; }
 static inline int   mode_File   (const iFile *d) { return d->flags ;}
 static inline long  pos_File    (const iFile *d) { return pos_Stream(&d->stream); }
