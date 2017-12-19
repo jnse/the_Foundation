@@ -23,18 +23,6 @@
 #include <math.h>
 #include <smmintrin.h> // SSE 4.1
 
-static inline float iMinf(float a, float b) {
-    return _mm_cvtss_f32(_mm_min_ss(_mm_set_ss(a), _mm_set_ss(b)));
-}
-
-static inline float iMaxf(float a, float b) {
-    return _mm_cvtss_f32(_mm_max_ss(_mm_set_ss(a), _mm_set_ss(b)));
-}
-
-static inline float iClampf(float i, float low, float high) {
-    return _mm_cvtss_f32(_mm_min_ss(_mm_max_ss(_mm_set_ss(i), _mm_set_ss(low)), _mm_set_ss(high)));
-}
-
 iDeclareType(Float4)
 iDeclareType(Float3)
 
@@ -220,6 +208,10 @@ static inline iFloat3 initi_F3(int x, int y, int z) {
 
 static inline iFloat3 initv_F3(const float *v) {
     return (iFloat3){ _mm_set_ps(v[2], v[1], v[0], 0.f) };
+}
+
+static inline iFloat3 initmm_F3(const __m128 m) {
+    return (iFloat3){ m };
 }
 
 static inline float x_F3(const iFloat3 d) {
@@ -413,7 +405,7 @@ static inline iFloat4 mulF4_Mat4(const iMat4 *d, iFloat4 v) {
 }
 
 static inline iFloat3 mulF3_Mat4(const iMat4 *d, const iFloat3 v) {
-    iFloat4 i = mulF4_Mat4(d, initmm_F4(_mm_move_ss(v.m, _mm_set1_ps(1.f))));
+    const iFloat4 i = mulF4_Mat4(d, initmm_F4(_mm_move_ss(v.m, _mm_set1_ps(1.f))));
     return (iFloat3){ _mm_div_ps(i.m, _mm_set1_ps(_mm_cvtss_f32(i.m))) };
 }
 
@@ -435,4 +427,24 @@ static inline void load_Mat3(iMat3 *d, const float *v9) {
     d->col[0] = initv_F3(v9    ).m;
     d->col[1] = initv_F3(v9 + 3).m;
     d->col[2] = initv_F3(v9 + 6).m;
+}
+
+static inline iFloat3 mulF3_Mat3(const iMat3 *d, iFloat3 v) {
+    return init_F3(dot_F3(initmm_F3(d->col[0]), v),
+                   dot_F3(initmm_F3(d->col[1]), v),
+                   dot_F3(initmm_F3(d->col[2]), v));
+}
+
+//---------------------------------------------------------------------------------------
+
+static inline float iMinf(float a, float b) {
+    return _mm_cvtss_f32(_mm_min_ss(_mm_set_ss(a), _mm_set_ss(b)));
+}
+
+static inline float iMaxf(float a, float b) {
+    return _mm_cvtss_f32(_mm_max_ss(_mm_set_ss(a), _mm_set_ss(b)));
+}
+
+static inline float iClampf(float i, float low, float high) {
+    return _mm_cvtss_f32(_mm_min_ss(_mm_max_ss(_mm_set_ss(i), _mm_set_ss(low)), _mm_set_ss(high)));
 }
