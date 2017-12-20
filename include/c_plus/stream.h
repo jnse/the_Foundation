@@ -42,26 +42,63 @@ iBeginDeclareClass(Stream)
     void        (*flush)(iStream *);
 iEndDeclareClass(Stream)
 
+enum iStreamByteOrder {
+    littleEndian_StreamByteOrder,
+    bigEndian_StreamByteOrder,
+};
+
 struct Impl_Stream {
     iObject object;
     long size;
     long pos;
+    int flags;
 };
 
-void        init_Stream     (iStream *);
-void        deinit_Stream   (iStream *);
+void        init_Stream         (iStream *);
+void        deinit_Stream       (iStream *);
 
+void        setByteOrder_Stream (iStream *, enum iStreamByteOrder byteOrder);
 void        setSize_Stream      (iStream *, long size);
+
+enum iStreamByteOrder byteOrder_Stream(const iStream *);
+
 void        seek_Stream         (iStream *, long offset);
 iBlock *    read_Stream         (iStream *, size_t size);
 size_t      readBlock_Stream    (iStream *, size_t size, iBlock *data_out);
 iBlock *    readAll_Stream      (iStream *);
+
 size_t      write_Stream        (iStream *, const iBlock *data);
 size_t      writeData_Stream    (iStream *, const void *data, size_t size);
+
+static inline void write8_Stream(iStream *d, int8_t value) { writeData_Stream(d, &value, 1); }
+
+void        write16_Stream      (iStream *, int16_t value);
+void        write32_Stream      (iStream *, int32_t value);
+void        write64_Stream      (iStream *, int64_t value);
+
+static inline void writef_Stream    (iStream *d, float value)   { write32_Stream(d, *(int32_t *) &value); }
+static inline void writed_Stream    (iStream *d, double value)  { write64_Stream(d, *(int64_t *) &value); }
+
+int8_t      read8_Stream        (iStream *);
+int16_t     read16_Stream       (iStream *);
+int32_t     read32_Stream       (iStream *);
+int64_t     read64_Stream       (iStream *);
+
+static inline uint8_t  readU8_Stream    (iStream *d) { return (uint8_t)  read8_Stream(d); }
+static inline uint16_t readU16_Stream   (iStream *d) { return (uint16_t) read16_Stream(d); }
+static inline uint32_t readU32_Stream   (iStream *d) { return (uint32_t) read32_Stream(d); }
+static inline uint64_t readU64_Stream   (iStream *d) { return (uint64_t) read64_Stream(d); }
+
+static inline float    readf_Stream     (iStream *d) { int32_t v = read32_Stream(d); return *(float  *) &v; }
+static inline double   readd_Stream     (iStream *d) { int64_t v = read64_Stream(d); return *(double *) &v; }
+
 void        flush_Stream        (iStream *);
 
 iString *       readString_Stream   (iStream *);
 iStringList *   readLines_Stream    (iStream *);
+
+iAnyObject *    readObject_Stream   (iStream *, iAnyObject *object);
+size_t          writeObject_Stream  (iStream *, const iAnyObject *object);
 
 static inline long  size_Stream     (const iStream *d) { return d->size; }
 static inline long  pos_Stream      (const iStream *d) { return d->pos; }

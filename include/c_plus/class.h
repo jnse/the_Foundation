@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 
 iDeclareType(Class)
+iDeclareType(Stream)
 
 typedef void iAnyClass;
 
@@ -38,7 +39,9 @@ struct Impl_Class {
     const iClass *super;
     const char *name;
     size_t size;
-    void (*deinit)(void *);
+    void (*deinit)      (void *);
+    void (*serialize)   (const void *, iStream *);
+    void (*deserialize) (void *, iStream *);
 };
 
 #define iBeginDeclareClass(className) \
@@ -47,7 +50,9 @@ struct Impl_Class {
         const iAnyClass *super; \
         const char *name; \
         size_t size; \
-        void (*deinit)(void *);
+        void (*deinit)      (void *); \
+        void (*serialize)   (const void *, iStream *); \
+        void (*deserialize) (void *, iStream *);
 
 #define iEndDeclareClass(className) \
     }; \
