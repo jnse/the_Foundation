@@ -2,6 +2,13 @@
 
 /** @file c_plus/stream.h  Base class for streams.
 
+Stream reads and writes serialized data. Stream is also a base class for more
+specialized objects that provide access to a specific kind of data, for example a
+native file or a memory buffer.
+
+Streams are by default little-endian. The endianness can be changed at any point using
+the setByteOrder_Stream() method.
+
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
 @par License
@@ -43,7 +50,7 @@ iBeginDeclareClass(Stream)
 iEndDeclareClass(Stream)
 
 enum iStreamByteOrder {
-    littleEndian_StreamByteOrder,
+    littleEndian_StreamByteOrder, // the default
     bigEndian_StreamByteOrder,
 };
 
@@ -64,6 +71,7 @@ enum iStreamByteOrder byteOrder_Stream(const iStream *);
 
 void        seek_Stream         (iStream *, long offset);
 iBlock *    read_Stream         (iStream *, size_t size);
+size_t      readData_Stream     (iStream *, size_t size, void *data_out);
 size_t      readBlock_Stream    (iStream *, size_t size, iBlock *data_out);
 iBlock *    readAll_Stream      (iStream *);
 

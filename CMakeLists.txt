@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 3.1)
 project (c_Plus VERSION 1.0.0 LANGUAGES C)
 include (CheckIncludeFile)
+include (TestBigEndian)
 find_package (PkgConfig)
 
 macro (cplus_set_compile_options target)
@@ -46,6 +47,8 @@ if (iHaveSSE4_1)
 else ()
     set (mathSpec generic)
 endif ()
+
+test_big_endian (iHaveBigEndian)
 
 #----------------------------------------------------------------------------------------
 

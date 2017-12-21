@@ -58,6 +58,8 @@ void        close_Buffer    (iBuffer *);
 
 const iBlock *data_Buffer   (const iBuffer *);
 
+void        clear_Buffer    (iBuffer *);
+
 static inline iBool isOpen_Buffer (const iBuffer *d) { return d->data != NULL; }
 static inline int   mode_Buffer   (const iBuffer *d) { return d->mode ;}
 static inline long  pos_Buffer    (const iBuffer *d) { return pos_Stream(&d->stream); }

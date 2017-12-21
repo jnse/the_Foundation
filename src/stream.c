@@ -34,6 +34,47 @@ iDefineClass(Stream)
 
 #define class_Stream(d)         ((const iStreamClass *) (d)->object.class)
 
+iDeclareType(ByteOrder)
+
+struct Impl_ByteOrder {
+    uint16_t (*order16)(uint16_t);
+    uint32_t (*order32)(uint32_t);
+    uint64_t (*order64)(uint64_t);
+};
+
+static inline uint16_t nop16_(uint16_t v) { return v; }
+static inline uint32_t nop32_(uint32_t v) { return v; }
+static inline uint64_t nop64_(uint64_t v) { return v; }
+
+static inline uint16_t swap16_(uint16_t v) { return (uint16_t) ((v >> 8) | ((v & 0xff) << 8)); }
+static inline uint32_t swap32_(uint32_t v) { return (v >> 24) | ((v & 0xff0000) >> 8) | ((v & 0xff00) << 8) | ((v & 0xff) << 24); }
+static inline uint64_t swap64_(uint64_t v) { return swap32_(v >> 32) | ((uint64_t) (swap32_(v & 0xffffffff)) << 32); }
+
+#if defined (iBigEndian)
+static uint16_t order16le_(uint16_t v) { return swap16_(v); }
+static uint32_t order32le_(uint32_t v) { return swap32_(v); }
+static uint64_t order64le_(uint64_t v) { return swap64_(v); }
+
+static uint16_t order16be_(uint16_t v) { return nop16_(v); }
+static uint32_t order32be_(uint32_t v) { return nop32_(v); }
+static uint64_t order64be_(uint64_t v) { return nop64_(v); }
+#else
+static uint16_t order16le_(uint16_t v) { return nop16_(v); }
+static uint32_t order32le_(uint32_t v) { return nop32_(v); }
+static uint64_t order64le_(uint64_t v) { return nop64_(v); }
+
+static uint16_t order16be_(uint16_t v) { return swap16_(v); }
+static uint32_t order32be_(uint32_t v) { return swap32_(v); }
+static uint64_t order64be_(uint64_t v) { return swap64_(v); }
+#endif
+
+static const iByteOrder byteOrder_[2] = {
+    /* Little-endian */ { .order16 = order16le_, .order32 = order32le_, .order64 = order64le_ },
+    /* Big-endian */    { .order16 = order16be_, .order32 = order32be_, .order64 = order64be_ }
+};
+
+#define ord_Stream(d)   (byteOrder_[(d)->flags & bigEndianByteOrder_StreamFlag])
+
 enum iStreamFlags {
     bigEndianByteOrder_StreamFlag = 1,
 };
@@ -66,7 +107,7 @@ iBlock *read_Stream(iStream *d, size_t size) {
     return data;
 }
 
-static inline size_t readData_Stream_(iStream *d, size_t size, void *data_out) {
+size_t readData_Stream(iStream *d, size_t size, void *data_out) {
     const size_t readSize = class_Stream(d)->read(d, size, data_out);
     d->pos += readSize;
     d->size = iMax(d->size, d->pos); // update successfully read size
@@ -75,7 +116,7 @@ static inline size_t readData_Stream_(iStream *d, size_t size, void *data_out) {
 
 size_t readBlock_Stream(iStream *d, size_t size, iBlock *data_out) {
     resize_Block(data_out, size);
-    const size_t readSize = readData_Stream_(d, size, data_Block(data_out));
+    const size_t readSize = readData_Stream(d, size, data_Block(data_out));
     truncate_Block(data_out, readSize);
     return readSize;
 }
@@ -135,20 +176,41 @@ size_t writeObject_Stream(iStream *d, const iAnyObject *object) {
     return d->pos - start;
 }
 
-void        write16_Stream      (iStream *, int16_t value);
+void write16_Stream(iStream *d, int16_t value) {
+    const uint16_t data = ord_Stream(d).order16(value);
+    writeData_Stream(d, &data, 2);
+}
 
-void        write32_Stream      (iStream *, int32_t value);
+void write32_Stream(iStream *d, int32_t value) {
+    const uint32_t data = ord_Stream(d).order32(value);
+    writeData_Stream(d, &data, 4);
+}
 
-void        write64_Stream      (iStream *, int64_t value);
+void write64_Stream(iStream *d, int64_t value) {
+    const uint64_t data = ord_Stream(d).order64(value);
+    writeData_Stream(d, &data, 8);
+}
 
 int8_t read8_Stream(iStream *d) {
     int8_t value = 0;
-    readData_Stream_(d, 1, &value);
+    readData_Stream(d, 1, &value);
     return value;
 }
 
-int16_t     read16_Stream       (iStream *);
+int16_t read16_Stream(iStream *d) {
+    uint16_t data = 0;
+    readData_Stream(d, 2, &data);
+    return ord_Stream(d).order16(data);
+}
 
-int32_t     read32_Stream       (iStream *);
+int32_t read32_Stream(iStream *d) {
+    uint32_t data = 0;
+    readData_Stream(d, 4, &data);
+    return ord_Stream(d).order32(data);
+}
 
-int64_t     read64_Stream       (iStream *);
+int64_t read64_Stream(iStream *d) {
+    uint64_t data = 0;
+    readData_Stream(d, 8, &data);
+    return ord_Stream(d).order64(data);
+}

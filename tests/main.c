@@ -143,6 +143,14 @@ void printArray(const iArray *d) {
     puts(" ]");
 }
 
+static void printBytes(const uint8_t *data, size_t size) {
+    printf("[");
+    for (size_t i = 0; i < size; ++i) {
+        printf(" %02x", data[i]);
+    }
+    puts(" ]");
+}
+
 static void printIntArray(const iArray *d) {
     printf("%4lu :", size_Array(d));
     iConstForEach(Array, i, d) {
@@ -469,9 +477,20 @@ int main(int argc, char *argv[]) {
     }
     /* Test a buffer. */ {
         iBuffer *buf = new_Buffer();
+        iStream *strm = (iStream *) buf;
         openEmpty_Buffer(buf);
-        writeData_Buffer(buf, "Hello world", 11);
-        printf("Buffer contents: [%s]\n", constBegin_Block(data_Buffer(buf)));
+        write16_Stream(strm, 0x0123);
+        write32_Stream(strm, 0x01234567);
+        write64_Stream(strm, 0x0123456789abcdef);
+        setByteOrder_Stream(strm, bigEndian_StreamByteOrder);
+        write16_Stream(strm, 0x0123);
+        write32_Stream(strm, 0x01234567);
+        write64_Stream(strm, 0x0123456789abcdef);
+        printBytes((const uint8_t *) constBegin_Block(data_Buffer(buf)), size_Buffer(buf));
+        clear_Buffer(buf);
+        writed_Stream(strm, iMathPi);
+        writed_Stream(strm, iMathPi);
+        printBytes((const uint8_t *) constBegin_Block(data_Buffer(buf)), size_Buffer(buf));
         iRelease(buf);
     }
 #if defined (iHavePcre)

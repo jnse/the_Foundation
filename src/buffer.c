@@ -77,6 +77,15 @@ void close_Buffer(iBuffer *d) {
     }
 }
 
+void clear_Buffer(iBuffer *d) {
+    clear_Block(&d->block);
+    if (isOpen_Buffer(d)) {
+        clear_Block(d->data);
+        setSize_Stream(&d->stream, 0);
+        d->stream.pos = 0;
+    }
+}
+
 static long seek_Buffer_(iBuffer *d, long offset) {
     if (isOpen_Buffer(d)) {
         return iMin(offset, (long) size_Block(d->data));
