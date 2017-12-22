@@ -30,10 +30,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 static void printNum(float n) {
     if (n == 0.f) {
-        printf("    .      ");
+        printf("      .      ");
     }
     else {
-        printf("%11f", n);
+        printf("%13f", n);
     }
 }
 
@@ -177,5 +177,25 @@ int main(int argc, char **argv) {
         }
         printf("Rotation: elapsed %lf seconds\n", elapsedSeconds_Time(&start));
         free(res);
+    }
+    /* Inversion. */ {
+        iMat4 matrix;
+        float values[16] = {
+             0.257f,  0.504f,  0.098f, 16,
+             0.439f, -0.368f, -0.071f, 128,
+            -0.148f, -0.291f,  0.439f, 128,
+            0, 0, 0, 1
+        };
+        load_Mat4(&matrix, values);
+        printMat("RGB-to-YUV", &matrix);
+        iMat4 inverse;
+        inverse_Mat4(&matrix, &inverse);
+        printMat("YUV-to-RGB", &inverse);
+        //printv3("yuv", mulF3_Mat4(&matrix, init_F3(0, 0, 255)));
+        iFloat3 color = init_F3(101, 123, 148);
+        printv3("original RGB", color);
+        printv3("YUV", mulF3_Mat4(&matrix, color));
+        printv3("back to RGB", mulF3_Mat4(&inverse, mulF3_Mat4(&matrix, color)));
+        return 123;
     }
 }
