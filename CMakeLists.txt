@@ -80,6 +80,7 @@ set (HEADERS
     include/c_plus/ptrset.h
     include/c_plus/queue.h
     include/c_plus/range.h
+    include/c_plus/socket.h
     include/c_plus/sortedarray.h
     include/c_plus/stream.h
     include/c_plus/string.h
@@ -178,3 +179,4 @@ cplus_add_test (c+test      tests/main.c)
 cplus_add_test (c+strings   tests/strings.c)
 cplus_add_test (c+threading tests/threading.c)
 cplus_add_test (c+math      tests/mathops.c)
+cplus_add_test (c+network   tests/network.c)
