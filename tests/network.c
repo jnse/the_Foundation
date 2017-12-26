@@ -38,10 +38,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 static void hostLookedUp(iAny *d, const iAddress *address) {
     iUnused(d);
-    printf("%i IP addresses for %s:\n\n",
-           count_Address(address),
-           cstr_String(hostName_Address(address)));
-
+    if (isValid_Address(address)) {
+        iString *ip = toString_Address(address);
+        printf("%i IP addresses for %s; chosen: %s \n",
+               count_Address(address),
+               cstr_String(hostName_Address(address)),
+               cstr_String(ip));
+        delete_String(ip);
+    }
 }
 
 int main(int argc, char *argv[]) {

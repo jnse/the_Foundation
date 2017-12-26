@@ -149,4 +149,37 @@ void waitForFinished_Address(iAddress *d) {
     }
 }
 
+#if 0
+static const iAny *inAddr_addrinfo_(const struct addrinfo *d) {
+    if (d->ai_family == AF_INET) { // IPv4
+        return &((const struct sockaddr_in *) d->ai_addr)->sin_addr;
+    }
+    // IPv6
+    return &((const struct sockaddr_in6 *) d->ai_addr)->sin6_addr;
+}
+#endif
+
+iString *toString_Address(const iAddress *d) {
+    iString *str = new_String();
+    iGuardMutex(&d->mutex, {
+        if (d->info) {
+            char hbuf[NI_MAXHOST];
+            char sbuf[NI_MAXSERV];
+            if (!getnameinfo(d->info->ai_addr,
+                             d->info->ai_addr->sa_len,
+                             hbuf, sizeof(hbuf),
+                             sbuf, sizeof(sbuf),
+                             NI_NUMERICHOST | NI_NUMERICSERV)) {
+                if (iCmpStr(sbuf, "0")) {
+                    format_String(str, "%s port:%s", hbuf, sbuf);
+                }
+                else {
+                    setCStr_String(str, hbuf);
+                }
+            }
+        }
+    });
+    return str;
+}
+
 iDefineClass(Address)

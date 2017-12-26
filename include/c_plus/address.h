@@ -46,7 +46,9 @@ iBool   isHostFound_Address (const iAddress *);
 iBool   isValid_Address     (const iAddress *);
 int     count_Address       (const iAddress *);
 
-const iString * hostName_Address (const iAddress *);
+iString *       toString_Address    (const iAddress *);
+
+const iString * hostName_Address    (const iAddress *);
 
 void    lookupHost_Address      (iAddress *, const char *hostName, uint16_t port);
 void    waitForFinished_Address (iAddress *);
