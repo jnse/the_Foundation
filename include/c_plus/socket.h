@@ -37,10 +37,6 @@ typedef iStreamClass iSocketClass;
 
 iDeclareType(Socket)
 
-struct Impl_Socket {
-    int fd;
-};
-
 iDeclareObjectConstruction(Socket)
 
 iBool       open_Socket     (iSocket *, const iAddress *address);

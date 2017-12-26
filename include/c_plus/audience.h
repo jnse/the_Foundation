@@ -31,6 +31,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "sortedarray.h"
 #include "ptrset.h"
 
+#define iDefineAudienceGetter(typeName, audienceName) \
+    static inline iAudience *audienceName##_##typeName(i##typeName *d) { \
+        if (!d->audienceName) { d->audienceName = new_Audience(); }  \
+        return d->finished; \
+    }
+
+#define iNotifyAudience(d, audienceName, notifyName) \
+    {iConstForEach(Audience, i, (d)->audienceName) { \
+        ((iNotify##notifyName) i.value->func)(i.value->object, d); \
+    }}
+
+#define iNotifyAudienceArgs(d, audienceName, notifyName, ...) \
+    {iConstForEach(Audience, i, (d)->audienceName) { \
+        ((iNotify##notifyName) i.value->func)(i.value->object, d, __VA_ARGS__); \
+    }}
+
 iDeclareType(Audience)
 iDeclareType(Observer)
 iDeclareType(Object)
@@ -51,8 +67,8 @@ iDeclareTypeConstruction(Audience)
 void    init_Audience   (iAudience *);
 void    deinit_Audience (iAudience *);
 
-iBool   insert_Audience         (iAudience *d, iAnyObject *object, iObserverFunc func);
-iBool   remove_Audience         (iAudience *d, iAnyObject *object, iObserverFunc func);
+iBool   insert_Audience (iAudience *d, iAnyObject *object, iObserverFunc func);
+iBool   remove_Audience (iAudience *d, iAnyObject *object, iObserverFunc func);
 
 static inline iBool removeObject_Audience(iAudience *d, iAnyObject *object) {
     return remove_Audience(d, object, NULL);

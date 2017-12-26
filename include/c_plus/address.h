@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/address.h  IPv6 address.
+/** @file c_plus/address.h  Network address.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -27,9 +27,28 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
+#include "object.h"
+#include "audience.h"
 
+iDeclareType(String)
+
+iDeclareClass(Address)
 iDeclareType(Address)
 
-struct Impl_Address {
-};
+typedef void (*iNotifyAddressLookupFinished)(iAny *, const iAddress *);
+
+iDeclareObjectConstruction(Address)
+
+void    init_Address    (iAddress *);
+void    deinit_Address  (iAddress *);
+
+iBool   isHostFound_Address (const iAddress *);
+iBool   isValid_Address     (const iAddress *);
+int     count_Address       (const iAddress *);
+
+const iString * hostName_Address (const iAddress *);
+
+void    lookupHost_Address      (iAddress *, const char *hostName, uint16_t port);
+void    waitForFinished_Address (iAddress *);
+
+iAudience * lookupFinished_Address  (iAddress *);

@@ -237,13 +237,18 @@ void truncate_Block(iBlock *d, size_t size) {
 void printf_Block(iBlock *d, const char *format, ...) {
     va_list args;
     va_start(args, format);
+    vprintf_Block(d, format, args);
+    va_end(args);
+}
+
+void vprintf_Block(iBlock *d, const char *format, va_list args) {
+    va_list args2;
+    va_copy(args2, args);
     const int len = vsnprintf(NULL, 0, format, args);
-    va_end(args);
     reserve_Block(d, len);
-    va_start(args, format);
-    vsprintf(d->i->data, format, args);
+    vsprintf(d->i->data, format, args2);
     d->i->size = len;
-    va_end(args);
+    va_end(args2);
 }
 
 void fill_Block(iBlock *d, char value) {

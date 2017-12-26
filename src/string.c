@@ -167,6 +167,13 @@ void setCStr_String(iString *d, const char *cstr) {
     setCStr_Block(&d->chars, cstr);
 }
 
+void format_String(iString *d, const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    vprintf_Block(&d->chars, format, args);
+    va_end(args);
+}
+
 size_t indexOf_String(const iString *d, iChar ch) {
     iMultibyteChar mb;
     init_MultibyteChar(&mb, ch);

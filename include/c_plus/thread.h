@@ -43,7 +43,7 @@ iDeclareType(Thread)
 typedef thrd_t iThreadId;
 typedef intptr_t iThreadResult;
 typedef iThreadResult (*iThreadRunFunc)(iThread *);
-typedef void (*iThreadFinished)(iAny *, iThread *);
+typedef void (*iNotifyThreadFinished)(iAny *, iThread *);
 
 enum iThreadState {
     created_ThreadState,
@@ -55,6 +55,7 @@ struct Impl_Thread {
     iObject object;
     iThreadRunFunc run;
     iThreadId id;
+    void *userData;
     atomic_int state; // enum iThreadState
     iThreadResult result;
     iAudience *finished;
@@ -62,8 +63,11 @@ struct Impl_Thread {
 
 iDeclareObjectConstructionArgs(Thread, iThreadRunFunc run)
 
+void    setUserData_Thread  (iThread *, void *userData);
+
 iBool   isRunning_Thread    (const iThread *);
 iBool   isFinished_Thread   (const iThread *);
+void *  userData_Thread     (const iThread *);
 
 /**
  * Returns the result value of the thread. If the thread is still running, the method

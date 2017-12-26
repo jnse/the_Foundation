@@ -95,6 +95,7 @@ void setByteOrder_Stream(iStream *d, enum iStreamByteOrder byteOrder) {
 
 void setSize_Stream(iStream *d, long size) {
     d->size = size;
+    d->pos = iMin(d->pos, size);
 }
 
 void seek_Stream(iStream *d, long offset) {

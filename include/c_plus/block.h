@@ -92,6 +92,7 @@ void            reserve_Block       (iBlock *, size_t reservedSize);
 void            resize_Block        (iBlock *, size_t size);
 void            truncate_Block      (iBlock *, size_t size);
 void            printf_Block        (iBlock *, const char *format, ...);
+void            vprintf_Block       (iBlock *, const char *format, va_list args);
 
 void            pushBack_Block      (iBlock *, char value);
 void            popBack_Block       (iBlock *);

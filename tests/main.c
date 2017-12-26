@@ -489,6 +489,7 @@ int main(int argc, char *argv[]) {
         printBytes((const uint8_t *) constBegin_Block(data_Buffer(buf)), size_Buffer(buf));
         clear_Buffer(buf);
         writed_Stream(strm, iMathPi);
+        setByteOrder_Stream(strm, littleEndian_StreamByteOrder);
         writed_Stream(strm, iMathPi);
         printBytes((const uint8_t *) constBegin_Block(data_Buffer(buf)), size_Buffer(buf));
         iRelease(buf);

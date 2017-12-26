@@ -59,6 +59,7 @@ void deinit_Audience(iAudience *d) {
 
 iBool insert_Audience(iAudience *d, iAnyObject *object, iObserverFunc func) {
     // This object becomes an audience member.
+    iAssert(object != NULL);
     insert_AudienceMember(audienceMember_Object(object), d);
     return insert_SortedArray(&d->observers, &(iObserver){ object, func });
 }

@@ -52,19 +52,19 @@ static iLockableThreadHash *init_Threads_(void) {
 
 void finish_Thread_(iThread *d) {
     d->state = finished_ThreadState;
-    iConstForEach(Audience, i, d->finished) {
-        ((iThreadFinished) i.value->func)(i.value->object, d);
-    }
+    iNotifyAudience(d, finished, ThreadFinished);
 }
 
 static int run_Threads_(void *arg) {
     iThread *d = (iThread *) arg;
+    ref_Object(d);
     d->result = d->run(d);
     // Deregister the thread since it's stopping.
     iGuard(runningThreads_, remove_ThreadHash(runningThreads_->value, &d->id));
     d->id = 0;
     // Notify observers that the thread is done.
     finish_Thread_(d);
+    deref_Object(d);
     return 0;
 }
 
@@ -77,6 +77,7 @@ void init_Thread(iThread *d, iThreadRunFunc run) {
     d->result = 0;
     d->run = run;
     d->id = 0;
+    d->userData = NULL;
     d->state = created_ThreadState;
     d->finished = NULL;
 }
@@ -98,6 +99,10 @@ void start_Thread(iThread *d) {
     iGuard(threads, insert_ThreadHash(threads->value, &d->id, d));
 }
 
+void setUserData_Thread(iThread *d, void *userData) {
+    d->userData = userData;
+}
+
 iBool isRunning_Thread(const iThread *d) {
     return d->state == running_ThreadState;
 /*    if (!d->id) return iFalse;
@@ -111,6 +116,10 @@ iBool isFinished_Thread(const iThread *d) {
     return d->state == finished_ThreadState;
 }
 
+void *userData_Thread(const iThread *d) {
+    return d->userData;
+}
+
 iThreadResult result_Thread(const iThread *d) {
     if (isRunning_Thread(d)) {
         thrd_join(d->id, NULL);
@@ -120,7 +129,7 @@ iThreadResult result_Thread(const iThread *d) {
 }
 
 void join_Thread(iThread *d) {
-    if (isRunning_Thread(d)) {
+    if (d && isRunning_Thread(d)) {
         thrd_join(d->id, NULL);
         iAssert(d->state == finished_ThreadState);
     }

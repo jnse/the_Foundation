@@ -110,6 +110,7 @@ static inline iBool contains_String(const iString *d, iChar ch) {
 void            set_String      (iString *, const iString *other);
 void            setCStr_String  (iString *, const char *cstr);
 void            setBlock_String (iString *, const iBlock *block);
+void            format_String   (iString *, const char *format, ...);
 
 void            append_String       (iString *, const iString *other);
 void            appendCStr_String   (iString *, const char *cstr);

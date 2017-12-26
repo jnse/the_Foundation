@@ -56,6 +56,7 @@ set (HEADERS
     include/c11threads.h
     include/stdthreads.h
     include/c_plus/defs.h
+    include/c_plus/address.h
     include/c_plus/audience.h
     include/c_plus/array.h
     include/c_plus/block.h
@@ -95,6 +96,7 @@ set (HEADERS
 )
 set (SOURCES
     src/c_plus.c
+    src/address.c
     src/audience.c
     src/array.c
     src/block.c

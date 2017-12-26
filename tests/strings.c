@@ -32,6 +32,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 int main(int argc, char *argv[]) {
     iUnused(argc, argv);
     init_CPlus();
+    /* Formatting. */ {
+        iString *str = new_String();
+        format_String(str, "Hello %s!", "world");
+        puts(cstr_String(str));
+        delete_String(str);
+    }
     /* Test Unicode strings. */ {
         iString *s = collect_String(newCStr_String("A_Äö\U0001f698a"));
         printf("String: %s length: %zu size: %zu\n", cstr_String(s), length_String(s), size_String(s)); {

@@ -82,7 +82,6 @@ void clear_Buffer(iBuffer *d) {
     if (isOpen_Buffer(d)) {
         clear_Block(d->data);
         setSize_Stream(&d->stream, 0);
-        d->stream.pos = 0;
     }
 }
 

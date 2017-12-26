@@ -24,6 +24,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
+#include <c_plus/address.h>
+#include <c_plus/audience.h>
+#include <c_plus/string.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -32,49 +36,62 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
+static void hostLookedUp(iAny *d, const iAddress *address) {
+    iUnused(d);
+    printf("%i IP addresses for %s:\n\n",
+           count_Address(address),
+           cstr_String(hostName_Address(address)));
+
+}
+
 int main(int argc, char *argv[]) {
-    struct addrinfo hints, *res, *p;
-    int status;
-    char ipstr[INET6_ADDRSTRLEN];
+    //struct addrinfo hints, *res, *p;
+    //int status;
+    //char ipstr[INET6_ADDRSTRLEN];
 
     if (argc != 2) {
         fprintf(stderr,"usage: showip hostname\n");
         return 1;
     }
 
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6 to force version
-    hints.ai_socktype = SOCK_STREAM;
+//    memset(&hints, 0, sizeof hints);
+//    hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6 to force version
+//    hints.ai_socktype = SOCK_STREAM;
 
-    if ((status = getaddrinfo(argv[1], NULL, &hints, &res)) != 0) {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
-        return 2;
-    }
+    iAddress *addr = new_Address();
+    insert_Audience(lookupFinished_Address(addr), addr, (iObserverFunc) hostLookedUp);
+    lookupHost_Address(addr, argv[1], 0);
+    iRelease(addr);
 
-    printf("IP addresses for %s:\n\n", argv[1]);
+//    if ((status = getaddrinfo(argv[1], NULL, &hints, &res)) != 0) {
+//        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
+//        return 2;
+//    }
 
-    for(p = res;p != NULL; p = p->ai_next) {
-        void *addr;
-        char *ipver;
+    //printf("IP addresses for %s:\n\n", argv[1]);
 
-        // get the pointer to the address itself,
-        // different fields in IPv4 and IPv6:
-        if (p->ai_family == AF_INET) { // IPv4
-            struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
-            addr = &(ipv4->sin_addr);
-            ipver = "IPv4";
-        } else { // IPv6
-            struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
-            addr = &(ipv6->sin6_addr);
-            ipver = "IPv6";
-        }
+//    for(p = res;p != NULL; p = p->ai_next) {
+//        void *addr;
+//        char *ipver;
 
-        // convert the IP to a string and print it:
-        inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
-        printf("  %s: %s\n", ipver, ipstr);
-    }
+//        // get the pointer to the address itself,
+//        // different fields in IPv4 and IPv6:
+//        if (p->ai_family == AF_INET) { // IPv4
+//            struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
+//            addr = &(ipv4->sin_addr);
+//            ipver = "IPv4";
+//        } else { // IPv6
+//            struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
+//            addr = &(ipv6->sin6_addr);
+//            ipver = "IPv6";
+//        }
 
-    freeaddrinfo(res); // free the linked list
+//        // convert the IP to a string and print it:
+//        inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
+//        printf("  %s: %s\n", ipver, ipstr);
+//    }
+
+//    freeaddrinfo(res); // free the linked list
 
     return 0;
 }
