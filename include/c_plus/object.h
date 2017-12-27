@@ -122,6 +122,8 @@ static inline void iRelease(const iAnyObject *d) {
     deref_Object(d);
 }
 
+#define iReleasePtr(d) { iAssert((d) != NULL); deref_Object(*(d)); *(d) = NULL; }
+
 static inline iAnyObject *iReleaseLater(const iAnyObject *d) {
     return collect_Object(d);
 }

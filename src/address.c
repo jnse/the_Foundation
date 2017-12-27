@@ -49,29 +49,28 @@ struct Impl_Address {
 
 static iThreadResult runLookup_Address_(iThread *thd) {
     iAddress *d = userData_Thread(thd);
-    struct addrinfo hints;
-    iZap(hints);
-    hints.ai_family   = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
+    struct addrinfo hints = {
+        .ai_family   = AF_UNSPEC,
+        .ai_socktype = SOCK_STREAM
+    };
     d->count = -1;
     if (d->info) freeaddrinfo(d->info);
     int rc = getaddrinfo(cstr_String(&d->hostName),
                          !isEmpty_String(&d->service)? cstr_String(&d->service) : NULL,
                          &hints,
                          &d->info);
-    lock_Mutex(&d->mutex);
-    if (rc == 0) {
-        // Take the first result.
-        const struct addrinfo *at = d->info;
-        for (d->count = 0; at; at = at->ai_next, d->count++) {}
-    }
-    else {
-        iWarning("[Address] host lookup failed with error: %s\n", gai_strerror(rc));
-    }
-    unlock_Mutex(&d->mutex);
+    iGuardMutex(&d->mutex,
+        if (rc == 0) {
+            // Take the first result.
+            const struct addrinfo *at = d->info;
+            for (d->count = 0; at; at = at->ai_next, d->count++) {}
+        }
+        else {
+            iWarning("[Address] host lookup failed with error: %s\n", gai_strerror(rc));
+        }
+    );
     iNotifyAudience(d, lookupFinished, AddressLookupFinished);
-    iRelease(d->pending); // get rid of this thread
-    d->pending = NULL;
+    iReleasePtr(&d->pending); // get rid of this thread
     return 0;
 }
 
