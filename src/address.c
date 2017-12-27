@@ -49,28 +49,25 @@ struct Impl_Address {
 
 static iThreadResult runLookup_Address_(iThread *thd) {
     iAddress *d = userData_Thread(thd);
-    struct addrinfo hints = {
+    const struct addrinfo hints = {
         .ai_family   = AF_UNSPEC,
         .ai_socktype = SOCK_STREAM
     };
-    d->count = -1;
-    if (d->info) freeaddrinfo(d->info);
     int rc = getaddrinfo(cstr_String(&d->hostName),
                          !isEmpty_String(&d->service)? cstr_String(&d->service) : NULL,
                          &hints,
                          &d->info);
     iGuardMutex(&d->mutex,
         if (rc == 0) {
-            // Take the first result.
             const struct addrinfo *at = d->info;
             for (d->count = 0; at; at = at->ai_next, d->count++) {}
         }
         else {
             iWarning("[Address] host lookup failed with error: %s\n", gai_strerror(rc));
         }
+        iReleasePtr(&d->pending); // get rid of this thread
     );
     iNotifyAudience(d, lookupFinished, AddressLookupFinished);
-    iReleasePtr(&d->pending); // get rid of this thread
     return 0;
 }
 
@@ -129,6 +126,10 @@ void lookupHost_Address(iAddress *d, const char *hostName, uint16_t port) {
             }
             else {
                 clear_String(&d->service);
+            }
+            if (d->info) {
+                freeaddrinfo(d->info);
+                d->info = NULL;
             }
             d->count = -1;
             d->pending = new_Thread(runLookup_Address_);
