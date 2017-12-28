@@ -84,8 +84,8 @@ void        write16_Stream      (iStream *, int16_t value);
 void        write32_Stream      (iStream *, int32_t value);
 void        write64_Stream      (iStream *, int64_t value);
 
-static inline void writef_Stream    (iStream *d, float value)   { write32_Stream(d, *(int32_t *) &value); }
-static inline void writed_Stream    (iStream *d, double value)  { write64_Stream(d, *(int64_t *) &value); }
+static inline void writef_Stream    (iStream *d, float value)   { int32_t buf; memcpy(&buf, &value, 4); write32_Stream(d, buf); }
+static inline void writed_Stream    (iStream *d, double value)  { int64_t buf; memcpy(&buf, &value, 8); write64_Stream(d, buf); }
 
 int8_t      read8_Stream        (iStream *);
 int16_t     read16_Stream       (iStream *);
@@ -97,8 +97,8 @@ static inline uint16_t readU16_Stream   (iStream *d) { return (uint16_t) read16_
 static inline uint32_t readU32_Stream   (iStream *d) { return (uint32_t) read32_Stream(d); }
 static inline uint64_t readU64_Stream   (iStream *d) { return (uint64_t) read64_Stream(d); }
 
-static inline float    readf_Stream     (iStream *d) { int32_t v = read32_Stream(d); return *(float  *) &v; }
-static inline double   readd_Stream     (iStream *d) { int64_t v = read64_Stream(d); return *(double *) &v; }
+static inline float    readf_Stream     (iStream *d) { int32_t buf = read32_Stream(d); float  v; memcpy(&v, &buf, 4); return v; }
+static inline double   readd_Stream     (iStream *d) { int64_t buf = read64_Stream(d); double v; memcpy(&v, &buf, 8); return v; }
 
 void        flush_Stream        (iStream *);
 
