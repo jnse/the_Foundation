@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <unistd.h>
 #include <dirent.h>
 
-#if defined (iPlatformLinux)
+#if defined (iPlatformLinux) || defined(iPlatformMsys)
 #   define st_mtimespec st_mtim
 #endif
 
@@ -211,19 +211,24 @@ void deinit_DirFileInfo(iDirFileInfo *d) {
 
 static iBool readNextEntry_DirFileInfo_(iDirFileInfo *d) {
     deinit_FileInfo(&d->entry);
-    struct dirent *result = NULL;
+    for (;;) {
+        struct dirent *result = NULL;
 #if defined (iPlatformApple)
-    struct dirent ent;
-    readdir_r(d->fd, &ent, &result);
+        struct dirent ent;
+        readdir_r(d->fd, &ent, &result);
 #else
-    result = readdir(d->fd);
+        result = readdir(d->fd);
 #endif
-    iZap(d->entry);
-    if (result) {
-        initDirEntry_FileInfo_(&d->entry, path_FileInfo(d->dirInfo), result);
-        return iTrue;
+        iZap(d->entry);
+        if (result) {
+            if (!iCmpStr(result->d_name, ".")) {
+                continue;
+            }
+            initDirEntry_FileInfo_(&d->entry, path_FileInfo(d->dirInfo), result);
+            return iTrue;
+        }
+        return iFalse;
     }
-    return iFalse;
 }
 
 void init_DirFileInfoIterator(iDirFileInfoIterator *d, iDirFileInfo *info) {

@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/range.h"
 
 #include <stdlib.h>
+#include <stdarg.h>
 #include <strings.h>
 #include <ctype.h>
 

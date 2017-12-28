@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 3.1)
 project (c_Plus VERSION 1.0.0 LANGUAGES C)
 include (CheckIncludeFile)
+include (CheckCSourceCompiles)
 include (TestBigEndian)
 find_package (PkgConfig)
 
@@ -35,6 +36,14 @@ endif ()
 
 # C11 threads
 check_include_file (threads.h iHaveC11Threads)
+if (NOT iHaveC11Threads)
+    check_c_source_compiles ("
+        #include <pthread.h>
+        int main(int argc, char **argv) {
+            return PTHREAD_MUTEX_TIMED_NP;
+        }"
+    iHavePthreadTimedMutex)
+endif ()
 
 # SSE 4.1 instruction set
 if (CPLUS_ENABLE_SSE41)
@@ -141,6 +150,9 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set (SOURCES ${SOURCES} src/platform_linux.c)
 elseif (WIN32)
     set (iPlatformWindows YES)
+    set (SOURCES ${SOURCES} src/platform_windows.c)
+elseif (CMAKE_SYSTEM MATCHES "^MSYS.*")
+    set (iPlatformMsys YES)
     set (SOURCES ${SOURCES} src/platform_windows.c)
 else ()
     set (iPlatformOther YES)

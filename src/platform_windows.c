@@ -1,6 +1,4 @@
-#pragma once
-
-/** @file c_plus/config.h  Library build configuration.
+/** @file platform_windows.c  Windows platform specific routines.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -27,36 +25,13 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#define iCPlusLibraryVersion { ${c_Plus_VERSION_MAJOR}, ${c_Plus_VERSION_MINOR}, ${c_Plus_VERSION_PATCH} }
+#include "c_plus/defs.h"
 
-#cmakedefine iHaveSSE4_1
-#cmakedefine iHaveBigEndian
-#cmakedefine iHavePthreadTimedMutex
-#cmakedefine iHaveC11Threads
-#cmakedefine iHavePcre
-#cmakedefine iHaveZlib
-#cmakedefine iPlatformApple
-#cmakedefine iPlatformLinux
-#cmakedefine iPlatformWindows
-#cmakedefine iPlatformMsys
-#cmakedefine iPlatformOther
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
-#if !defined (iHavePthreadTimedMutex) && !defined (C11THREADS_NO_TIMED_MUTEX)
-#   define C11THREADS_NO_TIMED_MUTEX
-#endif
-
-/*
- * The iCPlusAPI macro is used for declaring exported symbols. It must be
- * applied in all exported classes and functions.
- */
-#if defined(_WIN32) && defined(_MSC_VER)
-#   if defined (iIsLibraryBuild)
-#       define iCPlusAPI __declspec(dllexport)
-#   else
-#       define iCPlusAPI __declspec(dllimport)
-#   endif
-#   define iNoReturn __declspec(noreturn)
-#else
-#   define iCPlusAPI
-#   define iNoReturn __attribute__((__noreturn__))
-#endif
+int idealConcurrentCount_Thread(void) {
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    return sysinfo.dwNumberOfProcessors;
+}

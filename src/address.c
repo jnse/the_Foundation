@@ -159,6 +159,13 @@ static const iAny *inAddr_addrinfo_(const struct addrinfo *d) {
 }
 #endif
 
+static size_t sockAddrSize_addrinfo_(const struct addrinfo *d) {
+    if (d->ai_family == AF_INET) {
+        return sizeof(struct sockaddr_in);
+    }
+    return sizeof(struct sockaddr_in6);
+}
+
 iString *toString_Address(const iAddress *d) {
     iString *str = new_String();
     iGuardMutex(&d->mutex, {
@@ -166,7 +173,7 @@ iString *toString_Address(const iAddress *d) {
             char hbuf[NI_MAXHOST];
             char sbuf[NI_MAXSERV];
             if (!getnameinfo(d->info->ai_addr,
-                             d->info->ai_addr->sa_len,
+                             sockAddrSize_addrinfo_(d->info),
                              hbuf, sizeof(hbuf),
                              sbuf, sizeof(sbuf),
                              NI_NUMERICHOST | NI_NUMERICSERV)) {
