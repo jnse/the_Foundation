@@ -112,6 +112,10 @@ iBool isHostFound_Address(const iAddress *d) {
     return count_Address(d) > 0;
 }
 
+iBool isPending_Address(const iAddress *d) {
+    return d->pending != NULL;
+}
+
 iAudience *lookupFinished_Address(iAddress *d) {
     if (!d->lookupFinished) d->lookupFinished = new_Audience();
     return d->lookupFinished;
@@ -139,7 +143,7 @@ void lookupHost_Address(iAddress *d, const char *hostName, uint16_t port) {
     });
 }
 
-void waitForFinished_Address(iAddress *d) {
+void waitForFinished_Address(const iAddress *d) {
     // Prevent the thread from being deleted while we're checking.
     iThread *thd = NULL;
     iGuardMutex(&d->mutex, thd = ref_Object(d->pending));

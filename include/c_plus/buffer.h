@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "block.h"
 
 #include <stdio.h>
+#include <stdthreads.h>
 
 typedef iStreamClass iBufferClass;
 
@@ -46,6 +47,7 @@ struct Impl_Buffer {
     iStream stream;
     iBlock block;
     iBlock *data;
+    cnd_t dataAvailable;
     enum iBufferMode mode;
 };
 
@@ -57,6 +59,8 @@ iBool       openEmpty_Buffer(iBuffer *);
 void        close_Buffer    (iBuffer *);
 
 const iBlock *data_Buffer   (const iBuffer *);
+
+static inline iStream *     stream_Buffer   (iBuffer *d) { return &d->stream; }
 
 void        clear_Buffer    (iBuffer *);
 

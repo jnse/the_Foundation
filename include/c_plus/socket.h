@@ -36,8 +36,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 typedef iStreamClass iSocketClass;
 
 iDeclareType(Socket)
+iDeclareType(Mutex)
 
-iDeclareObjectConstruction(Socket)
+iDeclareObjectConstructionArgs(Socket, const char *hostName, uint16_t port)
 
-iBool       open_Socket     (iSocket *, const iAddress *address);
+iSocket *   newAddress_Socket   (const iAddress *address);
+
+iBool       open_Socket     (iSocket *);
 void        close_Socket    (iSocket *);
+
+iStream *   output_Socket   (iSocket *);
+
+iBool       isOpen_Socket   (const iSocket *);
+iMutex *    mutex_Socket    (iSocket *);
+
+static inline void flush_Socket(iSocket *d) { flush_Stream(output_Socket(d)); }
