@@ -1,0 +1,134 @@
+/** @file c_plus/service.c  TCP server socket.
+
+@authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
+
+@par License
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+<small>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
+*/
+
+#include "c_plus/service.h"
+#include "c_plus/socket.h"
+#include "c_plus/string.h"
+#include "c_plus/thread.h"
+
+#include <netdb.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+
+struct Impl_Service {
+    iObject object;
+    uint16_t port;
+    int fd;
+    iThread *listening;
+    iAudience *incomingAccepted;
+};
+
+iDefineObjectConstructionArgs(Service, (uint16_t port), port)
+
+static iThreadResult listen_Service_(iThread *thd) {
+    iService *d = userData_Thread(thd);
+    while (d->fd >= 0) {
+        struct sockaddr_storage addr;
+        socklen_t size = sizeof(addr);
+        int incoming = accept(d->fd, (struct sockaddr *) &addr, &size);
+        if (incoming < 0) {
+            iWarning("[Service] error on accept: %s", strerror(errno));
+            break;
+        }
+        iSocket *socket = newExisting_Socket(incoming, &addr, size);
+        iNotifyAudienceArgs(d, incomingAccepted, IncomingAccepted, socket);
+        iRelease(socket);
+    }
+    iReleasePtr(&d->listening);
+    return 0;
+}
+
+void init_Service(iService *d, uint16_t port) {
+    d->port = port;
+    d->fd = -1;
+    d->listening = NULL;
+    d->incomingAccepted = new_Audience();
+}
+
+void deinit_Service(iService *d) {
+    close_Service(d);
+    iAssert(d->listening == NULL);
+    iAssert(d->fd < 0);
+    delete_Audience(d->incomingAccepted);
+}
+
+iBool isOpen_Service(const iService *d) {
+    return d->fd >= 0;
+}
+
+iBool open_Service(iService *d) {
+    if (isOpen_Service(d)) return iFalse;
+    /* Set up the socket. */ {
+        struct addrinfo *info, hints = {
+            .ai_socktype = SOCK_STREAM,
+            .ai_family   = AF_UNSPEC,
+            .ai_flags    = AI_PASSIVE,
+        };
+        iString *port = new_String();
+        format_String(port, "%i", d->port);
+        int rc = getaddrinfo(NULL, cstr_String(port), &hints, &info);
+        delete_String(port);
+        if (rc) {
+            iWarning("[Service] failed to look up address: %s", gai_strerror(rc));
+            return iFalse;
+        }
+        d->fd = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
+        if (d->fd < 0) {
+            iWarning("[Service] failed to open socket: %s", strerror(errno));
+            return iFalse;
+        }
+        rc = bind(d->fd, info->ai_addr, info->ai_addrlen);
+        if (rc < 0) {
+            close(d->fd);
+            d->fd = -1;
+            iWarning("[Service] failed to bind address: %s", strerror(errno));
+            return iFalse;
+        }
+        rc = listen(d->fd, 10);
+        if (rc < 0) {
+            close(d->fd);
+            d->fd = -1;
+            iWarning("[Service] failed to listen: %s", strerror(errno));
+            return iFalse;
+        }
+    }
+    d->listening = new_Thread(listen_Service_);
+    setUserData_Thread(d->listening, d);
+    start_Thread(d->listening);
+    return iTrue;
+}
+
+void close_Service(iService *d) {
+    if (d->listening) {
+        close(d->fd);
+        d->fd = -1;
+        join_Thread(d->listening);
+    }
+}
+
+iDefineClass(Service)

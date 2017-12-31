@@ -39,6 +39,8 @@ typedef void (*iNotifyAddressLookupFinished)(iAny *, const iAddress *);
 
 iDeclareObjectConstruction(Address)
 
+iAddress *  newSockAddr_Address (const void *sockAddr, size_t sockAddrSize);
+
 void        init_Address    (iAddress *);
 void        deinit_Address  (iAddress *);
 

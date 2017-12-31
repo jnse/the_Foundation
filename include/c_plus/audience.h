@@ -27,7 +27,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
+#include "mutex.h"
 #include "sortedarray.h"
 #include "ptrset.h"
 
@@ -38,14 +38,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
     }
 
 #define iNotifyAudience(d, audienceName, notifyName) \
-    {iConstForEach(Audience, i, (d)->audienceName) { \
+    iGuardMutex(&(d)->audienceName->mutex, iConstForEach(Audience, i, (d)->audienceName) { \
         ((iNotify##notifyName) i.value->func)(i.value->object, d); \
-    }}
+    })
 
 #define iNotifyAudienceArgs(d, audienceName, notifyName, ...) \
-    {iConstForEach(Audience, i, (d)->audienceName) { \
+    iGuardMutex(&(d)->audienceName->mutex, iConstForEach(Audience, i, (d)->audienceName) { \
         ((iNotify##notifyName) i.value->func)(i.value->object, d, __VA_ARGS__); \
-    }}
+    })
 
 iDeclareType(Audience)
 iDeclareType(Observer)
@@ -60,6 +60,7 @@ struct Impl_Observer {
 
 struct Impl_Audience {
     iSortedArray observers;
+    iMutex mutex;
 };
 
 iDeclareTypeConstruction(Audience)

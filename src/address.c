@@ -73,6 +73,18 @@ static iThreadResult runLookup_Address_(iThread *thd) {
 
 iDefineObjectConstruction(Address)
 
+iAddress *newSockAddr_Address(const void *sockAddr, size_t sockAddrSize) {
+    iAddress *d = iNew(Address);
+    init_Address(d);
+    d->count = 1;
+    d->info = calloc(1, sizeof(struct addrinfo));
+    d->info->ai_addrlen = (socklen_t) sockAddrSize;
+    d->info->ai_addr = malloc(sockAddrSize);
+    d->info->ai_socktype = SOCK_STREAM;
+    memcpy(d->info->ai_addr, sockAddr, sockAddrSize);
+    return d;
+}
+
 void init_Address(iAddress *d) {
     init_Mutex(&d->mutex);
     init_String(&d->hostName);

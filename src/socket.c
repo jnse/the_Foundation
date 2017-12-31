@@ -167,12 +167,20 @@ static inline void start_SocketThread(iSocketThread *d) { start_Thread(&d->threa
 
 //---------------------------------------------------------------------------------------
 
+static void setStatus_Socket_(iSocket *d, enum iSocketStatus status) {
+    if (d->status != status) {
+        d->status = status;
+        iDebug("[Socket] %p: state changed to %i (in thread %p)\n", d, status,
+               current_Thread());
+    }
+}
+
 static void init_Socket_(iSocket *d) {
     init_Buffer(&d->output);
     init_Buffer(&d->input);
     openEmpty_Buffer(&d->output);
     openEmpty_Buffer(&d->input);
-    d->fd = 0;
+    d->fd = -1;
     d->address = NULL;
     d->connecting = NULL;
     d->sender = NULL;
@@ -195,22 +203,26 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
     getSockAddr_Address(d->address, &addr, &addrSize);
     const int rc = connect(d->fd, addr, addrSize);
     iGuardMutex(&d->mutex, {
-        if (rc == 0) {
-            d->status = connected_SocketStatus;
-            startThreads_Socket_(d);
+        if (d->status == connecting_SocketStatus) {
+            if (rc == 0) {
+                setStatus_Socket_(d, connected_SocketStatus);
+                startThreads_Socket_(d);
+            }
+            else {
+                setStatus_Socket_(d, disconnected_SocketStatus);
+                iWarning("[Socket] connection failed: %s\n", strerror(errno));
+            }
         }
-        else {
-            d->status = disconnected_SocketStatus;
-            iWarning("[Socket] connection failed: %s\n", strerror(errno));
-        }
+        d->connecting = NULL;
     });
+    iRelease(thd);
     return rc;
 }
 
 static iBool open_Socket_(iSocket *d) {
-    // socket is assumed to be locked already
+    // The socket is assumed to be locked already.
     if (isPending_Address(d->address)) {
-        d->status = connecting_SocketStatus;
+        setStatus_Socket_(d, connecting_SocketStatus);
         return iTrue; // when address is resolved, the socket will be opened.
     }
     else if (!isValid_Address(d->address)) {
@@ -220,7 +232,7 @@ static iBool open_Socket_(iSocket *d) {
         const iSocketParameters sp = socketParameters_Address(d->address);
         d->fd = socket(sp.family, sp.type, sp.protocol);
         d->connecting = new_Thread(connectAsync_Socket_);
-        d->status = connecting_SocketStatus;
+        setStatus_Socket_(d, connecting_SocketStatus);
         setUserData_Thread(d->connecting, d);
         start_Thread(d->connecting);
         return iTrue;
@@ -233,7 +245,7 @@ static void addressLookedUp_Socket_(iAny *any, const iAddress *address) {
     // This is being called from another thread.
     iGuardMutex(&d->mutex, {
         if (d->status == addressLookup_SocketStatus) {
-            d->status = initialized_SocketStatus;
+            setStatus_Socket_(d, initialized_SocketStatus);
         }
         else if (d->status == connecting_SocketStatus) {
             open_Socket_(d);
@@ -242,10 +254,14 @@ static void addressLookedUp_Socket_(iAny *any, const iAddress *address) {
 }
 
 static void stopThreads_Socket_(iSocket *d) {
-    exit_SocketThread_(d->sender);
-    iReleasePtr(&d->sender);
-    exit_SocketThread_(d->receiver);
-    iReleasePtr(&d->receiver);
+    if (d->sender) {
+        exit_SocketThread_(d->sender);
+        iReleasePtr(&d->sender);
+    }
+    if (d->receiver) {
+        exit_SocketThread_(d->receiver);
+        iReleasePtr(&d->receiver);
+    }
 }
 
 iSocket *newAddress_Socket(const iAddress *address) {
@@ -253,14 +269,24 @@ iSocket *newAddress_Socket(const iAddress *address) {
     init_Socket_(d);
     waitForFinished_Address(address);
     d->address = ref_Object(address);
-    d->status = initialized_SocketStatus;
+    setStatus_Socket_(d, initialized_SocketStatus);
+    return d;
+}
+
+iSocket *newExisting_Socket(int fd, const void *sockAddr, size_t sockAddrSize) {
+    iSocket *d = iNew(Socket);
+    init_Socket_(d);
+    d->fd = fd;
+    d->address = newSockAddr_Address(sockAddr, sockAddrSize);
+    setStatus_Socket_(d, connected_SocketStatus);
+    startThreads_Socket_(d);
     return d;
 }
 
 void init_Socket(iSocket *d, const char *hostName, uint16_t port) {
     init_Socket_(d);
     d->address = new_Address();
-    d->status = addressLookup_SocketStatus;
+    setStatus_Socket_(d, addressLookup_SocketStatus);
     insert_Audience(lookupFinished_Address(d->address), d,
                     (iObserverFunc) addressLookedUp_Socket_);
     lookupHost_Address(d->address, hostName, port);
@@ -291,19 +317,24 @@ iBool open_Socket(iSocket *d) {
 }
 
 void close_Socket(iSocket *d) {
-    guardJoin_Thread(d->connecting, &d->mutex);
-    if (isOpen_Socket(d)) {
+    iGuardMutex(&d->mutex, {
         if (d->status == connected_SocketStatus) {
             flush_Socket(d);
         }
-    }
-    if (d->fd) {
-        d->status = disconnecting_SocketStatus;
-        close(d->fd);
-        d->fd = 0;
-        stopThreads_Socket_(d);
-        d->status = disconnected_SocketStatus;
-    }
+        if (d->fd >= 0) {
+            close(d->fd);
+            d->fd = -1;
+        }
+        setStatus_Socket_(d, disconnecting_SocketStatus);
+    });
+    guardJoin_Thread(d->connecting, &d->mutex);
+    iReleasePtr(&d->connecting);
+    stopThreads_Socket_(d);
+    setStatus_Socket_(d, disconnected_SocketStatus);
+    iAssert(d->fd < 0);
+    iAssert(!d->sender);
+    iAssert(!d->receiver);
+    iAssert(!d->connecting);
 }
 
 iStream *output_Socket(iSocket *d) {

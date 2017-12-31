@@ -45,40 +45,55 @@ iDefineTypeConstruction(Audience)
 
 void init_Audience(iAudience *d) {
     init_SortedArray(&d->observers, sizeof(iObserver), cmp_Observer_);
+    init_Mutex(&d->mutex);
 }
 
 void deinit_Audience(iAudience *d) {
     // Tells members of this audience that the audience is going away.
-    iConstForEach(Audience, i, d) {
-        iAudienceMember *memberOf = ((const iObject *) i.value->object)->memberOf;
-        iAssert(memberOf != NULL);
-        remove_PtrSet(&memberOf->audiences, d);
-    }
-    deinit_SortedArray(&d->observers);
+    iGuardMutex(&d->mutex, {
+        iConstForEach(Audience, i, d) {
+            iAudienceMember *memberOf = ((const iObject *) i.value->object)->memberOf;
+            iAssert(memberOf != NULL);
+            remove_PtrSet(&memberOf->audiences, d);
+        }
+        deinit_SortedArray(&d->observers);
+    });
+    deinit_Mutex(&d->mutex);
 }
 
 iBool insert_Audience(iAudience *d, iAnyObject *object, iObserverFunc func) {
     // This object becomes an audience member.
     iAssert(object != NULL);
-    insert_AudienceMember(audienceMember_Object(object), d);
-    return insert_SortedArray(&d->observers, &(iObserver){ object, func });
+    iBool inserted;
+    iGuardMutex(&d->mutex, {
+        insert_AudienceMember(audienceMember_Object(object), d);
+        inserted = insert_SortedArray(&d->observers, &(iObserver){ object, func });
+    });
+    return inserted;
 }
 
 static iBool removeObject_Audience_(iAudience *d, const iAnyObject *object) {
-    const iRanges range = locateRange_SortedArray(&d->observers, object,
-                                                  cmpObject_Observer_);
-    removeRange_SortedArray(&d->observers, &range);
-    return !isEmpty_Range(&range);
-
+    iBool removed;
+    iGuardMutex(&d->mutex, {
+        const iRanges range = locateRange_SortedArray(&d->observers, object,
+                                                      cmpObject_Observer_);
+        removeRange_SortedArray(&d->observers, &range);
+        removed = !isEmpty_Range(&range);
+    });
+    return removed;
 }
 
 iBool remove_Audience(iAudience *d, iAnyObject *object, iObserverFunc func) {
     // This object is no longer an audience member.
-    remove_AudienceMember(audienceMember_Object(object), d);
-    if (func) {
-        return remove_SortedArray(&d->observers, &(iObserver){ object, func });
-    }
-    return removeObject_Audience_(d, object);
+    iBool removed;
+    iGuardMutex(&d->mutex, {
+        remove_AudienceMember(audienceMember_Object(object), d);
+        if (func) {
+            removed = remove_SortedArray(&d->observers, &(iObserver){ object, func });
+        }
+        removed = removeObject_Audience_(d, object);
+    });
+    return removed;
 }
 
 //---------------------------------------------------------------------------------------

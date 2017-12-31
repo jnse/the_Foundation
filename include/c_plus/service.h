@@ -1,9 +1,6 @@
 #pragma once
 
-/** @file c_plus/socket.h  TCP socket.
-
-Socket is a bidirectional non-random-access Stream where data gets written
-when flushed.
+/** @file c_plus/service.h  TCP server socket.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -30,27 +27,21 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "stream.h"
-#include "address.h"
+#include "object.h"
+#include "audience.h"
 
-typedef iStreamClass iSocketClass;
+iDeclareClass(Service)
 
+iDeclareType(Service)
 iDeclareType(Socket)
-iDeclareType(Mutex)
 
-iDeclareObjectConstructionArgs(Socket, const char *hostName, uint16_t port)
+iDeclareObjectConstructionArgs(Service, uint16_t port)
 
-iSocket *   newAddress_Socket   (const iAddress *address);
-iSocket *   newExisting_Socket  (int fd, const void *sockAddr, size_t sockAddrSize);
+typedef void (*iNotifyIncomingAccepted)(iAny *, iService *, iSocket *incoming);
 
-iBool       open_Socket     (iSocket *);
-void        close_Socket    (iSocket *);
+iBool   open_Service    (iService *);
+void    close_Service   (iService *);
 
-iStream *   output_Socket   (iSocket *);
+iBool   isOpen_Service  (const iService *);
 
-iBool       isOpen_Socket   (const iSocket *);
-iMutex *    mutex_Socket    (iSocket *);
-
-size_t      receivedBytes_Socket    (const iSocket *);
-
-static inline void flush_Socket(iSocket *d) { flush_Stream(output_Socket(d)); }
+iAudience *incomingAccepted_Service(iService *);

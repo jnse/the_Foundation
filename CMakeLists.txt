@@ -90,6 +90,7 @@ set (HEADERS
     include/c_plus/ptrset.h
     include/c_plus/queue.h
     include/c_plus/range.h
+    include/c_plus/service.h
     include/c_plus/socket.h
     include/c_plus/sortedarray.h
     include/c_plus/stream.h
@@ -130,6 +131,7 @@ set (SOURCES
     src/ptrarray.c
     src/ptrset.c
     src/queue.c
+    src/service.c
     src/socket.c
     src/sortedarray.c
     src/stream.c
