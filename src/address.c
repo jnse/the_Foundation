@@ -104,6 +104,28 @@ int count_Address(const iAddress *d) {
     return count;
 }
 
+iSocketParameters socketParameters_Address(const iAddress *d) {
+    iSocketParameters sp = { .family = 0 };
+    iGuardMutex(&d->mutex, {
+        if (d->info) {
+            sp.family   = d->info->ai_family;
+            sp.type     = d->info->ai_socktype;
+            sp.protocol = d->info->ai_protocol;
+        }
+    });
+    return sp;
+}
+
+int protocol_Address(const iAddress *d) {
+    int ver = 0;
+    iGuardMutex(&d->mutex, {
+        if (d->info) {
+            ver = (d->info->ai_family == AF_INET6? 6 : 4);
+        }
+    });
+    return ver;
+}
+
 iBool isValid_Address(const iAddress *d) {
     return count_Address(d) >= 0;
 }
@@ -145,12 +167,7 @@ void lookupHost_Address(iAddress *d, const char *hostName, uint16_t port) {
 
 void waitForFinished_Address(const iAddress *d) {
     // Prevent the thread from being deleted while we're checking.
-    iThread *thd = NULL;
-    iGuardMutex(&d->mutex, thd = ref_Object(d->pending));
-    if (thd) {
-        join_Thread(thd);
-        deref_Object(thd);
-    }
+    guardJoin_Thread(d->pending, &d->mutex);
 }
 
 #if 0
@@ -162,6 +179,19 @@ static const iAny *inAddr_addrinfo_(const struct addrinfo *d) {
     return &((const struct sockaddr_in6 *) d->ai_addr)->sin6_addr;
 }
 #endif
+
+void getSockAddr_Address(const iAddress *d, struct sockaddr **addr_out, socklen_t *addrSize_out) {
+    iGuardMutex(&d->mutex, {
+        if (!d->info) {
+            *addr_out = NULL;
+            *addrSize_out = 0;
+        }
+        else {
+            *addr_out = d->info->ai_addr;
+            *addrSize_out = d->info->ai_addrlen;
+        }
+    });
+}
 
 static size_t sockAddrSize_addrinfo_(const struct addrinfo *d) {
     if (d->ai_family == AF_INET) {

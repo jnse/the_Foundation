@@ -27,7 +27,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
+#include "time.h"
 
 #include <stdthreads.h>
 
@@ -79,3 +79,29 @@ iMutex *    newType_Mutex(enum iMutexType type);
 iBool       lock_Mutex      (iMutex *);
 iBool       tryLock_Mutex   (iMutex *);
 void        unlock_Mutex    (iMutex *);
+
+//---------------------------------------------------------------------------------------
+
+iDeclareType(Condition)
+
+struct Impl_Condition {
+    cnd_t cnd;
+};
+
+iDeclareTypeConstruction(Condition)
+
+static inline void signal_Condition(iCondition *d) {
+    cnd_signal(&d->cnd);
+}
+
+static inline void signalAll_Condition(iCondition *d) {
+    cnd_broadcast(&d->cnd);
+}
+
+static inline void wait_Condition(iCondition *d, iMutex *mutex) {
+    cnd_wait(&d->cnd, &mutex->mtx);
+}
+
+static inline int waitTimeout_Condition(iCondition *d, iMutex *mutex, const iTime *timeout) {
+    return cnd_timedwait(&d->cnd, &mutex->mtx, &timeout->ts);
+}

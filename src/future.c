@@ -38,14 +38,14 @@ void init_Future(iFuture *d) {
 void initHandler_Future(iFuture *d, iFutureResultAvailable resultAvailable) {
     init_ObjectList(&d->threads);
     init_Mutex(&d->mutex);
-    cnd_init(&d->ready);
+    init_Condition(&d->ready);
     d->pendingCount = 0;
     d->resultAvailable = resultAvailable;
 }
 
 void deinit_Future(iFuture *d) {
     wait_Future(d);
-    cnd_destroy(&d->ready);
+    deinit_Condition(&d->ready);
     deinit_Mutex(&d->mutex);
     deinit_ObjectList(&d->threads);
 }
@@ -58,7 +58,7 @@ static void threadFinished_Future_(iAny *any, iThread *thread) {
     iGuardMutex(&d->mutex, {
         d->pendingCount--;
         iAssert(d->pendingCount >= 0);
-        cnd_signal(&d->ready);
+        signal_Condition(&d->ready);
     });
 }
 
@@ -87,7 +87,7 @@ iBool isReady_Future(const iFuture *d) {
 void wait_Future(iFuture *d) {
     iGuardMutex(&d->mutex, {
         while (d->pendingCount > 0) {
-            cnd_wait(&d->ready, &d->mutex.mtx);
+            wait_Condition(&d->ready, &d->mutex);
         }
     });
 }
@@ -112,7 +112,7 @@ iThread *nextResult_Future(iFuture *d) {
                 }
             }
             if (result) break;
-            cnd_wait(&d->ready, &d->mutex.mtx);
+            wait_Condition(&d->ready, &d->mutex);
         }
     });
     return result;

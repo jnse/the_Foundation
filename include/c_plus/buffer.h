@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "stream.h"
 #include "block.h"
+#include "mutex.h"
 
 #include <stdio.h>
 #include <stdthreads.h>
@@ -47,7 +48,7 @@ struct Impl_Buffer {
     iStream stream;
     iBlock block;
     iBlock *data;
-    cnd_t dataAvailable;
+    iCondition dataAvailable;
     enum iBufferMode mode;
 };
 
@@ -68,6 +69,7 @@ static inline iBool isOpen_Buffer (const iBuffer *d) { return d->data != NULL; }
 static inline int   mode_Buffer   (const iBuffer *d) { return d->mode ;}
 static inline long  pos_Buffer    (const iBuffer *d) { return pos_Stream(&d->stream); }
 static inline long  size_Buffer   (const iBuffer *d) { return size_Stream(&d->stream); }
+static inline iBool isEmpty_Buffer(const iBuffer *d) { return size_Buffer(d) == 0; }
 static inline iBool atEnd_Buffer  (const iBuffer *d) { return atEnd_Stream(&(d)->stream); }
 
 static inline size_t        writeData_Buffer    (iBuffer *d, const void *data, size_t size) { return writeData_Stream(&d->stream, data, size); }

@@ -34,11 +34,11 @@ iDefineObjectConstruction(Queue)
 void init_Queue(iQueue *d) {
     init_ObjectList(&d->items);
     init_Mutex(&d->mutex);
-    cnd_init(&d->cond);
+    init_Condition(&d->cond);
 }
 
 void deinit_Queue(iQueue *d) {
-    cnd_destroy(&d->cond);
+    deinit_Condition(&d->cond);
     deinit_Mutex(&d->mutex);
 }
 
@@ -46,7 +46,7 @@ void put_Queue(iQueue *d, iQueueItem *item) {
     iAssert(item != NULL);
     iAssertIsObject(item);
     iGuardMutex(&d->mutex, pushBack_ObjectList(&d->items, item));
-    cnd_signal(&d->cond);
+    signal_Condition(&d->cond);
 }
 
 iQueueItem *take_Queue(iQueue *d) {
@@ -55,7 +55,7 @@ iQueueItem *take_Queue(iQueue *d) {
         for (;;) {
             item = takeFront_ObjectList(&d->items);
             if (item) break;
-            cnd_wait(&d->cond, &d->mutex.mtx);
+            wait_Condition(&d->cond, &d->mutex);
         }
     });
     iAssertIsObject(item);
@@ -69,7 +69,7 @@ iQueueItem *takeTimeout_Queue(iQueue *d, double timeoutSeconds) {
     iGuardMutex(&d->mutex, {
         for (;;) {
             item = takeFront_ObjectList(&d->items);
-            if (item || cnd_timedwait(&d->cond, &d->mutex.mtx, &until.ts) == thrd_timedout) {
+            if (item || waitTimeout_Condition(&d->cond, &d->mutex, &until) == thrd_timedout) {
                 break;
             }
         }

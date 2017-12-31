@@ -45,7 +45,7 @@ iDeclareObjectConstruction(Queue)
 struct Impl_Queue {
     iObjectList items;
     iMutex mutex;
-    cnd_t cond;
+    iCondition cond;
 };
 
 typedef iAnyObject iQueueItem;

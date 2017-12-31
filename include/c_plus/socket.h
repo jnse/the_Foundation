@@ -50,4 +50,6 @@ iStream *   output_Socket   (iSocket *);
 iBool       isOpen_Socket   (const iSocket *);
 iMutex *    mutex_Socket    (iSocket *);
 
+size_t      receivedBytes_Socket    (const iSocket *);
+
 static inline void flush_Socket(iSocket *d) { flush_Stream(output_Socket(d)); }

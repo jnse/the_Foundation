@@ -40,7 +40,7 @@ typedef void (*iFutureResultAvailable)(iFuture *, iThread *);
 struct Impl_Future {
     iObjectList threads;
     iMutex mutex;
-    cnd_t ready;
+    iCondition ready;
     atomic_int pendingCount;
     iFutureResultAvailable resultAvailable;
 };

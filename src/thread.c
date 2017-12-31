@@ -53,6 +53,7 @@ static iLockableThreadHash *init_Threads_(void) {
 void finish_Thread_(iThread *d) {
     d->state = finished_ThreadState;
     iNotifyAudience(d, finished, ThreadFinished);
+    iRecycle();
 }
 
 static int run_Threads_(void *arg) {

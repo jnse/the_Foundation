@@ -58,3 +58,15 @@ iBool tryLock_Mutex(iMutex *d) {
 void unlock_Mutex(iMutex *d) {
     mtx_unlock(&d->mtx);
 }
+
+//---------------------------------------------------------------------------------------
+
+iDefineTypeConstruction(Condition)
+
+void init_Condition(iCondition *d) {
+    cnd_init(&d->cnd);
+}
+
+void deinit_Condition(iCondition *d) {
+    cnd_destroy(&d->cnd);
+}

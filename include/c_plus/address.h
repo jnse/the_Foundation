@@ -46,12 +46,22 @@ iBool       isHostFound_Address (const iAddress *);
 iBool       isValid_Address     (const iAddress *);
 int         count_Address       (const iAddress *);
 
+iDeclareType(SocketParameters)
+
+struct Impl_SocketParameters {
+    int family;
+    int type;
+    int protocol;
+};
+
+iSocketParameters socketParameters_Address(const iAddress *);
+
 iString *       toString_Address    (const iAddress *);
 
 const iString * hostName_Address    (const iAddress *);
 
-void    lookupHost_Address      (iAddress *, const char *hostName, uint16_t port);
-iBool   isPending_Address       (const iAddress *);
-void    waitForFinished_Address (const iAddress *);
+void        lookupHost_Address      (iAddress *, const char *hostName, uint16_t port);
+iBool       isPending_Address       (const iAddress *);
+void        waitForFinished_Address (const iAddress *);
 
 iAudience * lookupFinished_Address  (iAddress *);

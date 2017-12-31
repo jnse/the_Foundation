@@ -81,6 +81,15 @@ iThreadResult result_Thread (const iThread *);
 void        start_Thread    (iThread *);
 void        join_Thread     (iThread *);
 
+#define guardJoin_Thread(thread, mutex) { \
+    iThread *thd = NULL; \
+    iGuardMutex((mutex), thd = ref_Object(thread)); \
+    if (thd) { \
+        join_Thread(thd); \
+        deref_Object(thd); \
+    } \
+}
+
 void        sleep_Thread    (double seconds);
 iThread *   current_Thread  (void);
 
