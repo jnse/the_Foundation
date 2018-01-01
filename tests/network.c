@@ -30,14 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/string.h>
 #include <c_plus/service.h>
 #include <c_plus/socket.h>
-
-//#include <stdio.h>
-//#include <string.h>
-//#include <sys/types.h>
-//#include <sys/socket.h>
-//#include <netdb.h>
-//#include <arpa/inet.h>
-//#include <netinet/in.h>
+#include <c_plus/thread.h>
 
 static void hostLookedUp(iAny *d, const iAddress *address) {
     iUnused(d);
@@ -51,32 +44,36 @@ static void hostLookedUp(iAny *d, const iAddress *address) {
     }
 }
 
-static void incomingConnection(iAny *d, iService *sv, iSocket *sock) {
+static iThreadResult messageReceiver_(iThread *thread) {
+    iSocket *sock = userData_Thread(thread);
+    while (!isOpen_Socket(sock)) {
+        iBlock *data = readAll_Stream((iStream *) sock);
+        printf("%s", constData_Block(data));
+        delete_Block(data);
+        sleep_Thread(0.1);
+    }
+    iRelease(sock);
+    iRelease(thread);
+    return 0;
+}
+
+static void incomingConnection_(iAny *d, iService *sv, iSocket *sock) {
     iString *addr = toString_Address(address_Socket(sock));
     printf("incoming connecting from %s\n", cstr_String(addr));
     delete_String(addr);
+    // Start a new thread to communicate through the socket.
+    iThread *receiver = new_Thread(messageReceiver_);
+    setUserData_Thread(receiver, ref_Object(sock));
+    start_Thread(receiver);
 }
 
 int main(int argc, char *argv[]) {
     init_CPlus();
-    //struct addrinfo hints, *res, *p;
-    //int status;
-    //char ipstr[INET6_ADDRSTRLEN];
-
-//    if (argc != 2) {
-//        fprintf(stderr,"usage: showip hostname\n");
-//        return 1;
-//    }
-
-//    memset(&hints, 0, sizeof hints);
-//    hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6 to force version
-//    hints.ai_socktype = SOCK_STREAM;
-
     iCommandLine *cmdline = iClob(new_CommandLine(argc, argv));
-
+    // Check the arguments.
     if (contains_CommandLine(cmdline, "s;server")) {
         iService *sv = iClob(new_Service(14666));
-        insert_Audience(incomingAccepted_Service(sv), sv, (iObserverFunc) incomingConnection);
+        insert_Audience(incomingAccepted_Service(sv), sv, (iObserverFunc) incomingConnection_);
         if (!open_Service(sv)) {
             puts("Failed to start service");
             return 1;
@@ -87,7 +84,19 @@ int main(int argc, char *argv[]) {
         }
     }
     else if (contains_CommandLine(cmdline, "c;client")) {
-
+        iSocket *sock = iClob(new_Socket("localhost", 14666));
+        if (!open_Socket(sock)) {
+            puts("Failed to connect");
+            return 1;
+        }
+        puts("Type to send a message (empty to quit):");
+        for (;;) {
+            char buf[200];
+            fgets(buf, sizeof(buf), stdin);
+            if (strlen(buf) <= 1) break;
+            writeData_Socket(sock, buf, strlen(buf));
+        }
+        puts("Good day!");
     }
     else {
         iConstForEach(CommandLine, i, cmdline) {
@@ -100,36 +109,5 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-
-//    if ((status = getaddrinfo(argv[1], NULL, &hints, &res)) != 0) {
-//        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
-//        return 2;
-//    }
-
-    //printf("IP addresses for %s:\n\n", argv[1]);
-
-//    for(p = res;p != NULL; p = p->ai_next) {
-//        void *addr;
-//        char *ipver;
-
-//        // get the pointer to the address itself,
-//        // different fields in IPv4 and IPv6:
-//        if (p->ai_family == AF_INET) { // IPv4
-//            struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
-//            addr = &(ipv4->sin_addr);
-//            ipver = "IPv4";
-//        } else { // IPv6
-//            struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
-//            addr = &(ipv6->sin6_addr);
-//            ipver = "IPv6";
-//        }
-
-//        // convert the IP to a string and print it:
-//        inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
-//        printf("  %s: %s\n", ipver, ipstr);
-//    }
-
-//    freeaddrinfo(res); // free the linked list
-
     return 0;
 }

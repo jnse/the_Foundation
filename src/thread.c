@@ -136,7 +136,7 @@ iThreadResult result_Thread(const iThread *d) {
 void join_Thread(iThread *d) {
     if (d && isRunning_Thread(d)) {
         thrd_join(d->id, NULL);
-        iAssert(d->state == finished_ThreadState);
+        //iAssert(d->state == finished_ThreadState);
     }
 }
 

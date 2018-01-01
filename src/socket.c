@@ -49,7 +49,7 @@ enum iSocketStatus {
 };
 
 struct Impl_Socket {
-    iObject object;
+    iStream base;
     iBuffer *output;
     iBuffer *input;
     enum iSocketStatus status;
@@ -111,6 +111,7 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                     ssize_t sent = send(d->socket->fd, ptr, remaining, 0);
                     if (sent < 0) {
                         // Error!
+                        close_Socket(d->socket);
                         return errno;
                     }
                     remaining -= sent;
@@ -126,13 +127,17 @@ static iThreadResult run_SocketThread_(iThread *thread) {
             }
             case receiving_SocketThreadMode: {
                 ssize_t readSize = recv(d->socket->fd, data_Block(inbuf), size_Block(inbuf), 0);
+                iDebug("recv returned %li\n", readSize);
                 if (readSize <= 0) {
+                    iWarning("[Socket] error when receiving: %s\n", strerror(errno));
+                    close_Socket(d->socket);
                     return errno;
                 }
                 iGuardMutex(smx, {
                     writeData_Buffer(d->socket->input, constData_Block(inbuf), readSize);
                     signal_Condition(&d->socket->input->dataAvailable);
                 });
+                iNotifyAudience(d->socket, readyRead, ReadyRead);
                 break;
             }
             case exit_SocketThreadMode:
@@ -168,6 +173,10 @@ static inline void start_SocketThread(iSocketThread *d) { start_Thread(&d->threa
 
 //---------------------------------------------------------------------------------------
 
+iDefineObjectConstructionArgs(Socket,
+                              (const char *hostName, uint16_t port),
+                              hostName, port)
+
 static void setStatus_Socket_(iSocket *d, enum iSocketStatus status) {
     if (d->status != status) {
         d->status = status;
@@ -177,6 +186,7 @@ static void setStatus_Socket_(iSocket *d, enum iSocketStatus status) {
 }
 
 static void init_Socket_(iSocket *d) {
+    init_Stream(&d->base);
     d->output = new_Buffer();
     d->input = new_Buffer();
     openEmpty_Buffer(d->output);
@@ -188,6 +198,11 @@ static void init_Socket_(iSocket *d) {
     d->receiver = NULL;
     init_Condition(&d->allSent);
     init_Mutex(&d->mutex);
+    d->connected = NULL;
+    d->disconnected = NULL;
+    d->error = NULL;
+    d->readyRead = NULL;
+    d->writeFinished = NULL;
 }
 
 static void startThreads_Socket_(iSocket *d) {
@@ -302,6 +317,7 @@ void deinit_Socket(iSocket *d) {
     });
     deinit_Mutex(&d->mutex);
     deinit_Condition(&d->allSent);
+    delete_Audience(d->readyRead);
 }
 
 iBool open_Socket(iSocket *d) {
@@ -344,6 +360,11 @@ iStream *output_Socket(iSocket *d) {
 
 iMutex *mutex_Socket(iSocket *d) {
     return &d->mutex;
+}
+
+iAudience *readyRead_Socket(iSocket *d) {
+    if (!d->readyRead) d->readyRead = new_Audience();
+    return d->readyRead;
 }
 
 iBool isOpen_Socket(const iSocket *d) {
@@ -396,6 +417,7 @@ static void flush_Socket_(iSocket *d) {
 }
 
 static iBeginDefineClass(Socket)
+    .super  = &Class_Stream,
     .seek   = seek_Socket_,
     .read   = (size_t (*)(iStream *, size_t, void *))       read_Socket_,
     .write  = (size_t (*)(iStream *, const void *, size_t)) write_Socket_,
