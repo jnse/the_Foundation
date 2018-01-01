@@ -53,7 +53,9 @@ void        defineValuesN_CommandLine (iCommandLine *, const char *arg, int minC
 
 /**
  * Checks if the command line contains a specific argument.
- * @param arg  Argument (without any dashes).
+ *
+ * @param arg  Argument(s) (without any dashes). This can be a single argument or a list
+ *             of semicolon-separated arguments.
  */
 iBool       contains_CommandLine    (const iCommandLine *, const char *arg);
 

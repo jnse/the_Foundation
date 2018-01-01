@@ -37,15 +37,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
         return d->finished; \
     }
 
-#define iNotifyAudience(d, audienceName, notifyName) \
-    iGuardMutex(&(d)->audienceName->mutex, iConstForEach(Audience, i, (d)->audienceName) { \
-        ((iNotify##notifyName) i.value->func)(i.value->object, d); \
-    })
+#define iNotifyAudience(d, audienceName, notifyName) { \
+    if ((d)->audienceName) { \
+        iGuardMutex(&(d)->audienceName->mutex, \
+            iConstForEach(Audience, i, (d)->audienceName) { \
+                ((iNotify##notifyName) i.value->func)(i.value->object, d); \
+            } \
+        ); \
+    } \
+}
 
-#define iNotifyAudienceArgs(d, audienceName, notifyName, ...) \
-    iGuardMutex(&(d)->audienceName->mutex, iConstForEach(Audience, i, (d)->audienceName) { \
-        ((iNotify##notifyName) i.value->func)(i.value->object, d, __VA_ARGS__); \
-    })
+#define iNotifyAudienceArgs(d, audienceName, notifyName, ...) { \
+    if ((d)->audienceName) { \
+        iGuardMutex(&(d)->audienceName->mutex, \
+            iConstForEach(Audience, i, (d)->audienceName) { \
+                ((iNotify##notifyName) i.value->func)(i.value->object, d, __VA_ARGS__); \
+            } \
+        ); \
+    } \
+}
 
 iDeclareType(Audience)
 iDeclareType(Observer)

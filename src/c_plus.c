@@ -35,7 +35,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <time.h>
 #include <locale.h>
 
+// thread.c
+void init_Threads(void);
+
+static void deinit_CPlus_(void) {
+
+}
+
 void init_CPlus(void) {
+    init_Threads();
     init_Garbage();
     printf("[c_Plus] version: %i.%i.%i cstd:%li\n",
            version_CPlus.major, version_CPlus.minor, version_CPlus.patch,
@@ -58,4 +66,5 @@ void init_CPlus(void) {
         }
         printf("[c_Plus] locale: %s\n", setlc);
     }
+    atexit(deinit_CPlus_);
 }

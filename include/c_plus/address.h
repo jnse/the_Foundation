@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "object.h"
 #include "audience.h"
+#include "string.h"
 
 iDeclareType(String)
 
@@ -62,7 +63,12 @@ iString *       toString_Address    (const iAddress *);
 
 const iString * hostName_Address    (const iAddress *);
 
-void        lookupHost_Address      (iAddress *, const char *hostName, uint16_t port);
+void        lookupHostCStr_Address  (iAddress *, const char *hostName, uint16_t port);
+
+static inline void lookupHost_Address(iAddress *d, const iString *hostName, uint16_t port) {
+    lookupHostCStr_Address(d, cstr_String(hostName), port);
+}
+
 iBool       isPending_Address       (const iAddress *);
 void        waitForFinished_Address (const iAddress *);
 

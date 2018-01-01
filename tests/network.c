@@ -26,15 +26,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <c_plus/address.h>
 #include <c_plus/audience.h>
+#include <c_plus/commandline.h>
 #include <c_plus/string.h>
+#include <c_plus/service.h>
+#include <c_plus/socket.h>
 
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
+//#include <stdio.h>
+//#include <string.h>
+//#include <sys/types.h>
+//#include <sys/socket.h>
+//#include <netdb.h>
+//#include <arpa/inet.h>
+//#include <netinet/in.h>
 
 static void hostLookedUp(iAny *d, const iAddress *address) {
     iUnused(d);
@@ -48,24 +51,55 @@ static void hostLookedUp(iAny *d, const iAddress *address) {
     }
 }
 
+static void incomingConnection(iAny *d, iService *sv, iSocket *sock) {
+    iString *addr = toString_Address(address_Socket(sock));
+    printf("incoming connecting from %s\n", cstr_String(addr));
+    delete_String(addr);
+}
+
 int main(int argc, char *argv[]) {
+    init_CPlus();
     //struct addrinfo hints, *res, *p;
     //int status;
     //char ipstr[INET6_ADDRSTRLEN];
 
-    if (argc != 2) {
-        fprintf(stderr,"usage: showip hostname\n");
-        return 1;
-    }
+//    if (argc != 2) {
+//        fprintf(stderr,"usage: showip hostname\n");
+//        return 1;
+//    }
 
 //    memset(&hints, 0, sizeof hints);
 //    hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6 to force version
 //    hints.ai_socktype = SOCK_STREAM;
 
-    iAddress *addr = new_Address();
-    insert_Audience(lookupFinished_Address(addr), addr, (iObserverFunc) hostLookedUp);
-    lookupHost_Address(addr, argv[1], 0);
-    iRelease(addr);
+    iCommandLine *cmdline = iClob(new_CommandLine(argc, argv));
+
+    if (contains_CommandLine(cmdline, "s;server")) {
+        iService *sv = iClob(new_Service(14666));
+        insert_Audience(incomingAccepted_Service(sv), sv, (iObserverFunc) incomingConnection);
+        if (!open_Service(sv)) {
+            puts("Failed to start service");
+            return 1;
+        }
+        puts("Press Enter to quit..."); {
+            char line[2];
+            fgets(line, sizeof(line), stdin);
+        }
+    }
+    else if (contains_CommandLine(cmdline, "c;client")) {
+
+    }
+    else {
+        iConstForEach(CommandLine, i, cmdline) {
+            if (i.argType == value_CommandLineArgType) {
+                printf("\nLooking up \"%s\"...\n", cstr_String(value_CommandLineConstIterator(&i)));
+                iAddress *addr = new_Address();
+                insert_Audience(lookupFinished_Address(addr), addr, (iObserverFunc) hostLookedUp);
+                lookupHost_Address(addr, value_CommandLineConstIterator(&i), 0);
+                iRelease(addr);
+            }
+        }
+    }
 
 //    if ((status = getaddrinfo(argv[1], NULL, &hints, &res)) != 0) {
 //        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));

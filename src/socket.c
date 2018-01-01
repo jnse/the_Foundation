@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <sys/types.h>
 
 // address.c
-extern void getSockAddr_Address(const iAddress *d, struct sockaddr **addr_out, socklen_t *addrSize_out);
+void getSockAddr_Address(const iAddress *d, struct sockaddr **addr_out, socklen_t *addrSize_out);
 
 iDeclareType(SocketThread)
 
@@ -49,8 +49,9 @@ enum iSocketStatus {
 };
 
 struct Impl_Socket {
-    iBuffer output;
-    iBuffer input;
+    iObject object;
+    iBuffer *output;
+    iBuffer *input;
     enum iSocketStatus status;
     iAddress *address;
     int fd;
@@ -99,10 +100,10 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                 // Take all the pending data to be sent.
                 iBlock *data = NULL;
                 iGuardMutex(smx, {
-                    if (isEmpty_Buffer(&d->socket->output)) {
-                        wait_Condition(&d->socket->output.dataAvailable, smx);
+                    if (isEmpty_Buffer(d->socket->output)) {
+                        wait_Condition(&d->socket->output->dataAvailable, smx);
                     }
-                    data = readAll_Buffer(&d->socket->output);
+                    data = readAll_Buffer(d->socket->output);
                 });
                 size_t remaining = size_Block(data);
                 const char *ptr = constData_Block(data);
@@ -117,7 +118,7 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                 }
                 delete_Block(data);
                 iGuardMutex(smx, {
-                    if (isEmpty_Buffer(&d->socket->output)) {
+                    if (isEmpty_Buffer(d->socket->output)) {
                         signal_Condition(&d->socket->allSent);
                     }
                 });
@@ -129,8 +130,8 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                     return errno;
                 }
                 iGuardMutex(smx, {
-                    writeData_Buffer(&d->socket->input, constData_Block(inbuf), readSize);
-                    signal_Condition(&d->socket->input.dataAvailable);
+                    writeData_Buffer(d->socket->input, constData_Block(inbuf), readSize);
+                    signal_Condition(&d->socket->input->dataAvailable);
                 });
                 break;
             }
@@ -154,7 +155,7 @@ static void deinit_SocketThread(iSocketThread *d) {
 
 static void exit_SocketThread_(iSocketThread *d) {
     d->mode = exit_SocketThreadMode;
-    signal_Condition(&d->socket->output.dataAvailable); // if it's waiting...
+    signal_Condition(&d->socket->output->dataAvailable); // if it's waiting...
     join_Thread(&d->thread);
 }
 
@@ -176,10 +177,10 @@ static void setStatus_Socket_(iSocket *d, enum iSocketStatus status) {
 }
 
 static void init_Socket_(iSocket *d) {
-    init_Buffer(&d->output);
-    init_Buffer(&d->input);
-    openEmpty_Buffer(&d->output);
-    openEmpty_Buffer(&d->input);
+    d->output = new_Buffer();
+    d->input = new_Buffer();
+    openEmpty_Buffer(d->output);
+    openEmpty_Buffer(d->input);
     d->fd = -1;
     d->address = NULL;
     d->connecting = NULL;
@@ -289,14 +290,14 @@ void init_Socket(iSocket *d, const char *hostName, uint16_t port) {
     setStatus_Socket_(d, addressLookup_SocketStatus);
     insert_Audience(lookupFinished_Address(d->address), d,
                     (iObserverFunc) addressLookedUp_Socket_);
-    lookupHost_Address(d->address, hostName, port);
+    lookupHostCStr_Address(d->address, hostName, port);
 }
 
 void deinit_Socket(iSocket *d) {
     close_Socket(d);
     iGuardMutex(&d->mutex, {
-        deinit_Buffer(&d->output);
-        deinit_Buffer(&d->input);
+        iReleasePtr(&d->output);
+        iReleasePtr(&d->input);
         iReleasePtr(&d->address);
     });
     deinit_Mutex(&d->mutex);
@@ -338,7 +339,7 @@ void close_Socket(iSocket *d) {
 }
 
 iStream *output_Socket(iSocket *d) {
-    return stream_Buffer(&d->output);
+    return stream_Buffer(d->output);
 }
 
 iMutex *mutex_Socket(iSocket *d) {
@@ -356,8 +357,12 @@ iBool isOpen_Socket(const iSocket *d) {
 
 size_t receivedBytes_Socket(const iSocket *d) {
     size_t n;
-    iGuardMutex(&d->mutex, n = size_Buffer(&d->input));
+    iGuardMutex(&d->mutex, n = size_Buffer(d->input));
     return n;
+}
+
+const iAddress *address_Socket(const iSocket *d) {
+    return d->address;
 }
 
 static long seek_Socket_(iStream *d, long pos) {
@@ -369,29 +374,28 @@ static long seek_Socket_(iStream *d, long pos) {
 static size_t read_Socket_(iSocket *d, size_t size, void *data_out) {
     size_t readSize = 0;
     iGuardMutex(&d->mutex, {
-        readSize = readData_Stream(stream_Buffer(&d->input), size, data_out);
+        readSize = readData_Stream(stream_Buffer(d->input), size, data_out);
     });
     return readSize;
 }
 
 static size_t write_Socket_(iSocket *d, const void *data, size_t size) {
     iGuardMutex(&d->mutex, {
-        writeData_Stream(stream_Buffer(&d->output), data, size);
-        signal_Condition(&d->output.dataAvailable);
+        writeData_Stream(stream_Buffer(d->output), data, size);
+        signal_Condition(&d->output->dataAvailable);
     });
     return size;
 }
 
 static void flush_Socket_(iSocket *d) {
     iGuardMutex(&d->mutex, {
-        if (!isEmpty_Buffer(&d->output)) {
+        if (!isEmpty_Buffer(d->output)) {
             wait_Condition(&d->allSent, &d->mutex);
         }
     });
 }
 
 static iBeginDefineClass(Socket)
-    .super  = &Class_Socket,
     .seek   = seek_Socket_,
     .read   = (size_t (*)(iStream *, size_t, void *))       read_Socket_,
     .write  = (size_t (*)(iStream *, const void *, size_t)) write_Socket_,

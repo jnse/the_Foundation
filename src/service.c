@@ -52,7 +52,7 @@ static iThreadResult listen_Service_(iThread *thd) {
         socklen_t size = sizeof(addr);
         int incoming = accept(d->fd, (struct sockaddr *) &addr, &size);
         if (incoming < 0) {
-            iWarning("[Service] error on accept: %s", strerror(errno));
+            iWarning("[Service] error on accept: %s\n", strerror(errno));
             break;
         }
         iSocket *socket = newExisting_Socket(incoming, &addr, size);
@@ -94,26 +94,26 @@ iBool open_Service(iService *d) {
         int rc = getaddrinfo(NULL, cstr_String(port), &hints, &info);
         delete_String(port);
         if (rc) {
-            iWarning("[Service] failed to look up address: %s", gai_strerror(rc));
+            iWarning("[Service] failed to look up address: %s\n", gai_strerror(rc));
             return iFalse;
         }
         d->fd = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
         if (d->fd < 0) {
-            iWarning("[Service] failed to open socket: %s", strerror(errno));
+            iWarning("[Service] failed to open socket: %s\n", strerror(errno));
             return iFalse;
         }
         rc = bind(d->fd, info->ai_addr, info->ai_addrlen);
         if (rc < 0) {
             close(d->fd);
             d->fd = -1;
-            iWarning("[Service] failed to bind address: %s", strerror(errno));
+            iWarning("[Service] failed to bind address: %s\n", strerror(errno));
             return iFalse;
         }
         rc = listen(d->fd, 10);
         if (rc < 0) {
             close(d->fd);
             d->fd = -1;
-            iWarning("[Service] failed to listen: %s", strerror(errno));
+            iWarning("[Service] failed to listen: %s\n", strerror(errno));
             return iFalse;
         }
     }
@@ -129,6 +129,10 @@ void close_Service(iService *d) {
         d->fd = -1;
         join_Thread(d->listening);
     }
+}
+
+iAudience *incomingAccepted_Service(iService *d) {
+    return d->incomingAccepted;
 }
 
 iDefineClass(Service)

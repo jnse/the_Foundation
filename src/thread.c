@@ -50,6 +50,10 @@ static iLockableThreadHash *init_Threads_(void) {
     return runningThreads_;
 }
 
+void init_Threads(void) {
+    init_Threads_();
+}
+
 void finish_Thread_(iThread *d) {
     d->state = finished_ThreadState;
     iNotifyAudience(d, finished, ThreadFinished);

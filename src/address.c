@@ -155,7 +155,7 @@ iAudience *lookupFinished_Address(iAddress *d) {
     return d->lookupFinished;
 }
 
-void lookupHost_Address(iAddress *d, const char *hostName, uint16_t port) {
+void lookupHostCStr_Address(iAddress *d, const char *hostName, uint16_t port) {
     iGuardMutex(&d->mutex, {
         if (!d->pending) {
             setCStr_String(&d->hostName, hostName);
