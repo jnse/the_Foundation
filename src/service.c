@@ -43,6 +43,8 @@ struct Impl_Service {
     iAudience *incomingAccepted;
 };
 
+iDefineAudienceGetter(Service, incomingAccepted)
+
 iDefineObjectConstructionArgs(Service, (uint16_t port), port)
 
 static iThreadResult listen_Service_(iThread *thd) {
@@ -56,7 +58,7 @@ static iThreadResult listen_Service_(iThread *thd) {
             break;
         }
         iSocket *socket = newExisting_Socket(incoming, &addr, size);
-        iNotifyAudienceArgs(d, incomingAccepted, IncomingAccepted, socket);
+        iNotifyAudienceArgs(d, incomingAccepted, ServiceIncomingAccepted, socket);
         iRelease(socket);
     }
     iReleasePtr(&d->listening);
@@ -129,10 +131,6 @@ void close_Service(iService *d) {
         d->fd = -1;
         join_Thread(d->listening);
     }
-}
-
-iAudience *incomingAccepted_Service(iService *d) {
-    return d->incomingAccepted;
 }
 
 iDefineClass(Service)

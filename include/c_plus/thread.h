@@ -43,7 +43,8 @@ iDeclareType(Thread)
 typedef thrd_t iThreadId;
 typedef intptr_t iThreadResult;
 typedef iThreadResult (*iThreadRunFunc)(iThread *);
-typedef void (*iNotifyThreadFinished)(iAny *, iThread *);
+
+iDeclareNotifyFunc(Thread, Finished)
 
 enum iThreadState {
     created_ThreadState,
@@ -106,10 +107,7 @@ static inline enum iThreadState state_Thread(const iThread *d) {
     return d->state;
 }
 
-static inline iAudience *finished_Thread(iThread *d) {
-    if (!d->finished) { d->finished = new_Audience(); }
-    return d->finished;
-}
+iDefineInlineAudienceGetter(Thread, finished)
 
 /** @cond */
 iDeclareBlockHash(ThreadHash, ThreadId, Thread)

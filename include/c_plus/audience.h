@@ -31,11 +31,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "sortedarray.h"
 #include "ptrset.h"
 
+#define iDeclareNotifyFunc(typeName, audienceName) \
+    typedef void (*iNotify##typeName##audienceName)(iAny *, i##typeName *);
+
+#define iDeclareNotifyFuncArgs(typeName, audienceName, ...) \
+    typedef void (*iNotify##typeName##audienceName)(iAny *, i##typeName *, __VA_ARGS__);
+
+#define iDeclareConstNotifyFunc(typeName, audienceName) \
+    typedef void (*iNotify##typeName##audienceName)(iAny *, const i##typeName *);
+
+#define iDeclareConstNotifyFuncArgs(typeName, audienceName, ...) \
+    typedef void (*iNotify##typeName##audienceName)(iAny *, const i##typeName *, __VA_ARGS__);
+
+#define iDeclareAudienceGetter(typeName, audienceName) \
+    iAudience *audienceName##_##typeName(i##typeName *d);
+
 #define iDefineAudienceGetter(typeName, audienceName) \
-    static inline iAudience *audienceName##_##typeName(i##typeName *d) { \
+    iAudience *audienceName##_##typeName(i##typeName *d) { \
         if (!d->audienceName) { d->audienceName = new_Audience(); }  \
-        return d->finished; \
+        return d->audienceName; \
     }
+
+#define iDefineInlineAudienceGetter(typeName, audienceName) \
+    static inline iDefineAudienceGetter(typeName, audienceName)
 
 #define iNotifyAudience(d, audienceName, notifyName) { \
     if ((d)->audienceName) { \

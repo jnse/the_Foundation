@@ -70,6 +70,8 @@ struct Impl_Socket {
 
 static iSocketClass Class_Socket;
 
+iDefineAudienceGetter(Socket, readyRead)
+
 //---------------------------------------------------------------------------------------
 
 enum iSocketThreadMode {
@@ -137,7 +139,7 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                     writeData_Buffer(d->socket->input, constData_Block(inbuf), readSize);
                     signal_Condition(&d->socket->input->dataAvailable);
                 });
-                iNotifyAudience(d->socket, readyRead, ReadyRead);
+                iNotifyAudience(d->socket, readyRead, SocketReadyRead);
                 break;
             }
             case exit_SocketThreadMode:
@@ -360,11 +362,6 @@ iStream *output_Socket(iSocket *d) {
 
 iMutex *mutex_Socket(iSocket *d) {
     return &d->mutex;
-}
-
-iAudience *readyRead_Socket(iSocket *d) {
-    if (!d->readyRead) d->readyRead = new_Audience();
-    return d->readyRead;
 }
 
 iBool isOpen_Socket(const iSocket *d) {

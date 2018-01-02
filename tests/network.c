@@ -57,7 +57,7 @@ static iThreadResult messageReceiver_(iThread *thread) {
     return 0;
 }
 
-static void incomingConnection_(iAny *d, iService *sv, iSocket *sock) {
+static void communicate_(iAny *d, iService *sv, iSocket *sock) {
     iString *addr = toString_Address(address_Socket(sock));
     printf("incoming connecting from %s\n", cstr_String(addr));
     delete_String(addr);
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
     // Check the arguments.
     if (contains_CommandLine(cmdline, "s;server")) {
         iService *sv = iClob(new_Service(14666));
-        insert_Audience(incomingAccepted_Service(sv), sv, (iObserverFunc) incomingConnection_);
+        insert_Audience(incomingAccepted_Service(sv), sv, (iObserverFunc) communicate_);
         if (!open_Service(sv)) {
             puts("Failed to start service");
             return 1;

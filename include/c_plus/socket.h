@@ -38,7 +38,8 @@ typedef iStreamClass iSocketClass;
 iDeclareType(Socket)
 iDeclareType(Mutex)
 
-typedef void (*iNotifyReadyRead)(iAny *, iSocket *);
+iDeclareNotifyFunc(Socket, ReadyRead)
+iDeclareAudienceGetter(Socket, readyRead)
 
 iDeclareObjectConstructionArgs(Socket, const char *hostName, uint16_t port)
 
@@ -52,8 +53,6 @@ iStream *   output_Socket   (iSocket *);
 
 iBool       isOpen_Socket   (const iSocket *);
 iMutex *    mutex_Socket    (iSocket *);
-
-iAudience *     readyRead_Socket        (iSocket *);
 
 size_t           receivedBytes_Socket    (const iSocket *);
 const iAddress * address_Socket          (const iSocket *);

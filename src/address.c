@@ -47,6 +47,8 @@ struct Impl_Address {
     iAudience *lookupFinished;
 };
 
+iDefineAudienceGetter(Address, lookupFinished)
+
 static iThreadResult runLookup_Address_(iThread *thd) {
     iAddress *d = userData_Thread(thd);
     const struct addrinfo hints = {
@@ -148,11 +150,6 @@ iBool isHostFound_Address(const iAddress *d) {
 
 iBool isPending_Address(const iAddress *d) {
     return d->pending != NULL;
-}
-
-iAudience *lookupFinished_Address(iAddress *d) {
-    if (!d->lookupFinished) d->lookupFinished = new_Audience();
-    return d->lookupFinished;
 }
 
 void lookupHostCStr_Address(iAddress *d, const char *hostName, uint16_t port) {

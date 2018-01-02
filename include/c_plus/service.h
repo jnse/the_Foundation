@@ -37,11 +37,11 @@ iDeclareType(Socket)
 
 iDeclareObjectConstructionArgs(Service, uint16_t port)
 
-typedef void (*iNotifyIncomingAccepted)(iAny *, iService *, iSocket *incoming);
+iDeclareNotifyFuncArgs(Service, IncomingAccepted, iSocket *incoming)
 
 iBool   open_Service    (iService *);
 void    close_Service   (iService *);
 
 iBool   isOpen_Service  (const iService *);
 
-iAudience *incomingAccepted_Service(iService *);
+iDeclareAudienceGetter(Service, incomingAccepted)

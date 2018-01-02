@@ -34,9 +34,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iDeclareType(String)
 
 iDeclareClass(Address)
-iDeclareType(Address)
+iDeclareType (Address)
 
-typedef void (*iNotifyAddressLookupFinished)(iAny *, const iAddress *);
+iDeclareConstNotifyFunc(Address, LookupFinished)
 
 iDeclareObjectConstruction(Address)
 
@@ -72,4 +72,4 @@ static inline void lookupHost_Address(iAddress *d, const iString *hostName, uint
 iBool       isPending_Address       (const iAddress *);
 void        waitForFinished_Address (const iAddress *);
 
-iAudience * lookupFinished_Address  (iAddress *);
+iDeclareAudienceGetter(Address, lookupFinished)
