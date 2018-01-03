@@ -105,7 +105,10 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                     if (isEmpty_Buffer(d->socket->output)) {
                         wait_Condition(&d->socket->output->dataAvailable, smx);
                     }
+                    seek_Buffer(d->socket->output, 0);
                     data = readAll_Buffer(d->socket->output);
+                    clear_Buffer(d->socket->output);
+                    iDebug("[Socket] got %zu bytes for sending\n", size_Block(data));
                 });
                 size_t remaining = size_Block(data);
                 const char *ptr = constData_Block(data);
@@ -130,6 +133,10 @@ static iThreadResult run_SocketThread_(iThread *thread) {
             case receiving_SocketThreadMode: {
                 ssize_t readSize = recv(d->socket->fd, data_Block(inbuf), size_Block(inbuf), 0);
                 iDebug("recv returned %li\n", readSize);
+                if (readSize == 0) {
+                    iWarning("[Socket] peer closed the connection\n");
+                    return 0;
+                }
                 if (readSize <= 0) {
                     iWarning("[Socket] error when receiving: %s\n", strerror(errno));
                     close_Socket(d->socket);

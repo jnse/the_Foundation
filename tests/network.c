@@ -46,7 +46,7 @@ static void hostLookedUp(iAny *d, const iAddress *address) {
 
 static iThreadResult messageReceiver_(iThread *thread) {
     iSocket *sock = userData_Thread(thread);
-    while (!isOpen_Socket(sock)) {
+    while (isOpen_Socket(sock)) {
         iBlock *data = readAll_Stream((iStream *) sock);
         printf("%s", constData_Block(data));
         delete_Block(data);

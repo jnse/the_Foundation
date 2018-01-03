@@ -72,6 +72,7 @@ static inline long  size_Buffer   (const iBuffer *d) { return size_Stream(&d->st
 static inline iBool isEmpty_Buffer(const iBuffer *d) { return size_Buffer(d) == 0; }
 static inline iBool atEnd_Buffer  (const iBuffer *d) { return atEnd_Stream(&(d)->stream); }
 
+static inline void          seek_Buffer         (iBuffer *d, long offset) { seek_Stream(&d->stream, offset); }
 static inline size_t        writeData_Buffer    (iBuffer *d, const void *data, size_t size) { return writeData_Stream(&d->stream, data, size); }
 
 static inline iBlock *      readAll_Buffer      (iBuffer *d) { return readAll_Stream(&d->stream); }
