@@ -235,7 +235,7 @@ void insert_StringList(iStringList *d, size_t pos, const iString *str) {
         pushBack_StringList(d, str);
     }
     else {
-        size_t start;
+        size_t start = 0;
         iStringListNode *node = locateNode_StringList_(d, pos, &start);
         insert_StringArray(&node->strings, pos - start, str);
         d->size++;

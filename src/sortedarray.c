@@ -50,6 +50,7 @@ iBool locate_SortedArray(const iSortedArray *d, const void *value, size_t *pos_o
     // We will narrow down the span until the pointer is found or we'll know where
     // it would be if it were inserted.
     iRanges span = { 0, size_Array(&d->values) };
+    iAssert(span.end == 0 || d->values.data != NULL);
     while (!isEmpty_Range(&span)) {
         // Narrow down the search by a half.
         const size_t mid = (span.start + span.end) / 2;
