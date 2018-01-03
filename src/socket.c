@@ -76,7 +76,7 @@ iDeclareClass(SocketThread)
 struct Impl_SocketThread {
     iThread thread;
     iSocket *socket;
-    enum iSocketThreadMode mode;
+    volatile enum iSocketThreadMode mode;
 };
 
 static iThreadResult run_SocketThread_(iThread *thread) {
@@ -161,8 +161,15 @@ static void deinit_SocketThread(iSocketThread *d) {
 }
 
 static void exit_SocketThread_(iSocketThread *d) {
+    //const iBool isRecv = (d->mode == receiving_SocketThreadMode);
     d->mode = exit_SocketThreadMode;
-    signal_Condition(&d->socket->output->dataAvailable); // if it's waiting...
+    //if (isRecv) {
+        //pthread_kill(d->thread.id, SIGUSR1); // interrupt recv()
+
+    //}
+    //else {
+    signal_Condition(&d->socket->output->dataAvailable);
+    //}
     join_Thread(&d->thread);
 }
 
@@ -342,13 +349,16 @@ void close_Socket(iSocket *d) {
         }
         setStatus_Socket_(d, disconnecting_SocketStatus);
         if (d->fd >= 0) {
-            close(d->fd);
-            d->fd = -1;
+            shutdown(d->fd, SHUT_RD);
         }
     });
     guardJoin_Thread(d->connecting, &d->mutex);
     iReleasePtr(&d->connecting);
     stopThreads_Socket_(d);
+    if (d->fd >= 0) {
+        close(d->fd);
+        d->fd = -1;
+    }
     setStatus_Socket_(d, disconnected_SocketStatus);
     iAssert(d->fd < 0);
     iAssert(!d->sender);
