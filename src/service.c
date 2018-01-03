@@ -39,6 +39,7 @@ struct Impl_Service {
     iObject object;
     uint16_t port;
     int fd;
+    int stopPipe[2];
     iThread *listening;
     iAudience *incomingAccepted;
 };
@@ -49,7 +50,21 @@ iDefineObjectConstructionArgs(Service, (uint16_t port), port)
 
 static iThreadResult listen_Service_(iThread *thd) {
     iService *d = userData_Thread(thd);
-    while (d->fd >= 0) {
+    int maxfds;
+    fd_set fds; {
+        FD_ZERO(&fds);
+        FD_SET(d->fd, &fds);
+        FD_SET(d->stopPipe[0], &fds);
+        maxfds = iMax(d->fd, d->stopPipe[0]);
+    }
+    for (;;) {
+        // Wait for activity.
+        if (select(maxfds + 1, &fds, NULL, NULL, NULL) == -1) {
+            break;
+        }
+        if (FD_ISSET(d->stopPipe[0], &fds)) {
+            break;
+        }
         struct sockaddr_storage addr;
         socklen_t size = sizeof(addr);
         int incoming = accept(d->fd, (struct sockaddr *) &addr, &size);
@@ -69,11 +84,14 @@ void init_Service(iService *d, uint16_t port) {
     d->port = port;
     d->fd = -1;
     d->listening = NULL;
+    pipe(d->stopPipe);
     d->incomingAccepted = new_Audience();
 }
 
 void deinit_Service(iService *d) {
     close_Service(d);
+    close(d->stopPipe[0]);
+    close(d->stopPipe[1]);
     iAssert(d->listening == NULL);
     iAssert(d->fd < 0);
     delete_Audience(d->incomingAccepted);
@@ -127,9 +145,11 @@ iBool open_Service(iService *d) {
 
 void close_Service(iService *d) {
     if (d->listening) {
+        // Signal the listening thread to stop.
+        write(d->stopPipe[1], &(char){ 1 }, 1);
+        join_Thread(d->listening);
         close(d->fd);
         d->fd = -1;
-        join_Thread(d->listening);
     }
 }
 
