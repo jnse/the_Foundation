@@ -50,20 +50,19 @@ iDefineObjectConstructionArgs(Service, (uint16_t port), port)
 
 static iThreadResult listen_Service_(iThread *thd) {
     iService *d = userData_Thread(thd);
-    int maxfds;
-    fd_set fds; {
-        FD_ZERO(&fds);
-        FD_SET(d->fd, &fds);
-        FD_SET(d->stopPipe[0], &fds);
-        maxfds = iMax(d->fd, d->stopPipe[0]);
-    }
     for (;;) {
-        // Wait for activity.
-        if (select(maxfds + 1, &fds, NULL, NULL, NULL) == -1) {
-            break;
-        }
-        if (FD_ISSET(d->stopPipe[0], &fds)) {
-            break;
+        /* Wait for activity. */ {
+            fd_set fds;
+            FD_ZERO(&fds);
+            FD_SET(d->fd, &fds);
+            FD_SET(d->stopPipe[0], &fds);
+            const int maxfds = iMax(d->fd, d->stopPipe[0]);
+            if (select(maxfds + 1, &fds, NULL, NULL, NULL) == -1) {
+                break;
+            }
+            if (FD_ISSET(d->stopPipe[0], &fds)) {
+                break;
+            }
         }
         struct sockaddr_storage addr;
         socklen_t size = sizeof(addr);
