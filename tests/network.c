@@ -44,12 +44,18 @@ static void hostLookedUp(iAny *d, const iAddress *address) {
     }
 }
 
+static void printMessage_(iAny *any, iSocket *sock) {
+    iUnused(any);
+    iBlock *data = readAll_Socket(sock);
+    printf("%s", constData_Block(data));
+    delete_Block(data);
+}
+
 static iThreadResult messageReceiver_(iThread *thread) {
     iSocket *sock = userData_Thread(thread);
+    insert_Audience(readyRead_Socket(sock), sock, (iObserverFunc) printMessage_);
+    printMessage_(NULL, sock);
     while (isOpen_Socket(sock)) {
-        iBlock *data = readAll_Stream((iStream *) sock);
-        printf("%s", constData_Block(data));
-        delete_Block(data);
         sleep_Thread(0.1);
     }
     iRelease(sock);

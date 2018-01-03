@@ -456,6 +456,7 @@ int main(int argc, char *argv[]) {
         iBlock *a = collect_Block(new_Block(0));
         appendCStr_Block(a, "Hello World");
         appendCStr_Block(a, "!");
+        remove_Block(a, 0, 6);
         iBlock *b = collect_Block(copy_Block(a));
         iBlock *c = collect_Block(concat_Block(a, b));
         clear_Block(a);

@@ -39,15 +39,6 @@ void getSockAddr_Address(const iAddress *d, struct sockaddr **addr_out, socklen_
 
 iDeclareType(SocketThread)
 
-enum iSocketStatus {
-    addressLookup_SocketStatus,
-    initialized_SocketStatus,
-    connecting_SocketStatus,
-    connected_SocketStatus,
-    disconnecting_SocketStatus,
-    disconnected_SocketStatus,
-};
-
 struct Impl_Socket {
     iStream base;
     iBuffer *output;
@@ -105,17 +96,16 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                     if (isEmpty_Buffer(d->socket->output)) {
                         wait_Condition(&d->socket->output->dataAvailable, smx);
                     }
-                    seek_Buffer(d->socket->output, 0);
-                    data = readAll_Buffer(d->socket->output);
-                    clear_Buffer(d->socket->output);
+                    data = consumeAll_Buffer(d->socket->output);
                     iDebug("[Socket] got %zu bytes for sending\n", size_Block(data));
                 });
                 size_t remaining = size_Block(data);
                 const char *ptr = constData_Block(data);
                 while (remaining > 0) {
                     ssize_t sent = send(d->socket->fd, ptr, remaining, 0);
-                    if (sent < 0) {
+                    if (sent == -1) {
                         // Error!
+                        delete_Block(data);
                         close_Socket(d->socket);
                         return errno;
                     }
@@ -132,15 +122,18 @@ static iThreadResult run_SocketThread_(iThread *thread) {
             }
             case receiving_SocketThreadMode: {
                 ssize_t readSize = recv(d->socket->fd, data_Block(inbuf), size_Block(inbuf), 0);
-                iDebug("recv returned %li\n", readSize);
                 if (readSize == 0) {
                     iWarning("[Socket] peer closed the connection\n");
                     return 0;
                 }
-                if (readSize <= 0) {
-                    iWarning("[Socket] error when receiving: %s\n", strerror(errno));
-                    close_Socket(d->socket);
-                    return errno;
+                if (readSize == -1) {
+                    if (status_Socket(d->socket) == connected_SocketStatus) {
+                        iWarning("[Socket] error when receiving: %s\n", strerror(errno));
+                        close_Socket(d->socket);
+                        return errno;
+                    }
+                    // This was expected.
+                    return 0;
                 }
                 iGuardMutex(smx, {
                     writeData_Buffer(d->socket->input, constData_Block(inbuf), readSize);
@@ -347,11 +340,11 @@ void close_Socket(iSocket *d) {
         if (d->status == connected_SocketStatus) {
             flush_Socket(d);
         }
+        setStatus_Socket_(d, disconnecting_SocketStatus);
         if (d->fd >= 0) {
             close(d->fd);
             d->fd = -1;
         }
-        setStatus_Socket_(d, disconnecting_SocketStatus);
     });
     guardJoin_Thread(d->connecting, &d->mutex);
     iReleasePtr(&d->connecting);
@@ -361,10 +354,6 @@ void close_Socket(iSocket *d) {
     iAssert(!d->sender);
     iAssert(!d->receiver);
     iAssert(!d->connecting);
-}
-
-iStream *output_Socket(iSocket *d) {
-    return stream_Buffer(d->output);
 }
 
 iMutex *mutex_Socket(iSocket *d) {
@@ -378,6 +367,12 @@ iBool isOpen_Socket(const iSocket *d) {
                 d->status == connected_SocketStatus);
     });
     return open;
+}
+
+enum iSocketStatus status_Socket(const iSocket *d) {
+    enum iSocketStatus status;
+    iGuardMutex(&d->mutex, status = d->status);
+    return status;
 }
 
 size_t receivedBytes_Socket(const iSocket *d) {
@@ -399,7 +394,7 @@ static long seek_Socket_(iStream *d, long pos) {
 static size_t read_Socket_(iSocket *d, size_t size, void *data_out) {
     size_t readSize = 0;
     iGuardMutex(&d->mutex, {
-        readSize = readData_Stream(stream_Buffer(d->input), size, data_out);
+        readSize = consume_Buffer(d->input, size, data_out);
     });
     return readSize;
 }

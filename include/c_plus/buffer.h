@@ -72,9 +72,14 @@ static inline long  size_Buffer   (const iBuffer *d) { return size_Stream(&d->st
 static inline iBool isEmpty_Buffer(const iBuffer *d) { return size_Buffer(d) == 0; }
 static inline iBool atEnd_Buffer  (const iBuffer *d) { return atEnd_Stream(&(d)->stream); }
 
+static inline void          rewind_Buffer       (iBuffer *d) { seek_Stream(&d->stream, 0); }
 static inline void          seek_Buffer         (iBuffer *d, long offset) { seek_Stream(&d->stream, offset); }
 static inline size_t        writeData_Buffer    (iBuffer *d, const void *data, size_t size) { return writeData_Stream(&d->stream, data, size); }
 
+static inline size_t        readData_Buffer     (iBuffer *d, size_t size, void *data_out) { return readData_Stream(&d->stream, size, data_out); }
 static inline iBlock *      readAll_Buffer      (iBuffer *d) { return readAll_Stream(&d->stream); }
 static inline iString *     readString_Buffer   (iBuffer *d) { return readString_Stream(&d->stream); }
 static inline iStringList * readLines_Buffer    (iBuffer *d) { return readLines_Stream(&d->stream); }
+
+size_t      consume_Buffer      (iBuffer *d, size_t size, void *data_out);
+iBlock *    consumeAll_Buffer   (iBuffer *d);

@@ -41,6 +41,15 @@ iDeclareType(Mutex)
 iDeclareNotifyFunc(Socket, ReadyRead)
 iDeclareAudienceGetter(Socket, readyRead)
 
+enum iSocketStatus {
+    addressLookup_SocketStatus,
+    initialized_SocketStatus,
+    connecting_SocketStatus,
+    connected_SocketStatus,
+    disconnecting_SocketStatus,
+    disconnected_SocketStatus,
+};
+
 iDeclareObjectConstructionArgs(Socket, const char *hostName, uint16_t port)
 
 iSocket *   newAddress_Socket   (const iAddress *address);
@@ -49,16 +58,15 @@ iSocket *   newExisting_Socket  (int fd, const void *sockAddr, size_t sockAddrSi
 iBool       open_Socket     (iSocket *);
 void        close_Socket    (iSocket *);
 
-iStream *   output_Socket   (iSocket *);
-
 iBool       isOpen_Socket   (const iSocket *);
 iMutex *    mutex_Socket    (iSocket *);
 
+enum iSocketStatus status_Socket         (const iSocket *);
 size_t           receivedBytes_Socket    (const iSocket *);
 const iAddress * address_Socket          (const iSocket *);
 
-static inline void flush_Socket(iSocket *d) { flush_Stream((iStream *) d); }
-
-static inline size_t writeData_Socket(iSocket *d, const void *data, size_t size) {
+static inline void      flush_Socket        (iSocket *d) { flush_Stream((iStream *) d); }
+static inline iBlock *  readAll_Socket      (iSocket *d) { return readAll_Stream((iStream *) d); }
+static inline size_t    writeData_Socket    (iSocket *d, const void *data, size_t size) {
     return writeData_Stream((iStream *) d, data, size);
 }

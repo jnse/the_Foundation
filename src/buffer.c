@@ -120,6 +120,24 @@ const iBlock *data_Buffer(const iBuffer *d) {
     return d->data;
 }
 
+size_t consume_Buffer(iBuffer *d, size_t size, void *data_out) {
+    iAssert(~d->mode & readOnly_BufferMode);
+    rewind_Buffer(d);
+    const size_t consumedSize = readData_Buffer(d, size, data_out);
+    remove_Block(d->data, 0, consumedSize);
+    setSize_Stream(&d->stream, size_Block(d->data));
+    rewind_Buffer(d);
+    return consumedSize;
+}
+
+iBlock *consumeAll_Buffer(iBuffer *d) {
+    iAssert(~d->mode & readOnly_BufferMode);
+    rewind_Buffer(d);
+    iBlock *data = readAll_Buffer(d);
+    clear_Buffer(d);
+    return data;
+}
+
 static iBeginDefineClass(Buffer)
     .super  = &Class_Stream,
     .seek   = (long   (*)(iStream *, long))                 seek_Buffer_,
