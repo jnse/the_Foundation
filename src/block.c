@@ -234,6 +234,20 @@ void truncate_Block(iBlock *d, size_t size) {
     d->i->data[d->i->size] = 0;
 }
 
+void remove_Block(iBlock *d, size_t start, size_t count) {
+    detach_Block_(d, 0);
+    iAssert(start <= d->i->size);
+    if (start + count > d->i->size) {
+        count = d->i->size - start;
+    }
+    const size_t remainder = d->i->size - start - count;
+    if (remainder > 0) {
+        memmove(d->i->data + start, d->i->data + start + count, remainder);
+    }
+    d->i->size -= count;
+    d->i->data[d->i->size] = 0;
+}
+
 void printf_Block(iBlock *d, const char *format, ...) {
     va_list args;
     va_start(args, format);

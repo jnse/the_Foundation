@@ -91,6 +91,7 @@ void            clear_Block         (iBlock *);
 void            reserve_Block       (iBlock *, size_t reservedSize);
 void            resize_Block        (iBlock *, size_t size);
 void            truncate_Block      (iBlock *, size_t size);
+void            remove_Block        (iBlock *, size_t start, size_t count);
 void            printf_Block        (iBlock *, const char *format, ...);
 void            vprintf_Block       (iBlock *, const char *format, va_list args);
 
