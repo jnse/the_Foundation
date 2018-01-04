@@ -51,29 +51,30 @@ iDefineObjectConstructionArgs(Service, (uint16_t port), port)
 static iThreadResult listen_Service_(iThread *thd) {
     iService *d = userData_Thread(thd);
     for (;;) {
-        /* Wait for activity. */ {
-            fd_set fds;
-            FD_ZERO(&fds);
-            FD_SET(d->fd, &fds);
-            FD_SET(d->stopPipe[0], &fds);
-            const int maxfds = iMax(d->fd, d->stopPipe[0]);
-            if (select(maxfds + 1, &fds, NULL, NULL, NULL) == -1) {
-                break;
-            }
-            if (FD_ISSET(d->stopPipe[0], &fds)) {
-                break;
-            }
-        }
-        struct sockaddr_storage addr;
-        socklen_t size = sizeof(addr);
-        int incoming = accept(d->fd, (struct sockaddr *) &addr, &size);
-        if (incoming < 0) {
-            iWarning("[Service] error on accept: %s\n", strerror(errno));
+        // Wait for activity.
+        fd_set fds;
+        FD_ZERO(&fds);
+        FD_SET(d->fd, &fds);
+        FD_SET(d->stopPipe[0], &fds);
+        const int maxfds = iMax(d->fd, d->stopPipe[0]);
+        if (select(maxfds + 1, &fds, NULL, NULL, NULL) == -1) {
             break;
         }
-        iSocket *socket = newExisting_Socket(incoming, &addr, size);
-        iNotifyAudienceArgs(d, incomingAccepted, ServiceIncomingAccepted, socket);
-        iRelease(socket);
+        if (FD_ISSET(d->stopPipe[0], &fds)) {
+            break;
+        }
+        if (FD_ISSET(d->fd, &fds)) {
+            struct sockaddr_storage addr;
+            socklen_t size = sizeof(addr);
+            int incoming = accept(d->fd, (struct sockaddr *) &addr, &size);
+            if (incoming < 0) {
+                iWarning("[Service] error on accept: %s\n", strerror(errno));
+                break;
+            }
+            iSocket *socket = newExisting_Socket(incoming, &addr, size);
+            iNotifyAudienceArgs(d, incomingAccepted, ServiceIncomingAccepted, socket);
+            iRelease(socket);
+        }
     }
     iReleasePtr(&d->listening);
     return 0;
