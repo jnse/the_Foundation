@@ -60,6 +60,7 @@ struct Impl_Socket {
 };
 
 static iSocketClass Class_Socket;
+static void shutdown_Socket_(iSocket *d);
 
 iDefineAudienceGetter(Socket, readyRead)
 
@@ -124,6 +125,7 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                 ssize_t readSize = recv(d->socket->fd, data_Block(inbuf), size_Block(inbuf), 0);
                 if (readSize == 0) {
                     iWarning("[Socket] peer closed the connection\n");
+                    shutdown_Socket_(d->socket);
                     return 0;
                 }
                 if (readSize == -1) {
@@ -161,15 +163,8 @@ static void deinit_SocketThread(iSocketThread *d) {
 }
 
 static void exit_SocketThread_(iSocketThread *d) {
-    //const iBool isRecv = (d->mode == receiving_SocketThreadMode);
     d->mode = exit_SocketThreadMode;
-    //if (isRecv) {
-        //pthread_kill(d->thread.id, SIGUSR1); // interrupt recv()
-
-    //}
-    //else {
     signal_Condition(&d->socket->output->dataAvailable);
-    //}
     join_Thread(&d->thread);
 }
 
@@ -219,6 +214,38 @@ static void startThreads_Socket_(iSocket *d) {
     d->receiver = new_SocketThread(d, receiving_SocketThreadMode);
     start_SocketThread(d->sender);
     start_SocketThread(d->receiver);
+}
+
+static void stopThreads_Socket_(iSocket *d) {
+    if (d->sender) {
+        exit_SocketThread_(d->sender);
+        iReleasePtr(&d->sender);
+    }
+    if (d->receiver) {
+        exit_SocketThread_(d->receiver);
+        iReleasePtr(&d->receiver);
+    }
+}
+
+static void shutdown_Socket_(iSocket *d) {
+    iGuardMutex(&d->mutex, {
+        setStatus_Socket_(d, disconnecting_SocketStatus);
+        if (d->fd >= 0) {
+            shutdown(d->fd, SHUT_RD);
+        }
+    });
+    stopThreads_Socket_(d);
+    iGuardMutex(&d->mutex, {
+        if (d->fd >= 0) {
+            close(d->fd);
+            d->fd = -1;
+        }
+        setStatus_Socket_(d, disconnected_SocketStatus);
+        iAssert(d->fd < 0);
+        iAssert(!d->sender);
+        iAssert(!d->receiver);
+        iAssert(!d->connecting);
+    });
 }
 
 static iThreadResult connectAsync_Socket_(iThread *thd) {
@@ -278,17 +305,6 @@ static void addressLookedUp_Socket_(iAny *any, const iAddress *address) {
     });
 }
 
-static void stopThreads_Socket_(iSocket *d) {
-    if (d->sender) {
-        exit_SocketThread_(d->sender);
-        iReleasePtr(&d->sender);
-    }
-    if (d->receiver) {
-        exit_SocketThread_(d->receiver);
-        iReleasePtr(&d->receiver);
-    }
-}
-
 iSocket *newAddress_Socket(const iAddress *address) {
     iSocket *d = iNew(Socket);
     init_Socket_(d);
@@ -343,27 +359,19 @@ iBool open_Socket(iSocket *d) {
 }
 
 void close_Socket(iSocket *d) {
+    if (d->status == disconnected_SocketStatus) return;
     iGuardMutex(&d->mutex, {
-        if (d->status == connected_SocketStatus) {
+        if (d->status == connecting_SocketStatus) {
+            shutdown(d->fd, SHUT_WR);
+        }
+        else if (d->status == connected_SocketStatus) {
             flush_Socket(d);
         }
         setStatus_Socket_(d, disconnecting_SocketStatus);
-        if (d->fd >= 0) {
-            shutdown(d->fd, SHUT_RD);
-        }
     });
     guardJoin_Thread(d->connecting, &d->mutex);
     iReleasePtr(&d->connecting);
-    stopThreads_Socket_(d);
-    if (d->fd >= 0) {
-        close(d->fd);
-        d->fd = -1;
-    }
-    setStatus_Socket_(d, disconnected_SocketStatus);
-    iAssert(d->fd < 0);
-    iAssert(!d->sender);
-    iAssert(!d->receiver);
-    iAssert(!d->connecting);
+    shutdown_Socket_(d);
 }
 
 iMutex *mutex_Socket(iSocket *d) {
