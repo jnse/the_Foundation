@@ -78,15 +78,21 @@ struct Impl_Class {
         .deinit = (void (*)(void *)) deinit_##className, \
     };
 
+#define iBeginDefineSubclass(className, superClass) \
+    i##className##Class Class_##className = { \
+        .super = &Class_##superClass, \
+
+#define iEndDefineSubclass(className) \
+    iEndDefineClass(className)
+
 #define iDefineClass(className) \
     iBeginDefineClass(className) \
         .super = NULL, \
     iEndDefineClass(className)
 
 #define iDefineSubclass(className, superClass) \
-    iBeginDefineClass(className) \
-        .super = &Class_##superClass, \
-    iEndDefineClass(className)
+    iBeginDefineSubclass(className, superClass) \
+    iEndDefineSubclass(className)
 
 void deinit_Class(const void *class, void *object);
 void delete_Class(const void *class, void *object);

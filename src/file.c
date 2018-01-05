@@ -121,8 +121,7 @@ static void flush_File_(iFile *d) {
     }
 }
 
-static iBeginDefineClass(File)
-    .super  = &Class_Stream,
+static iBeginDefineSubclass(File, Stream)
     .seek   = (long   (*)(iStream *, long))                 seek_File_,
     .read   = (size_t (*)(iStream *, size_t, void *))       read_File_,
     .write  = (size_t (*)(iStream *, const void *, size_t)) write_File_,

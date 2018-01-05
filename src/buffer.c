@@ -138,8 +138,7 @@ iBlock *consumeAll_Buffer(iBuffer *d) {
     return data;
 }
 
-static iBeginDefineClass(Buffer)
-    .super  = &Class_Stream,
+static iBeginDefineSubclass(Buffer, Stream)
     .seek   = (long   (*)(iStream *, long))                 seek_Buffer_,
     .read   = (size_t (*)(iStream *, size_t, void *))       read_Buffer_,
     .write  = (size_t (*)(iStream *, const void *, size_t)) write_Buffer_,

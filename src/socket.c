@@ -40,7 +40,7 @@ void getSockAddr_Address(const iAddress *d, struct sockaddr **addr_out, socklen_
 iDeclareType(SocketThread)
 
 struct Impl_Socket {
-    iStream base;
+    iStream stream;
     iBuffer *output;
     iBuffer *input;
     enum iSocketStatus status;
@@ -190,7 +190,7 @@ static void setStatus_Socket_(iSocket *d, enum iSocketStatus status) {
 }
 
 static void init_Socket_(iSocket *d) {
-    init_Stream(&d->base);
+    init_Stream(&d->stream);
     d->output = new_Buffer();
     d->input = new_Buffer();
     openEmpty_Buffer(d->output);
@@ -433,8 +433,7 @@ static void flush_Socket_(iSocket *d) {
     });
 }
 
-static iBeginDefineClass(Socket)
-    .super  = &Class_Stream,
+static iBeginDefineSubclass(Socket, Stream)
     .seek   = seek_Socket_,
     .read   = (size_t (*)(iStream *, size_t, void *))       read_Socket_,
     .write  = (size_t (*)(iStream *, const void *, size_t)) write_Socket_,
