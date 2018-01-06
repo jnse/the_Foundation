@@ -75,6 +75,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
     } \
 }
 
+#define iConnect(typeName, src, audienceName, dest, function) \
+    insert_Audience(audienceName##_##typeName(src), (dest), (iObserverFunc) (function))
+
+#define iDisconnect(typeName, src, audienceName, dest, function) \
+    remove_Audience(audienceName##_##typeName(src), (dest), (iObserverFunc) (function))
+
+#define iDisconnectObject(typeName, src, audienceName, dest) \
+    removeObject_Audience(audienceName##_##typeName(src), (dest))
+
 iDeclareType(Audience)
 iDeclareType(Observer)
 iDeclareType(Object)

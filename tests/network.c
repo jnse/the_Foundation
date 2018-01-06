@@ -53,7 +53,7 @@ static void printMessage_(iAny *any, iSocket *sock) {
 
 static iThreadResult messageReceiver_(iThread *thread) {
     iSocket *sock = userData_Thread(thread);
-    insert_Audience(readyRead_Socket(sock), sock, (iObserverFunc) printMessage_);
+    iConnect(Socket, sock, readyRead, sock, printMessage_);
     printMessage_(NULL, sock);
     while (isOpen_Socket(sock)) {
         sleep_Thread(0.1);
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
     // Check the arguments.
     if (contains_CommandLine(cmdline, "s;server")) {
         iService *sv = iClob(new_Service(14666));
-        insert_Audience(incomingAccepted_Service(sv), sv, (iObserverFunc) communicate_);
+        iConnect(Service, sv, incomingAccepted, sv, communicate_);
         if (!open_Service(sv)) {
             puts("Failed to start service");
             return 1;
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
             if (i.argType == value_CommandLineArgType) {
                 printf("\nLooking up \"%s\"...\n", cstr_String(value_CommandLineConstIterator(&i)));
                 iAddress *addr = new_Address();
-                insert_Audience(lookupFinished_Address(addr), addr, (iObserverFunc) hostLookedUp);
+                iConnect(Address, addr, lookupFinished, addr, hostLookedUp);
                 lookupHost_Address(addr, value_CommandLineConstIterator(&i), 0);
                 iRelease(addr);
             }

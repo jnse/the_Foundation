@@ -328,8 +328,7 @@ void init_Socket(iSocket *d, const char *hostName, uint16_t port) {
     init_Socket_(d);
     d->address = new_Address();
     setStatus_Socket_(d, addressLookup_SocketStatus);
-    insert_Audience(lookupFinished_Address(d->address), d,
-                    (iObserverFunc) addressLookedUp_Socket_);
+    iConnect(Address, d->address, lookupFinished, d, addressLookedUp_Socket_);
     lookupHostCStr_Address(d->address, hostName, port);
 }
 

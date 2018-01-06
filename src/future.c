@@ -66,8 +66,7 @@ void add_Future(iFuture *d, iThread *thread) {
     iAssert(!isRunning_Thread(thread));
     iGuardMutex(&d->mutex, {
         d->pendingCount++;
-        insert_Audience(finished_Thread(thread), d,
-                        (iObserverFunc) threadFinished_Future_);
+        iConnect(Thread, thread, finished, d, threadFinished_Future_);
         pushBack_ObjectList(&d->threads, thread);
     });
 }
