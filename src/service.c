@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/socket.h"
 #include "c_plus/string.h"
 #include "c_plus/thread.h"
+#include "c_plus/pipe.h"
 
 #include <netdb.h>
 #include <unistd.h>
@@ -39,7 +40,7 @@ struct Impl_Service {
     iObject object;
     uint16_t port;
     int fd;
-    int stopPipe[2];
+    iPipe stop;
     iThread *listening;
     iAudience *incomingAccepted;
 };
@@ -55,12 +56,12 @@ static iThreadResult listen_Service_(iThread *thd) {
         fd_set fds;
         FD_ZERO(&fds);
         FD_SET(d->fd, &fds);
-        FD_SET(d->stopPipe[0], &fds);
-        const int maxfds = iMax(d->fd, d->stopPipe[0]);
+        FD_SET(output_Pipe(&d->stop), &fds);
+        const int maxfds = iMax(d->fd, output_Pipe(&d->stop));
         if (select(maxfds + 1, &fds, NULL, NULL, NULL) == -1) {
             break;
         }
-        if (FD_ISSET(d->stopPipe[0], &fds)) {
+        if (FD_ISSET(output_Pipe(&d->stop), &fds)) {
             break;
         }
         if (FD_ISSET(d->fd, &fds)) {
@@ -84,14 +85,13 @@ void init_Service(iService *d, uint16_t port) {
     d->port = port;
     d->fd = -1;
     d->listening = NULL;
-    pipe(d->stopPipe);
+    init_Pipe(&d->stop);
     d->incomingAccepted = new_Audience();
 }
 
 void deinit_Service(iService *d) {
     close_Service(d);
-    close(d->stopPipe[0]);
-    close(d->stopPipe[1]);
+    deinit_Pipe(&d->stop);
     iAssert(d->listening == NULL);
     iAssert(d->fd < 0);
     delete_Audience(d->incomingAccepted);
@@ -146,7 +146,7 @@ iBool open_Service(iService *d) {
 void close_Service(iService *d) {
     if (d->listening) {
         // Signal the listening thread to stop.
-        write(d->stopPipe[1], &(char){ 1 }, 1);
+        writeByte_Pipe(&d->stop, 1);
         join_Thread(d->listening);
         close(d->fd);
         d->fd = -1;

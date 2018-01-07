@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/socket.h"
 #include "c_plus/buffer.h"
 #include "c_plus/mutex.h"
+#include "c_plus/pipe.h"
 #include "c_plus/thread.h"
 
 #include <unistd.h>
@@ -77,6 +78,7 @@ iDeclareClass(SocketThread)
 struct Impl_SocketThread {
     iThread thread;
     iSocket *socket;
+    iPipe stop;
     volatile enum iSocketThreadMode mode;
 };
 
@@ -154,12 +156,13 @@ static iThreadResult run_SocketThread_(iThread *thread) {
 static void init_SocketThread(iSocketThread *d, iSocket *socket,
                               enum iSocketThreadMode mode) {
     init_Thread(&d->thread, run_SocketThread_);
+    init_Pipe(&d->stop);
     d->socket = socket;
     d->mode = mode;
 }
 
 static void deinit_SocketThread(iSocketThread *d) {
-    deinit_Thread(&d->thread);
+    deinit_Pipe(&d->stop);
 }
 
 static void exit_SocketThread_(iSocketThread *d) {
@@ -168,7 +171,7 @@ static void exit_SocketThread_(iSocketThread *d) {
     join_Thread(&d->thread);
 }
 
-iDefineClass(SocketThread)
+iDefineSubclass(SocketThread, Thread)
 iDefineObjectConstructionArgs(SocketThread,
                               (iSocket *socket, enum iSocketThreadMode mode),
                               socket, mode)
@@ -207,6 +210,18 @@ static void init_Socket_(iSocket *d) {
     d->error = NULL;
     d->readyRead = NULL;
     d->writeFinished = NULL;
+}
+
+void deinit_Socket(iSocket *d) {
+    close_Socket(d);
+    iGuardMutex(&d->mutex, {
+        iReleasePtr(&d->output);
+        iReleasePtr(&d->input);
+        iReleasePtr(&d->address);
+    });
+    deinit_Mutex(&d->mutex);
+    deinit_Condition(&d->allSent);
+    delete_Audience(d->readyRead);
 }
 
 static void startThreads_Socket_(iSocket *d) {
@@ -332,34 +347,25 @@ void init_Socket(iSocket *d, const char *hostName, uint16_t port) {
     lookupHostCStr_Address(d->address, hostName, port);
 }
 
-void deinit_Socket(iSocket *d) {
-    close_Socket(d);
-    iGuardMutex(&d->mutex, {
-        iReleasePtr(&d->output);
-        iReleasePtr(&d->input);
-        iReleasePtr(&d->address);
-    });
-    deinit_Mutex(&d->mutex);
-    deinit_Condition(&d->allSent);
-    delete_Audience(d->readyRead);
-}
-
 iBool open_Socket(iSocket *d) {
     iBool ok;
-    lock_Mutex(&d->mutex);
-    if (isOpen_Socket(d)) {
-        ok = iFalse;
-    }
-    else {
-        ok = open_Socket_(d);
-    }
-    unlock_Mutex(&d->mutex);
+    iGuardMutex(&d->mutex, {
+        if (isOpen_Socket(d)) {
+            ok = iFalse;
+        }
+        else {
+            ok = open_Socket_(d);
+        }
+    });
     return ok;
 }
 
 void close_Socket(iSocket *d) {
-    if (d->status == disconnected_SocketStatus) return;
     iGuardMutex(&d->mutex, {
+        if (d->status == disconnected_SocketStatus) {
+            unlock_Mutex(&d->mutex);
+            return;
+        }
         if (d->status == connecting_SocketStatus) {
             shutdown(d->fd, SHUT_WR);
         }

@@ -110,11 +110,6 @@ void setUserData_Thread(iThread *d, void *userData) {
 
 iBool isRunning_Thread(const iThread *d) {
     return d->state == running_ThreadState;
-/*    if (!d->id) return iFalse;
-    const iLockableThreadHash *threads = init_Threads_();
-    iBool running;
-    iGuard(threads, running = contains_ThreadHash(threads->value, &d->id));
-    return running;*/
 }
 
 iBool isFinished_Thread(const iThread *d) {

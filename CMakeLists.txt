@@ -86,6 +86,7 @@ set (HEADERS
     include/c_plus/object.h
     include/c_plus/objectlist.h
     include/c_plus/path.h
+    include/c_plus/pipe.h
     include/c_plus/ptrarray.h
     include/c_plus/ptrset.h
     include/c_plus/queue.h
@@ -128,6 +129,7 @@ set (SOURCES
     src/object.c
     src/objectlist.c
     src/path.c
+    src/pipe.c
     src/ptrarray.c
     src/ptrset.c
     src/queue.c

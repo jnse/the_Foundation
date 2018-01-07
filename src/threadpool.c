@@ -58,10 +58,10 @@ static void init_PooledThread(iPooledThread *d, iThreadPool *pool) {
 }
 
 static void deinit_PooledThread(iPooledThread *d) {
-    deinit_Thread(&d->thread);
+    iUnused(d);
 }
 
-iDefineClass(PooledThread)
+iDefineSubclass(PooledThread, Thread)
 iDefineObjectConstructionArgs(PooledThread, (iThreadPool *pool), pool)
 
 static inline void start_PooledThread(iPooledThread *d) { start_Thread(&d->thread); }
