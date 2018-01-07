@@ -58,12 +58,10 @@ iSocket *   newExisting_Socket  (int fd, const void *sockAddr, size_t sockAddrSi
 iBool       open_Socket     (iSocket *);
 void        close_Socket    (iSocket *);
 
-iBool       isOpen_Socket   (const iSocket *);
-iMutex *    mutex_Socket    (iSocket *);
-
-enum iSocketStatus status_Socket         (const iSocket *);
-size_t           receivedBytes_Socket    (const iSocket *);
-const iAddress * address_Socket          (const iSocket *);
+iBool               isOpen_Socket           (const iSocket *);
+enum iSocketStatus  status_Socket           (const iSocket *);
+size_t              receivedBytes_Socket    (const iSocket *);
+const iAddress *    address_Socket          (const iSocket *);
 
 static inline void      flush_Socket        (iSocket *d) { flush_Stream((iStream *) d); }
 static inline iBlock *  readAll_Socket      (iSocket *d) { return readAll_Stream((iStream *) d); }

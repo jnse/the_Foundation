@@ -373,10 +373,6 @@ void close_Socket(iSocket *d) {
     shutdown_Socket_(d);
 }
 
-iMutex *mutex_Socket(iSocket *d) {
-    return &d->mutex;
-}
-
 iBool isOpen_Socket(const iSocket *d) {
     iBool open;
     iGuardMutex(&d->mutex, {

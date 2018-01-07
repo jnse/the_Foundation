@@ -57,19 +57,16 @@ struct Impl_SocketParameters {
     int protocol;
 };
 
-iSocketParameters socketParameters_Address(const iAddress *);
+iSocketParameters   socketParameters_Address(const iAddress *);
+iString *           toString_Address        (const iAddress *);
+const iString *     hostName_Address        (const iAddress *);
+iBool               isPending_Address       (const iAddress *);
 
-iString *       toString_Address    (const iAddress *);
-
-const iString * hostName_Address    (const iAddress *);
-
-void        lookupHostCStr_Address  (iAddress *, const char *hostName, uint16_t port);
+void    lookupHostCStr_Address  (iAddress *, const char *hostName, uint16_t port);
+void    waitForFinished_Address (const iAddress *);
 
 static inline void lookupHost_Address(iAddress *d, const iString *hostName, uint16_t port) {
     lookupHostCStr_Address(d, cstr_String(hostName), port);
 }
-
-iBool       isPending_Address       (const iAddress *);
-void        waitForFinished_Address (const iAddress *);
 
 iDeclareAudienceGetter(Address, lookupFinished)
