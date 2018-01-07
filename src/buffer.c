@@ -130,6 +130,13 @@ size_t consume_Buffer(iBuffer *d, size_t size, void *data_out) {
     return consumedSize;
 }
 
+iBlock *consumeBlock_Buffer(iBuffer *d, size_t size) {
+    iBlock *data = new_Block(size);
+    size_t count = consume_Buffer(d, size, data_Block(data));
+    truncate_Block(data, count);
+    return data;
+}
+
 iBlock *consumeAll_Buffer(iBuffer *d) {
     iAssert(~d->mode & readOnly_BufferMode);
     rewind_Buffer(d);

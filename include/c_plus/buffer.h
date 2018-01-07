@@ -82,4 +82,5 @@ static inline iString *     readString_Buffer   (iBuffer *d) { return readString
 static inline iStringList * readLines_Buffer    (iBuffer *d) { return readLines_Stream(&d->stream); }
 
 size_t      consume_Buffer      (iBuffer *d, size_t size, void *data_out);
+iBlock *    consumeBlock_Buffer (iBuffer *d, size_t size);
 iBlock *    consumeAll_Buffer   (iBuffer *d);

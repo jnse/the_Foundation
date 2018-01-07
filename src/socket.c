@@ -48,8 +48,7 @@ struct Impl_Socket {
     iAddress *address;
     int fd;
     iThread *connecting;
-    iSocketThread *sender;
-    iSocketThread *receiver;
+    iSocketThread *thread;
     iCondition allSent;
     iMutex mutex;
     // Audiences:
@@ -68,9 +67,8 @@ iDefineAudienceGetter(Socket, readyRead)
 //---------------------------------------------------------------------------------------
 
 enum iSocketThreadMode {
-    sending_SocketThreadMode,
-    receiving_SocketThreadMode,
-    exit_SocketThreadMode,
+    run_SocketThreadMode,
+    stop_SocketThreadMode,
 };
 
 iDeclareClass(SocketThread)
@@ -78,32 +76,53 @@ iDeclareClass(SocketThread)
 struct Impl_SocketThread {
     iThread thread;
     iSocket *socket;
-    iPipe stop;
+    iPipe unblock;
     volatile enum iSocketThreadMode mode;
 };
 
 static iThreadResult run_SocketThread_(iThread *thread) {
     iSocketThread *d = (iAny *) thread;
     iMutex *smx = &d->socket->mutex;
-    iBlock *inbuf = NULL;
-    if (d->mode == receiving_SocketThreadMode) {
-        inbuf = new_Block(0x20000);
-        collect_Block(inbuf);
-    }
-    while (d->mode != exit_SocketThreadMode) {
-        switch (d->mode) {
-            case sending_SocketThreadMode: {
-                // Take all the pending data to be sent.
-                iBlock *data = NULL;
-                iGuardMutex(smx, {
-                    if (isEmpty_Buffer(d->socket->output)) {
-                        wait_Condition(&d->socket->output->dataAvailable, smx);
+    iBlock *inbuf = collect_Block(new_Block(0x20000));
+    while (d->mode == run_SocketThreadMode) {
+        // Wait for activity.
+        fd_set reads, errors; {
+            FD_ZERO(&reads);
+            FD_ZERO(&errors);
+            FD_SET(output_Pipe(&d->unblock), &reads);
+            FD_SET(d->socket->fd, &reads);
+            FD_SET(d->socket->fd, &errors);
+            int maxfd = iMax(output_Pipe(&d->unblock), d->socket->fd);
+            int ready = select(maxfd + 1, &reads, NULL, &errors, NULL);
+            if (ready == -1) {
+                return errno;
+            }
+        }
+        if (FD_ISSET(output_Pipe(&d->unblock), &reads)) {
+            readByte_Pipe(&d->unblock);
+        }
+        // Problem with the socket?
+        if (FD_ISSET(d->socket->fd, &errors)) {
+            if (status_Socket(d->socket) == connected_SocketStatus) {
+                iWarning("[Socket] error when receiving: %s\n", strerror(errno));
+                close_Socket(d->socket);
+                return errno;
+            }
+            return 0;
+        }
+        /* Check for data to send. */ {
+            iBlock *data = NULL;
+            size_t remaining = 0;
+            iGuardMutex(smx, {
+                if (d->mode != stop_SocketThreadMode) {
+                    if (!isEmpty_Buffer(d->socket->output)) {
+                        data = consumeBlock_Buffer(d->socket->output, 0x10000);
                     }
-                    data = consumeAll_Buffer(d->socket->output);
-                    iDebug("[Socket] got %zu bytes for sending\n", size_Block(data));
-                });
-                size_t remaining = size_Block(data);
+                }
+            });
+            if (data) {
                 const char *ptr = constData_Block(data);
+                remaining = size_Block(data);
                 while (remaining > 0) {
                     ssize_t sent = send(d->socket->fd, ptr, remaining, 0);
                     if (sent == -1) {
@@ -116,38 +135,35 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                     ptr += sent;
                 }
                 delete_Block(data);
-                iGuardMutex(smx, {
-                    if (isEmpty_Buffer(d->socket->output)) {
-                        signal_Condition(&d->socket->allSent);
-                    }
-                });
-                break;
             }
-            case receiving_SocketThreadMode: {
-                ssize_t readSize = recv(d->socket->fd, data_Block(inbuf), size_Block(inbuf), 0);
-                if (readSize == 0) {
-                    iWarning("[Socket] peer closed the connection\n");
-                    shutdown_Socket_(d->socket);
-                    return 0;
+            iGuardMutex(smx, {
+                if (isEmpty_Buffer(d->socket->output)) {
+                    signal_Condition(&d->socket->allSent);
                 }
-                if (readSize == -1) {
-                    if (status_Socket(d->socket) == connected_SocketStatus) {
-                        iWarning("[Socket] error when receiving: %s\n", strerror(errno));
-                        close_Socket(d->socket);
-                        return errno;
-                    }
-                    // This was expected.
-                    return 0;
-                }
-                iGuardMutex(smx, {
-                    writeData_Buffer(d->socket->input, constData_Block(inbuf), readSize);
-                    signal_Condition(&d->socket->input->dataAvailable);
-                });
-                iNotifyAudience(d->socket, readyRead, SocketReadyRead);
-                break;
+            });
+        }
+        // Check for incoming data.
+        if (FD_ISSET(d->socket->fd, &reads)) {
+            ssize_t readSize = recv(d->socket->fd, data_Block(inbuf), size_Block(inbuf), 0);
+            if (readSize == 0) {
+                iWarning("[Socket] peer closed the connection\n");
+                shutdown_Socket_(d->socket);
+                return 0;
             }
-            case exit_SocketThreadMode:
-                break;
+            if (readSize == -1) {
+                if (status_Socket(d->socket) == connected_SocketStatus) {
+                    iWarning("[Socket] error when receiving: %s\n", strerror(errno));
+                    close_Socket(d->socket);
+                    return errno;
+                }
+                // This was expected.
+                return 0;
+            }
+            iGuardMutex(smx, {
+                writeData_Buffer(d->socket->input, constData_Block(inbuf), readSize);
+                signal_Condition(&d->socket->input->dataAvailable);
+            });
+            iNotifyAudience(d->socket, readyRead, SocketReadyRead);
         }
     }
     return 0;
@@ -156,18 +172,18 @@ static iThreadResult run_SocketThread_(iThread *thread) {
 static void init_SocketThread(iSocketThread *d, iSocket *socket,
                               enum iSocketThreadMode mode) {
     init_Thread(&d->thread, run_SocketThread_);
-    init_Pipe(&d->stop);
+    init_Pipe(&d->unblock);
     d->socket = socket;
     d->mode = mode;
 }
 
 static void deinit_SocketThread(iSocketThread *d) {
-    deinit_Pipe(&d->stop);
+    deinit_Pipe(&d->unblock);
 }
 
 static void exit_SocketThread_(iSocketThread *d) {
-    d->mode = exit_SocketThreadMode;
-    signal_Condition(&d->socket->output->dataAvailable);
+    d->mode = stop_SocketThreadMode;
+    writeByte_Pipe(&d->unblock, 1); // select() will exit
     join_Thread(&d->thread);
 }
 
@@ -201,8 +217,7 @@ static void init_Socket_(iSocket *d) {
     d->fd = -1;
     d->address = NULL;
     d->connecting = NULL;
-    d->sender = NULL;
-    d->receiver = NULL;
+    d->thread = NULL;
     init_Condition(&d->allSent);
     init_Mutex(&d->mutex);
     d->connected = NULL;
@@ -224,21 +239,15 @@ void deinit_Socket(iSocket *d) {
     delete_Audience(d->readyRead);
 }
 
-static void startThreads_Socket_(iSocket *d) {
-    d->sender   = new_SocketThread(d, sending_SocketThreadMode);
-    d->receiver = new_SocketThread(d, receiving_SocketThreadMode);
-    start_SocketThread(d->sender);
-    start_SocketThread(d->receiver);
+static void startThread_Socket_(iSocket *d) {
+    d->thread = new_SocketThread(d, run_SocketThreadMode);
+    start_SocketThread(d->thread);
 }
 
-static void stopThreads_Socket_(iSocket *d) {
-    if (d->sender) {
-        exit_SocketThread_(d->sender);
-        iReleasePtr(&d->sender);
-    }
-    if (d->receiver) {
-        exit_SocketThread_(d->receiver);
-        iReleasePtr(&d->receiver);
+static void stopThread_Socket_(iSocket *d) {
+    if (d->thread) {
+        exit_SocketThread_(d->thread);
+        iReleasePtr(&d->thread);
     }
 }
 
@@ -249,7 +258,7 @@ static void shutdown_Socket_(iSocket *d) {
             shutdown(d->fd, SHUT_RD);
         }
     });
-    stopThreads_Socket_(d);
+    stopThread_Socket_(d);
     iGuardMutex(&d->mutex, {
         if (d->fd >= 0) {
             close(d->fd);
@@ -257,8 +266,7 @@ static void shutdown_Socket_(iSocket *d) {
         }
         setStatus_Socket_(d, disconnected_SocketStatus);
         iAssert(d->fd < 0);
-        iAssert(!d->sender);
-        iAssert(!d->receiver);
+        iAssert(!d->thread);
         iAssert(!d->connecting);
     });
 }
@@ -273,7 +281,7 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
         if (d->status == connecting_SocketStatus) {
             if (rc == 0) {
                 setStatus_Socket_(d, connected_SocketStatus);
-                startThreads_Socket_(d);
+                startThread_Socket_(d);
             }
             else {
                 setStatus_Socket_(d, disconnected_SocketStatus);
@@ -335,7 +343,7 @@ iSocket *newExisting_Socket(int fd, const void *sockAddr, size_t sockAddrSize) {
     d->fd = fd;
     d->address = newSockAddr_Address(sockAddr, sockAddrSize);
     setStatus_Socket_(d, connected_SocketStatus);
-    startThreads_Socket_(d);
+    startThread_Socket_(d);
     return d;
 }
 
@@ -421,7 +429,7 @@ static size_t read_Socket_(iSocket *d, size_t size, void *data_out) {
 static size_t write_Socket_(iSocket *d, const void *data, size_t size) {
     iGuardMutex(&d->mutex, {
         writeData_Stream(stream_Buffer(d->output), data, size);
-        signal_Condition(&d->output->dataAvailable);
+        writeByte_Pipe(&d->thread->unblock, 0); // wake up the I/O thread
     });
     return size;
 }
