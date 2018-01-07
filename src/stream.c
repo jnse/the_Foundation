@@ -145,6 +145,10 @@ size_t writeData_Stream(iStream *d, const void *data, size_t size) {
     return n;
 }
 
+size_t writeBuffer_Stream(iStream *d, const iBuffer *buf) {
+    return write_Stream(d, data_Buffer(buf));
+}
+
 iStringList *readLines_Stream(iStream *d) {
     iBlock *data = readAll_Stream(d);
     iStringList *lines = split_String((iString *) data, "\n");

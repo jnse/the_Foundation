@@ -42,3 +42,7 @@ void deinit_Pipe(iPipe *d) {
 size_t write_Pipe(const iPipe *d, const void *data, size_t size) {
     return write(input_Pipe(d), data, size);
 }
+
+size_t read_Pipe(const iPipe *d, size_t size, void *data_out) {
+    return read(output_Pipe(d), data_out, size);
+}

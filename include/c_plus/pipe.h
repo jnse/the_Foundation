@@ -41,7 +41,14 @@ static inline int input_Pipe  (const iPipe *d) { return d->fds[1]; }
 static inline int output_Pipe (const iPipe *d) { return d->fds[0]; }
 
 size_t  write_Pipe  (const iPipe *, const void *data, size_t size);
+size_t  read_Pipe   (const iPipe *, size_t size, void *data_out);
 
 static inline void writeByte_Pipe(const iPipe *d, uint8_t value) {
     write_Pipe(d, &(char){ value }, 1);
+}
+
+static inline uint8_t readByte_Pipe(const iPipe *d) {
+    uint8_t value = 0;
+    read_Pipe(d, 1, &value);
+    return value;
 }

@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "object.h"
 
 iDeclareType(Block)
+iDeclareType(Buffer)
 iDeclareType(Stream)
 iDeclareType(String)
 iDeclareType(StringList)
@@ -76,6 +77,7 @@ size_t      readBlock_Stream    (iStream *, size_t size, iBlock *data_out);
 iBlock *    readAll_Stream      (iStream *);
 
 size_t      write_Stream        (iStream *, const iBlock *data);
+size_t      writeBuffer_Stream  (iStream *, const iBuffer *buf);
 size_t      writeData_Stream    (iStream *, const void *data, size_t size);
 
 static inline void write8_Stream(iStream *d, int8_t value) { writeData_Stream(d, &value, 1); }
