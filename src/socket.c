@@ -63,6 +63,7 @@ static iSocketClass Class_Socket;
 static void shutdown_Socket_(iSocket *d);
 
 iDefineAudienceGetter(Socket, readyRead)
+iDefineAudienceGetter(Socket, writeFinished)
 
 //---------------------------------------------------------------------------------------
 
@@ -85,6 +86,10 @@ static iThreadResult run_SocketThread_(iThread *thread) {
     iMutex *smx = &d->socket->mutex;
     iBlock *inbuf = collect_Block(new_Block(0x20000));
     while (d->mode == run_SocketThreadMode) {
+        if (bytesToSend_Socket(d->socket) > 0) {
+            // Make sure we won't block on select() when there's still data to send.
+            writeByte_Pipe(&d->unblock, 0);
+        }
         // Wait for activity.
         fd_set reads, errors; {
             FD_ZERO(&reads);
@@ -136,11 +141,16 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                 }
                 delete_Block(data);
             }
+            iBool notifyEmpty = iFalse;
             iGuardMutex(smx, {
                 if (isEmpty_Buffer(d->socket->output)) {
                     signal_Condition(&d->socket->allSent);
+                    notifyEmpty = (d->socket->writeFinished != NULL);
                 }
             });
+            if (notifyEmpty) {
+                iNotifyAudience(d->socket, writeFinished, SocketWriteFinished);
+            }
         }
         // Check for incoming data.
         if (FD_ISSET(d->socket->fd, &reads)) {
@@ -400,6 +410,12 @@ enum iSocketStatus status_Socket(const iSocket *d) {
     enum iSocketStatus status;
     iGuardMutex(&d->mutex, status = d->status);
     return status;
+}
+
+size_t bytesToSend_Socket(const iSocket *d) {
+    size_t n;
+    iGuardMutex(&d->mutex, n = size_Buffer(d->output));
+    return n;
 }
 
 size_t receivedBytes_Socket(const iSocket *d) {

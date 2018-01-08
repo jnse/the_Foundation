@@ -39,7 +39,9 @@ iDeclareType(Socket)
 iDeclareType(Mutex)
 
 iDeclareNotifyFunc(Socket, ReadyRead)
+iDeclareNotifyFunc(Socket, WriteFinished)
 iDeclareAudienceGetter(Socket, readyRead)
+iDeclareAudienceGetter(Socket, writeFinished)
 
 enum iSocketStatus {
     addressLookup_SocketStatus,
@@ -61,6 +63,7 @@ void        close_Socket    (iSocket *);
 iBool               isOpen_Socket           (const iSocket *);
 enum iSocketStatus  status_Socket           (const iSocket *);
 size_t              receivedBytes_Socket    (const iSocket *);
+size_t              bytesToSend_Socket      (const iSocket *);
 const iAddress *    address_Socket          (const iSocket *);
 
 static inline void      flush_Socket        (iSocket *d) { flush_Stream((iStream *) d); }
