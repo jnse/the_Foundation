@@ -62,6 +62,9 @@ struct Impl_Socket {
 static iSocketClass Class_Socket;
 static void shutdown_Socket_(iSocket *d);
 
+iDefineAudienceGetter(Socket, connected)
+iDefineAudienceGetter(Socket, disconnected)
+iDefineAudienceGetter(Socket, error)
 iDefineAudienceGetter(Socket, readyRead)
 iDefineAudienceGetter(Socket, writeFinished)
 
@@ -141,16 +144,16 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                 }
                 delete_Block(data);
             }
-            iBool notifyEmpty = iFalse;
             iGuardMutex(smx, {
                 if (isEmpty_Buffer(d->socket->output)) {
                     signal_Condition(&d->socket->allSent);
-                    notifyEmpty = (d->socket->writeFinished != NULL);
+                    if (d->socket->writeFinished) {
+                        unlock_Mutex(smx);
+                        iNotifyAudience(d->socket, writeFinished, SocketWriteFinished);
+                        lock_Mutex(smx);
+                    }
                 }
             });
-            if (notifyEmpty) {
-                iNotifyAudience(d->socket, writeFinished, SocketWriteFinished);
-            }
         }
         // Check for incoming data.
         if (FD_ISSET(d->socket->fd, &reads)) {
@@ -262,7 +265,11 @@ static void stopThread_Socket_(iSocket *d) {
 }
 
 static void shutdown_Socket_(iSocket *d) {
+    iBool notify = iFalse;
     iGuardMutex(&d->mutex, {
+        if (d->status == connected_SocketStatus) {
+            notify = iTrue;
+        }
         setStatus_Socket_(d, disconnecting_SocketStatus);
         if (d->fd >= 0) {
             shutdown(d->fd, SHUT_RD);
@@ -279,6 +286,7 @@ static void shutdown_Socket_(iSocket *d) {
         iAssert(!d->thread);
         iAssert(!d->connecting);
     });
+    iNotifyAudience(d, disconnected, SocketDisconnected);
 }
 
 static iThreadResult connectAsync_Socket_(iThread *thd) {
@@ -292,10 +300,22 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
             if (rc == 0) {
                 setStatus_Socket_(d, connected_SocketStatus);
                 startThread_Socket_(d);
+                if (d->connected) {
+                    unlock_Mutex(&d->mutex);
+                    iNotifyAudience(d, connected, SocketConnected);
+                    lock_Mutex(&d->mutex);
+                }
             }
             else {
                 setStatus_Socket_(d, disconnected_SocketStatus);
-                iWarning("[Socket] connection failed: %s\n", strerror(errno));
+                const int errNum = errno;
+                const char *msg = strerror(errNum);
+                iWarning("[Socket] connection failed: %s\n", msg);
+                if (d->error) {
+                    unlock_Mutex(&d->mutex);
+                    iNotifyAudienceArgs(d, error, SocketError, errNum, msg);
+                    lock_Mutex(&d->mutex);
+                }
             }
         }
         d->connecting = NULL;
@@ -380,7 +400,8 @@ iBool open_Socket(iSocket *d) {
 
 void close_Socket(iSocket *d) {
     iGuardMutex(&d->mutex, {
-        if (d->status == disconnected_SocketStatus) {
+        if (d->status == disconnected_SocketStatus ||
+            d->status == disconnecting_SocketStatus) {
             unlock_Mutex(&d->mutex);
             return;
         }

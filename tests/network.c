@@ -32,6 +32,33 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/socket.h>
 #include <c_plus/thread.h>
 
+static void logConnected_(iAny *d, iSocket *sock) {
+    printf("Socket %p: connected\n", sock);
+}
+
+static void logDisonnected_(iAny *d, iSocket *sock) {
+    printf("Socket %p: disconnected\n", sock);
+}
+
+static void logWriteFinished_(iAny *d, iSocket *sock) {
+    printf("Socket %p: write finished\n", sock);
+}
+
+static void logReadyRead_(iAny *d, iSocket *sock) {
+    printf("Socket %p: data ready for reading (%zu bytes)\n", sock, receivedBytes_Socket(sock));
+}
+
+static void logError_(iAny *d, iSocket *sock, int code, const char *msg) {
+    printf("Socket %p: error %i: %s\n", sock, code, msg);
+}
+
+static void observeSocket_(iSocket *sock) {
+    iConnect(Socket, sock, connected, sock, logConnected_);
+    iConnect(Socket, sock, disconnected, sock, logDisonnected_);
+    iConnect(Socket, sock, error, sock, logError_);
+    iConnect(Socket, sock, readyRead, sock, logReadyRead_);
+    iConnect(Socket, sock, writeFinished, sock, logWriteFinished_);
+}
 static void hostLookedUp(iAny *d, const iAddress *address) {
     iUnused(d);
     if (isValid_Address(address)) {
@@ -70,6 +97,7 @@ static void communicate_(iAny *d, iService *sv, iSocket *sock) {
     // Start a new thread to communicate through the socket.
     iThread *receiver = new_Thread(messageReceiver_);
     setUserData_Thread(receiver, ref_Object(sock));
+    observeSocket_(sock);
     start_Thread(receiver);
 }
 
@@ -91,6 +119,7 @@ int main(int argc, char *argv[]) {
     }
     else if (contains_CommandLine(cmdline, "c;client")) {
         iSocket *sock = iClob(new_Socket("localhost", 14666));
+        observeSocket_(sock);
         if (!open_Socket(sock)) {
             puts("Failed to connect");
             return 1;

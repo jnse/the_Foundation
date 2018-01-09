@@ -38,8 +38,14 @@ typedef iStreamClass iSocketClass;
 iDeclareType(Socket)
 iDeclareType(Mutex)
 
+iDeclareNotifyFunc(Socket, Connected)
+iDeclareNotifyFunc(Socket, Disconnected)
+iDeclareNotifyFuncArgs(Socket, Error, int error, const char *msg)
 iDeclareNotifyFunc(Socket, ReadyRead)
 iDeclareNotifyFunc(Socket, WriteFinished)
+iDeclareAudienceGetter(Socket, connected)
+iDeclareAudienceGetter(Socket, disconnected)
+iDeclareAudienceGetter(Socket, error)
 iDeclareAudienceGetter(Socket, readyRead)
 iDeclareAudienceGetter(Socket, writeFinished)
 
