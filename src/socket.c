@@ -143,14 +143,14 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                     ptr += sent;
                 }
                 delete_Block(data);
-            }
-            iGuardMutex(smx, {
-                if (isEmpty_Buffer(d->socket->output)) {
-                    signal_Condition(&d->socket->allSent);
-                    if (d->socket->writeFinished) {
-                        unlock_Mutex(smx);
-                        iNotifyAudience(d->socket, writeFinished, SocketWriteFinished);
-                        lock_Mutex(smx);
+                iGuardMutex(smx, {
+                    if (isEmpty_Buffer(d->socket->output)) {
+                        signal_Condition(&d->socket->allSent);
+                        if (d->socket->writeFinished) {
+                            unlock_Mutex(smx);
+                            iNotifyAudience(d->socket, writeFinished, SocketWriteFinished);
+                            lock_Mutex(smx);
+                        }
                     }
                 }
             });
@@ -265,11 +265,11 @@ static void stopThread_Socket_(iSocket *d) {
 }
 
 static void shutdown_Socket_(iSocket *d) {
-    iBool notify = iFalse;
+    //iBool notify = iFalse;
     iGuardMutex(&d->mutex, {
-        if (d->status == connected_SocketStatus) {
-            notify = iTrue;
-        }
+//        if (d->status == connected_SocketStatus) {
+//            notify = iTrue;
+//        }
         setStatus_Socket_(d, disconnecting_SocketStatus);
         if (d->fd >= 0) {
             shutdown(d->fd, SHUT_RD);
@@ -286,7 +286,9 @@ static void shutdown_Socket_(iSocket *d) {
         iAssert(!d->thread);
         iAssert(!d->connecting);
     });
-    iNotifyAudience(d, disconnected, SocketDisconnected);
+//    if (notify) {
+//        iNotifyAudience(d, disconnected, SocketDisconnected);
+//    }
 }
 
 static iThreadResult connectAsync_Socket_(iThread *thd) {
