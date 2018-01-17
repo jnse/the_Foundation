@@ -2,8 +2,18 @@
 
 /** @file c_plus/socket.h  TCP socket.
 
-Socket is a bidirectional non-random-access Stream where data gets written
-when flushed.
+Socket is a bidirectional non-random-access Stream where data gets written by a
+background I/O thread.
+
+Every time something gets written to the Socket's output buffer, the I/O thread is woken
+up and the pending data is sent. You may wish to use another Buffer to queue up data to
+send in larger chunks.
+
+Socket is derived from Stream, so all Stream methods can be used on it for writing and
+reading data. Both reading and writing is non-blocking. When writing, a copy of the data
+is made into an internal buffer for the I/O thread. When reading, only data already
+received and waiting in the input buffer will be returned. To wait for incoming data you
+can join the `readyRead` audience.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
