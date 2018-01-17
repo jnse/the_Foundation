@@ -213,12 +213,14 @@ iDefineObjectConstructionArgs(Socket,
                               (const char *hostName, uint16_t port),
                               hostName, port)
 
-static void setStatus_Socket_(iSocket *d, enum iSocketStatus status) {
+static iBool setStatus_Socket_(iSocket *d, enum iSocketStatus status) {
     if (d->status != status) {
         d->status = status;
         iDebug("[Socket] %p: state changed to %i (in thread %p)\n", d, status,
                current_Thread());
+        return iTrue;
     }
+    return iFalse;
 }
 
 static void init_Socket_(iSocket *d) {
@@ -265,30 +267,27 @@ static void stopThread_Socket_(iSocket *d) {
 }
 
 static void shutdown_Socket_(iSocket *d) {
-    //iBool notify = iFalse;
     iGuardMutex(&d->mutex, {
-//        if (d->status == connected_SocketStatus) {
-//            notify = iTrue;
-//        }
         setStatus_Socket_(d, disconnecting_SocketStatus);
         if (d->fd >= 0) {
             shutdown(d->fd, SHUT_RD);
         }
     });
     stopThread_Socket_(d);
+    iBool notify = iFalse;
     iGuardMutex(&d->mutex, {
         if (d->fd >= 0) {
             close(d->fd);
             d->fd = -1;
         }
-        setStatus_Socket_(d, disconnected_SocketStatus);
+        notify = setStatus_Socket_(d, disconnected_SocketStatus);
         iAssert(d->fd < 0);
         iAssert(!d->thread);
         iAssert(!d->connecting);
     });
-//    if (notify) {
-//        iNotifyAudience(d, disconnected, SocketDisconnected);
-//    }
+    if (notify) {
+        iNotifyAudience(d, disconnected, SocketDisconnected);
+    }
 }
 
 static iThreadResult connectAsync_Socket_(iThread *thd) {
