@@ -40,15 +40,15 @@ public:
     Array(Array &&);
     ~Array();
 
-    std::size_t size() const;
+    Size size() const;
 
-    void *data();
-    void *at(Size pos);
+    void *      data();
+    void *      at(Size pos);
     const void *data() const;
     const void *at(Size pos) const;
 
-    Array &operator=(const Array &);
-    void *operator[](Size pos);
+    Array &     operator=(const Array &);
+    void *      operator[](Size pos);
     const void *operator[](Size pos) const;
 
 private:
@@ -60,17 +60,19 @@ private:
 template <typename T>
 class Array : public typeless::Array {
 public:
+    typedef T Element;
+
     Array() : typeless::Array(sizeof(T)) {}
     Array(const Array &a) : typeless::Array(a) {}
     Array(Array &&a) : typeless::Array(a) {}
 
-    T *       data()             { return  reinterpret_cast<T *>(typeless::Array::data()); }
-    T &       at(Size pos)       { return *reinterpret_cast<T *>(typeless::Array::at(pos)); }
-    const T * data() const       { return  reinterpret_cast<const T *>(typeless::Array::data()); }
-    const T & at(Size pos) const { return *reinterpret_cast<const T *>(typeless::Array::at(pos)); }
+    T *      data()             { return  reinterpret_cast<T *>(typeless::Array::data()); }
+    T &      at(Size pos)       { return *reinterpret_cast<T *>(typeless::Array::at(pos)); }
+    const T *data() const       { return  reinterpret_cast<const T *>(typeless::Array::data()); }
+    const T &at(Size pos) const { return *reinterpret_cast<const T *>(typeless::Array::at(pos)); }
 
-    T &       operator[](Size pos)       { return at(pos); }
-    const T & operator[](Size pos) const { return at(pos); }
+    T &      operator[](Size pos)       { return at(pos); }
+    const T &operator[](Size pos) const { return at(pos); }
 };
 
 } // namespace i
