@@ -95,6 +95,10 @@ const void *constData_Array(const iArray *d) {
     return element_Array_(d, d->range.start);
 }
 
+size_t size_Array(const iArray *d) {
+    return size_Range(&d->range);
+}
+
 void *at_Array(iArray *d, size_t pos) {
     iAssert(pos < size_Range(&d->range));
     return element_Array_(d, d->range.start + pos);

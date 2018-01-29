@@ -186,6 +186,8 @@ if (PCRE_FOUND)
     target_link_libraries      (cplus PRIVATE ${PCRE_LDFLAGS})
 endif ()
 
+add_subdirectory (lang/c++)
+
 #----------------------------------------------------------------------------------------
 
 macro (cplus_add_test target sources)
