@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "c_plus/array"
+//#include <c_plus/proto/array.h>
 
 extern "C" {
 void *          new_Array       (size_t);
