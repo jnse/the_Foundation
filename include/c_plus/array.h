@@ -45,6 +45,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "range.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 struct Impl_Array {
     char *data;
     iRanges range; // elements
@@ -123,3 +127,7 @@ struct ConstIteratorImpl_Array {
     const void *end;
 };
 ///@}
+
+#if defined(__cplusplus)
+} // extern "C"
+#endif

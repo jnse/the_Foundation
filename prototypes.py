@@ -55,11 +55,18 @@ class FuncDeclVisitor(c_ast.NodeVisitor):
         self.where = where
         self.protos = []
         
+    def visit_Struct(self, node):
+        #print('Ignoring struct')
+        #node.show()
+        if self.where in str(node.coord):
+            cgen = c_generator.CGenerator()
+            print(cgen.visit(node))
+        
     def visit_Typedef(self, node):
         if self.where in str(node.coord):
-            if not isinstance(node.type, c_ast.TypeDecl):
-                cgen = c_generator.CGenerator()
-                self.protos.append(cgen.visit(node) + ';')
+            #if not isinstance(node.type, c_ast.TypeDecl):
+            cgen = c_generator.CGenerator()
+            self.protos.append(cgen.visit(node) + ';')
         
     def visit_FuncDecl(self, node):
         if self.where in str(node.coord):

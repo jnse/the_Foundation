@@ -35,6 +35,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "config.h"
 
+#if defined (__cplusplus)
+#   define CPLUS_API extern "C"
+#else
+#   define CPLUS_API
+#endif
+
 #define iFalse  false
 #define iTrue   true
 

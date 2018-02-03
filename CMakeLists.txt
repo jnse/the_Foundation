@@ -190,19 +190,19 @@ endif ()
 #----------------------------------------------------------------------------------------
 
 # Generate prototypes based on headers.
-function (cplus_generate_prototypes headerPath)
-    get_filename_component (name ${headerPath} NAME_WE)
-    add_custom_target (cplus_proto_${name}
-        ${CMAKE_CURRENT_LIST_DIR}/prototypes.py ${headerPath}
-        DEPENDS ${headerPath}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-        COMMENT "Generating prototypes: ${name}")
-    add_dependencies (cplus cplus_proto_${name})
-endfunction ()
+#function (cplus_generate_prototypes headerPath)
+#    get_filename_component (name ${headerPath} NAME_WE)
+#    add_custom_target (cplus_proto_${name}
+#        ${CMAKE_CURRENT_LIST_DIR}/prototypes.py ${headerPath}
+#        DEPENDS ${headerPath}
+#        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+#        COMMENT "Generating prototypes: ${name}")
+#    add_dependencies (cplus cplus_proto_${name})
+#endfunction ()
 
-foreach (header ${HEADERS})
-    cplus_generate_prototypes (${header})
-endforeach ()
+#foreach (header ${HEADERS})
+#    cplus_generate_prototypes (${header})
+#endforeach ()
 
 add_subdirectory (lang/c++)
 

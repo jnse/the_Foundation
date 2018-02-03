@@ -26,19 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "c_plus/array"
-//#include "proto/array.h"
-
-extern "C" {
-void *          new_Array       (size_t);
-void            delete_Array    (void *);
-void *          copy_Array      (const void *);
-size_t          size_Array      (const void *);
-void *          at_Array        (void *, size_t);
-void *          data_Array      (void *);
-const void *    constAt_Array   (const void *, size_t);
-const void *    constData_Array (const void *);
-void            setN_Array      (void *, size_t, const void *, size_t);
-} // extern "C"
+#include <c_plus/array.h>
 
 namespace i { namespace typeless {
 

@@ -31,16 +31,31 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 
-void        init_Garbage        (void);
+CPLUS_API void        init_Garbage        (void);
 
-void        recycle_Garbage     (void);
-void        beginScope_Garbage  (void);
-void        endScope_Garbage    (void);
-iAny *      collect_Garbage     (iAny *ptr, iDeleteFunc del);
+CPLUS_API void        recycle_Garbage     (void);
+CPLUS_API void        beginScope_Garbage  (void);
+CPLUS_API void        endScope_Garbage    (void);
 
-static inline iAny *iCollectMem(iAny *ptr) {
+CPLUS_API iAny *      collect_Garbage     (iAny *ptr, iDeleteFunc del);
+
+#if !defined (__cplusplus)
+
+static inline iAny *iCollectMem(iAny *ptr) { return collect_Garbage(ptr, free); }
+
+#else
+
+template <typename T>
+inline T *collect_Garbage(T *ptr, iDeleteFunc del) {
+    return reinterpret_cast<T *>(collect_Garbage(reinterpret_cast<iAny *>(ptr), del));
+}
+
+template <typename T>
+inline T *iCollectMem(T *ptr) {
     return collect_Garbage(ptr, free);
 }
+
+#endif
 
 #define iCollectDel(ptr, del)   collect_Garbage(ptr, (iDeleteFunc) (del))
 

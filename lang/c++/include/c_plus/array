@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <cstddef>
 
+struct Impl_Array;
+
 namespace i { namespace typeless {
 
 class Array {
@@ -52,7 +54,7 @@ public:
     const void *operator[](Size pos) const;
 
 private:
-    void *_array;
+    struct Impl_Array *_array;
 };
 
 } // namespace typeless
