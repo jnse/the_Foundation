@@ -64,15 +64,16 @@ test_big_endian (iHaveBigEndian)
 set (HEADERS
     include/c11threads.h
     include/stdthreads.h
-    include/c_plus/defs.h
+    include/c_plus/atomic.h
     include/c_plus/address.h
-    include/c_plus/audience.h
     include/c_plus/array.h
+    include/c_plus/audience.h
     include/c_plus/block.h
     include/c_plus/blockhash.h
     include/c_plus/buffer.h
     include/c_plus/class.h
     include/c_plus/commandline.h
+    include/c_plus/defs.h
     include/c_plus/file.h
     include/c_plus/fileinfo.h
     include/c_plus/future.h
@@ -97,12 +98,12 @@ set (HEADERS
     include/c_plus/stream.h
     include/c_plus/string.h
     include/c_plus/stringarray.h
-    include/c_plus/stringlist.h
     include/c_plus/stringhash.h
+    include/c_plus/stringlist.h
     include/c_plus/thread.h
     include/c_plus/threadpool.h
-    include/c_plus/treenode.h
     include/c_plus/time.h
+    include/c_plus/treenode.h
     include/c_plus/version.h
 )
 set (SOURCES
@@ -185,6 +186,23 @@ if (PCRE_FOUND)
     target_include_directories (cplus PRIVATE ${PCRE_INCLUDE_DIRS})
     target_link_libraries      (cplus PRIVATE ${PCRE_LDFLAGS})
 endif ()
+
+#----------------------------------------------------------------------------------------
+
+# Generate prototypes based on headers.
+function (cplus_generate_prototypes headerPath)
+    get_filename_component (name ${headerPath} NAME_WE)
+    add_custom_target (cplus_proto_${name}
+        ${CMAKE_CURRENT_LIST_DIR}/prototypes.py ${headerPath}
+        DEPENDS ${headerPath}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+        COMMENT "Generating prototypes: ${name}")
+    add_dependencies (cplus cplus_proto_${name})
+endfunction ()
+
+foreach (header ${HEADERS})
+    cplus_generate_prototypes (${header})
+endforeach ()
 
 add_subdirectory (lang/c++)
 
