@@ -16,6 +16,10 @@ target_include_directories (cpluslib PUBLIC include)
 target_link_libraries (cpluslib PRIVATE cplus)
 set_property (TARGET cpluslib PROPERTY CXX_STANDARD 11)
 
+if (CMAKE_COMPILER_IS_GNUCC)
+    target_compile_options (cpluslib PRIVATE -fPIC)
+endif ()
+
 #----------------------------------------------------------------------------------------
 
 add_executable (c+lib ../../tests/c++.cc)

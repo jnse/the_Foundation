@@ -79,7 +79,7 @@ static void printMat(const char *msg, const iMat4 *m) {
     iMat3 *:       printMat3, \
     const iMat3 *: printMat3, \
     iMat4 *:       printMat, \
-    const iMat4 *: printMat)
+    const iMat4 *: printMat)(msg, val)
 
 int main(int argc, char **argv) {
     init_CPlus();

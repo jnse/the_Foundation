@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "range.h"
 
 #include <stdatomic.h>
+#include <stdarg.h>
 
 iDeclareType(Block)
 iDeclareType(BlockData)

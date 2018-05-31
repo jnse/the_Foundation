@@ -176,6 +176,10 @@ target_compile_definitions (cplus PRIVATE iIsLibraryBuild)
 target_include_directories (cplus PUBLIC include ${CMAKE_CURRENT_BINARY_DIR})
 cplus_set_compile_options (cplus)
 
+if (CMAKE_COMPILER_IS_GNUCC)
+    target_compile_options (cplus PRIVATE -fPIC)
+endif ()
+
 # Dependencies.
 target_link_libraries (cplus PRIVATE m pthread)
 if (ZLIB_FOUND)
