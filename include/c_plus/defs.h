@@ -65,6 +65,7 @@ typedef void (*iDeleteFunc)(iAny *);
 
 void        init_CPlus  (void);
 uint32_t    iCrc32      (const char *data, size_t size);
+void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[16]);
 
 #define iUnusedMany_(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, ...) \
     ((void)(_0), (void)(_1), (void)(_2), (void)(_3), (void)(_4), \

@@ -110,6 +110,7 @@ void            appendData_Block    (iBlock *, const void *data, size_t size);
 void            appendCStr_Block    (iBlock *, const char *cstr);
 
 uint32_t        crc32_Block         (const iBlock *);
+void            md5_Block           (const iBlock *, uint8_t md5_out[16]);
 
 #define iBlockDefaultCompressionLevel   6
 

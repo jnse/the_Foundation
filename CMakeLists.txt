@@ -124,6 +124,7 @@ set (SOURCES
     src/hash.c
     src/list.c
     src/map.c
+    src/md5.c
     src/mutex.c
     src/math.c
     src/math_${mathSpec}.c

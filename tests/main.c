@@ -495,6 +495,13 @@ int main(int argc, char *argv[]) {
         printBytes((const uint8_t *) constBegin_Block(data_Buffer(buf)), size_Buffer(buf));
         iRelease(buf);
     }
+    /* Test MD5 hashing. */ {
+        const iString test = iStringLiteral("message digest");
+        uint8_t md5[16];
+        md5_Block(&test.chars, md5);
+        printf("MD5 hash of \"%s\": ", cstr_String(&test));
+        printBytes(md5, 16);
+    }
 #if defined (iHavePcre)
     /* Test regular expressions. */ {
         iString *s = newCStr_String("Hello world Äöäö, there is a \U0001f698 out there.");

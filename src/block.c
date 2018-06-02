@@ -373,6 +373,10 @@ uint32_t crc32_Block(const iBlock *d) {
     return iCrc32(d->i->data, d->i->size);
 }
 
+void md5_Block(const iBlock *d, uint8_t md5_out[16]) {
+    iMd5Hash(d->i->data, d->i->size, md5_out);
+}
+
 //---------------------------------------------------------------------------------------
 #if defined (iHaveZlib)
 
