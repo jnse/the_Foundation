@@ -70,10 +70,10 @@ static inline iBool matchString_RegExp(const iRegExp *d, const iString *str, iRe
 
 struct Impl_RegExpMatch {
     const char *subject;
-    size_t pos;
-    iRangei range;
-    iRangei substring[iRegExpMaxSubstrings];
-    int data_[iRegExpMaxSubstrings + 1];
+    size_t      pos;
+    iRangei     range;
+    iRangei     substring[iRegExpMaxSubstrings];
+    int         data_[iRegExpMaxSubstrings + 1];
 };
 
 iString *   captured_RegExpMatch(const iRegExpMatch *, int index);

@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdarg.h>
 #include <strings.h>
 #include <ctype.h>
+#include <wctype.h>
 
 iString *new_String(void) {
     iString *d = iMalloc(String);
@@ -44,9 +45,19 @@ iString *newCStr_String(const char *cstr) {
     return newCStrN_String(cstr, strlen(cstr));
 }
 
-iString *newCStrN_String(const char *cstr, size_t size) {
+iString *newCStrN_String(const char *cstr, size_t n) {
     iString *d = iMalloc(String);
-    initData_Block(&d->chars, cstr, size);
+    initData_Block(&d->chars, cstr, n);
+    return d;
+}
+
+iString *newWide_String(const iChar *wstr) {
+    return newWideN_String(wstr, wcslen(wstr));
+}
+
+iString *newWideN_String(const iChar *wstr, size_t n) {
+    iString *d = iMalloc(String);
+    initWideN_String(d, wstr, n);
     return d;
 }
 
@@ -85,6 +96,19 @@ void initCStrN_String(iString *d, const char *cstr, size_t size) {
     initData_Block(&d->chars, cstr, size);
 }
 
+void initWide_String(iString *d, const iChar *wstr) {
+    initWideN_String(d, wstr, wcslen(wstr));
+}
+
+void initWideN_String(iString *d, const iChar *wstr, size_t n) {
+    init_String(d);
+    for (size_t i = 0; i < n; ++i, ++wstr) {
+        iMultibyteChar mb;
+        init_MultibyteChar(&mb, *wstr);
+        appendCStr_String(d, mb.bytes);
+    }
+}
+
 void initCopy_String(iString *d, const iString *other) {
     initCopy_Block(&d->chars, &other->chars);
 }
@@ -105,6 +129,35 @@ void truncate_String(iString *d, size_t len) {
         pos = i.next;
     }
     truncate_Block(&d->chars, pos - start);
+}
+
+void trimStart_String(iString *d) {
+    if (!isEmpty_String(d)) {
+        const char *start = constBegin_String(d);
+        const char *end   = constEnd_String(d);
+        const char *pos   = start;
+        while (pos != end && isspace(*pos)) {
+            pos++;
+        }
+        remove_Block(&d->chars, 0, pos - start);
+    }
+}
+
+void trimEnd_String(iString *d) {
+    if (!isEmpty_String(d)) {
+        const char *start = constBegin_String(d);
+        const char *end   = constEnd_String(d);
+        const char *pos   = end;
+        while (pos != start && isspace(pos[-1])) {
+            pos--;
+        }
+        truncate_Block(&d->chars, pos - start);
+    }
+}
+
+void trim_String(iString *d) {
+    trimStart_String(d);
+    trimEnd_String(d);
 }
 
 const char *cstr_String(const iString *d) {
@@ -144,8 +197,32 @@ iString *mid_String(const iString *d, size_t start, size_t count) {
     return mid;
 }
 
-int cmpSc_String(const iString *d, const char *cstr, const iStringComparison *cs) {
-    return cs->cmp(constData_Block(&d->chars), cstr);
+iString *toUpper_String(const iString *d) {
+    iString *up = new_String();
+    iConstForEach(String, i, d) {
+        iMultibyteChar mb;
+        init_MultibyteChar(&mb, towupper(i.value));
+        appendCStr_String(up, mb.bytes);
+    }
+    return up;
+}
+
+iString *toLower_String(const iString *d) {
+    iString *low = new_String();
+    iConstForEach(String, i, d) {
+        iMultibyteChar mb;
+        init_MultibyteChar(&mb, towlower(i.value));
+        appendCStr_String(low, mb.bytes);
+    }
+    return low;
+}
+
+int cmpSc_String(const iString *d, const char *cstr, const iStringComparison *sc) {
+    return sc->cmp(constData_Block(&d->chars), cstr);
+}
+
+int cmpNSc_String(const iString *d, const char *cstr, size_t n, const iStringComparison *sc) {
+    return sc->cmpN(constData_Block(&d->chars), cstr, n);
 }
 
 iBool startsWithSc_String(const iString *d, const char *cstr, const iStringComparison *cs) {
@@ -196,6 +273,12 @@ void append_String(iString *d, const iString *other) {
 
 void appendCStr_String(iString *d, const char *cstr) {
     appendCStr_Block(&d->chars, cstr);
+}
+
+void appendChar_String(iString *d, iChar ch) {
+    iMultibyteChar mb;
+    init_MultibyteChar(&mb, ch);
+    appendCStr_String(d, mb.bytes);
 }
 
 void appendRange_String(iString *d, const iRangecc *range) {

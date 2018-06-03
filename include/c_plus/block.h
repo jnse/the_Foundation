@@ -57,6 +57,7 @@ iBlock *        newData_Block       (const void *data, size_t size);
 iBlock *        newPrealloc_Block   (void *data, size_t size);
 iBlock *        copy_Block          (const iBlock *);
 
+void            initCStr_Block      (iBlock *, const char *cstr);
 void            initData_Block      (iBlock *, const void *data, size_t size);
 void            initPrealloc_Block  (iBlock *, void *data, size_t size);
 void            initCopy_Block      (iBlock *, const iBlock *other);

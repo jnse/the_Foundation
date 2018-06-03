@@ -58,7 +58,9 @@ struct Impl_String {
 iDeclareTypeConstruction(String)
 
 iString *       newCStr_String  (const char *cstr);
-iString *       newCStrN_String (const char *cstr, size_t size);
+iString *       newCStrN_String (const char *cstr, size_t n);
+iString *       newWide_String  (const iChar *wstr);
+iString *       newWideN_String (const iChar *wstr, size_t n);
 iString *       newBlock_String (const iBlock *data);
 iString *       copy_String     (const iString *);
 
@@ -66,7 +68,9 @@ static inline iString *newRange_String(const iRangecc *range) { return newCStrN_
 
 void            init_String     (iString *);
 void            initCStr_String (iString *, const char *cstr);
-void            initCStrN_String(iString *, const char *cstr, size_t size);
+void            initCStrN_String(iString *, const char *cstr, size_t n);
+void            initWide_String (iString *, const iChar *wstr);
+void            initWideN_String(iString *, const iChar *wstr, size_t n);
 void            initBlock_String(iString *, const iBlock *chars);
 void            initCopy_String (iString *, const iString *other);
 
@@ -74,13 +78,17 @@ const char *    cstr_String     (const iString *);
 size_t          length_String   (const iString *);
 size_t          size_String     (const iString *);
 iString *       mid_String      (const iString *, size_t start, size_t count);
+iString *       toUpper_String  (const iString *);
+iString *       toLower_String  (const iString *);
 
 #define         range_String(d) (iRangecc){ constData_Block(&d->chars), constEnd_Block(&d->chars) }
 
-static inline iBool         isEmpty_String  (const iString *d) { return size_String(d) == 0; }
-static inline const char *  constEnd_String (const iString *d) { return cstr_String(d) + size_String(d); }
+static inline iBool         isEmpty_String   (const iString *d) { return size_String(d) == 0; }
+static inline const char *  constBegin_String(const iString *d) { return cstr_String(d); }
+static inline const char *  constEnd_String  (const iString *d) { return cstr_String(d) + size_String(d); }
 
 int             cmpSc_String        (const iString *, const char *cstr, const iStringComparison *);
+int             cmpNSc_String       (const iString *, const char *cstr, size_t n, const iStringComparison *);
 
 #define         cmp_String(d, cstr)             cmpSc_String(d, cstr, &iCaseSensitive)
 #define         cmpCase_String(d, cstr)         cmpSc_String(d, cstr, &iCaseInsensitive)
@@ -114,11 +122,15 @@ void            format_String   (iString *, const char *format, ...);
 
 void            append_String       (iString *, const iString *other);
 void            appendCStr_String   (iString *, const char *cstr);
+void            appendChar_String   (iString *, iChar ch);
 void            appendRange_String  (iString *, const iRangecc *range);
 void            prepend_String      (iString *, const iString *other);
 
 void            clear_String    (iString *);
 void            truncate_String (iString *, size_t len);
+void            trimStart_String(iString *);
+void            trimEnd_String  (iString *);
+void            trim_String     (iString *);
 
 int             toInt_String    (const iString *);
 

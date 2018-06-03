@@ -153,6 +153,10 @@ void initData_Block(iBlock *d, const void *data, size_t size) {
     }
 }
 
+void initCStr_Block(iBlock *d, const char *cstr) {
+    initData_Block(d, cstr, cstr ? strlen(cstr) : 0);
+}
+
 void initPrealloc_Block(iBlock *d, void *data, size_t size) {
     d->i = newPrealloc_BlockData_(data, size);
 }
