@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "mutex.h"
 
 #include <stdio.h>
-#include <stdthreads.h>
+#include "stdthreads.h"
 
 typedef iStreamClass iBufferClass;
 

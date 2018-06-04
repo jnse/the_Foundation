@@ -34,8 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "mutex.h"
 #include "objectlist.h"
-
-#include <stdthreads.h>
+#include "stdthreads.h"
 
 iDeclareClass(Queue)
 iDeclareType(Queue)

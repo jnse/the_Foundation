@@ -27,10 +27,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "c_plus/garbage.h"
 #include "c_plus/list.h"
+#include "c_plus/stdthreads.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdthreads.h>
 
 iDeclareType(GarbageNode)
 iDeclareType(CollectedPtr)

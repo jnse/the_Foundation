@@ -35,5 +35,5 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #   if !defined (iHavePthreadTimedMutex) && !defined (C11THREADS_NO_TIMED_MUTEX)
 #       define C11THREADS_NO_TIMED_MUTEX
 #   endif
-#   include <c11threads.h>
+#   include "c11threads.h"
 #endif

@@ -33,15 +33,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "blockhash.h"
 #include "mutex.h"
 #include "audience.h"
-
-#include <stdthreads.h>
+#include "stdthreads.h"
 
 iDeclareClass(Thread)
 
 iDeclareType(Thread)
 
-typedef thrd_t iThreadId;
-typedef intptr_t iThreadResult;
+typedef thrd_t          iThreadId;
+typedef intptr_t        iThreadResult;
 typedef iThreadResult (*iThreadRunFunc)(iThread *);
 
 iDeclareNotifyFunc(Thread, Finished)

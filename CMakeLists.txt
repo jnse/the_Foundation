@@ -62,15 +62,14 @@ test_big_endian (iHaveBigEndian)
 #----------------------------------------------------------------------------------------
 
 set (HEADERS
-    include/c11threads.h
-    include/stdthreads.h
-    include/c_plus/atomic.h
     include/c_plus/address.h
     include/c_plus/array.h
+    include/c_plus/atomic.h
     include/c_plus/audience.h
     include/c_plus/block.h
     include/c_plus/blockhash.h
     include/c_plus/buffer.h
+    include/c_plus/c11threads.h
     include/c_plus/class.h
     include/c_plus/commandline.h
     include/c_plus/defs.h
@@ -95,6 +94,7 @@ set (HEADERS
     include/c_plus/service.h
     include/c_plus/socket.h
     include/c_plus/sortedarray.h
+    include/c_plus/stdthreads.h
     include/c_plus/stream.h
     include/c_plus/string.h
     include/c_plus/stringarray.h
@@ -171,7 +171,8 @@ if (PCRE_FOUND)
 endif ()
 configure_file (config.h.in config.h)
 
-add_library (cplus STATIC ${SOURCES} ${HEADERS})
+add_library (cplus SHARED ${SOURCES} ${HEADERS})
+set_property (TARGET cplus PROPERTY OUTPUT_NAME_DEBUG cplusd)
 
 target_compile_definitions (cplus PRIVATE iIsLibraryBuild)
 target_include_directories (cplus PUBLIC include ${CMAKE_CURRENT_BINARY_DIR})
@@ -191,6 +192,13 @@ if (PCRE_FOUND)
     target_include_directories (cplus PRIVATE ${PCRE_INCLUDE_DIRS})
     target_link_libraries      (cplus PRIVATE ${PCRE_LDFLAGS})
 endif ()
+
+# Installation.
+install (TARGETS cplus LIBRARY DESTINATION lib)
+install (DIRECTORY include/c_plus DESTINATION include
+    FILES_MATCHING PATTERN "*.h"
+)
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION include/c_plus)
 
 #----------------------------------------------------------------------------------------
 

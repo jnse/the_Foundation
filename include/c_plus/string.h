@@ -139,6 +139,7 @@ const char *    skipSpace_CStr  (const char *);
 static inline iRangecc rangeN_CStr  (const char *cstr, size_t size) { return (iRangecc){ cstr, cstr + size }; }
 static inline iRangecc range_CStr   (const char *cstr) { return rangeN_CStr(cstr, strlen(cstr)); }
 
+int             cmpSc_Rangecc       (const iRangecc *, const char *cstr, const iStringComparison *);
 iStringList *   split_Rangecc       (const iRangecc *, const char *separator);
 
 /**

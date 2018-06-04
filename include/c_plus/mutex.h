@@ -28,8 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "time.h"
-
-#include <stdthreads.h>
+#include "stdthreads.h"
 
 /**
  * Defines a lockable object type. In practice, this is an object paired with a mutex.

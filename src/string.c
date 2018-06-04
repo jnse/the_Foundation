@@ -313,6 +313,18 @@ iBool nextSplit_Rangecc(const iRangecc *str, const char *separator, iRangecc *ra
     return iTrue;
 }
 
+int cmpSc_Rangecc(const iRangecc *d, const char *cstr, const iStringComparison *sc) {
+    size_t len = strlen(cstr);
+    int cmp = sc->cmpN(d->start, cstr, iMin(len, size_Range(d)));
+    if (cmp == 0) {
+        if (len == size_Range(d)) {
+            return 0;
+        }
+        return size_Range(d) < len? -1 : 1;
+    }
+    return cmp;
+}
+
 iStringList *split_Rangecc(const iRangecc *d, const char *separator) {
     iStringList *parts = new_StringList();
     iRangecc range = iNullRange;
