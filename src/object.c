@@ -66,7 +66,7 @@ iAnyObject *new_Object(const iAnyClass *class) {
     iAssert(class != NULL);
     iAssert(((const iClass *) class)->size >= sizeof(iObject));
     iObject *d = malloc(((const iClass *) class)->size);
-    d->class = class;
+    d->classObj = class;
     d->refCount = 1;
     d->memberOf = NULL;
 #if !defined (NDEBUG)
@@ -80,7 +80,7 @@ iAnyObject *new_Object(const iAnyClass *class) {
 void deinit_Object(iAnyObject *any) {
     iObject *d = (iObject *) any;
     iAssertIsObject(d);
-    deinit_Class(d->class, d);
+    deinit_Class(d->classObj, d);
     if (d->memberOf) {
         delete_AudienceMember(d->memberOf);
     }
@@ -110,7 +110,7 @@ void deref_Object(const iAnyObject *any) {
 const iClass *class_Object(const iAnyObject *d) {
     if (d) {
         iAssertIsObject(d);
-        return ((const iObject *) d)->class;
+        return ((const iObject *) d)->classObj;
     }
     return NULL;
 }

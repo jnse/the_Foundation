@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iDeclareType(BlockHashNode)
 
 iBeginDeclareClass(BlockHashNode)
-    iBlockHashNode *    (*new)      (const iBlock *key, const iAnyObject *object);
+    iBlockHashNode *    (*newNode)  (const iBlock *key, const iAnyObject *object);
     iHashKey            (*hashKey)  (const iBlock *key);
 iEndDeclareClass(BlockHashNode)
 
@@ -64,7 +64,7 @@ struct Impl_BlockHash {
 
 iDeclareObjectConstruction(BlockHash)
 
-void                setNodeClass_BlockHash  (iBlockHash *, const iBlockHashNodeClass *class);
+void                setNodeClass_BlockHash  (iBlockHash *, const iBlockHashNodeClass *nodeClass);
 
 #define             size_BlockHash(d)       size_Hash(&(d)->hash)
 #define             isEmpty_BlockHash(d)    isEmpty_Hash(&(d)->hash)
@@ -173,7 +173,7 @@ struct ConstIteratorImpl_BlockHash {
     iDefineObjectConstruction(typeName) \
     \
     static iBeginDefineClass(typeName##Node) \
-        .new = (iBlockHashNode *(*)(const iBlock *, const iAnyObject *)) new_##typeName##Node, \
+        .newNode = (iBlockHashNode *(*)(const iBlock *, const iAnyObject *)) new_##typeName##Node, \
         .hashKey = hashKey_BlockHashNode, \
     iEndDefineClass(typeName##Node) \
     \

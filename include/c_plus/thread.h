@@ -103,7 +103,7 @@ static inline thrd_t id_Thread(const iThread *d) {
 }
 
 static inline enum iThreadState state_Thread(const iThread *d) {
-    return d->state;
+    return (enum iThreadState) d->state;
 }
 
 iDefineInlineAudienceGetter(Thread, finished)

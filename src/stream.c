@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iDefineClass(Stream)
 
-#define class_Stream(d)         ((const iStreamClass *) (d)->object.class)
+#define class_Stream(d)         ((const iStreamClass *) (d)->object.classObj)
 
 iDeclareType(ByteOrder)
 
@@ -168,15 +168,15 @@ iString *readString_Stream(iStream *d) {
 }
 
 iAnyObject *readObject_Stream(iStream *d, iAnyObject *object) {
-    iAssert(((iObject *) object)->class->deserialize != NULL);
-    ((iObject *) object)->class->deserialize(object, d);
+    iAssert(class_Object(object)->deserialize != NULL);
+    class_Object(object)->deserialize(object, d);
     return object;
 }
 
 size_t writeObject_Stream(iStream *d, const iAnyObject *object) {
-    iAssert(((const iObject *) object)->class->serialize != NULL);
+    iAssert(class_Object(object)->serialize != NULL);
     const long start = d->pos;
-    ((const iObject *) object)->class->serialize(object, d);
+    class_Object(object)->serialize(object, d);
     iAssert(d->pos >= start);
     return d->pos - start;
 }

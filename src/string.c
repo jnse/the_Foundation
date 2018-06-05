@@ -217,6 +217,11 @@ iString *toLower_String(const iString *d) {
     return low;
 }
 
+iStringList *split_String(const iString *d, const char *separator) {
+    const iRangecc range = range_String(d);
+    return split_Rangecc(&range, separator);
+}
+
 int cmpSc_String(const iString *d, const char *cstr, const iStringComparison *sc) {
     return sc->cmp(constData_Block(&d->chars), cstr);
 }

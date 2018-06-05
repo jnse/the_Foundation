@@ -98,7 +98,7 @@ iBool insert_BlockHash(iBlockHash *d, const iBlock *key, const iAnyObject *value
     iDebug(" ] => %s %p\n", class_Object(value)->name, value);
 #endif
     */
-    iHashNode *node = (iHashNode *) d->nodeClass->new(key, value);
+    iHashNode *node = (iHashNode *) d->nodeClass->newNode(key, value);
     node->key = d->nodeClass->hashKey(key);
     iAnyNode *old = insert_Hash(&d->hash, node);
     if (old) {
@@ -179,6 +179,6 @@ const iBlock *key_BlockHashConstIterator(iBlockHashConstIterator *d) {
 iDefineClass(BlockHash)
 
 iBeginDefineClass(BlockHashNode)
-    .new     = new_BlockHashNode,
+    .newNode = new_BlockHashNode,
     .hashKey = hashKey_BlockHashNode,
 iEndDefineClass(BlockHashNode)

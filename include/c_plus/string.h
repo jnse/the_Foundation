@@ -80,6 +80,7 @@ size_t          size_String     (const iString *);
 iString *       mid_String      (const iString *, size_t start, size_t count);
 iString *       toUpper_String  (const iString *);
 iString *       toLower_String  (const iString *);
+iStringList *   split_String    (const iString *d, const char *separator);
 
 #define         range_String(d) (iRangecc){ constData_Block(&d->chars), constEnd_Block(&d->chars) }
 
@@ -154,11 +155,6 @@ iStringList *   split_Rangecc       (const iRangecc *, const char *separator);
 iBool           nextSplit_Rangecc   (const iRangecc *, const char *separator, iRangecc *range);
 
 const char *    findAscii_Rangecc   (const iRangecc *, char ch);
-
-static inline iStringList *split_String(const iString *d, const char *separator) {
-    const iRangecc range = range_String(d);
-    return split_Rangecc(&range, separator);
-}
 
 static inline iStringList *split_CStr(const char *cstr, const char *separator) {
     return split_Rangecc(&(iRangecc){ cstr, cstr + strlen(cstr) }, separator);

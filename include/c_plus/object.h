@@ -77,7 +77,7 @@ iDeclareType(Object)
 iDeclareType(AudienceMember)
 
 struct Impl_Object {
-    const iClass *class;
+    const iClass *classObj;
     atomic_int refCount;
     iAudienceMember *memberOf;
 #if !defined (NDEBUG)
@@ -92,7 +92,7 @@ typedef void iAnyObject;
  *
  * @param class  Object class. Determines how much memory is allocated for the object.
  */
-iAnyObject *    new_Object      (const iAnyClass *class);
+iAnyObject *    new_Object      (const iAnyClass *);
 
 void            deinit_Object   (iAnyObject *);
 
