@@ -110,6 +110,8 @@ void            append_Block        (iBlock *, const iBlock *other);
 void            appendData_Block    (iBlock *, const void *data, size_t size);
 void            appendCStr_Block    (iBlock *, const char *cstr);
 
+void            insertData_Block    (iBlock *, size_t insertAt, const void *data, size_t size);
+
 uint32_t        crc32_Block         (const iBlock *);
 void            md5_Block           (const iBlock *, uint8_t md5_out[16]);
 

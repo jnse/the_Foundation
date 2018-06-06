@@ -174,19 +174,19 @@ size_t size_String(const iString *d) {
     return size_Block(&d->chars);
 }
 
-iString *mid_String(const iString *d, size_t start, size_t count) {
-    if (count == 0) return new_String();
+iString *mid_String(const iString *d, size_t charStartPos, size_t charCount) {
+    if (charCount == 0) return new_String();
     const char *chars = constData_Block(&d->chars);
     iRanges range = { 0, size_Block(&d->chars) };
     size_t pos = 0;
     iConstForEach(String, i, d) {
-        if (pos > start && pos == start + count) {
+        if (pos > charStartPos && pos == charStartPos + charCount) {
             range.end = i.pos - chars;
             break;
         }
-        else if (pos == start) {
+        else if (pos == charStartPos) {
             range.start = i.pos - chars;
-            if (count == iInvalidSize) break;
+            if (charCount == iInvalidSize) break;
         }
         else
         pos++;
@@ -230,16 +230,20 @@ int cmpNSc_String(const iString *d, const char *cstr, size_t n, const iStringCom
     return sc->cmpN(constData_Block(&d->chars), cstr, n);
 }
 
-iBool startsWithSc_String(const iString *d, const char *cstr, const iStringComparison *cs) {
-    const size_t len = strlen(cstr);
-    if (size_String(d) < len) return iFalse;
-    return !cs->cmpN(cstr_String(d), cstr, len);
+iBool startsWithSc_String(const iString *d, const char *cstr, const iStringComparison *sc) {
+    return startsWithSc_Rangecc(&range_String(d), cstr, sc);
 }
 
-iBool endsWithSc_String(const iString *d, const char *cstr, const iStringComparison *cs) {
+iBool startsWithSc_Rangecc(const iRangecc *d, const char *cstr, const iStringComparison *sc) {
+    const size_t len = strlen(cstr);
+    if (size_Range(d) < len) return iFalse;
+    return !sc->cmpN(d->start, cstr, len);
+}
+
+iBool endsWithSc_String(const iString *d, const char *cstr, const iStringComparison *sc) {
     const size_t len = strlen(cstr);
     if (size_String(d) < len) return iFalse;
-    return !cs->cmp(constEnd_Block(&d->chars) - len, cstr);
+    return !sc->cmp(constEnd_Block(&d->chars) - len, cstr);
 }
 
 void set_String(iString *d, const iString *other) {
@@ -372,7 +376,7 @@ static void decodeNextMultibyte_StringConstIterator_(iStringConstIterator *d) {
 
 static iBool decodePrecedingMultibyte_StringConstIterator_(iStringConstIterator *d) {
     if (!d->remaining) return iFalse;
-    for (int i = 1; i <= iMin(MB_LEN_MAX, d->remaining); i++) {
+    for (int i = 1; i <= iMin(MB_CUR_MAX, d->remaining); i++) {
         const int rc = mbrtowc(&d->value, d->next - i, i, &d->mbs);
         if (rc >= 0) {
             // Single-byte character.

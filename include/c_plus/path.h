@@ -32,7 +32,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #define iPathSeparator  "/"
 
-iString *   cwd_Path(void);
+iString *   cwd_Path    (void);
+iBool       setCwd_Path (const iString *path);
 
 iBool       isAbsolute_Path     (const iString *);
 iString *   makeAbsolute_Path   (const iString *);

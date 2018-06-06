@@ -333,6 +333,13 @@ void appendCStr_Block(iBlock *d, const char *cstr) {
     appendData_Block(d, cstr, strlen(cstr));
 }
 
+void insertData_Block(iBlock *d, size_t insertAt, const void *data, size_t size) {
+    reserve_Block(d, d->i->size + size);
+    char *start = d->i->data + insertAt;
+    memmove(start + size, start, size);
+    memcpy(start, data, size);
+}
+
 iBlock *concat_Block(const iBlock *d, const iBlock *other) {
     iBlock *cat = new_Block(d->i->size + other->i->size);
     memcpy(cat->i->data,                  d->i->data,     d->i->size);

@@ -77,7 +77,7 @@ void            initCopy_String (iString *, const iString *other);
 const char *    cstr_String     (const iString *);
 size_t          length_String   (const iString *);
 size_t          size_String     (const iString *);
-iString *       mid_String      (const iString *, size_t start, size_t count);
+iString *       mid_String      (const iString *, size_t charStartPos, size_t charCount);
 iString *       toUpper_String  (const iString *);
 iString *       toLower_String  (const iString *);
 iStringList *   split_String    (const iString *d, const char *separator);
@@ -141,6 +141,7 @@ static inline iRangecc rangeN_CStr  (const char *cstr, size_t size) { return (iR
 static inline iRangecc range_CStr   (const char *cstr) { return rangeN_CStr(cstr, strlen(cstr)); }
 
 int             cmpSc_Rangecc       (const iRangecc *, const char *cstr, const iStringComparison *);
+iBool           startsWithSc_Rangecc(const iRangecc *, const char *cstr, const iStringComparison *);
 iStringList *   split_Rangecc       (const iRangecc *, const char *separator);
 
 /**
@@ -175,8 +176,10 @@ struct ConstIteratorImpl_String {
 
 //---------------------------------------------------------------------------------------
 
+#define iMultibyteCharMaxSize 7
+
 struct Impl_MultibyteChar {
-    char bytes[MB_LEN_MAX + 1];
+    char bytes[8];
 };
 
 void init_MultibyteChar(iMultibyteChar *d, iChar ch);

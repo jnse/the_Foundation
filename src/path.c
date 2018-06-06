@@ -42,6 +42,10 @@ iString *cwd_Path(void) {
     return new_String();
 }
 
+iBool setCwd_Path(const iString *path) {
+    return !chdir(cstr_String(path));
+}
+
 iBool isAbsolute_Path(const iString *d) {
     return startsWith_String(d, iPathSeparator);
 }
