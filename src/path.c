@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/string.h"
 
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 iString *cwd_Path(void) {
     char *cwd = getcwd(NULL, 0);
@@ -141,4 +143,8 @@ iString *concat_Path(const iString *d, const iString *path) {
     iString *base = copy_String(d);
     append_Path(base, path);
     return base;
+}
+
+iBool mkdir_Path(const iString *path) {
+    return !mkdir(cstr_String(path), 0755);
 }

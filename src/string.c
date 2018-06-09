@@ -197,7 +197,7 @@ iString *mid_String(const iString *d, size_t charStartPos, size_t charCount) {
     return mid;
 }
 
-iString *toUpper_String(const iString *d) {
+iString *upper_String(const iString *d) {
     iString *up = new_String();
     iConstForEach(String, i, d) {
         iMultibyteChar mb;
@@ -207,7 +207,7 @@ iString *toUpper_String(const iString *d) {
     return up;
 }
 
-iString *toLower_String(const iString *d) {
+iString *lower_String(const iString *d) {
     iString *low = new_String();
     iConstForEach(String, i, d) {
         iMultibyteChar mb;
@@ -220,6 +220,50 @@ iString *toLower_String(const iString *d) {
 iStringList *split_String(const iString *d, const char *separator) {
     const iRangecc range = range_String(d);
     return split_Rangecc(&range, separator);
+}
+
+iString *urlEncode_String(const iString *d) {
+    iString *encoded = new_String();
+    for (const char *i = constBegin_String(d), *end = constEnd_String(d); i != end; ++i) {
+        char ch = *i;
+        if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') ||
+                ch == '-' || ch == '_' || ch == '.' || ch == '~') {
+            appendData_Block(&encoded->chars, i, 1);
+        }
+        else
+        {
+            static const char hex[16] = {
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+            char escaped[3] = {'%', hex[(ch >> 4) & 0xf], hex[ch & 0xf]};
+            appendCStrN_String(encoded, escaped, 3);
+        }
+    }
+    return encoded;
+}
+
+static int fromHex_(char ch) {
+    if (ch >= '0' && ch <= '9') return ch - '0';
+    if (ch >= 'A' && ch <= 'F') return 10 + ch - 'A';
+    if (ch >= 'a' && ch <= 'f') return 10 + ch - 'a';
+    return 0;
+}
+
+iString *urlDecode_String(const iString *d) {
+    iString *decoded = new_String();
+    for (const char *i = constBegin_String(d), *end = constEnd_String(d); i != end; ++i) {
+        if (*i == '%') {
+            if (i + 3 <= end) {
+                const char ch = (char) ((fromHex_(i[1]) << 4) | fromHex_(i[2]));
+                appendData_Block(&decoded->chars, &ch, 1);
+                i += 3;
+            }
+            else break;
+        }
+        else {
+            appendData_Block(&decoded->chars, i, 1);
+        }
+    }
+    return decoded;
 }
 
 int cmpSc_String(const iString *d, const char *cstr, const iStringComparison *sc) {
@@ -268,7 +312,12 @@ size_t indexOf_String(const iString *d, iChar ch) {
 }
 
 size_t indexOfCStr_String(const iString *d, const char *cstr) {
-    const char *chars = constData_Block(&d->chars);
+    return indexOfCStrFrom_String(d, cstr, 0);
+}
+
+size_t indexOfCStrFrom_String(const iString *d, const char *cstr, size_t from) {
+    if (from >= size_String(d)) return iInvalidPos;
+    const char *chars = cstr_String(d) + from;
     const char *found = strstr(chars, cstr);
     if (found) {
         return found - chars;
@@ -282,6 +331,10 @@ void append_String(iString *d, const iString *other) {
 
 void appendCStr_String(iString *d, const char *cstr) {
     appendCStr_Block(&d->chars, cstr);
+}
+
+void appendCStrN_String(iString *d, const char *cstr, size_t size) {
+    appendData_Block(&d->chars, cstr, size);
 }
 
 void appendChar_String(iString *d, iChar ch) {
@@ -322,7 +375,11 @@ iBool nextSplit_Rangecc(const iRangecc *str, const char *separator, iRangecc *ra
     return iTrue;
 }
 
-int cmpSc_Rangecc(const iRangecc *d, const char *cstr, const iStringComparison *sc) {
+int cmpCStrSc_Rangecc(const iRangecc *d, const char *cstr, const iStringComparison *sc) {
+    return cmpCStrNSc_Rangecc(d, cstr, strlen(cstr), sc);
+}
+
+int cmpCStrNSc_Rangecc(const iRangecc *d, const char *cstr, size_t n, const iStringComparison *sc) {
     size_t len = strlen(cstr);
     int cmp = sc->cmpN(d->start, cstr, iMin(len, size_Range(d)));
     if (cmp == 0) {

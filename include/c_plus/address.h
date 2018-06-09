@@ -40,11 +40,14 @@ iDeclareConstNotifyFunc(Address, LookupFinished)
 
 iDeclareObjectConstruction(Address)
 
-iAddress *  newSockAddr_Address (const void *sockAddr, size_t sockAddrSize);
+iAddress *  newSockAddr_Address     (const void *sockAddr, size_t sockAddrSize);
+iAddress *  newLocalhost_Address    (int ipVersion /* 4 or 6 */);
 
-void        init_Address    (iAddress *);
-void        deinit_Address  (iAddress *);
+void        init_Address        (iAddress *);
+void        deinit_Address      (iAddress *);
+iAddress *  copy_Address        (const iAddress *);
 
+iBool       equal_Address       (const iAddress *, const iAddress *other);
 iBool       isHostFound_Address (const iAddress *);
 iBool       isValid_Address     (const iAddress *);
 int         count_Address       (const iAddress *);

@@ -125,3 +125,18 @@ iAudienceMember *audienceMember_Object(const iAnyObject *any) {
     }
     return NULL;
 }
+
+void setUserData_Object(iAnyObject *d, void *user) {
+    if (d) {
+        iAssertIsObject(d);
+        ((iObject *) d)->user = user;
+    }
+}
+
+void *userData_Object(const iAnyObject *d) {
+    if (d) {
+        iAssertIsObject(d);
+        return ((const iObject *) d)->user;
+    }
+    return NULL;
+}

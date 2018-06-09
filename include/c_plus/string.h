@@ -78,9 +78,11 @@ const char *    cstr_String     (const iString *);
 size_t          length_String   (const iString *);
 size_t          size_String     (const iString *);
 iString *       mid_String      (const iString *, size_t charStartPos, size_t charCount);
-iString *       toUpper_String  (const iString *);
-iString *       toLower_String  (const iString *);
-iStringList *   split_String    (const iString *d, const char *separator);
+iString *       upper_String    (const iString *);
+iString *       lower_String    (const iString *);
+iStringList *   split_String    (const iString *, const char *separator);
+iString *       urlEncode_String(const iString *);
+iString *       urlDecode_String(const iString *);
 
 #define         range_String(d) (iRangecc){ constData_Block(&d->chars), constEnd_Block(&d->chars) }
 
@@ -95,6 +97,7 @@ int             cmpNSc_String       (const iString *, const char *cstr, size_t n
 #define         cmpCase_String(d, cstr)         cmpSc_String(d, cstr, &iCaseInsensitive)
 #define         cmpString_String(d, s)          cmpSc_String(d, cstr_String(s), &iCaseSensitive)
 #define         cmpStringCase_String(d, s)      cmpSc_String(d, cstr_String(s), &iCaseInsensitive)
+#define         cmpStringSc_String(d, s, sc)    cmpSc_String(d, cstr_String(s), sc)
 
 iBool           startsWithSc_String (const iString *, const char *cstr, const iStringComparison *);
 iBool           endsWithSc_String   (const iString *, const char *cstr, const iStringComparison *);
@@ -106,6 +109,7 @@ iBool           endsWithSc_String   (const iString *, const char *cstr, const iS
 
 size_t          indexOf_String              (const iString *, iChar ch);
 size_t          indexOfCStr_String          (const iString *, const char *cstr);
+size_t          indexOfCStrFrom_String      (const iString *, const char *cstr, size_t from);
 size_t          lastIndexOf_String          (const iString *, iChar ch);
 size_t          lastIndexOfCStr_String      (const iString *, const char *cstr);
 
@@ -123,6 +127,7 @@ void            format_String   (iString *, const char *format, ...);
 
 void            append_String       (iString *, const iString *other);
 void            appendCStr_String   (iString *, const char *cstr);
+void            appendCStrN_String  (iString *, const char *cstr, size_t size);
 void            appendChar_String   (iString *, iChar ch);
 void            appendRange_String  (iString *, const iRangecc *range);
 void            prepend_String      (iString *, const iString *other);
@@ -140,7 +145,8 @@ const char *    skipSpace_CStr  (const char *);
 static inline iRangecc rangeN_CStr  (const char *cstr, size_t size) { return (iRangecc){ cstr, cstr + size }; }
 static inline iRangecc range_CStr   (const char *cstr) { return rangeN_CStr(cstr, strlen(cstr)); }
 
-int             cmpSc_Rangecc       (const iRangecc *, const char *cstr, const iStringComparison *);
+int             cmpCStrSc_Rangecc   (const iRangecc *, const char *cstr, const iStringComparison *);
+int             cmpCStrNSc_Rangecc  (const iRangecc *, const char *cstr, size_t n, const iStringComparison *);
 iBool           startsWithSc_Rangecc(const iRangecc *, const char *cstr, const iStringComparison *);
 iStringList *   split_Rangecc       (const iRangecc *, const char *separator);
 

@@ -92,19 +92,24 @@ void sub_Time(iTime *d, const iTime *time) {
 
 //---------------------------------------------------------------------------------------
 
-void init_Date(iDate *d, const iTime *time) {
+void initSinceEpoch_Date(iDate *d, time_t seconds) {
     struct tm t;
-    localtime_r(&time->ts.tv_sec, &t);
-    d->year = t.tm_year + 1900;
-    d->month = t.tm_mon + 1;
-    d->day = t.tm_mday;
-    d->dayOfWeek = t.tm_wday;
-    d->dayOfYear = t.tm_yday + 1;
-    d->hour = t.tm_hour;
-    d->minute = t.tm_min;
-    d->second = t.tm_sec;
-    d->nsecs = nanoSeconds_Time(time);
+    localtime_r(&seconds, &t);
+    d->year             = t.tm_year + 1900;
+    d->month            = t.tm_mon + 1;
+    d->day              = t.tm_mday;
+    d->dayOfWeek        = t.tm_wday;
+    d->dayOfYear        = t.tm_yday + 1;
+    d->hour             = t.tm_hour;
+    d->minute           = t.tm_min;
+    d->second           = t.tm_sec;
+    d->nsecs            = 0;
     d->gmtOffsetSeconds = t.tm_gmtoff;
+}
+
+void init_Date(iDate *d, const iTime *time) {
+    initSinceEpoch_Date(d, time->ts.tv_sec);
+    d->nsecs = nanoSeconds_Time(time);
 }
 
 void initCurrent_Date(iDate *d) {

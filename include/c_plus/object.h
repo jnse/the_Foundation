@@ -80,6 +80,7 @@ struct Impl_Object {
     const iClass *classObj;
     atomic_int refCount;
     iAudienceMember *memberOf;
+    void *user; // custom user contextual data
 #if !defined (NDEBUG)
     uint32_t __sig;
 #endif
@@ -99,6 +100,9 @@ void            deinit_Object   (iAnyObject *);
 iAnyObject *    ref_Object      (const iAnyObject *);
 void            deref_Object    (const iAnyObject *);
 const iClass *  class_Object    (const iAnyObject *);
+
+void            setUserData_Object  (iAnyObject *, void *user);
+void *          userData_Object     (const iAnyObject *);
 
 iAudienceMember * audienceMember_Object (const iAnyObject *);
 
@@ -130,3 +134,21 @@ static inline iAnyObject *iReleaseLater(const iAnyObject *d) {
 
 #define iClob(d)     iReleaseLater(d) // clob == collect object
 
+#if defined(__cplusplus)
+namespace cplus {
+
+template <typename T>
+class Ref {
+    T *_ptr;
+public:
+    Ref(T *p = nullptr) : _ptr(p) {} // note: assume that ownership of ref is given
+    Ref(const T *p) : _ptr(ref_Object(p)) {}
+    ~Ref() { deref_Object(_ptr); }
+    void reset(T *p) { deref_Object(_ptr); _ptr = static_cast<T *>(ref_Object(p)); }
+    operator T *() const { return _ptr; }
+    T *operator->() const { return _ptr; }
+    T &operator*() const { return *_ptr; }
+};
+
+} // namespace cplus
+#endif
