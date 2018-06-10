@@ -138,13 +138,20 @@ static inline iAnyObject *iReleaseLater(const iAnyObject *d) {
 namespace cplus {
 
 template <typename T>
-class Ref {
+class ref {
     T *_ptr;
 public:
-    Ref(T *p = nullptr) : _ptr(p) {} // note: assume that ownership of ref is given
-    Ref(const T *p) : _ptr(ref_Object(p)) {}
-    ~Ref() { deref_Object(_ptr); }
-    void reset(T *p) { deref_Object(_ptr); _ptr = static_cast<T *>(ref_Object(p)); }
+    ref(T *p = nullptr) : _ptr(p) {} // note: assume that ownership of ref is given
+    ref(const T *p) : _ptr(ref_Object(p)) {}
+    ~ref() { deref_Object(_ptr); }
+    void reset(const T *p = nullptr)
+    {
+        if (_ptr != p)
+        {
+            deref_Object(_ptr);
+            _ptr = static_cast<T *>(ref_Object(p));
+        }
+    }
     operator T *() const { return _ptr; }
     T *operator->() const { return _ptr; }
     T &operator*() const { return *_ptr; }

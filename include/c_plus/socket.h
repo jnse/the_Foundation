@@ -87,3 +87,6 @@ static inline iBlock *  readAll_Socket      (iSocket *d) { return readAll_Stream
 static inline size_t    writeData_Socket    (iSocket *d, const void *data, size_t size) {
     return writeData_Stream((iStream *) d, data, size);
 }
+static inline size_t    write_Socket        (iSocket *d, const iBlock *data) {
+    return writeData_Socket(d, constData_Block(data), size_Block(data));
+}
