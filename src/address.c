@@ -244,8 +244,10 @@ iStringList *networkInterfaces_Address(void) {
             struct sockaddr *sockAddr = i->ifa_addr;
             // Only IPv4 and IPv6 addresses.
             if (sockAddr->sa_family != AF_INET && sockAddr->sa_family != AF_INET6) continue;
-            if (!getnameinfo(sockAddr, sockAddr->sa_len, hbuf, sizeof(hbuf), NULL, 0,
-                             NI_NUMERICHOST)) {
+            if (!getnameinfo(sockAddr,
+                             sockAddr->sa_family == AF_INET6 ? sizeof(struct sockaddr_in6)
+                                                             : sizeof(struct sockaddr_in),
+                             hbuf, sizeof(hbuf), NULL, 0, NI_NUMERICHOST)) {
                 initCStr_String(&host, hbuf);
                 if (!isEmpty_String(&host)) {
                     pushBack_StringList(list, &host);

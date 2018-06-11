@@ -223,7 +223,7 @@ add_subdirectory (lang/c++)
 
 macro (cplus_add_test target sources)
     add_executable (${target} ${sources})
-    target_link_libraries (${target} PRIVATE cplus)
+    target_link_libraries (${target} PRIVATE cplus m)
     cplus_set_compile_options (${target})
 endmacro ()
 
