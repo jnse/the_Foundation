@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/audience.h>
 #include <c_plus/commandline.h>
 #include <c_plus/string.h>
+#include <c_plus/stringlist.h>
 #include <c_plus/service.h>
 #include <c_plus/socket.h>
 #include <c_plus/thread.h>
@@ -103,6 +104,14 @@ static void communicate_(iAny *d, iService *sv, iSocket *sock) {
 
 int main(int argc, char *argv[]) {
     init_CPlus();
+    /* List network interface addresses. */ {
+        iStringList *ifs = networkInterfaces_Address();
+        printf("%zu network interfaces:\n", size_StringList(ifs));
+        iConstForEach(StringList, i, ifs) {
+            printf("- %s\n", cstr_String(i.value));
+        }
+        iRelease(ifs);
+    }
     iCommandLine *cmdline = iClob(new_CommandLine(argc, argv));
     // Check the arguments.
     if (contains_CommandLine(cmdline, "s;server")) {

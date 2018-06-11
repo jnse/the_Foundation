@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/address.h"
 #include "c_plus/mutex.h"
 #include "c_plus/string.h"
+#include "c_plus/stringlist.h"
 #include "c_plus/thread.h"
 
 #include <sys/types.h>
@@ -35,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <ifaddrs.h>
 
 struct Impl_Address {
     iObject object;
@@ -230,6 +232,30 @@ iString *toString_Address(const iAddress *d) {
         }
     });
     return str;
+}
+
+iStringList *networkInterfaces_Address(void) {
+    iStringList *list = new_StringList();
+    iString host;
+    struct ifaddrs *addrs = NULL;
+    if (!getifaddrs(&addrs)) {
+        for (struct ifaddrs *i = addrs; i; i = i->ifa_next) {
+            char hbuf[NI_MAXHOST];
+            struct sockaddr *sockAddr = i->ifa_addr;
+            // Only IPv4 and IPv6 addresses.
+            if (sockAddr->sa_family != AF_INET && sockAddr->sa_family != AF_INET6) continue;
+            if (!getnameinfo(sockAddr, sockAddr->sa_len, hbuf, sizeof(hbuf), NULL, 0,
+                             NI_NUMERICHOST)) {
+                initCStr_String(&host, hbuf);
+                if (!isEmpty_String(&host)) {
+                    pushBack_StringList(list, &host);
+                }
+                deinit_String(&host);
+            }
+        }
+        freeifaddrs(addrs);
+    }
+    return list;
 }
 
 iDefineClass(Address)

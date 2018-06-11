@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iBeginPublic
 
 iDeclareType(String)
+iDeclareType(StringList)
 
 iDeclareClass(Address)
 iDeclareType (Address)
@@ -74,5 +75,7 @@ static inline void lookupHost_Address(iAddress *d, const iString *hostName, uint
 }
 
 iDeclareAudienceGetter(Address, lookupFinished)
+
+iStringList *   networkInterfaces_Address(void);
 
 iEndPublic
