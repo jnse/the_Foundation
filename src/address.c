@@ -236,7 +236,6 @@ iString *toString_Address(const iAddress *d) {
 
 iStringList *networkInterfaces_Address(void) {
     iStringList *list = new_StringList();
-    iString host;
     struct ifaddrs *addrs = NULL;
     if (!getifaddrs(&addrs)) {
         for (struct ifaddrs *i = addrs; i; i = i->ifa_next) {
@@ -248,11 +247,9 @@ iStringList *networkInterfaces_Address(void) {
                              sockAddr->sa_family == AF_INET6 ? sizeof(struct sockaddr_in6)
                                                              : sizeof(struct sockaddr_in),
                              hbuf, sizeof(hbuf), NULL, 0, NI_NUMERICHOST)) {
-                initCStr_String(&host, hbuf);
-                if (!isEmpty_String(&host)) {
-                    pushBack_StringList(list, &host);
+                if (strlen(hbuf)) {
+                    pushBackCStr_StringList(list, hbuf);
                 }
-                deinit_String(&host);
             }
         }
         freeifaddrs(addrs);
