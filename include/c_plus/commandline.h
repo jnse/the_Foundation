@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "stringlist.h"
 #include "stringhash.h"
 
+iBeginPublic
+
 iDeclareClass(CommandLine)
 
 iDeclareType(CommandLine)
@@ -143,3 +145,5 @@ static inline const iString *value_CommandLineArg(const iCommandLineArg *d, size
 static inline const iStringList *values_CommandLineArg(const iCommandLineArg *d) {
     return &d->values;
 }
+
+iEndPublic

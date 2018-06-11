@@ -33,6 +33,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdatomic.h>
 #include <stdarg.h>
 
+iBeginPublic
+
 iDeclareType(Block)
 iDeclareType(BlockData)
 
@@ -123,3 +125,5 @@ iBlock *        decompress_Block    (const iBlock *);
 static inline iBlock * compress_Block(const iBlock *d) {
     return compressLevel_Block(d, iBlockDefaultCompressionLevel);
 }
+
+iEndPublic

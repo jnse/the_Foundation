@@ -36,6 +36,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "objectlist.h"
 #include "stdthreads.h"
 
+iBeginPublic
+
 iDeclareClass(Queue)
 iDeclareType(Queue)
 
@@ -63,3 +65,5 @@ size_t      size_Queue          (const iQueue *d);
 static inline iBool isEmpty_Queue(const iQueue *d) {
     return size_Queue(d) == 0;
 }
+
+iEndPublic

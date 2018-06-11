@@ -42,6 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "list.h"
 #include "string.h"
 
+iBeginPublic
+
 iDeclareClass(StringList)
 
 iDeclareType(StringList)
@@ -109,3 +111,5 @@ struct ConstIteratorImpl_StringList {
     const iStringList *list;
 };
 ///@}
+
+iEndPublic

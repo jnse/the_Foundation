@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "array.h"
 
+iBeginPublic
+
 typedef iArray iPtrArray;
 
 iDeclareTypeConstruction(PtrArray)
@@ -80,3 +82,5 @@ struct ConstIteratorImpl_PtrArray {
     const void *ptr; // array element
 };
 ///@}
+
+iEndPublic

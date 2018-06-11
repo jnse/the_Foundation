@@ -37,6 +37,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "object.h"
 
+iBeginPublic
+
 iDeclareType(Block)
 iDeclareType(Buffer)
 iDeclareType(Stream)
@@ -113,3 +115,5 @@ size_t          writeObject_Stream  (iStream *, const iAnyObject *object);
 static inline long  size_Stream     (const iStream *d) { return d->size; }
 static inline long  pos_Stream      (const iStream *d) { return d->pos; }
 static inline iBool atEnd_Stream    (const iStream *d) { return d->pos == d->size; }
+
+iEndPublic

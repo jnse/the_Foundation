@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "thread.h"
 #include "objectlist.h"
 
+iBeginPublic
+
 iDeclareClass(Future)
 
 iDeclareType(Future)
@@ -84,3 +86,5 @@ iBool       isEmpty_Future  (const iFuture *d);
 static inline const iObjectList *threads_Future(const iFuture *d) {
     return &d->threads;
 }
+
+iEndPublic

@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "sortedarray.h"
 #include "ptrset.h"
 
+iBeginPublic
+
 #define iDeclareNotifyFunc(typeName, audienceName) \
     typedef void (*iNotify##typeName##audienceName)(iAny *, i##typeName *);
 
@@ -140,3 +142,5 @@ void    deinit_AudienceMember   (iAudienceMember *);
 
 void    insert_AudienceMember   (iAudienceMember *, iAudience *audience);
 void    remove_AudienceMember   (iAudienceMember *, iAudience *audience);
+
+iEndPublic

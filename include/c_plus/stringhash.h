@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "blockhash.h"
 #include "string.h"
 
+iBeginPublic
+
 iDeclareBlockHash(StringHash, String, AnyObject)
 
 const iAnyObject *constValueRange_StringHash    (const iStringHash *, const iRangecc *key);
@@ -39,3 +41,5 @@ iBool       insertCStrN_StringHash      (iStringHash *, const char *key, size_t 
 
 void        insertValues_StringHash     (iStringHash *, const iString *key, iAnyObject *value, ...);
 void        insertValuesCStr_StringHash (iStringHash *, const char *key, iAnyObject *value, ...);
+
+iEndPublic

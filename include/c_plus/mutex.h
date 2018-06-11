@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "time.h"
 #include "stdthreads.h"
 
+iBeginPublic
+
 /**
  * Defines a lockable object type. In practice, this is an object paired with a mutex.
  * Both the objcet and the mutex are created when the lockable object is initialized.
@@ -104,3 +106,5 @@ static inline void wait_Condition(iCondition *d, iMutex *mutex) {
 static inline int waitTimeout_Condition(iCondition *d, iMutex *mutex, const iTime *timeout) {
     return cnd_timedwait(&d->cnd, &mutex->mtx, &timeout->ts);
 }
+
+iEndPublic

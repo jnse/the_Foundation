@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "object.h"
 #include "string.h"
 
+iBeginPublic
+
 iDeclareClass(StringArray)
 
 iDeclareType(StringArray)
@@ -104,3 +106,5 @@ struct ConstIteratorImpl_StringArray {
     };
 };
 ///@}
+
+iEndPublic

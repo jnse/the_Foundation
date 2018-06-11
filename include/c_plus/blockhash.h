@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "block.h"
 #include "object.h"
 
+iBeginPublic
+
 /** @name BlockHashNode */
 ///@{
 iDeclareType(BlockHashNode)
@@ -281,3 +283,5 @@ struct ConstIteratorImpl_BlockHash {
     void initBlock_##typeName##Key(const i##keyType *d, iBlock *block) { \
         initData_Block(block, d, sizeof(i##keyType)); \
     }
+
+iEndPublic

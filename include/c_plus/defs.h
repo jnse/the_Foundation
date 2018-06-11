@@ -36,9 +36,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "config.h"
 
 #if defined (__cplusplus)
-#   define CPLUS_API extern "C"
+#   define iPublic          extern "C"
+#   define iBeginPublic     extern "C" {
+#   define iEndPublic       }
 #else
-#   define CPLUS_API
+#   define iPublic
+#   define iBeginPublic
+#   define iEndPublic
 #endif
 
 #define iFalse  false
@@ -63,9 +67,9 @@ typedef void (*iDeleteFunc)(iAny *);
 
 #include "garbage.h"
 
-void        init_CPlus  (void);
-uint32_t    iCrc32      (const char *data, size_t size);
-void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[16]);
+iPublic void        init_CPlus  (void);
+iPublic uint32_t    iCrc32      (const char *data, size_t size);
+iPublic void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[16]);
 
 #define iUnusedMany_(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, ...) \
     ((void)(_0), (void)(_1), (void)(_2), (void)(_3), (void)(_4), \

@@ -42,6 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <limits.h>
 #include <wchar.h>
 
+iBeginPublic
+
 typedef wchar_t iChar;
 
 iDeclareType(String)
@@ -205,3 +207,5 @@ int             iCmpStrNCase(const char *a, const char *b, size_t len);
 
 extern iStringComparison iCaseSensitive;
 extern iStringComparison iCaseInsensitive;
+
+iEndPublic

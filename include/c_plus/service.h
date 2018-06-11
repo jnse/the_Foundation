@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "object.h"
 #include "audience.h"
 
+iBeginPublic
+
 iDeclareClass(Service)
 
 iDeclareType(Service)
@@ -45,3 +47,5 @@ void    close_Service   (iService *);
 iBool   isOpen_Service  (const iService *);
 
 iDeclareAudienceGetter(Service, incomingAccepted)
+
+iEndPublic

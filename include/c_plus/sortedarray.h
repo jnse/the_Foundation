@@ -42,6 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "array.h"
 
+iBeginPublic
+
 iDeclareType(SortedArray)
 
 typedef int (*iSortedArrayCompareElemFunc)(const void *, const void *);
@@ -86,3 +88,5 @@ iBool       remove_SortedArray  (iSortedArray *, const void *value);
 static inline void removeRange_SortedArray(iSortedArray *d, const iRanges *range) {
     removeRange_Array(&d->values, range);
 }
+
+iEndPublic

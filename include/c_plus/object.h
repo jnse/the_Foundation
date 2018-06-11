@@ -35,6 +35,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdatomic.h>
 
+iBeginPublic
+
 #define iNew(typeName)      ((i##typeName *) new_Object(&Class_##typeName))
 
 #define iDeclareObjectConstruction(typeName) \
@@ -133,6 +135,8 @@ static inline iAnyObject *iReleaseLater(const iAnyObject *d) {
 }
 
 #define iClob(d)     iReleaseLater(d) // clob == collect object
+
+iEndPublic
 
 #if defined(__cplusplus)
 namespace cplus {

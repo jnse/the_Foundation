@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "sortedarray.h"
 
+iBeginPublic
+
 typedef iSortedArray iPtrSet;
 
 iDeclareTypeConstruction(PtrSet)
@@ -60,3 +62,5 @@ struct ConstIteratorImpl_PtrSet {
     };
 };
 ///@}
+
+iEndPublic

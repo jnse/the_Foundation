@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdio.h>
 
+iBeginPublic
+
 typedef iStreamClass iFileClass;
 
 iDeclareType(File)
@@ -71,3 +73,5 @@ static inline const iString *path_File(const iFile *d) { return d->path; }
 static inline iBlock *      readAll_File    (iFile *d) { return readAll_Stream(&d->stream); }
 static inline iString *     readString_File (iFile *d) { return readString_Stream(&d->stream); }
 static inline iStringList * readLines_File  (iFile *d) { return readLines_Stream(&d->stream); }
+
+iEndPublic

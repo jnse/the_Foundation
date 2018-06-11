@@ -35,6 +35,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "list.h"
 #include "object.h"
 
+iBeginPublic
+
 iDeclareClass(ObjectList)
 
 iDeclareType(ObjectList)
@@ -115,3 +117,5 @@ struct ConstIteratorImpl_ObjectList {
     const iObjectList *list;
 };
 ///@}
+
+iEndPublic

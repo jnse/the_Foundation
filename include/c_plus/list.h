@@ -40,6 +40,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
+iBeginPublic
+
 iDeclareType(List)
 iDeclareType(ListNode)
 
@@ -93,3 +95,5 @@ struct ConstIteratorImpl_List {
     const iListNode *next;
 };
 ///@}
+
+iEndPublic

@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "thread.h"
 #include "queue.h"
 
+iBeginPublic
+
 iDeclareClass(ThreadPool)
 
 iDeclareType(ThreadPool)
@@ -45,3 +47,5 @@ void init_ThreadPool    (iThreadPool *);
 void deinit_ThreadPool  (iThreadPool *);
 
 iThread *run_ThreadPool (iThreadPool *, iThread *thread);
+
+iEndPublic

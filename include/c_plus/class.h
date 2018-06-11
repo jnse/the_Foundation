@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
+iBeginPublic
+
 iDeclareType(Class)
 iDeclareType(Stream)
 
@@ -96,3 +98,5 @@ struct Impl_Class {
 
 void deinit_Class(const void *classObj, void *object);
 void delete_Class(const void *classObj, void *object);
+
+iEndPublic

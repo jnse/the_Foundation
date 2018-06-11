@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
+iBeginPublic
+
 iDeclareType(Pipe)
 
 struct Impl_Pipe {
@@ -52,3 +54,5 @@ static inline uint8_t readByte_Pipe(const iPipe *d) {
     read_Pipe(d, 1, &value);
     return value;
 }
+
+iEndPublic

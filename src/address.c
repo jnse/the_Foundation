@@ -221,7 +221,7 @@ iString *toString_Address(const iAddress *d) {
                              sbuf, sizeof(sbuf),
                              NI_NUMERICHOST | NI_NUMERICSERV)) {
                 if (iCmpStr(sbuf, "0")) {
-                    format_String(str, "%s port:%s", hbuf, sbuf);
+                    format_String(str, "%s (port:%s)", hbuf, sbuf);
                 }
                 else {
                     setCStr_String(str, hbuf);

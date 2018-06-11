@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include <time.h>
 
+iBeginPublic
+
 iDeclareType(Time)
 iDeclareType(Date)
 
@@ -84,3 +86,5 @@ static inline double elapsedSeconds_Time(const iTime *d) {
     sub_Time(&elapsed, d);
     return seconds_Time(&elapsed);
 }
+
+iEndPublic

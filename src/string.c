@@ -298,6 +298,10 @@ void setCStr_String(iString *d, const char *cstr) {
     setCStr_Block(&d->chars, cstr);
 }
 
+void setBlock_String(iString *d, const iBlock *block) {
+    set_Block(&d->chars, block);
+}
+
 void format_String(iString *d, const char *format, ...) {
     va_list args;
     va_start(args, format);
@@ -321,6 +325,23 @@ size_t indexOfCStrFrom_String(const iString *d, const char *cstr, size_t from) {
     const char *found = strstr(chars, cstr);
     if (found) {
         return found - chars;
+    }
+    return iInvalidPos;
+}
+
+size_t lastIndexOf_String(const iString *d, iChar ch) {
+    iMultibyteChar mb;
+    init_MultibyteChar(&mb, ch);
+    return lastIndexOfCStr_String(d, mb.bytes);
+}
+
+size_t lastIndexOfCStr_String(const iString *d, const char *cstr) {
+    const size_t len = strlen(cstr);
+    if (len > size_String(d)) return iInvalidPos;
+    for (const char *i = constEnd_String(d) - len; i > constBegin_String(d); --i) {
+        if (iCmpStrN(i, cstr, len) == 0) {
+            return i - constBegin_String(d);
+        }
     }
     return iInvalidPos;
 }

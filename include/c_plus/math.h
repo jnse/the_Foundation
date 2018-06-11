@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
+iBeginPublic
+
 #define iMathPi                 3.14159265358979323846
 #define iMathPif                3.14159265358979323846f
 #define iMathDegreeToRadianf(v) ((v) * iMathPif / 180.f)
@@ -71,3 +73,5 @@ struct Impl_FloatVec4 {
 
 iBool inverse_Mat3(const iMat3 *d, iMat3 *inversed_out);
 iBool inverse_Mat4(const iMat4 *d, iMat4 *inversed_out);
+
+iEndPublic

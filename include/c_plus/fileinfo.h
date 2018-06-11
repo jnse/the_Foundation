@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "string.h"
 #include "object.h"
 
+iBeginPublic
+
 iDeclareClass(FileInfo)
 iDeclareClass(DirFileInfo)
 
@@ -80,3 +82,5 @@ struct IteratorImpl_DirFileInfo {
     iDirFileInfo *dir;
 };
 ///@}
+
+iEndPublic

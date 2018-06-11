@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "audience.h"
 #include "string.h"
 
+iBeginPublic
+
 iDeclareType(String)
 
 iDeclareClass(Address)
@@ -45,7 +47,6 @@ iAddress *  newLocalhost_Address    (int ipVersion /* 4 or 6 */);
 
 void        init_Address        (iAddress *);
 void        deinit_Address      (iAddress *);
-iAddress *  copy_Address        (const iAddress *);
 
 iBool       equal_Address       (const iAddress *, const iAddress *other);
 iBool       isHostFound_Address (const iAddress *);
@@ -73,3 +74,5 @@ static inline void lookupHost_Address(iAddress *d, const iString *hostName, uint
 }
 
 iDeclareAudienceGetter(Address, lookupFinished)
+
+iEndPublic

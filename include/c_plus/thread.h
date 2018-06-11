@@ -35,6 +35,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "audience.h"
 #include "stdthreads.h"
 
+iBeginPublic
+
 iDeclareClass(Thread)
 
 iDeclareType(Thread)
@@ -112,3 +114,5 @@ iDefineInlineAudienceGetter(Thread, finished)
 iDeclareBlockHash(ThreadHash, ThreadId, Thread)
 iDeclareLockableObject(ThreadHash)
 /** @endcond */
+
+iEndPublic

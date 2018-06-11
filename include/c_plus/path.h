@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "string.h"
 
+iBeginPublic
+
 #define iPathSeparator  "/"
 
 iString *   cwd_Path    (void);
@@ -43,3 +45,5 @@ iString *   concat_Path         (const iString *, const iString *path);
 
 void        clean_Path  (iString *);
 void        append_Path (iString *, const iString *path);
+
+iEndPublic

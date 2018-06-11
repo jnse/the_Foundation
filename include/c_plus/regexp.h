@@ -32,6 +32,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "class.h"
 #include "string.h"
 
+iBeginPublic
+
 iDeclareClass(RegExp)
 
 iDeclareType(RegExp)
@@ -77,3 +79,5 @@ struct Impl_RegExpMatch {
 };
 
 iString *   captured_RegExpMatch(const iRegExpMatch *, int index);
+
+iEndPublic

@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "class.h"
 #include "list.h"
 
+iBeginPublic
+
 /**
  * Object that owns child objects and may have a parent. When a parent is deleted,
  * all its children are deleted first.
@@ -56,3 +58,4 @@ const iList *   children_TreeNode(const iAnyTreeNode *);
 
 void            setParent_TreeNode(iAnyTreeNode *, iAnyTreeNode *parent);
 
+iEndPublic

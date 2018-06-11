@@ -43,6 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "stream.h"
 #include "address.h"
 
+iBeginPublic
+
 typedef iStreamClass iSocketClass;
 
 iDeclareType(Socket)
@@ -90,3 +92,5 @@ static inline size_t    writeData_Socket    (iSocket *d, const void *data, size_
 static inline size_t    write_Socket        (iSocket *d, const iBlock *data) {
     return writeData_Socket(d, constData_Block(data), size_Block(data));
 }
+
+iEndPublic

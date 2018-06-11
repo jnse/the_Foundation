@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 
+iBeginPublic
+
 iDeclareType(Version)
 
 struct Impl_Version {
@@ -40,3 +42,5 @@ struct Impl_Version {
 int cmp_Version(const iVersion *, const iVersion *other);
 
 extern const iVersion version_CPlus;
+
+iEndPublic

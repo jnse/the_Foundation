@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "defs.h"
 #include "class.h"
 
+iBeginPublic
+
 /**
  * Hash does not have ownership of the nodes. This means the nodes can be
  * any type of object as long as they are derived from HashNode.
@@ -95,3 +97,5 @@ struct ConstIteratorImpl_Hash {
     const iHash *hash;
 };
 ///@}
+
+iEndPublic

@@ -36,6 +36,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "list.h"
 #include "class.h"
 
+iBeginPublic
+
 iDeclareType(Map)
 iDeclareType(MapNode)
 iDeclareType(Block)
@@ -99,3 +101,5 @@ struct ConstIteratorImpl_Map {
     const iMap *map;
 };
 ///@}
+
+iEndPublic

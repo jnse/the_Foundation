@@ -34,6 +34,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include "stdthreads.h"
 
+iBeginPublic
+
 typedef iStreamClass iBufferClass;
 
 iDeclareType(Buffer)
@@ -84,3 +86,5 @@ static inline iStringList * readLines_Buffer    (iBuffer *d) { return readLines_
 size_t      consume_Buffer      (iBuffer *d, size_t size, void *data_out);
 iBlock *    consumeBlock_Buffer (iBuffer *d, size_t size);
 iBlock *    consumeAll_Buffer   (iBuffer *d);
+
+iEndPublic
