@@ -194,7 +194,7 @@ if (PCRE_FOUND)
 endif ()
 
 # Installation.
-install (TARGETS cplus LIBRARY DESTINATION lib)
+install (TARGETS cplus DESTINATION lib)
 install (DIRECTORY include/c_plus DESTINATION include
     FILES_MATCHING PATTERN "*.h"
 )
