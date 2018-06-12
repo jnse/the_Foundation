@@ -414,13 +414,12 @@ int cmpCStrSc_Rangecc(const iRangecc *d, const char *cstr, const iStringComparis
 }
 
 int cmpCStrNSc_Rangecc(const iRangecc *d, const char *cstr, size_t n, const iStringComparison *sc) {
-    size_t len = strlen(cstr);
-    int cmp = sc->cmpN(d->start, cstr, iMin(len, size_Range(d)));
+    int cmp = sc->cmpN(d->start, cstr, iMin(n, size_Range(d)));
     if (cmp == 0) {
-        if (len == size_Range(d)) {
+        if (n == size_Range(d)) {
             return 0;
         }
-        return size_Range(d) < len? -1 : 1;
+        return size_Range(d) < n? -1 : 1;
     }
     return cmp;
 }
