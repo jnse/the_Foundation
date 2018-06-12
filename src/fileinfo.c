@@ -42,8 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #endif
 
 enum FileInfoFlags {
-    exists_FileInfoFlag,
-    directory_FileInfoFlag,
+    exists_FileInfoFlag     = 1,
+    directory_FileInfoFlag  = 2,
 };
 
 struct Impl_FileInfo {
@@ -51,7 +51,7 @@ struct Impl_FileInfo {
     iString *path;
     iTime lastModified;
     long size;
-    enum FileInfoFlags flags;
+    uint32_t flags;
 };
 
 iDefineClass(FileInfo)
@@ -80,13 +80,18 @@ void init_FileInfo(iFileInfo *d, const iString *path) {
     }
 }
 
-static void initDirEntry_FileInfo_(iFileInfo *d, const iString *dirPath, struct dirent *ent) {
+static iBool initDirEntry_FileInfo_(iFileInfo *d, const iString *dirPath, struct dirent *ent) {
     iString entryName;
 #if defined (iPlatformApple)
     initCStrN_String(&entryName, ent->d_name, ent->d_namlen);
 #else
     initCStr_String(&entryName, ent->d_name);
 #endif
+    // Check for ignored entries.
+    if (!cmp_String(&entryName, "..") || !cmp_String(&entryName, ".")) {
+        deinit_String(&entryName);
+        return iFalse;
+    }
     d->path = concat_Path(dirPath, &entryName);
     clean_Path(d->path);
     deinit_String(&entryName);
@@ -96,6 +101,7 @@ static void initDirEntry_FileInfo_(iFileInfo *d, const iString *dirPath, struct 
         d->flags |= directory_FileInfoFlag;
     }
     d->size = iFileInfoUnknownSize; // Unknown at this time.
+    return iTrue;
 }
 
 void deinit_FileInfo(iFileInfo *d) {
@@ -221,10 +227,9 @@ static iBool readNextEntry_DirFileInfo_(iDirFileInfo *d) {
 #endif
         iZap(d->entry);
         if (result) {
-            if (!iCmpStr(result->d_name, ".")) {
+            if (!initDirEntry_FileInfo_(&d->entry, path_FileInfo(d->dirInfo), result)) {
                 continue;
             }
-            initDirEntry_FileInfo_(&d->entry, path_FileInfo(d->dirInfo), result);
             return iTrue;
         }
         return iFalse;

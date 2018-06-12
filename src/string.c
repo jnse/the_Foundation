@@ -379,13 +379,17 @@ void prepend_String(iString *d, const iString *other) {
 iBool nextSplit_Rangecc(const iRangecc *str, const char *separator, iRangecc *range) {
     iAssert(range->start == NULL || contains_Range(str, range->start));
     const size_t separatorSize = strlen(separator);
-    if (separatorSize >= size_Range(str)) {
-        // Doesn't fit in the string.
-        return iFalse;
-    }
+    iAssert(separatorSize > 0);
     if (range->start == NULL) {
+        if (separatorSize > size_Range(str)) {
+            // Doesn't fit in the string.
+            return iFalse;
+        }
+        if (!cmpCStrSc_Rangecc(str, separator, &iCaseSensitive)) {
+            return iFalse;
+        }
         range->start = range->end = str->start;
-        if (!strncmp(range->start, separator, separatorSize)) {
+        if (!iCmpStrN(range->start, separator, separatorSize)) {
             // Skip the first separator.
             range->start += separatorSize;
         }

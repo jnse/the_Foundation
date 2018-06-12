@@ -83,7 +83,8 @@ static void reserve_BlockData_(iBlockData *d, size_t size) {
     if (d->allocSize >= size) return;
     iAssert(d->refCount == 1);
     iAssert(d->allocSize > 0);
-    while (d->allocSize < size) d->allocSize *= 2;
+    // Reserve increased amount of memory in powers-of-two.
+    for (d->allocSize = 8; d->allocSize < size; d->allocSize <<= 1) {}
     d->data = realloc(d->data, d->allocSize);
 }
 
