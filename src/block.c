@@ -55,11 +55,11 @@ static iBlockData *new_BlockData_(size_t size, size_t allocSize) {
     return d;
 }
 
-static iBlockData *newPrealloc_BlockData_(void *data, size_t size) {
+static iBlockData *newPrealloc_BlockData_(void *data, size_t size, size_t allocSize) {
     iBlockData *d = malloc(sizeof(iBlockData));
     d->refCount = 1;
     d->size = size;
-    d->allocSize = size;
+    d->allocSize = allocSize;
     d->data = data;
     return d;
 }
@@ -118,9 +118,9 @@ iBlock *newData_Block(const void *data, size_t size) {
     return d;
 }
 
-iBlock *newPrealloc_Block(void *data, size_t size) {
+iBlock *newPrealloc_Block(void *data, size_t size, size_t allocSize) {
     iBlock *d = iMalloc(Block);
-    initPrealloc_Block(d, data, size);
+    initPrealloc_Block(d, data, size, allocSize);
     return d;
 }
 
@@ -157,8 +157,8 @@ void initCStr_Block(iBlock *d, const char *cstr) {
     initData_Block(d, cstr, cstr ? strlen(cstr) : 0);
 }
 
-void initPrealloc_Block(iBlock *d, void *data, size_t size) {
-    d->i = newPrealloc_BlockData_(data, size);
+void initPrealloc_Block(iBlock *d, void *data, size_t size, size_t allocSize) {
+    d->i = newPrealloc_BlockData_(data, size, allocSize);
 }
 
 void initCopy_Block(iBlock *d, const iBlock *other) {
@@ -226,6 +226,10 @@ void reserve_Block(iBlock *d, size_t reservedSize) {
 }
 
 void resize_Block(iBlock *d, size_t size) {
+    if (size < size_Block(d)) {
+        truncate_Block(d, size);
+        return;
+    }
     reserve_Block(d, size);
     const size_t oldSize = d->i->size;
     d->i->size = size;
@@ -233,9 +237,11 @@ void resize_Block(iBlock *d, size_t size) {
 }
 
 void truncate_Block(iBlock *d, size_t size) {
-    detach_Block_(d, 0);
-    d->i->size = iMin(d->i->size, size);
-    d->i->data[d->i->size] = 0;
+    if (size < size_Block(d)) {
+        detach_Block_(d, 0);
+        d->i->size = iMin(d->i->size, size); // note: allocated size does not change
+        d->i->data[d->i->size] = 0;
+    }
 }
 
 void remove_Block(iBlock *d, size_t start, size_t count) {

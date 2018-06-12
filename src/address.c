@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/address.h"
 #include "c_plus/mutex.h"
 #include "c_plus/string.h"
-#include "c_plus/stringlist.h"
+#include "c_plus/objectlist.h"
 #include "c_plus/thread.h"
 
 #include <sys/types.h>
@@ -75,6 +75,13 @@ static iThreadResult runLookup_Address_(iThread *thd) {
     return 0;
 }
 
+static inline socklen_t sockAddrSize_addrinfo_(const struct addrinfo *d) {
+    if (d->ai_family == AF_INET) {
+        return sizeof(struct sockaddr_in);
+    }
+    return sizeof(struct sockaddr_in6);
+}
+
 iDefineObjectConstruction(Address)
 
 iAddress *newSockAddr_Address(const void *sockAddr, size_t sockAddrSize) {
@@ -112,6 +119,19 @@ void deinit_Address(iAddress *d) {
 
 const iString *hostName_Address(const iAddress *d) {
     return &d->hostName;
+}
+
+uint16_t port_Address(const iAddress *d) {
+    if (!d->info) return 0;
+    char sbuf[NI_MAXSERV];
+    if (!getnameinfo(d->info->ai_addr,
+                     sockAddrSize_addrinfo_(d->info),
+                     NULL, 0,
+                     sbuf, sizeof(sbuf),
+                     NI_NUMERICSERV)) {
+        return (uint16_t) atoi(sbuf);
+    }
+    return 0;
 }
 
 int count_Address(const iAddress *d) {
@@ -152,6 +172,21 @@ iBool isHostFound_Address(const iAddress *d) {
 
 iBool isPending_Address(const iAddress *d) {
     return d->pending != NULL;
+}
+
+iBool equal_Address(const iAddress *d, const iAddress *other) {
+    waitForFinished_Address(d);
+    waitForFinished_Address(other);
+    // Compare the addresses with each other.
+    for (const struct addrinfo *i = d->info; i; i = i->ai_next) {
+        for (const struct addrinfo *j = other->info; j; j = j->ai_next) {
+            if (i->ai_family == j->ai_family && i->ai_protocol == j->ai_protocol &&
+                i->ai_addrlen == j->ai_addrlen && !memcmp(i->ai_addr, j->ai_addr, i->ai_addrlen)) {
+                return iTrue;
+            }
+        }
+    }
+    return iFalse;
 }
 
 void lookupHostCStr_Address(iAddress *d, const char *hostName, uint16_t port) {
@@ -204,13 +239,6 @@ void getSockAddr_Address(const iAddress *d, struct sockaddr **addr_out, socklen_
     });
 }
 
-static size_t sockAddrSize_addrinfo_(const struct addrinfo *d) {
-    if (d->ai_family == AF_INET) {
-        return sizeof(struct sockaddr_in);
-    }
-    return sizeof(struct sockaddr_in6);
-}
-
 iString *toString_Address(const iAddress *d) {
     iString *str = new_String();
     iGuardMutex(&d->mutex, {
@@ -223,7 +251,7 @@ iString *toString_Address(const iAddress *d) {
                              sbuf, sizeof(sbuf),
                              NI_NUMERICHOST | NI_NUMERICSERV)) {
                 if (iCmpStr(sbuf, "0")) {
-                    format_String(str, "%s (port:%s)", hbuf, sbuf);
+                    format_String(str, d->info->ai_family == AF_INET6? "[%s]:%s" : "%s:%s", hbuf, sbuf);
                 }
                 else {
                     setCStr_String(str, hbuf);
@@ -234,8 +262,8 @@ iString *toString_Address(const iAddress *d) {
     return str;
 }
 
-iStringList *networkInterfaces_Address(void) {
-    iStringList *list = new_StringList();
+iObjectList *networkInterfaces_Address(void) {
+    iObjectList *list = new_ObjectList();
     struct ifaddrs *addrs = NULL;
     if (!getifaddrs(&addrs)) {
         for (struct ifaddrs *i = addrs; i; i = i->ifa_next) {
@@ -243,12 +271,14 @@ iStringList *networkInterfaces_Address(void) {
             struct sockaddr *sockAddr = i->ifa_addr;
             // Only IPv4 and IPv6 addresses.
             if (sockAddr->sa_family != AF_INET && sockAddr->sa_family != AF_INET6) continue;
-            if (!getnameinfo(sockAddr,
-                             sockAddr->sa_family == AF_INET6 ? sizeof(struct sockaddr_in6)
-                                                             : sizeof(struct sockaddr_in),
-                             hbuf, sizeof(hbuf), NULL, 0, NI_NUMERICHOST)) {
+            const socklen_t size = sockAddr->sa_family == AF_INET6 ? sizeof(struct sockaddr_in6)
+                                                                   : sizeof(struct sockaddr_in);
+            if (!getnameinfo(sockAddr, size, hbuf, sizeof(hbuf), NULL, 0, NI_NUMERICHOST)) {
                 if (strlen(hbuf)) {
-                    pushBackCStr_StringList(list, hbuf);
+                    iAddress *addr = newSockAddr_Address(sockAddr, size);
+                    // We also have a text version of the host address.
+                    setCStr_String(&addr->hostName, hbuf);
+                    pushBack_ObjectList(list, addr);
                 }
             }
         }

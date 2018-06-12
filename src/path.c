@@ -36,7 +36,8 @@ iString *cwd_Path(void) {
     char *cwd = getcwd(NULL, 0);
     if (cwd) {
         iBlock block;
-        initPrealloc_Block(&block, cwd, strlen(cwd));
+        const size_t len = strlen(cwd);
+        initPrealloc_Block(&block, cwd, len, len + 1);
         iString *d = newBlock_String(&block);
         deinit_Block(&block);
         return d;

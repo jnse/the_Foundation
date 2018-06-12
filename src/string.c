@@ -338,7 +338,7 @@ size_t lastIndexOf_String(const iString *d, iChar ch) {
 size_t lastIndexOfCStr_String(const iString *d, const char *cstr) {
     const size_t len = strlen(cstr);
     if (len > size_String(d)) return iInvalidPos;
-    for (const char *i = constEnd_String(d) - len; i > constBegin_String(d); --i) {
+    for (const char *i = constEnd_String(d) - len; i >= constBegin_String(d); --i) {
         if (iCmpStrN(i, cstr, len) == 0) {
             return i - constBegin_String(d);
         }
@@ -378,14 +378,23 @@ void prepend_String(iString *d, const iString *other) {
 
 iBool nextSplit_Rangecc(const iRangecc *str, const char *separator, iRangecc *range) {
     iAssert(range->start == NULL || contains_Range(str, range->start));
-    if (!range->start) {
+    const size_t separatorSize = strlen(separator);
+    if (separatorSize >= size_Range(str)) {
+        // Doesn't fit in the string.
+        return iFalse;
+    }
+    if (range->start == NULL) {
         range->start = range->end = str->start;
+        if (!strncmp(range->start, separator, separatorSize)) {
+            // Skip the first separator.
+            range->start += separatorSize;
+        }
     }
     else if (range->start == str->end) {
         return iFalse;
     }
     else {
-        range->start = range->end + strlen(separator);
+        range->start = range->end + separatorSize;
         if (range->start >= str->end) {
             return iFalse;
         }

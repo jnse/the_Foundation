@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/audience.h>
 #include <c_plus/commandline.h>
 #include <c_plus/string.h>
-#include <c_plus/stringlist.h>
+#include <c_plus/objectlist.h>
 #include <c_plus/service.h>
 #include <c_plus/socket.h>
 #include <c_plus/thread.h>
@@ -105,10 +105,12 @@ static void communicate_(iAny *d, iService *sv, iSocket *sock) {
 int main(int argc, char *argv[]) {
     init_CPlus();
     /* List network interface addresses. */ {
-        iStringList *ifs = networkInterfaces_Address();
-        printf("%zu network interfaces:\n", size_StringList(ifs));
-        iConstForEach(StringList, i, ifs) {
-            printf("- %s\n", cstr_String(i.value));
+        iObjectList *ifs = networkInterfaces_Address();
+        printf("%zu network interfaces:\n", size_ObjectList(ifs));
+        iConstForEach(ObjectList, i, ifs) {
+            iString *str = toString_Address((const iAddress *) i.object);
+            printf("- %s\n", cstr_String(str));
+            delete_String(str);
         }
         iRelease(ifs);
     }

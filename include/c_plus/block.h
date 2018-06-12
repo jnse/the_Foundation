@@ -56,12 +56,12 @@ iDeclareTypeConstructionArgs(Block, size_t size)
 
 iBlock *        newCStr_Block       (const char *cstr);
 iBlock *        newData_Block       (const void *data, size_t size);
-iBlock *        newPrealloc_Block   (void *data, size_t size);
+iBlock *        newPrealloc_Block   (void *data, size_t size, size_t allocSize);
 iBlock *        copy_Block          (const iBlock *);
 
 void            initCStr_Block      (iBlock *, const char *cstr);
 void            initData_Block      (iBlock *, const void *data, size_t size);
-void            initPrealloc_Block  (iBlock *, void *data, size_t size);
+void            initPrealloc_Block  (iBlock *, void *data, size_t size, size_t allocSize);
 void            initCopy_Block      (iBlock *, const iBlock *other);
 
 size_t          size_Block          (const iBlock *);

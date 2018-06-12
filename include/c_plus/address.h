@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iBeginPublic
 
 iDeclareType(String)
-iDeclareType(StringList)
+iDeclareType(ObjectList)
 
 iDeclareClass(Address)
 iDeclareType (Address)
@@ -44,7 +44,6 @@ iDeclareConstNotifyFunc(Address, LookupFinished)
 iDeclareObjectConstruction(Address)
 
 iAddress *  newSockAddr_Address     (const void *sockAddr, size_t sockAddrSize);
-iAddress *  newLocalhost_Address    (int ipVersion /* 4 or 6 */);
 
 void        init_Address        (iAddress *);
 void        deinit_Address      (iAddress *);
@@ -65,6 +64,7 @@ struct Impl_SocketParameters {
 iSocketParameters   socketParameters_Address(const iAddress *);
 iString *           toString_Address        (const iAddress *);
 const iString *     hostName_Address        (const iAddress *);
+uint16_t            port_Address            (const iAddress *);
 iBool               isPending_Address       (const iAddress *);
 
 void    lookupHostCStr_Address  (iAddress *, const char *hostName, uint16_t port);
@@ -76,6 +76,6 @@ static inline void lookupHost_Address(iAddress *d, const iString *hostName, uint
 
 iDeclareAudienceGetter(Address, lookupFinished)
 
-iStringList *   networkInterfaces_Address(void);
+iObjectList *   networkInterfaces_Address(void); // list of iAddress objects
 
 iEndPublic

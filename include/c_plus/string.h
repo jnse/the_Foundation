@@ -153,13 +153,17 @@ iBool           startsWithSc_Rangecc(const iRangecc *, const char *cstr, const i
 iStringList *   split_Rangecc       (const iRangecc *, const char *separator);
 
 /**
- * Finds the next range between separators.
+ * Finds the next range between separators. Empty ranges at the beginning and end of
+ * the string are ignored (i.e., when there is a separator at the beginning or the end
+ * of the string).
+ *
+ * A string containing nothing but the separator results in no split ranges.
  *
  * @param separator  Separator string.
- * @param range      Next range. Before the first call to the function, this must be
- *                   initialized to zero.
+ * @param range      Next range. Must be initialized to zero. Subsequent ranges are
+ *                   searched based on the locations pointed to by this variable.
  *
- * @return @c iTrue, if a next range was found.
+ * @return @c iTrue, if a next range was found (@a range was updated).
  */
 iBool           nextSplit_Rangecc   (const iRangecc *, const char *separator, iRangecc *range);
 
