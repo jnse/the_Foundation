@@ -148,15 +148,15 @@ public:
     ref(T *p = nullptr) : _ptr(p) {} // note: assume that ownership of ref is given
     ref(const T *p) : _ptr(ref_Object(p)) {}
     ~ref() { deref_Object(_ptr); }
-    void reset(const T *p = nullptr)
-    {
-        if (_ptr != p)
-        {
+    void reset(const T *p = nullptr) {
+        if (_ptr != p) {
             deref_Object(_ptr);
             _ptr = static_cast<T *>(ref_Object(p));
         }
     }
+    explicit operator bool() const { return _ptr != nullptr; }
     operator T *() const { return _ptr; }
+    operator const T *() const { return _ptr; }
     T *operator->() const { return _ptr; }
     T &operator*() const { return *_ptr; }
 };
