@@ -177,7 +177,7 @@ add_library (cplus SHARED ${SOURCES} ${HEADERS})
 set_property (TARGET cplus PROPERTY OUTPUT_NAME_DEBUG cplusd)
 
 target_compile_definitions (cplus PRIVATE iIsLibraryBuild)
-target_include_directories (cplus PUBLIC include ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories (cplus PRIVATE include ${CMAKE_CURRENT_BINARY_DIR})
 cplus_set_compile_options (cplus)
 
 if (CMAKE_COMPILER_IS_GNUCC)
@@ -196,7 +196,8 @@ if (PCRE_FOUND)
 endif ()
 
 # Installation.
-install (TARGETS cplus DESTINATION lib)
+install (TARGETS cplus EXPORT CPlus DESTINATION lib)
+install (EXPORT CPlus DESTINATION lib/cmake/CPlus NAMESPACE CPlus:: FILE CPlus-config.cmake)
 install (DIRECTORY include/c_plus DESTINATION include
     FILES_MATCHING PATTERN "*.h"
 )
