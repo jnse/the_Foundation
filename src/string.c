@@ -188,7 +188,6 @@ iString *mid_String(const iString *d, size_t charStartPos, size_t charCount) {
             range.start = i.pos - chars;
             if (charCount == iInvalidSize) break;
         }
-        else
         pos++;
     }
     iBlock *midChars = midRange_Block(&d->chars, &range);
