@@ -279,6 +279,7 @@ void vprintf_Block(iBlock *d, const char *format, va_list args) {
 void fill_Block(iBlock *d, char value) {
     detach_Block_(d, 0);
     memset(d->i->data, value, d->i->size);
+    d->i->data[d->i->size] = 0;
 }
 
 void pushBack_Block(iBlock *d, char value) {
