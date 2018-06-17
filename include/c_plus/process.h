@@ -43,6 +43,7 @@ void        setArguments_Process        (iProcess *, const iStringList *args);
 void        setWorkingDirectory_Process (iProcess *, const iString *cwd);
 
 iBool       start_Process   (iProcess *);
+void        kill_Process    (iProcess *);
 
 pid_t       pid_Process             (const iProcess *);
 iBool       isRunning_Process       (const iProcess *);

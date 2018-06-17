@@ -36,4 +36,5 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #       define C11THREADS_NO_TIMED_MUTEX
 #   endif
 #   include "c11threads.h"
+#   define iHavePthread
 #endif

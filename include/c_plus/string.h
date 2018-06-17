@@ -169,9 +169,7 @@ iBool           nextSplit_Rangecc   (const iRangecc *, const char *separator, iR
 
 const char *    findAscii_Rangecc   (const iRangecc *, char ch);
 
-static inline iStringList *split_CStr(const char *cstr, const char *separator) {
-    return split_Rangecc(&(iRangecc){ cstr, cstr + strlen(cstr) }, separator);
-}
+iStringList *   split_CStr  (const char *cstr, const char *separator);
 
 /** @name Iterators */
 ///@{

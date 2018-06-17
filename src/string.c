@@ -449,6 +449,10 @@ const char *findAscii_Rangecc(const iRangecc *str, char ch) {
     return pos;
 }
 
+iStringList *split_CStr(const char *cstr, const char *separator) {
+    return split_Rangecc(&(iRangecc){ cstr, cstr + strlen(cstr) }, separator);
+}
+
 //---------------------------------------------------------------------------------------
 
 static void decodeNextMultibyte_StringConstIterator_(iStringConstIterator *d) {

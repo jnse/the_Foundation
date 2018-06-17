@@ -53,10 +53,15 @@ enum iThreadState {
     finished_ThreadState,
 };
 
+enum iThreadFlag {
+    terminationEnabled_ThreadFlag = 0x1,
+};
+
 struct Impl_Thread {
     iObject object;
     iThreadRunFunc run;
     iThreadId id;
+    uint32_t flags;
     void *userData;
     atomic_int state; // enum iThreadState
     iThreadResult result;
@@ -65,7 +70,8 @@ struct Impl_Thread {
 
 iDeclareObjectConstructionArgs(Thread, iThreadRunFunc run)
 
-void    setUserData_Thread  (iThread *, void *userData);
+void    setUserData_Thread          (iThread *, void *userData);
+void    setTerminationEnabled_Thread(iThread *, iBool enable);
 
 iBool   isRunning_Thread    (const iThread *);
 iBool   isFinished_Thread   (const iThread *);
@@ -82,6 +88,7 @@ iThreadResult result_Thread (const iThread *);
 
 void        start_Thread    (iThread *);
 void        join_Thread     (iThread *);
+void        terminate_Thread(iThread *);
 
 #define guardJoin_Thread(thread, mutex) { \
     iThread *thd = NULL; \

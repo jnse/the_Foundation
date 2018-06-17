@@ -177,7 +177,11 @@ add_library (cplus SHARED ${SOURCES} ${HEADERS})
 set_property (TARGET cplus PROPERTY OUTPUT_NAME_DEBUG cplusd)
 
 target_compile_definitions (cplus PRIVATE iIsLibraryBuild)
-target_include_directories (cplus PRIVATE include ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories (cplus PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
 cplus_set_compile_options (cplus)
 
 if (CMAKE_COMPILER_IS_GNUCC)
@@ -220,7 +224,7 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION include/c_plus)
 #    cplus_generate_prototypes (${header})
 #endforeach ()
 
-add_subdirectory (lang/c++)
+#add_subdirectory (lang/c++)
 
 #----------------------------------------------------------------------------------------
 

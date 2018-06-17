@@ -63,6 +63,11 @@ void finish_Thread_(iThread *d) {
 static int run_Threads_(void *arg) {
     iThread *d = (iThread *) arg;
     ref_Object(d);
+    if (d->flags & terminationEnabled_ThreadFlag) {
+#if defined (iHavePthread)
+        pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+#endif
+    }
     d->result = d->run(d);
     // Deregister the thread since it's stopping.
     iGuard(runningThreads_, remove_ThreadHash(runningThreads_->value, &d->id));
@@ -82,6 +87,7 @@ void init_Thread(iThread *d, iThreadRunFunc run) {
     d->result = 0;
     d->run = run;
     d->id = 0;
+    d->flags = 0;
     d->userData = NULL;
     d->state = created_ThreadState;
     d->finished = NULL;
@@ -106,6 +112,10 @@ void start_Thread(iThread *d) {
 
 void setUserData_Thread(iThread *d, void *userData) {
     d->userData = userData;
+}
+
+void setTerminationEnabled_Thread(iThread *d, iBool enable) {
+    iChangeFlags(d->flags, terminationEnabled_ThreadFlag, enable);
 }
 
 iBool isRunning_Thread(const iThread *d) {
@@ -133,6 +143,13 @@ void join_Thread(iThread *d) {
         thrd_join(d->id, NULL);
         //iAssert(d->state == finished_ThreadState);
     }
+}
+
+void terminate_Thread(iThread *d) {
+    iAssert(d->flags & terminationEnabled_ThreadFlag);
+#if defined (iHavePthread)
+    pthread_cancel(d->id);
+#endif
 }
 
 void sleep_Thread(double seconds) {

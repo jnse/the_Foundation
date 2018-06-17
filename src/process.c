@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <spawn.h>
 #include <poll.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/wait.h>
 
 struct Impl_Process {
@@ -146,4 +147,10 @@ iString *readOutput_Process(iProcess *d) {
 
 iString *readError_Process(iProcess *d) {
     return readFromPipe_(output_Pipe(&d->perr), new_String());
+}
+
+void kill_Process(iProcess *d) {
+    if (d->pid) {
+        kill(d->pid, SIGTERM);
+    }
 }

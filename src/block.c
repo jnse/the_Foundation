@@ -89,9 +89,11 @@ static void reserve_BlockData_(iBlockData *d, size_t size) {
 }
 
 static void memcpyFrom_Block_(iBlock *d, const void *data, size_t size) {
-    memcpy(d->i->data, data, size);
-    d->i->data[size] = 0;
-    d->i->size = size;
+    if (size) {
+        memcpy(d->i->data, data, size);
+        d->i->data[size] = 0;
+        d->i->size = size;
+    }
 }
 
 static void detach_Block_(iBlock *d, size_t allocSize) {
