@@ -133,6 +133,7 @@ void            appendCStrN_String  (iString *, const char *cstr, size_t size);
 void            appendChar_String   (iString *, iChar ch);
 void            appendRange_String  (iString *, const iRangecc *range);
 void            prepend_String      (iString *, const iString *other);
+void            prependChar_String  (iString *, iChar ch);
 
 void            clear_String    (iString *);
 void            truncate_String (iString *, size_t len);

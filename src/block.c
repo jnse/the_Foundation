@@ -347,7 +347,9 @@ void insertData_Block(iBlock *d, size_t insertAt, const void *data, size_t size)
     reserve_Block(d, d->i->size + size);
     char *start = d->i->data + insertAt;
     memmove(start + size, start, size);
-    memcpy(start, data, size);
+    memcpy (start,        data,  size);
+    d->i->size += size;
+    d->i->data[d->i->size] = 0;
 }
 
 iBlock *concat_Block(const iBlock *d, const iBlock *other) {

@@ -375,6 +375,12 @@ void prepend_String(iString *d, const iString *other) {
     deinit_String(&pre);
 }
 
+void prependChar_String(iString *d, iChar ch) {
+    iMultibyteChar mb;
+    init_MultibyteChar(&mb, ch);
+    insertData_Block(&d->chars, 0, mb.bytes, strlen(mb.bytes));
+}
+
 iBool nextSplit_Rangecc(const iRangecc *str, const char *separator, iRangecc *range) {
     iAssert(range->start == NULL || contains_Range(str, range->start));
     const size_t separatorSize = strlen(separator);
