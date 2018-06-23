@@ -75,6 +75,7 @@ static int run_Threads_(void *arg) {
     // Notify observers that the thread is done.
     finish_Thread_(d);
     deref_Object(d);
+    thrd_exit(0); // thread-local data gets deleted
     return 0;
 }
 
