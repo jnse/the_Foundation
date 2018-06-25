@@ -87,9 +87,16 @@ iBool match_RegExp(const iRegExp *d, const char *subject, size_t len, iRegExpMat
 }
 
 iString *captured_RegExpMatch(const iRegExpMatch *d, int index) {
+    iRangecc range;
+    capturedRange_RegExpMatch(d, index, &range);
+    return newRange_String(&range);
+}
+
+void capturedRange_RegExpMatch(const iRegExpMatch *d, int index, iRangecc *out) {
     iAssert(index <= iRegExpMaxSubstrings);
     const iRangei *cap = &d->range + index; // Full range at index zero.
-    return newCStrN_String(d->subject + cap->start, size_Range(cap));
+    out->start = d->subject + cap->start;
+    out->end   = d->subject + cap->end;
 }
 
 iDefineClass(RegExp)

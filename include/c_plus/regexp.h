@@ -78,6 +78,7 @@ struct Impl_RegExpMatch {
     int         data_[iRegExpMaxSubstrings + 1];
 };
 
-iString *   captured_RegExpMatch(const iRegExpMatch *, int index);
+iString *   captured_RegExpMatch        (const iRegExpMatch *, int index);
+void        capturedRange_RegExpMatch   (const iRegExpMatch *, int index, iRangecc *out);
 
 iEndPublic
