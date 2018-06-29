@@ -112,6 +112,8 @@ iBool           endsWithSc_String   (const iString *, const char *cstr, const iS
 size_t          indexOf_String              (const iString *, iChar ch);
 size_t          indexOfCStr_String          (const iString *, const char *cstr);
 size_t          indexOfCStrFrom_String      (const iString *, const char *cstr, size_t from);
+size_t          indexOfCStrSc_String        (const iString *, const char *cstr, const iStringComparison *);
+size_t          indexOfCStrFromSc_String    (const iString *, const char *cstr, size_t from, const iStringComparison *);
 size_t          lastIndexOf_String          (const iString *, iChar ch);
 size_t          lastIndexOfCStr_String      (const iString *, const char *cstr);
 
@@ -196,8 +198,9 @@ struct Impl_MultibyteChar {
 void init_MultibyteChar(iMultibyteChar *d, iChar ch);
 
 struct Impl_StringComparison {
-    int (*cmp)(const char *, const char *);
-    int (*cmpN)(const char *, const char *, size_t);
+    int     (*cmp)      (const char *, const char *);
+    int     (*cmpN)     (const char *, const char *, size_t);
+    char *  (*locate)   (const char *, const char *);
 };
 
 #define         iCmpStr(a, b)       strcmp(a, b)

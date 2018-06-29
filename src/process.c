@@ -105,7 +105,10 @@ iBool start_Process(iProcess *d) {
 }
 
 pid_t pid_Process(const iProcess *d) {
-    return d->pid;
+    if (d) {
+        return d->pid;
+    }
+    return getpid();
 }
 
 iBool isRunning_Process(const iProcess *d) {

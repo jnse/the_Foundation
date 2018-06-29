@@ -315,13 +315,22 @@ size_t indexOf_String(const iString *d, iChar ch) {
 }
 
 size_t indexOfCStr_String(const iString *d, const char *cstr) {
-    return indexOfCStrFrom_String(d, cstr, 0);
+    return indexOfCStrFromSc_String(d, cstr, 0, &iCaseSensitive);
 }
 
 size_t indexOfCStrFrom_String(const iString *d, const char *cstr, size_t from) {
+    return indexOfCStrFromSc_String(d, cstr, from, &iCaseSensitive);
+}
+
+size_t indexOfCStrSc_String(const iString *d, const char *cstr, const iStringComparison *sc) {
+    return indexOfCStrFromSc_String(d, cstr, 0, sc);
+}
+
+size_t indexOfCStrFromSc_String(const iString *d, const char *cstr, size_t from,
+                                const iStringComparison *sc) {
     if (from >= size_String(d)) return iInvalidPos;
     const char *chars = cstr_String(d) + from;
-    const char *found = strstr(chars, cstr);
+    const char *found = sc->locate(chars, cstr);
     if (found) {
         return found - chars;
     }
@@ -552,11 +561,13 @@ int iCmpStrNCase(const char *a, const char *b, size_t len) {
 }
 
 iStringComparison iCaseSensitive = {
-    .cmp  = strcmp,
-    .cmpN = strncmp,
+    .cmp    = strcmp,
+    .cmpN   = strncmp,
+    .locate = strstr,
 };
 
 iStringComparison iCaseInsensitive = {
-    .cmp  = iCmpStrCase,
-    .cmpN = iCmpStrNCase,
+    .cmp    = iCmpStrCase,
+    .cmpN   = iCmpStrNCase,
+    .locate = strcasestr,
 };
