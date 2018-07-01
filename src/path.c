@@ -90,7 +90,7 @@ static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments,
             continue; // No change in directory.
         }
         if (!iCmpStrRange(&seg, "..")) {
-            if (*count > 0) {
+            if (*count > 0 && iCmpStrRange(&segments[*count - 1], "..")) {
                 (*count)--; // Go up a directory.
                 *changed = iTrue;
                 continue;
@@ -120,7 +120,9 @@ void clean_Path(iString *d) {
         iString cleaned;
         init_String(&cleaned);
         for (size_t i = 0; i < count; ++i) {
-            if (i != 0) appendCStr_String(&cleaned, iPathSeparator);
+            if (i != 0 || startsWith_String(d, iPathSeparator)) {
+                appendCStr_String(&cleaned, iPathSeparator);
+            }
             appendRange_String(&cleaned, segments + i);
         }
         set_String(d, &cleaned);
