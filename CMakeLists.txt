@@ -72,6 +72,7 @@ set (HEADERS
     include/c_plus/c11threads.h
     include/c_plus/class.h
     include/c_plus/commandline.h
+    include/c_plus/datagram.h
     include/c_plus/defs.h
     include/c_plus/file.h
     include/c_plus/fileinfo.h
@@ -118,6 +119,7 @@ set (SOURCES
     src/class.c
     src/commandline.c
     src/crc32.c
+    src/datagram.c
     src/file.c
     src/fileinfo.c
     src/future.c

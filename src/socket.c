@@ -80,7 +80,7 @@ iDeclareClass(SocketThread)
 struct Impl_SocketThread {
     iThread thread;
     iSocket *socket;
-    iPipe unblock;
+    iPipe wakeup;
     volatile enum iSocketThreadMode mode;
 };
 
@@ -91,23 +91,23 @@ static iThreadResult run_SocketThread_(iThread *thread) {
     while (d->mode == run_SocketThreadMode) {
         if (bytesToSend_Socket(d->socket) > 0) {
             // Make sure we won't block on select() when there's still data to send.
-            writeByte_Pipe(&d->unblock, 0);
+            writeByte_Pipe(&d->wakeup, 0);
         }
         // Wait for activity.
         fd_set reads, errors; {
             FD_ZERO(&reads);
             FD_ZERO(&errors);
-            FD_SET(output_Pipe(&d->unblock), &reads);
+            FD_SET(output_Pipe(&d->wakeup), &reads);
             FD_SET(d->socket->fd, &reads);
             FD_SET(d->socket->fd, &errors);
-            int maxfd = iMax(output_Pipe(&d->unblock), d->socket->fd);
+            int maxfd = iMax(output_Pipe(&d->wakeup), d->socket->fd);
             int ready = select(maxfd + 1, &reads, NULL, &errors, NULL);
             if (ready == -1) {
                 return errno;
             }
         }
-        if (FD_ISSET(output_Pipe(&d->unblock), &reads)) {
-            readByte_Pipe(&d->unblock);
+        if (FD_ISSET(output_Pipe(&d->wakeup), &reads)) {
+            readByte_Pipe(&d->wakeup);
         }
         // Problem with the socket?
         if (FD_ISSET(d->socket->fd, &errors)) {
@@ -185,18 +185,18 @@ static iThreadResult run_SocketThread_(iThread *thread) {
 static void init_SocketThread(iSocketThread *d, iSocket *socket,
                               enum iSocketThreadMode mode) {
     init_Thread(&d->thread, run_SocketThread_);
-    init_Pipe(&d->unblock);
+    init_Pipe(&d->wakeup);
     d->socket = socket;
     d->mode = mode;
 }
 
 static void deinit_SocketThread(iSocketThread *d) {
-    deinit_Pipe(&d->unblock);
+    deinit_Pipe(&d->wakeup);
 }
 
 static void exit_SocketThread_(iSocketThread *d) {
     d->mode = stop_SocketThreadMode;
-    writeByte_Pipe(&d->unblock, 1); // select() will exit
+    writeByte_Pipe(&d->wakeup, 1); // select() will exit
     join_Thread(&d->thread);
 }
 
@@ -251,7 +251,11 @@ void deinit_Socket(iSocket *d) {
     });
     deinit_Mutex(&d->mutex);
     deinit_Condition(&d->allSent);
+    delete_Audience(d->connected);
+    delete_Audience(d->disconnected);
+    delete_Audience(d->error);
     delete_Audience(d->readyRead);
+    delete_Audience(d->writeFinished);
 }
 
 static void startThread_Socket_(iSocket *d) {
@@ -383,7 +387,7 @@ void init_Socket(iSocket *d, const char *hostName, uint16_t port) {
     d->address = new_Address();
     setStatus_Socket_(d, addressLookup_SocketStatus);
     iConnect(Address, d->address, lookupFinished, d, addressLookedUp_Socket_);
-    lookupHostCStr_Address(d->address, hostName, port);
+    lookupTcpCStr_Address(d->address, hostName, port);
 }
 
 iBool open_Socket(iSocket *d) {
@@ -467,7 +471,7 @@ static size_t read_Socket_(iSocket *d, size_t size, void *data_out) {
 static size_t write_Socket_(iSocket *d, const void *data, size_t size) {
     iGuardMutex(&d->mutex, {
         writeData_Stream(stream_Buffer(d->output), data, size);
-        writeByte_Pipe(&d->thread->unblock, 0); // wake up the I/O thread
+        writeByte_Pipe(&d->thread->wakeup, 0); // wake up the I/O thread
     });
     return size;
 }

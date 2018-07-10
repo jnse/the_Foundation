@@ -43,6 +43,7 @@ struct Impl_Address {
     iMutex mutex;
     iString hostName;
     iString service;
+    int socktype;
     iThread *pending;
     int count;
     struct addrinfo *info;
@@ -55,10 +56,10 @@ static iThreadResult runLookup_Address_(iThread *thd) {
     iAddress *d = userData_Thread(thd);
     const struct addrinfo hints = {
         .ai_family   = AF_UNSPEC,
-        .ai_socktype = SOCK_STREAM
+        .ai_socktype = d->socktype,
     };
-    int rc = getaddrinfo(cstr_String(&d->hostName),
-                         !isEmpty_String(&d->service)? cstr_String(&d->service) : NULL,
+    int rc = getaddrinfo(!isEmpty_String(&d->hostName) ? cstr_String(&d->hostName) : NULL,
+                         !isEmpty_String(&d->service)  ? cstr_String(&d->service)  : NULL,
                          &hints,
                          &d->info);
     iGuardMutex(&d->mutex,
@@ -87,11 +88,12 @@ iDefineObjectConstruction(Address)
 iAddress *newSockAddr_Address(const void *sockAddr, size_t sockAddrSize) {
     iAddress *d = iNew(Address);
     init_Address(d);
+    d->socktype = SOCK_STREAM;
     d->count = 1;
     d->info = calloc(1, sizeof(struct addrinfo));
     d->info->ai_addrlen = (socklen_t) sockAddrSize;
     d->info->ai_addr = malloc(sockAddrSize);
-    d->info->ai_socktype = SOCK_STREAM;
+    d->info->ai_socktype = d->socktype;
     memcpy(d->info->ai_addr, sockAddr, sockAddrSize);
     return d;
 }
@@ -104,6 +106,7 @@ void init_Address(iAddress *d) {
     d->info = NULL;
     d->count = -1;
     d->lookupFinished = NULL;
+    d->socktype = SOCK_STREAM;
 }
 
 void deinit_Address(iAddress *d) {
@@ -189,9 +192,10 @@ iBool equal_Address(const iAddress *d, const iAddress *other) {
     return iFalse;
 }
 
-void lookupHostCStr_Address(iAddress *d, const char *hostName, uint16_t port) {
+void lookupCStr_Address(iAddress *d, const char *hostName, uint16_t port, enum iSocketType socketType) {
     iGuardMutex(&d->mutex, {
         if (!d->pending) {
+            d->socktype = (socketType == datagram_SocketType ? SOCK_DGRAM : SOCK_STREAM);
             setCStr_String(&d->hostName, hostName);
             if (port) {
                 format_String(&d->service, "%i", port);

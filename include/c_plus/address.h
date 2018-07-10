@@ -67,11 +67,20 @@ const iString *     hostName_Address        (const iAddress *);
 uint16_t            port_Address            (const iAddress *);
 iBool               isPending_Address       (const iAddress *);
 
-void    lookupHostCStr_Address  (iAddress *, const char *hostName, uint16_t port);
+enum iSocketType {
+    stream_SocketType,
+    datagram_SocketType,
+};
+
+void    lookupCStr_Address      (iAddress *, const char *hostName, uint16_t port, enum iSocketType socketType);
 void    waitForFinished_Address (const iAddress *);
 
-static inline void lookupHost_Address(iAddress *d, const iString *hostName, uint16_t port) {
-    lookupHostCStr_Address(d, cstr_String(hostName), port);
+static inline void lookupTcpCStr_Address(iAddress *d, const char *hostName, uint16_t port) {
+    lookupCStr_Address(d, hostName, port, stream_SocketType);
+}
+
+static inline void lookupTcp_Address(iAddress *d, const iString *hostName, uint16_t port) {
+    lookupTcpCStr_Address(d, cstr_String(hostName), port);
 }
 
 iDeclareAudienceGetter(Address, lookupFinished)

@@ -1,0 +1,384 @@
+/** @file c_plus/datagram.c  UDP socket.
+
+@authors Copyright (c) 2018 Jaakko Keränen <jaakko.keranen@iki.fi>
+
+@par License
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+<small>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
+*/
+
+#include "c_plus/datagram.h"
+#include "c_plus/mutex.h"
+#include "c_plus/address.h"
+#include "c_plus/queue.h"
+#include "c_plus/pipe.h"
+#include "c_plus/thread.h"
+#include "c_plus/ptrset.h"
+
+#include <sys/socket.h>
+#include <unistd.h>
+
+// address.c
+void getSockAddr_Address(const iAddress *d, struct sockaddr **addr_out, socklen_t *addrSize_out);
+
+iDeclareType(Message)
+iDeclareClass(Message)
+
+struct Impl_Message {
+    iObject object;
+    iAddress *address;
+    iBlock data;
+};
+
+static void init_Message(iMessage *d) {
+    d->address = NULL;
+    init_Block(&d->data, 0);
+}
+
+static void deinit_Message(iMessage *d) {
+    iRelease(d->address);
+    deinit_Block(&d->data);
+}
+
+iDefineObjectConstruction(Message)
+iDefineClass(Message)
+
+//---------------------------------------------------------------------------------------
+
+struct Impl_Datagram {
+    iObject object;
+    iMutex mutex;
+    uint16_t port;
+    int fd;
+    iAddress *address;
+    iAddress *destination;
+    iCondition allSent;
+    iCondition messageReceived;
+    iQueue *output;
+    iQueue *input;
+    // Audiences:
+    iAudience *error;
+    iAudience *message;
+    iAudience *writeFinished;
+};
+
+iDeclareType(DatagramThread)
+iDeclareClass(DatagramThread)
+
+enum iDatagramThreadMode {
+    run_DatagramThreadMode,
+    stop_DatagramThreadMode,
+};
+
+struct Impl_DatagramThread {
+    iThread thread;
+    iPipe wakeup;
+    iMutex mutex;
+    iPtrSet datagrams;
+    volatile enum iDatagramThreadMode mode;
+};
+
+#define iMessageMaxDataSize 4096
+
+static iThreadResult run_DatagramThread_(iThread *thread) {
+    iDatagramThread *d = (iAny *) thread;
+    iMutex *mtx = &d->mutex;
+    while (d->mode == run_DatagramThreadMode) {
+        // Wait for activity.
+        fd_set reads, errors; {
+            FD_ZERO(&reads);
+            FD_ZERO(&errors);
+            FD_SET(output_Pipe(&d->wakeup), &reads);
+            int maxfd = output_Pipe(&d->wakeup);
+            iGuardMutex(mtx, {
+                iConstForEach(PtrSet, i, &d->datagrams) {
+                    const iDatagram *dgm = *i.value;
+                    FD_SET(dgm->fd, &reads);
+                    FD_SET(dgm->fd, &errors);
+                    maxfd = iMax(maxfd, dgm->fd);
+                }
+            });
+            int ready = select(maxfd + 1, &reads, NULL, &errors, NULL);
+            if (ready == -1) {
+                return errno;
+            }
+        }
+        // Clear the wakeup.
+        if (FD_ISSET(output_Pipe(&d->wakeup), &reads)) {
+            readByte_Pipe(&d->wakeup);
+        }
+        lock_Mutex(mtx); { // thread locked while datagram iteration
+            iForEach(PtrSet, i, &d->datagrams) {
+                iDatagram *dgm = *i.value;
+                // Problem with the socket?
+                if (FD_ISSET(dgm->fd, &errors)) {
+                    iWarning("[Datagram] socket %i has error status\n", dgm->fd);
+    //                    close_Socket(d->socket);
+    //                    return errno;
+    //                }
+    //                return 0;
+                }
+                // Check for incoming data.
+                if (FD_ISSET(dgm->fd, &reads)) {
+                    char buf[iMessageMaxDataSize];
+                    struct sockaddr_storage addr;
+                    socklen_t addrSize;
+                    ssize_t dataSize = recvfrom(
+                        dgm->fd, buf, iMessageMaxDataSize - 1, 0, (struct sockaddr *) &addr, &addrSize);
+                    if (dataSize == -1) {
+                        iWarning("[Datagram] socket %i: error %i while receiving: %s\n",
+                                 dgm->fd, errno, strerror(errno));
+                        // TODO: Notify error audience.
+                        // Maybe remove the datagram from the set.
+                    }
+                    /* Keep the data as a message. */ {
+                        iMessage *msg = new_Message();
+                        msg->address = newSockAddr_Address(&addr, addrSize);
+                        setData_Block(&msg->data, buf, dataSize);
+                        put_Queue(dgm->input, msg);
+                        iRelease(msg);
+                    }
+                    iGuardMutex(&dgm->mutex, signal_Condition(&dgm->messageReceived));
+                    if (dgm->message) {
+                        iNotifyAudience(dgm, message, DatagramMessage);
+                    }
+                }
+            }
+        }
+        unlock_Mutex(mtx);
+        // Now that received messages have been handled, check for outgoing messages.
+        lock_Mutex(mtx); {  // thread locked while datagram iteration
+            iForEach(PtrSet, i, &d->datagrams) {
+                iDatagram *dgm = *i.value;
+                iMessage *msg = NULL;
+                while ((msg = tryTake_Queue(dgm->output)) != NULL) {
+                    socklen_t destLen;
+                    struct sockaddr *destAddr;
+                    getSockAddr_Address(msg->address, &destAddr, &destLen);
+                    ssize_t rc = sendto(dgm->fd,
+                                        data_Block(&msg->data),
+                                        size_Block(&msg->data),
+                                        0,
+                                        destAddr,
+                                        destLen);
+                    if (rc != (ssize_t) size_Block(&msg->data)) {
+                        iWarning("[Datagram] socket %i: error %i while sending %zu bytes: %s\n",
+                                 dgm->fd,
+                                 errno,
+                                 size_Block(&msg->data),
+                                 strerror(errno));
+                        // TODO: Notify error audience.
+                        // Maybe remove the datagram from the set.
+                    }
+                    iRelease(msg);
+                }
+                if (msg) {
+                    iGuardMutex(&dgm->mutex, signal_Condition(&dgm->allSent));
+                    if (dgm->writeFinished) {
+                        iNotifyAudience(dgm, writeFinished, DatagramWriteFinished);
+                    }
+                }
+            }
+        }
+        unlock_Mutex(mtx);
+    }
+    return 0;
+}
+
+static void init_DatagramThread(iDatagramThread *d) {
+    init_Thread(&d->thread, run_DatagramThread_);
+    init_Pipe(&d->wakeup);
+    init_Mutex(&d->mutex);
+    init_PtrSet(&d->datagrams);
+    d->mode = run_DatagramThreadMode;
+}
+
+static void deinit_DatagramThread(iDatagramThread *d) {
+    iGuardMutex(&d->mutex, {
+        deinit_PtrSet(&d->datagrams);
+        deinit_Mutex(&d->mutex);
+        deinit_Pipe(&d->wakeup);
+    });
+}
+
+iDefineObjectConstruction(DatagramThread)
+
+static inline void start_DatagramThread_(iDatagramThread *d) { start_Thread(&d->thread); }
+
+static void exit_DatagramThread_(iDatagramThread *d) {
+    d->mode = stop_DatagramThreadMode;
+    writeByte_Pipe(&d->wakeup, 1);
+    join_Thread(&d->thread);
+}
+
+static iDatagramThread *datagramIO_ = NULL;
+
+static void deleteSharedDatagramThread_(void) {
+    if (datagramIO_) {
+        exit_DatagramThread_(datagramIO_);
+    }
+}
+
+static iDatagramThread *datagramThread_(void) {
+    if (!datagramIO_) {
+        atexit(deleteSharedDatagramThread_);
+        datagramIO_ = new_DatagramThread();
+        start_DatagramThread_(datagramIO_);
+    }
+    return datagramIO_;
+}
+
+iDefineSubclass(DatagramThread, Thread)
+
+//---------------------------------------------------------------------------------------
+
+iDefineObjectConstruction(Datagram)
+iDefineClass(Datagram)
+iDefineAudienceGetter(Datagram, error)
+iDefineAudienceGetter(Datagram, message)
+iDefineAudienceGetter(Datagram, writeFinished)
+
+void init_Datagram(iDatagram *d) {
+    init_Mutex(&d->mutex);
+    d->port = 0;
+    d->fd = -1;
+    d->destination = NULL;
+    init_Condition(&d->allSent);
+    init_Condition(&d->messageReceived);
+    d->output = new_Queue();
+    d->input = new_Queue();
+    d->error = NULL;
+    d->message = NULL;
+    d->writeFinished = NULL;
+}
+
+iBool isOpen_Datagram(const iDatagram *d) {
+    return d->fd != -1;
+}
+
+iBool open_Datagram(iDatagram *d, uint16_t port) {
+    if (isOpen_Datagram(d)) {
+        return iFalse;
+    }
+    iAssert(port);
+    d->address = new_Address();
+    lookupCStr_Address(d->address, "", port, datagram_SocketType);
+    waitForFinished_Address(d->address);
+    /* Create and bind a socket for listening to incoming messages. */ {
+        socklen_t sockLen;
+        struct sockaddr *sockAddr;
+        iSocketParameters sp = socketParameters_Address(d->address);
+        d->fd = socket(sp.family, sp.type, sp.protocol);
+        if (d->fd == -1) {
+            iWarning("[Datagram] error creating socket\n");
+            return iFalse;
+        }
+        getSockAddr_Address(d->address, &sockAddr, &sockLen);
+        if (bind(d->fd, sockAddr, sockLen) == -1) {
+            iWarning("[Datagram] error binding socket (port %u)\n", d->port);
+            return iFalse;
+        }
+    }
+    /* All open datagrams share the I/O thread. */ {
+        iDatagramThread *io = datagramThread_();
+        iGuardMutex(&io->mutex, insert_PtrSet(&io->datagrams, d));
+    }
+    return iTrue;
+}
+
+void close_Datagram(iDatagram *d) {
+    flush_Datagram(d);
+    /* Remove from the I/O thread. */ {
+        iDatagramThread *io = datagramThread_();
+        iGuardMutex(&io->mutex, remove_PtrSet(&io->datagrams, d));
+    }
+    iGuardMutex(&d->mutex, {
+        if (isOpen_Datagram(d)) {
+            close(d->fd);
+            d->fd = -1;
+        }
+    });
+}
+
+void deinit_Datagram(iDatagram *d) {
+    close_Datagram(d);
+    iGuardMutex(&d->mutex, {
+        iRelease(d->address);
+        iRelease(d->destination);
+        iRelease(d->output);
+        iRelease(d->input);
+        deinit_Condition(&d->allSent);
+        deinit_Condition(&d->messageReceived);
+        delete_Audience(d->error);
+        delete_Audience(d->message);
+        delete_Audience(d->writeFinished);
+    });
+    deinit_Mutex(&d->mutex);
+}
+
+void send_Datagram(iDatagram *d, const iBlock *data, const iAddress *to) {
+    iAssert(to != NULL);
+    iMessage *msg = new_Message();
+    // Block here until the address is resolved. We cannot block the datagram I/O thread because
+    // it handles multiple sockets at once.
+    waitForFinished_Address(to);
+    msg->address = ref_Object(to);
+    set_Block(&msg->data, data);
+    put_Queue(d->output, msg);
+    iRelease(msg);
+    writeByte_Pipe(&datagramIO_->wakeup, 1);
+}
+
+iBlock *receive_Datagram(iDatagram *d, iAddress **from_out) {
+    iMessage *msg = tryTake_Queue(d->input);
+    iBlock *data = NULL;
+    if (msg) {
+        data = copy_Block(&msg->data);
+        if (from_out) *from_out = ref_Object(msg->address);
+        iRelease(msg);
+    }
+    else {
+        if (from_out) *from_out = NULL;
+    }
+    return data;
+}
+
+void connect_Datagram(iDatagram *d, const iAddress *address) {
+    iRelease(d->destination);
+    d->destination = ref_Object(address);
+}
+
+void write_Datagram(iDatagram *d, const iBlock *data) {
+    send_Datagram(d, data, d->destination);
+}
+
+void disconnect_Datagram(iDatagram *d) {
+    iRelease(d->destination);
+    d->destination = NULL;
+}
+
+void flush_Datagram(iDatagram *d) {
+    iGuardMutex(&d->mutex, {
+        if (isOpen_Datagram(d) && !isEmpty_Queue(d->output)) {
+            wait_Condition(&d->allSent, &d->mutex);
+        }
+    });
+}

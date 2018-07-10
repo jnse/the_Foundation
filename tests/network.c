@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
                 printf("\nLooking up \"%s\"...\n", cstr_String(value_CommandLineConstIterator(&i)));
                 iAddress *addr = new_Address();
                 iConnect(Address, addr, lookupFinished, addr, hostLookedUp);
-                lookupHost_Address(addr, value_CommandLineConstIterator(&i), 0);
+                lookupTcp_Address(addr, value_CommandLineConstIterator(&i), 0);
                 iRelease(addr);
             }
         }
