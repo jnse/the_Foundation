@@ -165,6 +165,7 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
             iForEach(PtrSet, i, &d->datagrams) {
                 iDatagram *dgm = *i.value;
                 iMessage *msg = NULL;
+                iBool didSend = iFalse;
                 while ((msg = tryTake_Queue(dgm->output)) != NULL) {
                     socklen_t destLen;
                     struct sockaddr *destAddr;
@@ -185,8 +186,9 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
                         // Maybe remove the datagram from the set?
                     }
                     iRelease(msg);
+                    didSend = iTrue;
                 }
-                if (msg) {
+                if (didSend) {
                     iGuardMutex(&dgm->mutex, signal_Condition(&dgm->allSent));
                     if (dgm->writeFinished) {
                         iNotifyAudience(dgm, writeFinished, DatagramWriteFinished);
@@ -230,6 +232,7 @@ static iDatagramThread *datagramIO_ = NULL;
 static void deleteSharedDatagramThread_(void) {
     if (datagramIO_) {
         exit_DatagramThread_(datagramIO_);
+        datagramIO_ = NULL;
     }
 }
 
@@ -268,6 +271,10 @@ void init_Datagram(iDatagram *d) {
 
 iBool isOpen_Datagram(const iDatagram *d) {
     return d->fd != -1;
+}
+
+uint16_t port_Datagram(const iDatagram *d) {
+    return d->port;
 }
 
 iBool open_Datagram(iDatagram *d, uint16_t port) {
@@ -372,6 +379,13 @@ void connect_Datagram(iDatagram *d, const iAddress *address) {
 
 void write_Datagram(iDatagram *d, const iBlock *data) {
     send_Datagram(d, data, d->destination);
+}
+
+void writeData_Datagram(iDatagram *d, const void *data, size_t size) {
+    iBlock buf;
+    initData_Block(&buf, data, size);
+    write_Datagram(d, &buf);
+    deinit_Block(&buf);
 }
 
 void disconnect_Datagram(iDatagram *d) {
