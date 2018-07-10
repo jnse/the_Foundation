@@ -39,7 +39,7 @@ iDeclareClass(Datagram)
 
 iDeclareObjectConstruction(Datagram)
 
-iDeclareNotifyFunc      (Datagram, Error)
+iDeclareNotifyFuncArgs  (Datagram, Error, int error, const char *msg)
 iDeclareNotifyFunc      (Datagram, Message)
 iDeclareNotifyFunc      (Datagram, WriteFinished)
 iDeclareAudienceGetter  (Datagram, error)
@@ -55,6 +55,7 @@ void        close_Datagram      (iDatagram *);
 iBool       isOpen_Datagram     (const iDatagram *);
 
 void        send_Datagram       (iDatagram *, const iBlock *data, const iAddress *to);
+void        sendData_Datagram   (iDatagram *, const void *data, size_t size, const iAddress *to);
 iBlock *    receive_Datagram    (iDatagram *, iAddress **from_out);
 
 void        connect_Datagram    (iDatagram *, const iAddress *address);

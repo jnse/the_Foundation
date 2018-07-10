@@ -85,15 +85,16 @@ static inline socklen_t sockAddrSize_addrinfo_(const struct addrinfo *d) {
 
 iDefineObjectConstruction(Address)
 
-iAddress *newSockAddr_Address(const void *sockAddr, size_t sockAddrSize) {
+iAddress *newSockAddr_Address(const void *sockAddr, size_t sockAddrSize, enum iSocketType socketType) {
     iAddress *d = iNew(Address);
     init_Address(d);
-    d->socktype = SOCK_STREAM;
+    d->socktype = (socketType == datagram_SocketType ? SOCK_DGRAM : SOCK_STREAM);
     d->count = 1;
     d->info = calloc(1, sizeof(struct addrinfo));
     d->info->ai_addrlen = (socklen_t) sockAddrSize;
     d->info->ai_addr = malloc(sockAddrSize);
     d->info->ai_socktype = d->socktype;
+    d->info->ai_family = (sockAddrSize == sizeof(struct sockaddr_in6) ? AF_INET6 : AF_INET);
     memcpy(d->info->ai_addr, sockAddr, sockAddrSize);
     return d;
 }
@@ -244,7 +245,9 @@ void getSockAddr_Address(const iAddress *d, struct sockaddr **addr_out, socklen_
 }
 
 iString *toString_Address(const iAddress *d) {
+    waitForFinished_Address(d);
     iString *str = new_String();
+    if (!d) return str;
     iGuardMutex(&d->mutex, {
         if (d->info) {
             char hbuf[NI_MAXHOST];
@@ -279,7 +282,7 @@ iObjectList *networkInterfaces_Address(void) {
                                                                    : sizeof(struct sockaddr_in);
             if (!getnameinfo(sockAddr, size, hbuf, sizeof(hbuf), NULL, 0, NI_NUMERICHOST)) {
                 if (strlen(hbuf)) {
-                    iAddress *addr = newSockAddr_Address(sockAddr, size);
+                    iAddress *addr = newSockAddr_Address(sockAddr, size, stream_SocketType);
                     // We also have a text version of the host address.
                     setCStr_String(&addr->hostName, hbuf);
                     pushBack_ObjectList(list, addr);

@@ -130,28 +130,24 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
                 iDatagram *dgm = *i.value;
                 // Problem with the socket?
                 if (FD_ISSET(dgm->fd, &errors)) {
-                    iWarning("[Datagram] socket %i has error status\n", dgm->fd);
-    //                    close_Socket(d->socket);
-    //                    return errno;
-    //                }
-    //                return 0;
+                    iWarning("[Datagram] socket %i has exception status\n", dgm->fd);
                 }
                 // Check for incoming data.
                 if (FD_ISSET(dgm->fd, &reads)) {
                     char buf[iMessageMaxDataSize];
                     struct sockaddr_storage addr;
-                    socklen_t addrSize;
+                    socklen_t addrSize = sizeof(addr);
                     ssize_t dataSize = recvfrom(
                         dgm->fd, buf, iMessageMaxDataSize - 1, 0, (struct sockaddr *) &addr, &addrSize);
                     if (dataSize == -1) {
                         iWarning("[Datagram] socket %i: error %i while receiving: %s\n",
                                  dgm->fd, errno, strerror(errno));
-                        // TODO: Notify error audience.
-                        // Maybe remove the datagram from the set.
+                        iNotifyAudienceArgs(dgm, error, DatagramError, errno, strerror(errno));
+                        // Maybe remove the datagram from the set?
                     }
                     /* Keep the data as a message. */ {
                         iMessage *msg = new_Message();
-                        msg->address = newSockAddr_Address(&addr, addrSize);
+                        msg->address = newSockAddr_Address(&addr, addrSize, datagram_SocketType);
                         setData_Block(&msg->data, buf, dataSize);
                         put_Queue(dgm->input, msg);
                         iRelease(msg);
@@ -185,8 +181,8 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
                                  errno,
                                  size_Block(&msg->data),
                                  strerror(errno));
-                        // TODO: Notify error audience.
-                        // Maybe remove the datagram from the set.
+                        iNotifyAudienceArgs(dgm, error, DatagramError, errno, strerror(errno));
+                        // Maybe remove the datagram from the set?
                     }
                     iRelease(msg);
                 }
@@ -280,6 +276,7 @@ iBool open_Datagram(iDatagram *d, uint16_t port) {
     }
     iAssert(port);
     d->address = new_Address();
+    d->port = port;
     lookupCStr_Address(d->address, "", port, datagram_SocketType);
     waitForFinished_Address(d->address);
     /* Create and bind a socket for listening to incoming messages. */ {
@@ -293,7 +290,7 @@ iBool open_Datagram(iDatagram *d, uint16_t port) {
         }
         getSockAddr_Address(d->address, &sockAddr, &sockLen);
         if (bind(d->fd, sockAddr, sockLen) == -1) {
-            iWarning("[Datagram] error binding socket (port %u)\n", d->port);
+            iWarning("[Datagram] error binding socket (port %u)\n", port);
             return iFalse;
         }
     }
@@ -345,6 +342,13 @@ void send_Datagram(iDatagram *d, const iBlock *data, const iAddress *to) {
     put_Queue(d->output, msg);
     iRelease(msg);
     writeByte_Pipe(&datagramIO_->wakeup, 1);
+}
+
+void sendData_Datagram(iDatagram *d, const void *data, size_t size, const iAddress *to) {
+    iBlock buf;
+    initData_Block(&buf, data, size);
+    send_Datagram(d, &buf, to);
+    deinit_Block(&buf);
 }
 
 iBlock *receive_Datagram(iDatagram *d, iAddress **from_out) {

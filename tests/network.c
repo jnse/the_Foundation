@@ -60,6 +60,7 @@ static void observeSocket_(iSocket *sock) {
     iConnect(Socket, sock, readyRead, sock, logReadyRead_);
     iConnect(Socket, sock, writeFinished, sock, logWriteFinished_);
 }
+
 static void hostLookedUp(iAny *d, const iAddress *address) {
     iUnused(d);
     if (isValid_Address(address)) {

@@ -43,7 +43,12 @@ iDeclareConstNotifyFunc(Address, LookupFinished)
 
 iDeclareObjectConstruction(Address)
 
-iAddress *  newSockAddr_Address     (const void *sockAddr, size_t sockAddrSize);
+enum iSocketType {
+    stream_SocketType,
+    datagram_SocketType,
+};
+
+iAddress *  newSockAddr_Address (const void *sockAddr, size_t sockAddrSize, enum iSocketType socketType);
 
 void        init_Address        (iAddress *);
 void        deinit_Address      (iAddress *);
@@ -66,11 +71,6 @@ iString *           toString_Address        (const iAddress *);
 const iString *     hostName_Address        (const iAddress *);
 uint16_t            port_Address            (const iAddress *);
 iBool               isPending_Address       (const iAddress *);
-
-enum iSocketType {
-    stream_SocketType,
-    datagram_SocketType,
-};
 
 void    lookupCStr_Address      (iAddress *, const char *hostName, uint16_t port, enum iSocketType socketType);
 void    waitForFinished_Address (const iAddress *);

@@ -341,6 +341,7 @@ static iBool open_Socket_(iSocket *d) {
     else {
         const iSocketParameters sp = socketParameters_Address(d->address);
         d->fd = socket(sp.family, sp.type, sp.protocol);
+        /// @todo On Linux, set the O_NONBLOCK flag on the socket.
         d->connecting = new_Thread(connectAsync_Socket_);
         setStatus_Socket_(d, connecting_SocketStatus);
         setUserData_Thread(d->connecting, d);
@@ -376,7 +377,7 @@ iSocket *newExisting_Socket(int fd, const void *sockAddr, size_t sockAddrSize) {
     iSocket *d = iNew(Socket);
     init_Socket_(d);
     d->fd = fd;
-    d->address = newSockAddr_Address(sockAddr, sockAddrSize);
+    d->address = newSockAddr_Address(sockAddr, sockAddrSize, stream_SocketType);
     setStatus_Socket_(d, connected_SocketStatus);
     startThread_Socket_(d);
     return d;
