@@ -36,7 +36,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <sys/types.h>
 
 // address.c
-void getSockAddr_Address(const iAddress *d, struct sockaddr **addr_out, socklen_t *addrSize_out);
+void getSockAddr_Address(const iAddress *  d,
+                         struct sockaddr **addr_out,
+                         socklen_t *       addrSize_out,
+                         int               family);
 
 iDeclareType(SocketThread)
 
@@ -298,7 +301,7 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
     iSocket *d = userData_Thread(thd);
     struct sockaddr *addr;
     socklen_t addrSize;
-    getSockAddr_Address(d->address, &addr, &addrSize);
+    getSockAddr_Address(d->address, &addr, &addrSize, AF_UNSPEC);
     const int rc = connect(d->fd, addr, addrSize);
     iGuardMutex(&d->mutex, {
         if (d->status == connecting_SocketStatus) {
@@ -339,7 +342,7 @@ static iBool open_Socket_(iSocket *d) {
         return iFalse;
     }
     else {
-        const iSocketParameters sp = socketParameters_Address(d->address);
+        const iSocketParameters sp = socketParameters_Address(d->address, AF_UNSPEC);
         d->fd = socket(sp.family, sp.type, sp.protocol);
         /// @todo On Linux, set the O_NONBLOCK flag on the socket.
         d->connecting = new_Thread(connectAsync_Socket_);
@@ -377,7 +380,7 @@ iSocket *newExisting_Socket(int fd, const void *sockAddr, size_t sockAddrSize) {
     iSocket *d = iNew(Socket);
     init_Socket_(d);
     d->fd = fd;
-    d->address = newSockAddr_Address(sockAddr, sockAddrSize, stream_SocketType);
+    d->address = newSockAddr_Address(sockAddr, sockAddrSize, tcp_SocketType);
     setStatus_Socket_(d, connected_SocketStatus);
     startThread_Socket_(d);
     return d;

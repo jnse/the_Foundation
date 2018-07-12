@@ -2,7 +2,7 @@
 
 /** @file c_plus/datagram.h  UDP socket.
 
-Datagram is a UDP network socket that can send and receive short messages.
+Datagram is an IPv4 UDP network socket that can send and receive short messages.
 
 @authors Copyright (c) 2018 Jaakko Keränen <jaakko.keranen@iki.fi>
 

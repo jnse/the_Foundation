@@ -70,6 +70,7 @@ static void printMessages_(iAny *any, iDatagram *dgm) {
 int main(int argc, char *argv[]) {
     init_CPlus();
     iCommandLine *cmdline = iClob(new_CommandLine(argc, argv));
+    defineValues_CommandLine(cmdline, "c;client", 1);
     // Check the arguments.
     if (contains_CommandLine(cmdline, "s;server")) {
         iDatagram *listen = iClob(new_Datagram());
@@ -91,17 +92,27 @@ int main(int argc, char *argv[]) {
             puts("Failed to open socket");
             return 2;
         }
-        iAddress *dest = new_Address();
-        lookupCStr_Address(dest, "", 14666, datagram_SocketType);
+        iAddress *dest;
+        if (contains_CommandLine(cmdline, "b;broadcast")) {
+            dest = newBroadcast_Address(14666);
+        }
+        else {
+            dest = new_Address();
+            iCommandLineArg *arg = iClob(checkArgument_CommandLine(cmdline, "c;client"));
+            lookupCStr_Address(
+                dest, cstr_String(value_CommandLineArg(arg, 0)), 14666, udp_SocketType);
+        }
         iString *destStr = toString_Address(dest);
         printf("Destination: %s\n", cstr_String(destStr));
         delete_String(destStr);
         puts("Type to send a message (empty to quit):");
+        connect_Datagram(xmit, dest);
+        iRelease(dest);
         for (;;) {
             char buf[200];
             fgets(buf, sizeof(buf), stdin);
             if (strlen(buf) <= 1) break;
-            sendData_Datagram(xmit, buf, strlen(buf), dest);
+            writeData_Datagram(xmit, buf, strlen(buf));
         }
         puts("Good day!");
     }

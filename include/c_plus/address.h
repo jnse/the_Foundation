@@ -44,10 +44,11 @@ iDeclareConstNotifyFunc(Address, LookupFinished)
 iDeclareObjectConstruction(Address)
 
 enum iSocketType {
-    stream_SocketType,
-    datagram_SocketType,
+    tcp_SocketType,
+    udp_SocketType,
 };
 
+iAddress *  newBroadcast_Address(uint16_t port);
 iAddress *  newSockAddr_Address (const void *sockAddr, size_t sockAddrSize, enum iSocketType socketType);
 
 void        init_Address        (iAddress *);
@@ -66,17 +67,30 @@ struct Impl_SocketParameters {
     int protocol;
 };
 
-iSocketParameters   socketParameters_Address(const iAddress *);
+iSocketParameters   socketParameters_Address(const iAddress *, int family);
 iString *           toString_Address        (const iAddress *);
+iString *           toStringFamily_Address  (const iAddress *, int family);
 const iString *     hostName_Address        (const iAddress *);
 uint16_t            port_Address            (const iAddress *);
 iBool               isPending_Address       (const iAddress *);
 
+/**
+ * Starts an asynchronous address lookup. The lookupFinished audience will be notified when
+ * the operation is complete. Alternatively, one can use waitForFinished_Address() to block
+ * until the lookup is done.
+ *
+ * @param hostName    Hostname to look up. This can be a numerical IP address or a host name
+ *                    that will be looked up via DNS. If the hostname is an empty string or NULL,
+ *                    the address will represent any available local network interface.
+ * @param port        TCP/UDP port number.
+ * @param socketType  Type of the socket (TCP/UDP).
+ */
 void    lookupCStr_Address      (iAddress *, const char *hostName, uint16_t port, enum iSocketType socketType);
+
 void    waitForFinished_Address (const iAddress *);
 
 static inline void lookupTcpCStr_Address(iAddress *d, const char *hostName, uint16_t port) {
-    lookupCStr_Address(d, hostName, port, stream_SocketType);
+    lookupCStr_Address(d, hostName, port, tcp_SocketType);
 }
 
 static inline void lookupTcp_Address(iAddress *d, const iString *hostName, uint16_t port) {

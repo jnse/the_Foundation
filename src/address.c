@@ -38,6 +38,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <netinet/in.h>
 #include <ifaddrs.h>
 
+enum iAddressFlag {
+    finished_AddressFlag = 0x1,
+};
+
 struct Impl_Address {
     iObject object;
     iMutex mutex;
@@ -45,6 +49,7 @@ struct Impl_Address {
     iString service;
     int socktype;
     iThread *pending;
+    int flags;
     int count;
     struct addrinfo *info;
     iAudience *lookupFinished;
@@ -54,9 +59,12 @@ iDefineAudienceGetter(Address, lookupFinished)
 
 static iThreadResult runLookup_Address_(iThread *thd) {
     iAddress *d = userData_Thread(thd);
+    const int hintFlags = AI_V4MAPPED_CFG | AI_ADDRCONFIG | (isEmpty_String(&d->hostName) ? AI_PASSIVE : 0);
     const struct addrinfo hints = {
-        .ai_family   = AF_UNSPEC,
         .ai_socktype = d->socktype,
+        .ai_family   = (d->socktype == SOCK_DGRAM ? AF_INET     : AF_UNSPEC),
+        .ai_protocol = (d->socktype == SOCK_DGRAM ? IPPROTO_UDP : IPPROTO_TCP),
+        .ai_flags    = hintFlags,
     };
     int rc = getaddrinfo(!isEmpty_String(&d->hostName) ? cstr_String(&d->hostName) : NULL,
                          !isEmpty_String(&d->service)  ? cstr_String(&d->service)  : NULL,
@@ -71,6 +79,7 @@ static iThreadResult runLookup_Address_(iThread *thd) {
             iWarning("[Address] host lookup failed with error: %s\n", gai_strerror(rc));
         }
         iReleasePtr(&d->pending); // get rid of this thread
+        d->flags |= finished_AddressFlag;
     );
     iNotifyAudience(d, lookupFinished, AddressLookupFinished);
     return 0;
@@ -85,10 +94,16 @@ static inline socklen_t sockAddrSize_addrinfo_(const struct addrinfo *d) {
 
 iDefineObjectConstruction(Address)
 
+iAddress *newBroadcast_Address(uint16_t port) {
+    iAddress *d = new_Address();
+    lookupCStr_Address(d, "255.255.255.255", port, udp_SocketType);
+    return d;
+}
+
 iAddress *newSockAddr_Address(const void *sockAddr, size_t sockAddrSize, enum iSocketType socketType) {
     iAddress *d = iNew(Address);
     init_Address(d);
-    d->socktype = (socketType == datagram_SocketType ? SOCK_DGRAM : SOCK_STREAM);
+    d->socktype = (socketType == udp_SocketType ? SOCK_DGRAM : SOCK_STREAM);
     d->count = 1;
     d->info = calloc(1, sizeof(struct addrinfo));
     d->info->ai_addrlen = (socklen_t) sockAddrSize;
@@ -106,6 +121,7 @@ void init_Address(iAddress *d) {
     d->pending = NULL;
     d->info = NULL;
     d->count = -1;
+    d->flags = 0;
     d->lookupFinished = NULL;
     d->socktype = SOCK_STREAM;
 }
@@ -144,19 +160,23 @@ int count_Address(const iAddress *d) {
     return count;
 }
 
-iSocketParameters socketParameters_Address(const iAddress *d) {
+iSocketParameters socketParameters_Address(const iAddress *d, int family) {
     iSocketParameters sp = { .family = 0 };
     iGuardMutex(&d->mutex, {
-        if (d->info) {
-            sp.family   = d->info->ai_family;
-            sp.type     = d->info->ai_socktype;
-            sp.protocol = d->info->ai_protocol;
+        for (const struct addrinfo *i = d->info; i; i = i->ai_next) {
+            if (family == AF_UNSPEC || i->ai_family == family) {
+                sp.family   = i->ai_family;
+                sp.type     = i->ai_socktype;
+                sp.protocol = i->ai_protocol;
+                break;
+            }
         }
     });
     return sp;
 }
 
-int protocol_Address(const iAddress *d) {
+#if 0
+int ipVersion_Address(const iAddress *d) {
     int ver = 0;
     iGuardMutex(&d->mutex, {
         if (d->info) {
@@ -165,6 +185,7 @@ int protocol_Address(const iAddress *d) {
     });
     return ver;
 }
+#endif
 
 iBool isValid_Address(const iAddress *d) {
     return count_Address(d) >= 0;
@@ -196,19 +217,25 @@ iBool equal_Address(const iAddress *d, const iAddress *other) {
 void lookupCStr_Address(iAddress *d, const char *hostName, uint16_t port, enum iSocketType socketType) {
     iGuardMutex(&d->mutex, {
         if (!d->pending) {
-            d->socktype = (socketType == datagram_SocketType ? SOCK_DGRAM : SOCK_STREAM);
-            setCStr_String(&d->hostName, hostName);
+            if (d->info) {
+                freeaddrinfo(d->info);
+                d->info = NULL;
+            }
+            d->flags &= ~finished_AddressFlag;
+            d->count = -1;
+            d->socktype = (socketType == udp_SocketType ? SOCK_DGRAM : SOCK_STREAM);
+            if (hostName) {
+                setCStr_String(&d->hostName, hostName);
+            }
+            else {
+                clear_String(&d->hostName);
+            }
             if (port) {
                 format_String(&d->service, "%i", port);
             }
             else {
                 clear_String(&d->service);
             }
-            if (d->info) {
-                freeaddrinfo(d->info);
-                d->info = NULL;
-            }
-            d->count = -1;
             d->pending = new_Thread(runLookup_Address_);
             setUserData_Thread(d->pending, d);
             start_Thread(d->pending);
@@ -217,52 +244,57 @@ void lookupCStr_Address(iAddress *d, const char *hostName, uint16_t port, enum i
 }
 
 void waitForFinished_Address(const iAddress *d) {
-    // Prevent the thread from being deleted while we're checking.
-    guardJoin_Thread(d->pending, &d->mutex);
-}
-
-#if 0
-static const iAny *inAddr_addrinfo_(const struct addrinfo *d) {
-    if (d->ai_family == AF_INET) { // IPv4
-        return &((const struct sockaddr_in *) d->ai_addr)->sin_addr;
+    if (~d->flags & finished_AddressFlag) {
+        // Prevent the thread from being deleted while we're checking.
+        guardJoin_Thread(d->pending, &d->mutex);
     }
-    // IPv6
-    return &((const struct sockaddr_in6 *) d->ai_addr)->sin6_addr;
 }
-#endif
 
-void getSockAddr_Address(const iAddress *d, struct sockaddr **addr_out, socklen_t *addrSize_out) {
+
+void getSockAddr_Address(const iAddress *  d,
+                         struct sockaddr **addr_out,
+                         socklen_t *       addrSize_out,
+                         int               family)
+{
+    *addr_out = NULL;
+    *addrSize_out = 0;
     iGuardMutex(&d->mutex, {
-        if (!d->info) {
-            *addr_out = NULL;
-            *addrSize_out = 0;
-        }
-        else {
-            *addr_out = d->info->ai_addr;
-            *addrSize_out = d->info->ai_addrlen;
+        for (const struct addrinfo *i = d->info; i; i = i->ai_next) {
+            if (family == AF_UNSPEC || i->ai_family == family) {
+                *addr_out = i->ai_addr;
+                *addrSize_out = i->ai_addrlen;
+                break;
+            }
         }
     });
 }
 
 iString *toString_Address(const iAddress *d) {
+    return toStringFamily_Address(d, AF_UNSPEC);
+}
+
+iString *toStringFamily_Address(const iAddress *d, int family) {
     waitForFinished_Address(d);
     iString *str = new_String();
     if (!d) return str;
     iGuardMutex(&d->mutex, {
-        if (d->info) {
-            char hbuf[NI_MAXHOST];
-            char sbuf[NI_MAXSERV];
-            if (!getnameinfo(d->info->ai_addr,
-                             sockAddrSize_addrinfo_(d->info),
-                             hbuf, sizeof(hbuf),
-                             sbuf, sizeof(sbuf),
-                             NI_NUMERICHOST | NI_NUMERICSERV)) {
-                if (iCmpStr(sbuf, "0")) {
-                    format_String(str, d->info->ai_family == AF_INET6? "[%s]:%s" : "%s:%s", hbuf, sbuf);
+        for (const struct addrinfo *i = d->info; i; i = i->ai_next) {
+            if (family == AF_UNSPEC || i->ai_family == family) {
+                char hbuf[NI_MAXHOST];
+                char sbuf[NI_MAXSERV];
+                if (!getnameinfo(i->ai_addr,
+                                 sockAddrSize_addrinfo_(i),
+                                 hbuf, sizeof(hbuf),
+                                 sbuf, sizeof(sbuf),
+                                 NI_NUMERICHOST | NI_NUMERICSERV)) {
+                    if (iCmpStr(sbuf, "0")) {
+                        format_String(str, i->ai_family == AF_INET6? "[%s]:%s" : "%s:%s", hbuf, sbuf);
+                    }
+                    else {
+                        setCStr_String(str, hbuf);
+                    }
                 }
-                else {
-                    setCStr_String(str, hbuf);
-                }
+                break;
             }
         }
     });
@@ -282,7 +314,7 @@ iObjectList *networkInterfaces_Address(void) {
                                                                    : sizeof(struct sockaddr_in);
             if (!getnameinfo(sockAddr, size, hbuf, sizeof(hbuf), NULL, 0, NI_NUMERICHOST)) {
                 if (strlen(hbuf)) {
-                    iAddress *addr = newSockAddr_Address(sockAddr, size, stream_SocketType);
+                    iAddress *addr = newSockAddr_Address(sockAddr, size, tcp_SocketType);
                     // We also have a text version of the host address.
                     setCStr_String(&addr->hostName, hbuf);
                     pushBack_ObjectList(list, addr);

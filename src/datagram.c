@@ -37,7 +37,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <unistd.h>
 
 // address.c
-void getSockAddr_Address(const iAddress *d, struct sockaddr **addr_out, socklen_t *addrSize_out);
+void getSockAddr_Address(const iAddress *  d,
+                         struct sockaddr **addr_out,
+                         socklen_t *       addrSize_out,
+                         int               family);
 
 iDeclareType(Message)
 iDeclareClass(Message)
@@ -147,7 +150,7 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
                     }
                     /* Keep the data as a message. */ {
                         iMessage *msg = new_Message();
-                        msg->address = newSockAddr_Address(&addr, addrSize, datagram_SocketType);
+                        msg->address = newSockAddr_Address(&addr, addrSize, udp_SocketType);
                         setData_Block(&msg->data, buf, dataSize);
                         put_Queue(dgm->input, msg);
                         iRelease(msg);
@@ -169,7 +172,7 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
                 while ((msg = tryTake_Queue(dgm->output)) != NULL) {
                     socklen_t destLen;
                     struct sockaddr *destAddr;
-                    getSockAddr_Address(msg->address, &destAddr, &destLen);
+                    getSockAddr_Address(msg->address, &destAddr, &destLen, AF_INET);
                     ssize_t rc = sendto(dgm->fd,
                                         data_Block(&msg->data),
                                         size_Block(&msg->data),
@@ -284,20 +287,24 @@ iBool open_Datagram(iDatagram *d, uint16_t port) {
     iAssert(port);
     d->address = new_Address();
     d->port = port;
-    lookupCStr_Address(d->address, "", port, datagram_SocketType);
+    lookupCStr_Address(d->address, NULL, port, udp_SocketType);
     waitForFinished_Address(d->address);
     /* Create and bind a socket for listening to incoming messages. */ {
         socklen_t sockLen;
         struct sockaddr *sockAddr;
-        iSocketParameters sp = socketParameters_Address(d->address);
+        iSocketParameters sp = socketParameters_Address(d->address, AF_INET);
         d->fd = socket(sp.family, sp.type, sp.protocol);
         if (d->fd == -1) {
             iWarning("[Datagram] error creating socket\n");
             return iFalse;
         }
-        getSockAddr_Address(d->address, &sockAddr, &sockLen);
+        /* Enable broadcasting. */ {
+            const int broadcast = 1;
+            setsockopt(d->fd, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof(broadcast));
+        }
+        getSockAddr_Address(d->address, &sockAddr, &sockLen, AF_INET);
         if (bind(d->fd, sockAddr, sockLen) == -1) {
-            iWarning("[Datagram] error binding socket (port %u)\n", port);
+            iWarning("[Datagram] error binding socket (port %u): %s\n", port, strerror(errno));
             return iFalse;
         }
     }
