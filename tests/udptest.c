@@ -60,7 +60,10 @@ static void printMessages_(iAny *any, iDatagram *dgm) {
     iBlock *data;
     while ((data = receive_Datagram(dgm, &from)) != NULL) {
         iString *fromStr = toString_Address(from);
-        printf("(%s) %s\n", cstr_String(fromStr), constData_Block(data));
+        printf("(%s hostname:%s) %s\n",
+               cstr_String(fromStr),
+               cstr_String(hostName_Address(from)),
+               constData_Block(data));
         delete_String(fromStr);
         delete_Block(data);
         iRelease(from);

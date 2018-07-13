@@ -138,6 +138,16 @@ void deinit_Address(iAddress *d) {
 }
 
 const iString *hostName_Address(const iAddress *d) {
+    if (isEmpty_String(&d->hostName)) {
+        char hbuf[NI_MAXHOST];
+        if (!getnameinfo(d->info->ai_addr,
+                         sockAddrSize_addrinfo_(d->info),
+                         hbuf, sizeof(hbuf),
+                         NULL, 0,
+                         NI_NUMERICHOST)) {
+            setCStr_String(&iConstCast(iAddress *, d)->hostName, hbuf);
+        }
+    }
     return &d->hostName;
 }
 
@@ -237,6 +247,7 @@ void lookupCStr_Address(iAddress *d, const char *hostName, uint16_t port, enum i
                 clear_String(&d->service);
             }
             d->pending = new_Thread(runLookup_Address_);
+            setName_Thread(d->pending, "runLookup_Address_");
             setUserData_Thread(d->pending, d);
             start_Thread(d->pending);
         }

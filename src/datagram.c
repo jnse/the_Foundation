@@ -128,7 +128,7 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
         if (FD_ISSET(output_Pipe(&d->wakeup), &reads)) {
             readByte_Pipe(&d->wakeup);
         }
-        lock_Mutex(mtx); { // thread locked while datagram iteration
+        lock_Mutex(mtx); { // thread locked during datagram iteration
             iForEach(PtrSet, i, &d->datagrams) {
                 iDatagram *dgm = *i.value;
                 // Problem with the socket?
@@ -164,7 +164,7 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
         }
         unlock_Mutex(mtx);
         // Now that received messages have been handled, check for outgoing messages.
-        lock_Mutex(mtx); {  // thread locked while datagram iteration
+        lock_Mutex(mtx); {  // thread locked during datagram iteration
             iForEach(PtrSet, i, &d->datagrams) {
                 iDatagram *dgm = *i.value;
                 iMessage *msg = NULL;
@@ -206,6 +206,7 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
 
 static void init_DatagramThread(iDatagramThread *d) {
     init_Thread(&d->thread, run_DatagramThread_);
+    setName_Thread(&d->thread, "DatagramThread");
     init_Pipe(&d->wakeup);
     init_Mutex(&d->mutex);
     init_PtrSet(&d->datagrams);
@@ -239,14 +240,17 @@ static void deleteSharedDatagramThread_(void) {
     }
 }
 
-static iDatagramThread *datagramThread_(void) {
-    if (!datagramIO_) {
-        atexit(deleteSharedDatagramThread_);
-        datagramIO_ = new_DatagramThread();
-        start_DatagramThread_(datagramIO_);
-    }
-    return datagramIO_;
+void init_DatagramThreads(void) { // called from init_CPlus)
+    iAssert(datagramIO_ == NULL);
+    atexit(deleteSharedDatagramThread_);
+    datagramIO_ = new_DatagramThread();
+    start_DatagramThread_(datagramIO_);
 }
+
+//static iDatagramThread *datagramThread_(void) {
+//    iAssert(datagramIO_ != NULL);
+//    return datagramIO_;
+//}
 
 iDefineSubclass(DatagramThread, Thread)
 
@@ -309,17 +313,19 @@ iBool open_Datagram(iDatagram *d, uint16_t port) {
         }
     }
     /* All open datagrams share the I/O thread. */ {
-        iDatagramThread *io = datagramThread_();
-        iGuardMutex(&io->mutex, insert_PtrSet(&io->datagrams, d));
+        iAssert(datagramIO_ != NULL);
+        iGuardMutex(&datagramIO_->mutex, insert_PtrSet(&datagramIO_->datagrams, d));
+        writeByte_Pipe(&datagramIO_->wakeup, 1); // update the set of waiting datagrams
     }
     return iTrue;
 }
 
 void close_Datagram(iDatagram *d) {
     flush_Datagram(d);
-    /* Remove from the I/O thread. */ {
-        iDatagramThread *io = datagramThread_();
-        iGuardMutex(&io->mutex, remove_PtrSet(&io->datagrams, d));
+    // Remove from the I/O thread.
+    if (datagramIO_) { // may have been deleted by atexit() already
+        iGuardMutex(&datagramIO_->mutex, remove_PtrSet(&datagramIO_->datagrams, d));
+        writeByte_Pipe(&datagramIO_->wakeup, 1); // update the set of waiting datagrams
     }
     iGuardMutex(&d->mutex, {
         if (isOpen_Datagram(d)) {

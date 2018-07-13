@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "mutex.h"
 #include "audience.h"
 #include "stdthreads.h"
+#include "string.h"
 
 iBeginPublic
 
@@ -59,23 +60,28 @@ enum iThreadFlag {
 
 struct Impl_Thread {
     iObject object;
-    iThreadRunFunc run;
+    iMutex mutex;
+    iString name;
     iThreadId id;
+    iThreadRunFunc run;
+    atomic_int state; // enum iThreadState
     uint32_t flags;
     void *userData;
-    atomic_int state; // enum iThreadState
     iThreadResult result;
+    iCondition finishedCond;
     iAudience *finished;
 };
 
 iDeclareObjectConstructionArgs(Thread, iThreadRunFunc run)
 
+void    setName_Thread              (iThread *, const char *name);
 void    setUserData_Thread          (iThread *, void *userData);
 void    setTerminationEnabled_Thread(iThread *, iBool enable);
 
-iBool   isRunning_Thread    (const iThread *);
-iBool   isFinished_Thread   (const iThread *);
-void *  userData_Thread     (const iThread *);
+iBool           isRunning_Thread    (const iThread *);
+iBool           isFinished_Thread   (const iThread *);
+const iString * name_Thread         (const iThread *);
+void *          userData_Thread     (const iThread *);
 
 /**
  * Returns the result value of the thread. If the thread is still running, the method

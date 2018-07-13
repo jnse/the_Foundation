@@ -44,7 +44,7 @@ static iThreadResult run_PooledThread_(iThread *thread) {
         if (job == (void *) d->pool) break; // Terminated.
         // Run the job in this thread.
         iAssert(job->state == created_ThreadState);
-        job->state = running_ThreadState;
+        iGuardMutex(&job->mutex, job->state = running_ThreadState);
         job->result = job->run(job);
         finish_Thread_(job);
         iRelease(job);
@@ -54,6 +54,7 @@ static iThreadResult run_PooledThread_(iThread *thread) {
 
 static void init_PooledThread(iPooledThread *d, iThreadPool *pool) {
     init_Thread(&d->thread, run_PooledThread_);
+    setName_Thread(&d->thread, "PooledThread");
     d->pool = pool;
 }
 

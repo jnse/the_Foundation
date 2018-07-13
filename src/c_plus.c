@@ -35,6 +35,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <time.h>
 #include <locale.h>
 
+// datagram.c
+void init_DatagramThreads(void);
+
 // thread.c
 void init_Threads(void);
 
@@ -45,6 +48,7 @@ static void deinit_CPlus_(void) {
 void init_CPlus(void) {
     init_Threads();
     init_Garbage();
+    init_DatagramThreads();
     printf("[c_Plus] version: %i.%i.%i cstd:%li\n",
            version_CPlus.major, version_CPlus.minor, version_CPlus.patch,
            __STDC_VERSION__);

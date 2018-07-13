@@ -55,7 +55,10 @@ void init_Threads(void) {
 }
 
 void finish_Thread_(iThread *d) {
-    d->state = finished_ThreadState;
+    iGuardMutex(&d->mutex, {
+        d->state = finished_ThreadState;
+        signalAll_Condition(&d->finishedCond);
+    });
     iNotifyAudience(d, finished, ThreadFinished);
     iRecycle();
 }
@@ -63,6 +66,14 @@ void finish_Thread_(iThread *d) {
 static int run_Threads_(void *arg) {
     iThread *d = (iThread *) arg;
     ref_Object(d);
+    if (!isEmpty_String(&d->name)) {
+#if defined (iPlatformApple)
+        pthread_setname_np(cstr_String(&d->name));
+#endif
+#if defined (iPlatformLinux)
+        pthread_setname_np(d->id, cstr_String(&d->name));
+#endif
+    }
     if (d->flags & terminationEnabled_ThreadFlag) {
 #if defined (iHavePthread)
         pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
@@ -85,6 +96,9 @@ iDefineClass(Thread)
 iDefineObjectConstructionArgs(Thread, (iThreadRunFunc run), run)
 
 void init_Thread(iThread *d, iThreadRunFunc run) {
+    init_Mutex(&d->mutex);
+    init_Condition(&d->finishedCond);
+    init_String(&d->name);
     d->result = 0;
     d->run = run;
     d->id = 0;
@@ -99,20 +113,30 @@ void deinit_Thread(iThread *d) {
         iWarning("[Thread] thread %p is being destroyed while still running\n", d);
     }
     delete_Audience(d->finished);
+    deinit_String(&d->name);
+    deinit_Condition(&d->finishedCond);
+    deinit_Mutex(&d->mutex);
 }
 
 void start_Thread(iThread *d) {
-    iAssert(d->state == created_ThreadState);
     iLockableThreadHash *threads = init_Threads_();
-    d->state = running_ThreadState;
-    thrd_create(&d->id, run_Threads_, d);
-    iDebug("[Thread] created thread ID %p\n", d->id);
+    iGuardMutex(&d->mutex, {
+        iAssert(d->state == created_ThreadState);
+        d->state = running_ThreadState;
+        thrd_create(&d->id, run_Threads_, d);
+        iDebug("[Thread] created thread ID %p (%s)\n", d->id, cstr_String(&d->name));
+    });
     // Register this thread as a running thread.
     iGuard(threads, insert_ThreadHash(threads->value, &d->id, d));
 }
 
+void setName_Thread(iThread *d, const char *name) {
+    iAssert(d->state == created_ThreadState);
+    setCStr_String(&d->name, name);
+}
+
 void setUserData_Thread(iThread *d, void *userData) {
-    d->userData = userData;
+    iGuardMutex(&d->mutex, d->userData = userData);
 }
 
 void setTerminationEnabled_Thread(iThread *d, iBool enable) {
@@ -120,11 +144,19 @@ void setTerminationEnabled_Thread(iThread *d, iBool enable) {
 }
 
 iBool isRunning_Thread(const iThread *d) {
-    return d->state == running_ThreadState;
+    iBool ret;
+    iGuardMutex(&d->mutex, ret = (d->state == running_ThreadState));
+    return ret;
 }
 
 iBool isFinished_Thread(const iThread *d) {
-    return d->state == finished_ThreadState;
+    iBool ret;
+    iGuardMutex(&d->mutex, ret = (d->state == finished_ThreadState));
+    return ret;
+}
+
+const iString *name_Thread(const iThread *d) {
+    return &d->name;
 }
 
 void *userData_Thread(const iThread *d) {
@@ -132,18 +164,19 @@ void *userData_Thread(const iThread *d) {
 }
 
 iThreadResult result_Thread(const iThread *d) {
-    if (isRunning_Thread(d)) {
-        thrd_join(d->id, NULL);
-    }
+    join_Thread(iConstCast(iThread *, d));
     iAssert(d->state == finished_ThreadState);
     return d->result;
 }
 
 void join_Thread(iThread *d) {
-    if (d && isRunning_Thread(d)) {
-        thrd_join(d->id, NULL);
-        //iAssert(d->state == finished_ThreadState);
-    }
+    if (!d) return;
+    iAssert(d->id != thrd_current()); // can't join the running thread!
+    iGuardMutex(&d->mutex,
+        if (d->state == running_ThreadState) {
+            wait_Condition(&d->finishedCond, &d->mutex);
+        }
+    );
 }
 
 void terminate_Thread(iThread *d) {

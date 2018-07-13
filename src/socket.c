@@ -116,7 +116,7 @@ static iThreadResult run_SocketThread_(iThread *thread) {
         if (FD_ISSET(d->socket->fd, &errors)) {
             if (status_Socket(d->socket) == connected_SocketStatus) {
                 iWarning("[Socket] error when receiving: %s\n", strerror(errno));
-                close_Socket(d->socket);
+                shutdown_Socket_(d->socket);
                 return errno;
             }
             return 0;
@@ -139,7 +139,7 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                     if (sent == -1) {
                         // Error!
                         delete_Block(data);
-                        close_Socket(d->socket);
+                        shutdown_Socket_(d->socket);
                         return errno;
                     }
                     remaining -= sent;
@@ -169,7 +169,7 @@ static iThreadResult run_SocketThread_(iThread *thread) {
             if (readSize == -1) {
                 if (status_Socket(d->socket) == connected_SocketStatus) {
                     iWarning("[Socket] error when receiving: %s\n", strerror(errno));
-                    close_Socket(d->socket);
+                    shutdown_Socket_(d->socket);
                     return errno;
                 }
                 // This was expected.
@@ -187,7 +187,13 @@ static iThreadResult run_SocketThread_(iThread *thread) {
 
 static void init_SocketThread(iSocketThread *d, iSocket *socket,
                               enum iSocketThreadMode mode) {
-    init_Thread(&d->thread, run_SocketThread_);
+    init_Thread(&d->thread, run_SocketThread_); {
+        iString name;
+        init_String(&name);
+        format_String(&name, "SocketThread (fd:%i)", socket->fd);
+        setName_Thread(&d->thread, cstr_String(&name));
+        deinit_String(&name);
+    }
     init_Pipe(&d->wakeup);
     d->socket = socket;
     d->mode = mode;
@@ -268,6 +274,7 @@ static void startThread_Socket_(iSocket *d) {
 
 static void stopThread_Socket_(iSocket *d) {
     if (d->thread) {
+        iAssert(current_Thread() != &d->thread->thread);
         exit_SocketThread_(d->thread);
         iReleasePtr(&d->thread);
     }
@@ -280,7 +287,6 @@ static void shutdown_Socket_(iSocket *d) {
             shutdown(d->fd, SHUT_RD);
         }
     });
-    stopThread_Socket_(d);
     iBool notify = iFalse;
     iGuardMutex(&d->mutex, {
         if (d->fd >= 0) {
@@ -289,7 +295,6 @@ static void shutdown_Socket_(iSocket *d) {
         }
         notify = setStatus_Socket_(d, disconnected_SocketStatus);
         iAssert(d->fd < 0);
-        iAssert(!d->thread);
         iAssert(!d->connecting);
     });
     if (notify) {
@@ -408,6 +413,7 @@ iBool open_Socket(iSocket *d) {
 }
 
 void close_Socket(iSocket *d) {
+    stopThread_Socket_(d);
     iGuardMutex(&d->mutex, {
         if (d->status == disconnected_SocketStatus ||
             d->status == disconnecting_SocketStatus) {
