@@ -146,13 +146,26 @@ class ref {
     T *_ptr;
 public:
     ref(T *p = nullptr) : _ptr(p) {} // note: assume that ownership of ref is given
-    ref(const T *p) : _ptr(ref_Object(p)) {}
+    ref(const T *p) : _ptr(static_cast<T *>(ref_Object(p))) {}
+    ref(const ref &other) : _ptr(static_cast<T *>(ref_Object(other._ptr))) {}
+    ref(ref &&moved) : _ptr(moved._ptr) {
+        moved._ptr = nullptr;
+    }
     ~ref() { deref_Object(_ptr); }
     void reset(const T *p = nullptr) {
         if (_ptr != p) {
             deref_Object(_ptr);
             _ptr = static_cast<T *>(ref_Object(p));
         }
+    }
+    ref &operator=(const ref &other) {
+        reset(other._ptr);
+        return *this;
+    }
+    ref &operator=(ref &&moved) {
+        reset();
+        std::swap(_ptr, moved._ptr);
+        return *this;
     }
     explicit operator bool() const { return _ptr != nullptr; }
     operator T *() const { return _ptr; }

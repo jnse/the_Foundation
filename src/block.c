@@ -165,8 +165,13 @@ void initPrealloc_Block(iBlock *d, void *data, size_t size, size_t allocSize) {
 }
 
 void initCopy_Block(iBlock *d, const iBlock *other) {
-    d->i = other->i;
-    d->i->refCount++;
+    if (other) {
+        d->i = other->i;
+        d->i->refCount++;
+    }
+    else {
+        init_Block(d, 0);
+    }
 }
 
 void deinit_Block(iBlock *d) {

@@ -266,6 +266,7 @@ void init_Datagram(iDatagram *d) {
     init_Mutex(&d->mutex);
     d->port = 0;
     d->fd = -1;
+    d->address = NULL;
     d->destination = NULL;
     init_Condition(&d->allSent);
     init_Condition(&d->messageReceived);
@@ -289,6 +290,7 @@ iBool open_Datagram(iDatagram *d, uint16_t port) {
         return iFalse;
     }
     iAssert(port);
+    if (d->address) iRelease(d->address);
     d->address = new_Address();
     d->port = port;
     lookupCStr_Address(d->address, NULL, port, udp_SocketType);
@@ -300,6 +302,7 @@ iBool open_Datagram(iDatagram *d, uint16_t port) {
         d->fd = socket(sp.family, sp.type, sp.protocol);
         if (d->fd == -1) {
             iWarning("[Datagram] error creating socket\n");
+            iReleasePtr(&d->address);
             return iFalse;
         }
         /* Enable broadcasting. */ {
@@ -308,6 +311,9 @@ iBool open_Datagram(iDatagram *d, uint16_t port) {
         }
         getSockAddr_Address(d->address, &sockAddr, &sockLen, AF_INET);
         if (bind(d->fd, sockAddr, sockLen) == -1) {
+            iReleasePtr(&d->address);
+            close(d->fd);
+            d->fd = -1;
             iWarning("[Datagram] error binding socket (port %u): %s\n", port, strerror(errno));
             return iFalse;
         }
