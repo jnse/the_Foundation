@@ -50,7 +50,7 @@ iBool setCwd_Path(const iString *path) {
 }
 
 iBool isAbsolute_Path(const iString *d) {
-    return startsWith_String(d, iPathSeparator);
+    return startsWith_String(d, iPathSeparator) || startsWith_String(d, "~");
 }
 
 iString *makeAbsolute_Path(const iString *d) {
@@ -120,7 +120,7 @@ void clean_Path(iString *d) {
         iString cleaned;
         init_String(&cleaned);
         for (size_t i = 0; i < count; ++i) {
-            if (i != 0 || startsWith_String(d, iPathSeparator)) {
+            if (i != 0 || isAbsolute_Path(d)) {
                 appendCStr_String(&cleaned, iPathSeparator);
             }
             appendRange_String(&cleaned, segments + i);
