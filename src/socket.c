@@ -481,7 +481,9 @@ static size_t read_Socket_(iSocket *d, size_t size, void *data_out) {
 static size_t write_Socket_(iSocket *d, const void *data, size_t size) {
     iGuardMutex(&d->mutex, {
         writeData_Stream(stream_Buffer(d->output), data, size);
-        writeByte_Pipe(&d->thread->wakeup, 0); // wake up the I/O thread
+        if (d->thread) {
+            writeByte_Pipe(&d->thread->wakeup, 0); // wake up the I/O thread
+        }
     });
     return size;
 }
