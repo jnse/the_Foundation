@@ -67,7 +67,9 @@ typedef void (*iDeleteFunc)(iAny *);
 
 #include "garbage.h"
 
-iPublic void        init_CPlus  (void);
+iPublic void        init_CPlus          (void);
+iPublic void        printMessage_CPlus  (FILE *, const char *format, ...);
+
 iPublic uint32_t    iCrc32      (const char *data, size_t size);
 iPublic void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[16]);
 
@@ -180,13 +182,17 @@ iPublic void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[
 
 #if defined (NDEBUG)
 #   define iAssert(cond)
-#   define iDebug(...)
 #   define iDebugOnly(...)  iUnused(__VA_ARGS__)
 #else
 #   include <assert.h>
 #   define iAssert(cond)    assert(cond)
-#   define iDebug(...)      fprintf(stdout, __VA_ARGS__)
 #   define iDebugOnly(...)
 #endif
 
-#define iWarning(...)       fprintf(stderr, __VA_ARGS__)
+#if defined (iHaveDebugOutput)
+#   define iDebug(...)      printMessage_CPlus(stdout, __VA_ARGS__)
+#   define iWarning(...)    printMessage_CPlus(stderr, __VA_ARGS__)
+#else
+#   define iDebug(...)
+#   define iWarning(...)
+#endif

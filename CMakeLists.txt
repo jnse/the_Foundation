@@ -21,6 +21,11 @@ endmacro ()
 #----------------------------------------------------------------------------------------
 
 option (CPLUS_ENABLE_SSE41 "Enable SSE 4.1 instructions" ON)
+option (CPLUS_ENABLE_DEBUG_OUTPUT "Enable internal debug output to stdout/stderr" OFF)
+
+if (CPLUS_ENABLE_DEBUG_OUTPUT)
+    set (iHaveDebugOutput YES)
+endif ()
 
 # Regular expressions
 pkg_check_modules (PCRE libpcre)

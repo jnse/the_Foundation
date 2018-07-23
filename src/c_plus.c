@@ -42,7 +42,7 @@ void init_DatagramThreads(void);
 void init_Threads(void);
 
 static void deinit_CPlus_(void) {
-
+    // nothing to do
 }
 
 void init_CPlus(void) {
@@ -71,4 +71,12 @@ void init_CPlus(void) {
         printf("[c_Plus] locale: %s\n", setlc);
     }
     atexit(deinit_CPlus_);
+}
+
+void printMessage_CPlus(FILE *output, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    vfprintf(output, format, args);
+    va_end(args);
 }
