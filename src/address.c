@@ -100,7 +100,9 @@ iAddress *newBroadcast_Address(uint16_t port) {
     return d;
 }
 
-iAddress *newSockAddr_Address(const void *sockAddr, size_t sockAddrSize, enum iSocketType socketType) {
+iAddress *newSockAddr_Address(const void *     sockAddr,
+                              size_t           sockAddrSize,
+                              enum iSocketType socketType) {
     iAddress *d = iNew(Address);
     init_Address(d);
     d->socktype = (socketType == udp_SocketType ? SOCK_DGRAM : SOCK_STREAM);
