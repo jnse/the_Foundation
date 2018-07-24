@@ -54,9 +54,9 @@ void init_CPlus(void) {
            __STDC_VERSION__);
     const iTime now = now_Time();
     /* Random number generator. */ {
-        unsigned seed = nanoSeconds_Time(&now) ^ (integralSeconds_Time(&now) % 1000);
-        srand(seed);
-        printf("[c_Plus] random seed: %u\n", seed);
+        long seed = nanoSeconds_Time(&now) ^ (integralSeconds_Time(&now) % 1000);
+        srand((unsigned) seed);
+        printf("[c_Plus] random seed: %ld\n", seed);
     }
     /* Locale. */ {
         const char *lc = getenv("LC_CTYPE");

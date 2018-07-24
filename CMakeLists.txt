@@ -190,6 +190,9 @@ target_include_directories (cplus PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 cplus_set_compile_options (cplus)
+if (iPlatformLinux)
+    target_compile_definitions (cplus PRIVATE -D_GNU_SOURCE=1)
+endif ()
 
 if (CMAKE_COMPILER_IS_GNUCC)
     target_compile_options (cplus PRIVATE -fPIC)

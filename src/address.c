@@ -57,6 +57,10 @@ struct Impl_Address {
 
 iDefineAudienceGetter(Address, lookupFinished)
 
+#if defined (iPlatformLinux)
+#   define AI_V4MAPPED_CFG  AI_V4MAPPED
+#endif
+
 static iThreadResult runLookup_Address_(iThread *thd) {
     iAddress *d = userData_Thread(thd);
     const int hintFlags = AI_V4MAPPED_CFG | AI_ADDRCONFIG | (isEmpty_String(&d->hostName) ? AI_PASSIVE : 0);
