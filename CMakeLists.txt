@@ -211,7 +211,7 @@ endif ()
 
 # Installation.
 install (TARGETS cplus EXPORT CPlus DESTINATION lib)
-install (EXPORT CPlus DESTINATION lib/cmake/CPlus NAMESPACE CPlus:: FILE CPlus-config.cmake)
+install (EXPORT CPlus DESTINATION lib/cmake/CPlus NAMESPACE CPlus:: FILE CPlusConfig.cmake)
 install (DIRECTORY include/c_plus DESTINATION include
     FILES_MATCHING PATTERN "*.h"
 )
