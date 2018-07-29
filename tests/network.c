@@ -32,6 +32,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <c_plus/service.h>
 #include <c_plus/socket.h>
 #include <c_plus/thread.h>
+#if defined (iHaveCurl)
+#  include <c_plus/webrequest.h>
+#endif
 
 static void logConnected_(iAny *d, iSocket *sock) {
     printf("Socket %p: connected\n", sock);
@@ -115,8 +118,27 @@ int main(int argc, char *argv[]) {
         }
         iRelease(ifs);
     }
-    iCommandLine *cmdline = iClob(new_CommandLine(argc, argv));
     // Check the arguments.
+    iCommandLine *cmdline = iClob(new_CommandLine(argc, argv)); {
+#if defined (iHaveCurl)
+        iCommandLineArg *getUrl = iClob(checkArgumentValues_CommandLine(cmdline, "g", 1));
+        if (getUrl) {
+            iWebRequest *web = new_WebRequest();
+            setUrl_WebRequest(web, value_CommandLineArg(getUrl, 0));
+            printf("Getting URL \"%s\"...\n", cstr_String(value_CommandLineArg(getUrl, 0)));
+            iBool ok = get_WebRequest(web);
+            if (ok) {
+                puts("Success! The result is below:");
+                puts(constData_Block(result_WebRequest(web)));
+            }
+            else {
+                printf("Failure! CURL says: %s\n", cstr_String(errorMessage_WebRequest(web)));
+            }
+            iRelease(web);
+            return 0;
+        }
+#endif
+    }
     if (contains_CommandLine(cmdline, "s;server")) {
         iService *sv = iClob(new_Service(14666));
         iConnect(Service, sv, incomingAccepted, sv, communicate_);

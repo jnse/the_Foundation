@@ -27,16 +27,22 @@ if (CPLUS_ENABLE_DEBUG_OUTPUT)
     set (iHaveDebugOutput YES)
 endif ()
 
+# zlib
+find_package (ZLIB)
+if (ZLIB_FOUND)
+    set (iHaveZlib YES)
+endif ()
+
 # Regular expressions
 pkg_check_modules (PCRE libpcre)
 if (PCRE_FOUND)
     set (iHavePcre YES)
 endif ()
 
-# zlib
-find_package (ZLIB)
-if (ZLIB_FOUND)
-    set (iHaveZlib YES)
+# CURL
+find_package (CURL)
+if (CURL_FOUND)
+    set (iHaveCurl YES)
 endif ()
 
 # C11 threads
@@ -178,6 +184,10 @@ if (PCRE_FOUND)
     set (SOURCES ${SOURCES} src/regexp.c)
     set (HEADERS ${HEADERS} include/c_plus/regexp.h)
 endif ()
+if (CURL_FOUND)
+    set (SOURCES ${SOURCES} src/webrequest.c)
+    set (HEADERS ${HEADERS} include/c_plus/webrequest.h)
+endif ()
 configure_file (config.h.in config.h)
 
 add_library (cplus SHARED ${SOURCES} ${HEADERS})
@@ -207,6 +217,10 @@ endif ()
 if (PCRE_FOUND)
     target_include_directories (cplus PRIVATE ${PCRE_INCLUDE_DIRS})
     target_link_libraries      (cplus PRIVATE ${PCRE_LDFLAGS})
+endif ()
+if (CURL_FOUND)
+    target_include_directories (cplus PRIVATE ${CURL_INCLUDE_DIRS})
+    target_link_libraries      (cplus PRIVATE ${CURL_LIBRARIES})
 endif ()
 
 # Installation.
