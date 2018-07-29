@@ -33,6 +33,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iBeginPublic
 
 iDeclareType(WebRequest)
+iDeclareType(StringArray)
+
 iDeclareClass(WebRequest)
 
 iDeclareObjectConstruction(WebRequest)
@@ -45,8 +47,6 @@ void    setPostData_WebRequest  (iWebRequest *, const char *contentType, const i
 
 iBool   get_WebRequest          (iWebRequest *);
 iBool   post_WebRequest         (iWebRequest *);
-
-iDeclareType(StringArray)
 
 const iBlock *          result_WebRequest       (const iWebRequest *);
 const iStringArray *    headers_WebRequest      (const iWebRequest *);
