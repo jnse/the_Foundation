@@ -29,25 +29,34 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "c_plus/stringarray.h"
 #include <curl/curl.h>
 
+#define iWebRequestProgressMinSize 0x10000
+
 struct Impl_WebRequest {
     iObject object;
     CURL *curl;
     iBlock postData;
     iString postContentType;
     iBlock result;
+    size_t resultSize;
+    size_t lastNotifySize;
     iString errorMessage;
     iStringArray *headers;
+    iAudience *progress;
 };
+
+iDefineAudienceGetter(WebRequest, progress)
 
 static size_t headerCallback_WebRequest_(char *ptr, size_t size, size_t nmemb, void *userdata) {
     iWebRequest *d = (iWebRequest *) userdata;
-    iUnused(d);
     const size_t len = size * nmemb;
     iString *hdr = newCStrN_String(ptr, len);
     trim_String(hdr);
     if (!isEmpty_String(hdr)) {
-        printf("Header received: `%s`\n", cstr_String(hdr));
+        iDebug("[WebRequest] Header received: `%s`\n", cstr_String(hdr));
         pushBack_StringArray(d->headers, hdr);
+    }
+    if (startsWith_String(hdr, "Content-Length:")) {
+        d->resultSize = strtoul(cstr_String(hdr) + 15, NULL, 10);
     }
     delete_String(hdr);
     return len;
@@ -57,6 +66,10 @@ static size_t dataCallback_WebRequest_(char *ptr, size_t size, size_t nmemb, voi
     iWebRequest *d = (iWebRequest *) userdata;
     const size_t len = size * nmemb;
     appendData_Block(&d->result, ptr, len);
+    if (size_Block(&d->result) - d->lastNotifySize > iWebRequestProgressMinSize) {
+        d->lastNotifySize = size_Block(&d->result);
+        iNotifyAudienceArgs(d, progress, WebRequestProgress, d->lastNotifySize, d->resultSize);
+    }
     return len;
 }
 
@@ -67,6 +80,9 @@ void init_WebRequest(iWebRequest *d) {
     init_Block(&d->result, 0);
     init_String(&d->errorMessage);
     d->headers = new_StringArray();
+    d->progress = NULL;
+    curl_easy_setopt(d->curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(d->curl, CURLOPT_TIMEOUT, 10);
     curl_easy_setopt(d->curl, CURLOPT_HEADERFUNCTION, headerCallback_WebRequest_);
     curl_easy_setopt(d->curl, CURLOPT_HEADERDATA, d);
     curl_easy_setopt(d->curl, CURLOPT_WRITEFUNCTION, dataCallback_WebRequest_);
@@ -74,12 +90,13 @@ void init_WebRequest(iWebRequest *d) {
 }
 
 void deinit_WebRequest(iWebRequest *d) {
+    curl_easy_cleanup(d->curl);
+    delete_Audience(d->progress);
     iRelease(d->headers);
     deinit_String(&d->errorMessage);
     deinit_Block(&d->result);
     deinit_String(&d->postContentType);
     deinit_Block(&d->postData);
-    curl_easy_cleanup(d->curl);
 }
 
 iDefineClass(WebRequest)
@@ -108,6 +125,8 @@ void setPostData_WebRequest(iWebRequest *d, const char *contentType, const iBloc
 
 static iBool execute_WebRequest_(iWebRequest *d) {
     char errorMsg[CURL_ERROR_SIZE];
+    d->resultSize = 0;
+    d->lastNotifySize = 0;
     clear_String(&d->errorMessage);
     clear_Block(&d->result);
     clear_StringArray(d->headers);
@@ -115,6 +134,7 @@ static iBool execute_WebRequest_(iWebRequest *d) {
     const iBool ok = (curl_easy_perform(d->curl) == CURLE_OK);
     if (!ok) {
         setCStr_String(&d->errorMessage, errorMsg);
+        iWarning("[WebRequest] %s\n", errorMsg);
     }
     return ok;
 }
@@ -143,4 +163,20 @@ const iStringArray *headers_WebRequest(const iWebRequest *d) {
 
 const iString *errorMessage_WebRequest(const iWebRequest *d) {
     return &d->errorMessage;
+}
+
+iBool headerValue_WebRequest(const iWebRequest *d, const char *header, iString *value_out) {
+    iBool found = iFalse;
+    iConstForEach(StringArray, i, d->headers) {
+        const iString *j = *i.value;
+        if (startsWith_String(j, header)) {
+            found = iTrue;
+            if (value_out) {
+                setCStr_String(value_out, cstr_String(j) + strlen(header));
+                trimStart_String(value_out);
+            }
+            break;
+        }
+    }
+    return found;
 }

@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "object.h"
 #include "string.h"
+#include "audience.h"
 
 iBeginPublic
 
@@ -38,6 +39,9 @@ iDeclareType(StringArray)
 iDeclareClass(WebRequest)
 
 iDeclareObjectConstruction(WebRequest)
+
+iDeclareNotifyFuncArgs(WebRequest, Progress, size_t currentBytes, size_t totalBytes)
+iDeclareAudienceGetter(WebRequest, progress)
 
 void    clear_WebRequest        (iWebRequest *);
 
@@ -51,5 +55,14 @@ iBool   post_WebRequest         (iWebRequest *);
 const iBlock *          result_WebRequest       (const iWebRequest *);
 const iStringArray *    headers_WebRequest      (const iWebRequest *);
 const iString *         errorMessage_WebRequest (const iWebRequest *);
+
+/**
+ * Finds the value of an HTTP header from the result.
+ * @param header      Header to find, for example "Content-Type:".
+ * @param value_out   Value of the header is returned here. Must be an initialized iString
+ *                    or NULL for checking if the header exists.
+ * @return @c iTrue, if the header was found; otherwise @c iFalse.
+ */
+iBool   headerValue_WebRequest  (const iWebRequest *, const char *header, iString *value_out);
 
 iEndPublic

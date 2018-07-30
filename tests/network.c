@@ -37,23 +37,33 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #endif
 
 static void logConnected_(iAny *d, iSocket *sock) {
+    iUnused(d);
     printf("Socket %p: connected\n", sock);
 }
 
 static void logDisonnected_(iAny *d, iSocket *sock) {
+    iUnused(d);
     printf("Socket %p: disconnected\n", sock);
 }
 
 static void logWriteFinished_(iAny *d, iSocket *sock) {
+    iUnused(d);
     printf("Socket %p: write finished\n", sock);
 }
 
 static void logReadyRead_(iAny *d, iSocket *sock) {
+    iUnused(d);
     printf("Socket %p: data ready for reading (%zu bytes)\n", sock, receivedBytes_Socket(sock));
 }
 
 static void logError_(iAny *d, iSocket *sock, int code, const char *msg) {
+    iUnused(d);
     printf("Socket %p: error %i: %s\n", sock, code, msg);
+}
+
+static void logWebRequestProgress_(iAny *d, iWebRequest *web, size_t currentSize, size_t totalSize) {
+    iUnused(d);
+    printf("WebRequest %p: downloaded %zu/%zu bytes\n", web, currentSize, totalSize);
 }
 
 static void observeSocket_(iSocket *sock) {
@@ -96,6 +106,7 @@ static iThreadResult messageReceiver_(iThread *thread) {
 }
 
 static void communicate_(iAny *d, iService *sv, iSocket *sock) {
+    iUnused(d, sv);
     iString *addr = toString_Address(address_Socket(sock));
     printf("incoming connecting from %s\n", cstr_String(addr));
     delete_String(addr);
@@ -123,18 +134,28 @@ int main(int argc, char *argv[]) {
 #if defined (iHaveCurl)
         iCommandLineArg *getUrl = iClob(checkArgumentValues_CommandLine(cmdline, "g", 1));
         if (getUrl) {
-            iWebRequest *web = new_WebRequest();
+            iWebRequest *web = iClob(new_WebRequest());
             setUrl_WebRequest(web, value_CommandLineArg(getUrl, 0));
+            iConnect(WebRequest, web, progress, web, logWebRequestProgress_);
             printf("Getting URL \"%s\"...\n", cstr_String(value_CommandLineArg(getUrl, 0)));
             iBool ok = get_WebRequest(web);
             if (ok) {
-                puts("Success! The result is below:");
-                puts(constData_Block(result_WebRequest(web)));
+                printf("Success! Received %zu bytes\n", size_Block(result_WebRequest(web)));
+                iString *ctype = collect_String(new_String());
+                iString *clen = collect_String(new_String());
+                headerValue_WebRequest(web, "Content-Type:", ctype);
+                headerValue_WebRequest(web, "Content-Length:", clen);
+                printf("Content type: %s\n", cstr_String(ctype));
+                if (!isEmpty_String(clen)) {
+                    printf("Content length according to header: %s bytes\n", cstr_String(clen));
+                }
+                else {
+                    puts("Content length omitted");
+                }
             }
             else {
                 printf("Failure! CURL says: %s\n", cstr_String(errorMessage_WebRequest(web)));
             }
-            iRelease(web);
             return 0;
         }
 #endif
