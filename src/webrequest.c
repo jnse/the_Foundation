@@ -44,8 +44,6 @@ struct Impl_WebRequest {
     iAudience *progress;
 };
 
-iDefineAudienceGetter(WebRequest, progress)
-
 static size_t headerCallback_WebRequest_(char *ptr, size_t size, size_t nmemb, void *userdata) {
     iWebRequest *d = (iWebRequest *) userdata;
     const size_t len = size * nmemb;
@@ -98,9 +96,6 @@ void deinit_WebRequest(iWebRequest *d) {
     deinit_String(&d->postContentType);
     deinit_Block(&d->postData);
 }
-
-iDefineClass(WebRequest)
-iDefineObjectConstruction(WebRequest)
 
 void clear_WebRequest(iWebRequest *d) {
     curl_easy_reset(d->curl);
@@ -180,3 +175,7 @@ iBool headerValue_WebRequest(const iWebRequest *d, const char *header, iString *
     }
     return found;
 }
+
+iDefineClass(WebRequest)
+iDefineObjectConstruction(WebRequest)
+iDefineAudienceGetter(WebRequest, progress)
