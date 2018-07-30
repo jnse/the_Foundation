@@ -78,8 +78,15 @@ iPublic void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[
      (void)(_5), (void)(_6), (void)(_7), (void)(_8), (void)(_9))
 #define iUnused(...)            iUnusedMany_(__VA_ARGS__, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 #define iZap(var)               memset(&(var), 0, sizeof(var));
-#define iConstCast(type, ptr)   ((type) (intptr_t) (ptr))
 #define iMalloc(typeName)       malloc(sizeof(i##typeName))
+
+#if !defined (__cplusplus)
+#   define iConstCast(type, ptr)    ((type) (intptr_t) (ptr))
+#   define iFunctionCast(type, ptr) ((type) (ptr))
+#else
+#   define iConstCast(type, ptr)    const_cast<type>(ptr)
+#   define iFunctionCast(type, ptr) reinterpret_cast<type>(ptr)
+#endif
 
 #define iDeclareType(typeName)  typedef struct Impl_##typeName i##typeName;
 

@@ -61,7 +61,7 @@ iBeginPublic
     if ((d)->audienceName) { \
         iGuardMutex(&(d)->audienceName->mutex, \
             iConstForEach(Audience, i, (d)->audienceName) { \
-                ((iNotify##notifyName) i.value->func)(i.value->object, d); \
+                iFunctionCast(iNotify##notifyName, i.value->func)(i.value->object, d); \
             } \
         ); \
     } \
@@ -71,17 +71,17 @@ iBeginPublic
     if ((d)->audienceName) { \
         iGuardMutex(&(d)->audienceName->mutex, \
             iConstForEach(Audience, i, (d)->audienceName) { \
-                ((iNotify##notifyName) i.value->func)(i.value->object, d, __VA_ARGS__); \
+                iFunctionCast(iNotify##notifyName, i.value->func)(i.value->object, d, __VA_ARGS__); \
             } \
         ); \
     } \
 }
 
 #define iConnect(typeName, src, audienceName, dest, function) \
-    insert_Audience(audienceName##_##typeName(src), (dest), (iObserverFunc) (function))
+    insert_Audience(audienceName##_##typeName(src), (dest), iFunctionCast(iObserverFunc, function))
 
 #define iDisconnect(typeName, src, audienceName, dest, function) \
-    remove_Audience(audienceName##_##typeName(src), (dest), (iObserverFunc) (function))
+    remove_Audience(audienceName##_##typeName(src), (dest), iFunctionCast(iObserverFunc, function))
 
 #define iDisconnectObject(typeName, src, audienceName, dest) \
     removeObject_Audience(audienceName##_##typeName(src), (dest))
