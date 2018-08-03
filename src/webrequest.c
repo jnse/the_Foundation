@@ -71,6 +71,15 @@ static size_t dataCallback_WebRequest_(char *ptr, size_t size, size_t nmemb, voi
     return len;
 }
 
+void configure_WebRequest_(iWebRequest *d) {
+    curl_easy_setopt(d->curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(d->curl, CURLOPT_TIMEOUT, 10);
+    curl_easy_setopt(d->curl, CURLOPT_HEADERFUNCTION, headerCallback_WebRequest_);
+    curl_easy_setopt(d->curl, CURLOPT_HEADERDATA, d);
+    curl_easy_setopt(d->curl, CURLOPT_WRITEFUNCTION, dataCallback_WebRequest_);
+    curl_easy_setopt(d->curl, CURLOPT_WRITEDATA, d);
+}
+
 void init_WebRequest(iWebRequest *d) {
     d->curl = curl_easy_init();
     init_Block(&d->postData, 0);
@@ -79,12 +88,7 @@ void init_WebRequest(iWebRequest *d) {
     init_String(&d->errorMessage);
     d->headers = new_StringArray();
     d->progress = NULL;
-    curl_easy_setopt(d->curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(d->curl, CURLOPT_TIMEOUT, 10);
-    curl_easy_setopt(d->curl, CURLOPT_HEADERFUNCTION, headerCallback_WebRequest_);
-    curl_easy_setopt(d->curl, CURLOPT_HEADERDATA, d);
-    curl_easy_setopt(d->curl, CURLOPT_WRITEFUNCTION, dataCallback_WebRequest_);
-    curl_easy_setopt(d->curl, CURLOPT_WRITEDATA, d);
+    configure_WebRequest_(d);
 }
 
 void deinit_WebRequest(iWebRequest *d) {
@@ -99,6 +103,7 @@ void deinit_WebRequest(iWebRequest *d) {
 
 void clear_WebRequest(iWebRequest *d) {
     curl_easy_reset(d->curl);
+    configure_WebRequest_(d);
     clear_Block(&d->postData);
     clear_Block(&d->result);
     clear_String(&d->errorMessage);
