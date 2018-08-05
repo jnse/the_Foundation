@@ -97,6 +97,7 @@ void init_WebRequest(iWebRequest *d) {
     init_Block(&d->postData, 0);
     init_String(&d->postContentType);
     d->result = new_Buffer();
+    openEmpty_Buffer(d->result);
     init_String(&d->errorMessage);
     d->headers = new_StringArray();
     d->progress = NULL;
