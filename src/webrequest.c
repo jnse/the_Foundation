@@ -27,21 +27,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "c_plus/webrequest.h"
 #include "c_plus/stringarray.h"
+#include "c_plus/buffer.h"
+#include "c_plus/mutex.h"
+
 #include <curl/curl.h>
 
 #define iWebRequestProgressMinSize 0x10000
 
 struct Impl_WebRequest {
     iObject object;
+    iMutex mutex;
     CURL *curl;
     iBlock postData;
     iString postContentType;
-    iBlock result;
-    size_t resultSize;
+    iBuffer *result;
+    size_t receivedSize;
+    size_t contentLength;
     size_t lastNotifySize;
     iString errorMessage;
     iStringArray *headers;
+    // Audiences:
     iAudience *progress;
+    iAudience *readyRead;
 };
 
 static size_t headerCallback_WebRequest_(char *ptr, size_t size, size_t nmemb, void *userdata) {
@@ -54,7 +61,7 @@ static size_t headerCallback_WebRequest_(char *ptr, size_t size, size_t nmemb, v
         pushBack_StringArray(d->headers, hdr);
     }
     if (startsWith_String(hdr, "Content-Length:")) {
-        d->resultSize = strtoul(cstr_String(hdr) + 15, NULL, 10);
+        d->contentLength = strtoul(cstr_String(hdr) + 15, NULL, 10);
     }
     delete_String(hdr);
     return len;
@@ -63,11 +70,15 @@ static size_t headerCallback_WebRequest_(char *ptr, size_t size, size_t nmemb, v
 static size_t dataCallback_WebRequest_(char *ptr, size_t size, size_t nmemb, void *userdata) {
     iWebRequest *d = (iWebRequest *) userdata;
     const size_t len = size * nmemb;
-    appendData_Block(&d->result, ptr, len);
-    if (size_Block(&d->result) - d->lastNotifySize > iWebRequestProgressMinSize) {
-        d->lastNotifySize = size_Block(&d->result);
-        iNotifyAudienceArgs(d, progress, WebRequestProgress, d->lastNotifySize, d->resultSize);
+    iGuardMutex(&d->mutex, {
+        writeData_Buffer(d->result, ptr, len);
+        d->receivedSize += len;
+    });
+    if (d->receivedSize - d->lastNotifySize > iWebRequestProgressMinSize) {
+        d->lastNotifySize = d->receivedSize;
+        iNotifyAudienceArgs(d, progress, WebRequestProgress, d->receivedSize, d->contentLength);
     }
+    iNotifyAudience(d, readyRead, WebRequestReadyRead);
     return len;
 }
 
@@ -81,13 +92,15 @@ void configure_WebRequest_(iWebRequest *d) {
 }
 
 void init_WebRequest(iWebRequest *d) {
+    init_Mutex(&d->mutex);
     d->curl = curl_easy_init();
     init_Block(&d->postData, 0);
     init_String(&d->postContentType);
-    init_Block(&d->result, 0);
+    d->result = new_Buffer();
     init_String(&d->errorMessage);
     d->headers = new_StringArray();
     d->progress = NULL;
+    d->readyRead = NULL;
     configure_WebRequest_(d);
 }
 
@@ -96,16 +109,17 @@ void deinit_WebRequest(iWebRequest *d) {
     delete_Audience(d->progress);
     iRelease(d->headers);
     deinit_String(&d->errorMessage);
-    deinit_Block(&d->result);
+    iRelease(d->result);
     deinit_String(&d->postContentType);
     deinit_Block(&d->postData);
+    deinit_Mutex(&d->mutex);
 }
 
 void clear_WebRequest(iWebRequest *d) {
     curl_easy_reset(d->curl);
     configure_WebRequest_(d);
     clear_Block(&d->postData);
-    clear_Block(&d->result);
+    clear_Buffer(d->result);
     clear_String(&d->errorMessage);
     clear_StringArray(d->headers);
 }
@@ -125,10 +139,11 @@ void setPostData_WebRequest(iWebRequest *d, const char *contentType, const iBloc
 
 static iBool execute_WebRequest_(iWebRequest *d) {
     char errorMsg[CURL_ERROR_SIZE];
-    d->resultSize = 0;
+    d->contentLength = 0;
+    d->receivedSize = 0;
     d->lastNotifySize = 0;
     clear_String(&d->errorMessage);
-    clear_Block(&d->result);
+    clear_Buffer(d->result);
     clear_StringArray(d->headers);
     curl_easy_setopt(d->curl, CURLOPT_ERRORBUFFER, errorMsg);
     const iBool ok = (curl_easy_perform(d->curl) == CURLE_OK);
@@ -154,7 +169,11 @@ iBool post_WebRequest(iWebRequest *d) {
 }
 
 const iBlock *result_WebRequest(const iWebRequest *d) {
-    return &d->result;
+    return data_Buffer(d->result);
+}
+
+size_t contentLength_WebRequest(const iWebRequest *d) {
+    return d->contentLength;
 }
 
 const iStringArray *headers_WebRequest(const iWebRequest *d) {
@@ -181,6 +200,13 @@ iBool headerValue_WebRequest(const iWebRequest *d, const char *header, iString *
     return found;
 }
 
+iBlock *read_WebRequest(iWebRequest *d) {
+    iBlock *bytes;
+    iGuardMutex(&d->mutex, bytes = consumeAll_Buffer(d->result));
+    return bytes;
+}
+
 iDefineClass(WebRequest)
 iDefineObjectConstruction(WebRequest)
 iDefineAudienceGetter(WebRequest, progress)
+iDefineAudienceGetter(WebRequest, readyRead)

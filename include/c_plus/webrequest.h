@@ -41,7 +41,9 @@ iDeclareClass(WebRequest)
 iDeclareObjectConstruction(WebRequest)
 
 iDeclareNotifyFuncArgs(WebRequest, Progress, size_t currentBytes, size_t totalBytes)
+iDeclareNotifyFunc    (WebRequest, ReadyRead)
 iDeclareAudienceGetter(WebRequest, progress)
+iDeclareAudienceGetter(WebRequest, readyRead)
 
 void    clear_WebRequest        (iWebRequest *);
 
@@ -52,7 +54,10 @@ void    setPostData_WebRequest  (iWebRequest *, const char *contentType, const i
 iBool   get_WebRequest          (iWebRequest *);
 iBool   post_WebRequest         (iWebRequest *);
 
+iBlock *read_WebRequest         (iWebRequest *);
+
 const iBlock *          result_WebRequest       (const iWebRequest *);
+size_t                  contentLength_WebRequest(const iWebRequest *);
 const iStringArray *    headers_WebRequest      (const iWebRequest *);
 const iString *         errorMessage_WebRequest (const iWebRequest *);
 
