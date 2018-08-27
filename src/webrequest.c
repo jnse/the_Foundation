@@ -1,4 +1,4 @@
-/** @file c_plus/webrequest.c  HTTP(S)/FTP requests (using CURL).
+/** @file the_Foundation/webrequest.c  HTTP(S)/FTP requests (using CURL).
 
 @authors Copyright (c) 2018 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -25,10 +25,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/webrequest.h"
-#include "c_plus/stringarray.h"
-#include "c_plus/buffer.h"
-#include "c_plus/mutex.h"
+#include "the_Foundation/webrequest.h"
+#include "the_Foundation/stringarray.h"
+#include "the_Foundation/buffer.h"
+#include "the_Foundation/mutex.h"
 
 #include <curl/curl.h>
 

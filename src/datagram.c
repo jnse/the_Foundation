@@ -1,4 +1,4 @@
-/** @file c_plus/datagram.c  UDP socket.
+/** @file the_Foundation/datagram.c  UDP socket.
 
 @authors Copyright (c) 2018 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -25,13 +25,13 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/datagram.h"
-#include "c_plus/mutex.h"
-#include "c_plus/address.h"
-#include "c_plus/queue.h"
-#include "c_plus/pipe.h"
-#include "c_plus/thread.h"
-#include "c_plus/ptrset.h"
+#include "the_Foundation/datagram.h"
+#include "the_Foundation/mutex.h"
+#include "the_Foundation/address.h"
+#include "the_Foundation/queue.h"
+#include "the_Foundation/pipe.h"
+#include "the_Foundation/thread.h"
+#include "the_Foundation/ptrset.h"
 
 #include <sys/socket.h>
 #include <unistd.h>
@@ -240,7 +240,7 @@ static void deleteSharedDatagramThread_(void) {
     }
 }
 
-void init_DatagramThreads(void) { // called from init_CPlus)
+void init_DatagramThreads(void) { // called from init_Foundation)
     iAssert(datagramIO_ == NULL);
     atexit(deleteSharedDatagramThread_);
     datagramIO_ = new_DatagramThread();

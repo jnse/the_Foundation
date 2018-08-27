@@ -25,8 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/stringhash.h"
-#include "c_plus/garbage.h"
+#include "the_Foundation/stringhash.h"
+#include "the_Foundation/garbage.h"
 
 #include <stdlib.h>
 #include <stdarg.h>

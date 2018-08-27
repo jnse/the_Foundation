@@ -24,14 +24,14 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include <c_plus/file.h>
-#include <c_plus/math.h>
-#include <c_plus/stringarray.h>
-#include <c_plus/stringlist.h>
+#include <the_Foundation/file.h>
+#include <the_Foundation/math.h>
+#include <the_Foundation/stringarray.h>
+#include <the_Foundation/stringlist.h>
 
 int main(int argc, char *argv[]) {
     iUnused(argc, argv);
-    init_CPlus();
+    init_Foundation();
     /* Formatting. */ {
         iString *str = new_String();
         format_String(str, "Hello %s!", "world");
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
         iRelease(sar);
     }
     /* Test a list of strings. */ {
-        iFile *file = newCStr_File("/Users/jaakko/src/cplus/CMakeLists.txt");
+        iFile *file = newCStr_File("/Users/jaakko/src/the_Foundation/CMakeLists.txt");
         printf("Contents of %s:\n", cstr_String(path_File(file)));
         if (open_File(file, text_FileMode)) {
             iStringList *list = readLines_File(file);

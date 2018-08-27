@@ -25,8 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/defs.h"
-#include "c_plus/thread.h"
+#include "the_Foundation/defs.h"
+#include "the_Foundation/thread.h"
 
 #include <sys/types.h>
 #include <sys/sysctl.h>

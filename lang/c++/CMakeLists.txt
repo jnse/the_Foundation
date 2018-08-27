@@ -1,27 +1,28 @@
-# C++ wrapper library for c_Plus
+# C++ wrapper library for the_Foundation
 cmake_minimum_required (VERSION 3.1)
-project (c_Plus_C++Lib VERSION 1.0.0 LANGUAGES CXX)
+project (c++_Foundation VERSION 1.0.0 LANGUAGES CXX)
 
 set (SOURCES
     src/array.cc
 )
 
 set (HEADERS
-    include/c_plus/array
+    include/t_fdn/array
 )
 
-add_library (cpluslib SHARED ${SOURCES} ${HEADERS})
+set (TARGETNAME cpp_Foundation)
+add_library (${TARGETNAME} SHARED ${SOURCES} ${HEADERS})
 
-target_include_directories (cpluslib PUBLIC include)
-target_link_libraries (cpluslib PRIVATE cplus)
-set_property (TARGET cpluslib PROPERTY CXX_STANDARD 11)
+target_include_directories (${TARGETNAME} PUBLIC include)
+target_link_libraries (${TARGETNAME} PRIVATE cplus)
+set_property (TARGET ${TARGETNAME} PROPERTY CXX_STANDARD 11)
 
 if (CMAKE_COMPILER_IS_GNUCC)
-    target_compile_options (cpluslib PRIVATE -fPIC)
+    target_compile_options (${TARGETNAME} PRIVATE -fPIC)
 endif ()
 
 #----------------------------------------------------------------------------------------
 
-add_executable (c+lib ../../tests/c++.cc)
-set_property (TARGET c+lib PROPERTY CXX_STANDARD 11)
-target_link_libraries (c+lib PRIVATE cpluslib)
+add_executable (cpptest_Foundation ../../tests/c++.cc)
+set_property (TARGET cpptest_Foundation PROPERTY CXX_STANDARD 11)
+target_link_libraries (cpptest_Foundation PRIVATE ${TARGETNAME})

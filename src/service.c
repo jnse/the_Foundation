@@ -1,4 +1,4 @@
-/** @file c_plus/service.c  TCP server socket.
+/** @file the_Foundation/service.c  TCP server socket.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -25,11 +25,11 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/service.h"
-#include "c_plus/socket.h"
-#include "c_plus/string.h"
-#include "c_plus/thread.h"
-#include "c_plus/pipe.h"
+#include "the_Foundation/service.h"
+#include "the_Foundation/socket.h"
+#include "the_Foundation/string.h"
+#include "the_Foundation/thread.h"
+#include "the_Foundation/pipe.h"
 
 #include <netdb.h>
 #include <unistd.h>

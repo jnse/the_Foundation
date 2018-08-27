@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file c_plus/config.h  Library build configuration.
+/** @file the_Foundation/config.h  Library build configuration.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -27,7 +27,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#define iCPlusLibraryVersion { ${c_Plus_VERSION_MAJOR}, ${c_Plus_VERSION_MINOR}, ${c_Plus_VERSION_PATCH} }
+#define iFoundationLibraryVersion { ${the_Foundation_VERSION_MAJOR}, ${the_Foundation_VERSION_MINOR}, ${the_Foundation_VERSION_PATCH} }
 
 #cmakedefine iHaveDebugOutput
 #cmakedefine iHaveSSE4_1
@@ -48,17 +48,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #endif
 
 /*
- * The iCPlusAPI macro is used for declaring exported symbols. It must be
+ * The iFoundationAPI macro is used for declaring exported symbols. It must be
  * applied in all exported classes and functions.
  */
 #if defined(_WIN32) && defined(_MSC_VER)
 #   if defined (iIsLibraryBuild)
-#       define iCPlusAPI __declspec(dllexport)
+#       define iFoundationAPI __declspec(dllexport)
 #   else
-#       define iCPlusAPI __declspec(dllimport)
+#       define iFoundationAPI __declspec(dllimport)
 #   endif
 #   define iNoReturn __declspec(noreturn)
 #else
-#   define iCPlusAPI
+#   define iFoundationAPI
 #   define iNoReturn __attribute__((__noreturn__))
 #endif

@@ -25,11 +25,11 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/socket.h"
-#include "c_plus/buffer.h"
-#include "c_plus/mutex.h"
-#include "c_plus/pipe.h"
-#include "c_plus/thread.h"
+#include "the_Foundation/socket.h"
+#include "the_Foundation/buffer.h"
+#include "the_Foundation/mutex.h"
+#include "the_Foundation/pipe.h"
+#include "the_Foundation/thread.h"
 
 #include <unistd.h>
 #include <sys/socket.h>

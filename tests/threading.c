@@ -24,9 +24,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include <c_plus/future.h>
-#include <c_plus/threadpool.h>
-#include <c_plus/math.h>
+#include <the_Foundation/future.h>
+#include <the_Foundation/threadpool.h>
+#include <the_Foundation/math.h>
 
 static atomic_int thrCounter;
 
@@ -43,7 +43,7 @@ static iThreadResult run_Worker_(iThread *d) {
 
 int main(int argc, char *argv[]) {
     iUnused(argc, argv);
-    init_CPlus();
+    init_Foundation();
     /* Run a few threads in a pool. */ {
         iThreadPool *pool = new_ThreadPool();
         iFuture *future = new_Future();

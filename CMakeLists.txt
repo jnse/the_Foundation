@@ -1,11 +1,11 @@
 cmake_minimum_required (VERSION 3.1)
-project (c_Plus VERSION 1.0.0 LANGUAGES C)
+project (the_Foundation VERSION 1.0.0 LANGUAGES C)
 include (CheckIncludeFile)
 include (CheckCSourceCompiles)
 include (TestBigEndian)
 find_package (PkgConfig)
 
-macro (cplus_set_compile_options target)
+macro (tfdn_set_compile_options target)
     set_property (TARGET ${target} PROPERTY C_STANDARD 11)
     target_compile_options (${target} PRIVATE -Wall -Wpedantic -Werror)
     if (CMAKE_COMPILER_IS_GNUCC)
@@ -20,10 +20,10 @@ endmacro ()
 
 #----------------------------------------------------------------------------------------
 
-option (CPLUS_ENABLE_SSE41 "Enable SSE 4.1 instructions" ON)
-option (CPLUS_ENABLE_DEBUG_OUTPUT "Enable internal debug output to stdout/stderr" OFF)
+option (TFDN_ENABLE_SSE41 "Enable SSE 4.1 instructions" ON)
+option (TFDN_ENABLE_DEBUG_OUTPUT "Enable internal debug output to stdout/stderr" OFF)
 
-if (CPLUS_ENABLE_DEBUG_OUTPUT)
+if (TFDN_ENABLE_DEBUG_OUTPUT)
     set (iHaveDebugOutput YES)
 endif ()
 
@@ -57,7 +57,7 @@ if (NOT iHaveC11Threads)
 endif ()
 
 # SSE 4.1 instruction set
-if (CPLUS_ENABLE_SSE41)
+if (TFDN_ENABLE_SSE41)
     check_include_file (smmintrin.h iHaveSSE4_1)
 else ()
     set (iHaveSSE4_1 NO)
@@ -73,54 +73,54 @@ test_big_endian (iHaveBigEndian)
 #----------------------------------------------------------------------------------------
 
 set (HEADERS
-    include/c_plus/address.h
-    include/c_plus/array.h
-    include/c_plus/atomic.h
-    include/c_plus/audience.h
-    include/c_plus/block.h
-    include/c_plus/blockhash.h
-    include/c_plus/buffer.h
-    include/c_plus/c11threads.h
-    include/c_plus/class.h
-    include/c_plus/commandline.h
-    include/c_plus/datagram.h
-    include/c_plus/defs.h
-    include/c_plus/file.h
-    include/c_plus/fileinfo.h
-    include/c_plus/future.h
-    include/c_plus/garbage.h
-    include/c_plus/hash.h
-    include/c_plus/list.h
-    include/c_plus/map.h
-    include/c_plus/math.h
-    include/c_plus/math_${mathSpec}.h
-    include/c_plus/mutex.h
-    include/c_plus/object.h
-    include/c_plus/objectlist.h
-    include/c_plus/path.h
-    include/c_plus/pipe.h
-    include/c_plus/process.h
-    include/c_plus/ptrarray.h
-    include/c_plus/ptrset.h
-    include/c_plus/queue.h
-    include/c_plus/range.h
-    include/c_plus/service.h
-    include/c_plus/socket.h
-    include/c_plus/sortedarray.h
-    include/c_plus/stdthreads.h
-    include/c_plus/stream.h
-    include/c_plus/string.h
-    include/c_plus/stringarray.h
-    include/c_plus/stringhash.h
-    include/c_plus/stringlist.h
-    include/c_plus/thread.h
-    include/c_plus/threadpool.h
-    include/c_plus/time.h
-    include/c_plus/treenode.h
-    include/c_plus/version.h
+    include/the_Foundation/address.h
+    include/the_Foundation/array.h
+    include/the_Foundation/atomic.h
+    include/the_Foundation/audience.h
+    include/the_Foundation/block.h
+    include/the_Foundation/blockhash.h
+    include/the_Foundation/buffer.h
+    include/the_Foundation/c11threads.h
+    include/the_Foundation/class.h
+    include/the_Foundation/commandline.h
+    include/the_Foundation/datagram.h
+    include/the_Foundation/defs.h
+    include/the_Foundation/file.h
+    include/the_Foundation/fileinfo.h
+    include/the_Foundation/future.h
+    include/the_Foundation/garbage.h
+    include/the_Foundation/hash.h
+    include/the_Foundation/list.h
+    include/the_Foundation/map.h
+    include/the_Foundation/math.h
+    include/the_Foundation/math_${mathSpec}.h
+    include/the_Foundation/mutex.h
+    include/the_Foundation/object.h
+    include/the_Foundation/objectlist.h
+    include/the_Foundation/path.h
+    include/the_Foundation/pipe.h
+    include/the_Foundation/process.h
+    include/the_Foundation/ptrarray.h
+    include/the_Foundation/ptrset.h
+    include/the_Foundation/queue.h
+    include/the_Foundation/range.h
+    include/the_Foundation/service.h
+    include/the_Foundation/socket.h
+    include/the_Foundation/sortedarray.h
+    include/the_Foundation/stdthreads.h
+    include/the_Foundation/stream.h
+    include/the_Foundation/string.h
+    include/the_Foundation/stringarray.h
+    include/the_Foundation/stringhash.h
+    include/the_Foundation/stringlist.h
+    include/the_Foundation/thread.h
+    include/the_Foundation/threadpool.h
+    include/the_Foundation/time.h
+    include/the_Foundation/treenode.h
+    include/the_Foundation/version.h
 )
 set (SOURCES
-    src/c_plus.c
+    src/the_foundation.c
     src/address.c
     src/audience.c
     src/array.c
@@ -182,85 +182,87 @@ else ()
 endif ()
 if (PCRE_FOUND)
     set (SOURCES ${SOURCES} src/regexp.c)
-    set (HEADERS ${HEADERS} include/c_plus/regexp.h)
+    set (HEADERS ${HEADERS} include/the_Foundation/regexp.h)
 endif ()
 if (CURL_FOUND)
     set (SOURCES ${SOURCES} src/webrequest.c)
-    set (HEADERS ${HEADERS} include/c_plus/webrequest.h)
+    set (HEADERS ${HEADERS} include/the_Foundation/webrequest.h)
 endif ()
 configure_file (config.h.in config.h)
 
-add_library (cplus SHARED ${SOURCES} ${HEADERS})
-set_property (TARGET cplus PROPERTY OUTPUT_NAME_DEBUG cplusd)
+set (TARGETNAME the_Foundation)
+add_library (${TARGETNAME} SHARED ${SOURCES} ${HEADERS})
+set_property (TARGET ${TARGETNAME} PROPERTY OUTPUT_NAME _Foundation)
+set_property (TARGET ${TARGETNAME} PROPERTY OUTPUT_NAME_DEBUG _Foundationd)
 
-target_compile_definitions (cplus PRIVATE iIsLibraryBuild)
-target_include_directories (cplus PUBLIC
+target_compile_definitions (${TARGETNAME} PRIVATE iIsLibraryBuild)
+target_include_directories (${TARGETNAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<INSTALL_INTERFACE:include>
 )
-cplus_set_compile_options (cplus)
+tfdn_set_compile_options (${TARGETNAME})
 if (iPlatformLinux)
-    target_compile_definitions (cplus PRIVATE -D_GNU_SOURCE=1)
+    target_compile_definitions (${TARGETNAME} PRIVATE -D_GNU_SOURCE=1)
 endif ()
 
 if (CMAKE_COMPILER_IS_GNUCC)
-    target_compile_options (cplus PRIVATE -fPIC)
+    target_compile_options (${TARGETNAME} PRIVATE -fPIC)
 endif ()
 
 # Dependencies.
-target_link_libraries (cplus PRIVATE m pthread)
+target_link_libraries (${TARGETNAME} PRIVATE m pthread)
 if (ZLIB_FOUND)
-    target_include_directories (cplus PRIVATE ${ZLIB_INCLUDE_DIRS})
-    target_link_libraries      (cplus PRIVATE ${ZLIB_LIBRARIES})
+    target_include_directories (${TARGETNAME} PRIVATE ${ZLIB_INCLUDE_DIRS})
+    target_link_libraries      (${TARGETNAME} PRIVATE ${ZLIB_LIBRARIES})
 endif ()
 if (PCRE_FOUND)
-    target_include_directories (cplus PRIVATE ${PCRE_INCLUDE_DIRS})
-    target_link_libraries      (cplus PRIVATE ${PCRE_LDFLAGS})
+    target_include_directories (${TARGETNAME} PRIVATE ${PCRE_INCLUDE_DIRS})
+    target_link_libraries      (${TARGETNAME} PRIVATE ${PCRE_LDFLAGS})
 endif ()
 if (CURL_FOUND)
-    target_include_directories (cplus PRIVATE ${CURL_INCLUDE_DIRS})
-    target_link_libraries      (cplus PRIVATE ${CURL_LIBRARIES})
+    target_include_directories (${TARGETNAME} PRIVATE ${CURL_INCLUDE_DIRS})
+    target_link_libraries      (${TARGETNAME} PRIVATE ${CURL_LIBRARIES})
 endif ()
 
 # Installation.
-install (TARGETS cplus EXPORT CPlus DESTINATION lib)
-install (EXPORT CPlus DESTINATION lib/cmake/CPlus NAMESPACE CPlus:: FILE CPlusConfig.cmake)
-install (DIRECTORY include/c_plus DESTINATION include
+install (TARGETS ${TARGETNAME} EXPORT ${TARGETNAME} DESTINATION lib)
+install (EXPORT ${TARGETNAME} DESTINATION lib/cmake/${TARGETNAME} NAMESPACE the_Foundation:: FILE ${TARGETNAME}Config.cmake)
+install (DIRECTORY include/the_Foundation DESTINATION include
     FILES_MATCHING PATTERN "*.h"
 )
-install (FILES ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION include/c_plus)
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION include/the_Foundation)
 
 #----------------------------------------------------------------------------------------
 
 # Generate prototypes based on headers.
-#function (cplus_generate_prototypes headerPath)
+#function (tfdn_generate_prototypes headerPath)
 #    get_filename_component (name ${headerPath} NAME_WE)
-#    add_custom_target (cplus_proto_${name}
+#    add_custom_target (tfdn_proto_${name}
 #        ${CMAKE_CURRENT_LIST_DIR}/prototypes.py ${headerPath}
 #        DEPENDS ${headerPath}
 #        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 #        COMMENT "Generating prototypes: ${name}")
-#    add_dependencies (cplus cplus_proto_${name})
+#    add_dependencies (${TARGETNAME} tfdn_proto_${name})
 #endfunction ()
 
 #foreach (header ${HEADERS})
-#    cplus_generate_prototypes (${header})
+#    tfdn_generate_prototypes (${header})
 #endforeach ()
 
 #add_subdirectory (lang/c++)
 
 #----------------------------------------------------------------------------------------
 
-macro (cplus_add_test target sources)
+macro (tfdn_add_test target sources)
     add_executable (${target} ${sources})
-    target_link_libraries (${target} PRIVATE cplus m)
-    cplus_set_compile_options (${target})
+    target_link_libraries (${target} PRIVATE ${TARGETNAME} m)
+    tfdn_set_compile_options (${target})
 endmacro ()
 
-cplus_add_test (c+test      tests/main.c)
-cplus_add_test (c+strings   tests/strings.c)
-cplus_add_test (c+threading tests/threading.c)
-cplus_add_test (c+math      tests/mathops.c)
-cplus_add_test (c+network   tests/network.c)
-cplus_add_test (c+udptest   tests/udptest.c)
+tfdn_add_test (test_Foundation      tests/main.c)
+tfdn_add_test (strings_Foundation   tests/strings.c)
+tfdn_add_test (threading_Foundation tests/threading.c)
+tfdn_add_test (math_Foundation      tests/mathops.c)
+tfdn_add_test (network_Foundation   tests/network.c)
+tfdn_add_test (udptest_Foundation   tests/udptest.c)

@@ -25,9 +25,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/thread.h"
-#include "c_plus/blockhash.h"
-#include "c_plus/mutex.h"
+#include "the_Foundation/thread.h"
+#include "the_Foundation/blockhash.h"
+#include "the_Foundation/mutex.h"
 
 iDefinePlainKeyBlockHash(ThreadHash, ThreadId, Thread)
 

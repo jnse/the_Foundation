@@ -25,8 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/buffer.h"
-#include "c_plus/string.h"
+#include "the_Foundation/buffer.h"
+#include "the_Foundation/string.h"
 
 static iBufferClass Class_Buffer;
 

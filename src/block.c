@@ -25,10 +25,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/block.h"
-#include "c_plus/atomic.h"
-#include "c_plus/garbage.h"
-#include "c_plus/string.h"
+#include "the_Foundation/block.h"
+#include "the_Foundation/atomic.h"
+#include "the_Foundation/garbage.h"
+#include "the_Foundation/string.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -25,10 +25,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/stream.h"
-#include "c_plus/block.h"
-#include "c_plus/stringlist.h"
-#include "c_plus/buffer.h"
+#include "the_Foundation/stream.h"
+#include "the_Foundation/block.h"
+#include "the_Foundation/stringlist.h"
+#include "the_Foundation/buffer.h"
 
 iDefineClass(Stream)
 

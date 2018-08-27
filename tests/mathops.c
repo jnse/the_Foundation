@@ -24,9 +24,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include <c_plus/defs.h>
-#include <c_plus/math.h>
-#include <c_plus/time.h>
+#include <the_Foundation/defs.h>
+#include <the_Foundation/math.h>
+#include <the_Foundation/time.h>
 
 static void printNum(float n) {
     if (n == 0.f) {
@@ -82,7 +82,7 @@ static void printMat(const char *msg, const iMat4 *m) {
     const iMat4 *: printMat)(msg, val)
 
 int main(int argc, char **argv) {
-    init_CPlus();
+    init_Foundation();
     iUnused(argc, argv);
     /* Scalar operations. */ {
         printf("min:%f max:%f clamp:%f %f %f\n",

@@ -1,4 +1,4 @@
-# c_Plus Documentation
+# the_Foundation Documentation
 
 Simplicity of C11, power of object-orientation! API usability is priority #1. 
 
@@ -10,7 +10,7 @@ supporting high-level programming styles; this conflict prevents it from being
 truly high-level while compromising the benefits of low-level C. The complexity
 also makes compiling C++ programs much slower than C.
 
-**c_Plus** is a C library and a coding convention for object-oriented
+**the\_Foundation** is a C library and a coding convention for object-oriented
 programming that has been designed from the point of view of someone who
 appreciates the user-friendliness of Qt and the philosophy behind C++ STL. The
 preprocessor is used heavily to provide flexibility and convenience for the

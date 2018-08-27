@@ -24,16 +24,16 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include <c_plus/address.h>
-#include <c_plus/audience.h>
-#include <c_plus/commandline.h>
-#include <c_plus/string.h>
-#include <c_plus/objectlist.h>
-#include <c_plus/service.h>
-#include <c_plus/socket.h>
-#include <c_plus/thread.h>
+#include <the_Foundation/address.h>
+#include <the_Foundation/audience.h>
+#include <the_Foundation/commandline.h>
+#include <the_Foundation/string.h>
+#include <the_Foundation/objectlist.h>
+#include <the_Foundation/service.h>
+#include <the_Foundation/socket.h>
+#include <the_Foundation/thread.h>
 #if defined (iHaveCurl)
-#  include <c_plus/webrequest.h>
+#  include <the_Foundation/webrequest.h>
 #endif
 
 static void logConnected_(iAny *d, iSocket *sock) {
@@ -118,7 +118,7 @@ static void communicate_(iAny *d, iService *sv, iSocket *sock) {
 }
 
 int main(int argc, char *argv[]) {
-    init_CPlus();
+    init_Foundation();
     /* List network interface addresses. */ {
         iObjectList *ifs = networkInterfaces_Address();
         printf("%zu network interfaces:\n", size_ObjectList(ifs));

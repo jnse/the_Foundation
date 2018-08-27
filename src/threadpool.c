@@ -1,4 +1,4 @@
-/** @file c_plus/threadpool.h  Thread pool.
+/** @file the_Foundation/threadpool.h  Thread pool.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -25,7 +25,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/threadpool.h"
+#include "the_Foundation/threadpool.h"
 
 void finish_Thread_(iThread *); // thread.c
 

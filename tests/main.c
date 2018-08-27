@@ -24,31 +24,31 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include <c_plus/array.h>
-#include <c_plus/block.h>
-#include <c_plus/buffer.h>
-#include <c_plus/class.h>
-#include <c_plus/commandline.h>
-#include <c_plus/file.h>
-#include <c_plus/fileinfo.h>
-#include <c_plus/garbage.h>
-#include <c_plus/hash.h>
-#include <c_plus/map.h>
-#include <c_plus/math.h>
-#include <c_plus/hash.h>
-#include <c_plus/object.h>
-#include <c_plus/objectlist.h>
-#include <c_plus/path.h>
-#include <c_plus/ptrarray.h>
-#include <c_plus/regexp.h>
-#include <c_plus/sortedarray.h>
-#include <c_plus/string.h>
-#include <c_plus/stringarray.h>
-#include <c_plus/stringlist.h>
-#include <c_plus/stringhash.h>
-#include <c_plus/time.h>
-#include <c_plus/thread.h>
-#include <c_plus/treenode.h>
+#include <the_Foundation/array.h>
+#include <the_Foundation/block.h>
+#include <the_Foundation/buffer.h>
+#include <the_Foundation/class.h>
+#include <the_Foundation/commandline.h>
+#include <the_Foundation/file.h>
+#include <the_Foundation/fileinfo.h>
+#include <the_Foundation/garbage.h>
+#include <the_Foundation/hash.h>
+#include <the_Foundation/map.h>
+#include <the_Foundation/math.h>
+#include <the_Foundation/hash.h>
+#include <the_Foundation/object.h>
+#include <the_Foundation/objectlist.h>
+#include <the_Foundation/path.h>
+#include <the_Foundation/ptrarray.h>
+#include <the_Foundation/regexp.h>
+#include <the_Foundation/sortedarray.h>
+#include <the_Foundation/string.h>
+#include <the_Foundation/stringarray.h>
+#include <the_Foundation/stringlist.h>
+#include <the_Foundation/stringhash.h>
+#include <the_Foundation/time.h>
+#include <the_Foundation/thread.h>
+#include <the_Foundation/treenode.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -204,7 +204,7 @@ static iThreadResult run_WorkerThread(iThread *d) {
 }
 
 int main(int argc, char *argv[]) {
-    init_CPlus();
+    init_Foundation();
     /* Test command line options parsing. */ {
         iCommandLine *cmdline = iClob(new_CommandLine(argc, argv));
         defineValues_CommandLine(cmdline, "file;f", unlimitedValues_CommandLine);

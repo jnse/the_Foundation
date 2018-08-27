@@ -25,9 +25,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/treenode.h"
-#include "c_plus/ptrarray.h"
-#include "c_plus/ptrset.h"
+#include "the_Foundation/treenode.h"
+#include "the_Foundation/ptrarray.h"
+#include "the_Foundation/ptrset.h"
 
 #include <stdio.h>
 #include <stdlib.h>

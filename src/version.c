@@ -25,9 +25,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/version.h"
+#include "the_Foundation/version.h"
 
-const iVersion version_CPlus = iCPlusLibraryVersion;
+const iVersion version_Foundation = iFoundationLibraryVersion;
 
 int cmp_Version(const iVersion *d, const iVersion *other) {
     for (int i = 0; i < 3; ++i) {

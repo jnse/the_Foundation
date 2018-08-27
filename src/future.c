@@ -25,8 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/future.h"
-#include "c_plus/threadpool.h"
+#include "the_Foundation/future.h"
+#include "the_Foundation/threadpool.h"
 
 iDefineClass(Future)
 iDefineObjectConstruction(Future)

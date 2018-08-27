@@ -25,8 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "c_plus/queue.h"
-#include "c_plus/time.h"
+#include "the_Foundation/queue.h"
+#include "the_Foundation/time.h"
 
 iDefineSubclass(Queue, ObjectList)
 iDefineObjectConstruction(Queue)

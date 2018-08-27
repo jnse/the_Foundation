@@ -25,13 +25,13 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include <c_plus/address.h>
-#include <c_plus/audience.h>
-#include <c_plus/commandline.h>
-#include <c_plus/string.h>
-#include <c_plus/objectlist.h>
-#include <c_plus/datagram.h>
-#include <c_plus/thread.h>
+#include <the_Foundation/address.h>
+#include <the_Foundation/audience.h>
+#include <the_Foundation/commandline.h>
+#include <the_Foundation/string.h>
+#include <the_Foundation/objectlist.h>
+#include <the_Foundation/datagram.h>
+#include <the_Foundation/thread.h>
 
 static void logWriteFinished_(iAny *d, iDatagram *dgm) {
     iUnused(d);
@@ -71,7 +71,7 @@ static void printMessages_(iAny *any, iDatagram *dgm) {
 }
 
 int main(int argc, char *argv[]) {
-    init_CPlus();
+    init_Foundation();
     iCommandLine *cmdline = iClob(new_CommandLine(argc, argv));
     defineValues_CommandLine(cmdline, "c;client", 1);
     // Check the arguments.
