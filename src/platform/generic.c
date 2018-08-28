@@ -25,8 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "t_fdn/defs.h"
-#include "t_fdn/thread.h"
+#include "the_Foundation/defs.h"
+#include "the_Foundation/thread.h"
 
 int idealConcurrentCount_Thread(void) {
     return 2; // conservative

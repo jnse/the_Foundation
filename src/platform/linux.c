@@ -25,11 +25,11 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "t_fdn/defs.h"
-#include "t_fdn/thread.h"
-#include "t_fdn/string.h"
-#include "t_fdn/file.h"
-#include "t_fdn/regexp.h"
+#include "the_Foundation/defs.h"
+#include "the_Foundation/thread.h"
+#include "the_Foundation/string.h"
+#include "the_Foundation/file.h"
+#include "the_Foundation/regexp.h"
 
 int idealConcurrentCount_Thread(void) {
     static int ncpu;

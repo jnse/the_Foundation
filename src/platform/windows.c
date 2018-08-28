@@ -25,7 +25,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "t_fdn/defs.h"
+#include "the_Foundation/defs.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
