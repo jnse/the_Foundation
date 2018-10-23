@@ -31,7 +31,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iDefineTypeConstruction(Pipe)
 
 void init_Pipe(iPipe *d) {
-    pipe(d->fds);
+    if (pipe(d->fds)) {
+        iWarning("pipe: (%i) %s\n", errno, strerror(errno));
+        d->fds[0] = d->fds[1] = -1;
+    }
 }
 
 void deinit_Pipe(iPipe *d) {

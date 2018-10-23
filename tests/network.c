@@ -169,7 +169,9 @@ int main(int argc, char *argv[]) {
         }
         puts("Press Enter to quit..."); {
             char line[2];
-            fgets(line, sizeof(line), stdin);
+            if (!fgets(line, sizeof(line), stdin)) {
+                iWarning("fgets failed\n");
+            }
         }
     }
     else if (contains_CommandLine(cmdline, "c;client")) {
@@ -182,7 +184,9 @@ int main(int argc, char *argv[]) {
         puts("Type to send a message (empty to quit):");
         for (;;) {
             char buf[200];
-            fgets(buf, sizeof(buf), stdin);
+            if (!fgets(buf, sizeof(buf), stdin)) {
+                break;
+            }
             if (strlen(buf) <= 1) break;
             writeData_Socket(sock, buf, strlen(buf));
         }

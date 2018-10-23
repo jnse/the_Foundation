@@ -1,4 +1,5 @@
-build
-
+.vscode
 *.user
 doc
+build
+build-*
