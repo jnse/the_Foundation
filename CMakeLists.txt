@@ -192,8 +192,17 @@ configure_file (config.h.in config.h)
 
 set (TARGETNAME the_Foundation)
 add_library (${TARGETNAME} SHARED ${SOURCES} ${HEADERS})
-set_property (TARGET ${TARGETNAME} PROPERTY OUTPUT_NAME _Foundation)
-set_property (TARGET ${TARGETNAME} PROPERTY OUTPUT_NAME_DEBUG _Foundationd)
+if (iPlatformMsys)
+    set_target_properties (${TARGETNAME} PROPERTIES
+        OUTPUT_NAME       Foundation
+        OUTPUT_NAME_DEBUG Foundationd
+    )
+elseif (UNIX)
+    set_target_properties (${TARGETNAME} PROPERTIES
+        OUTPUT_NAME       _Foundation
+        OUTPUT_NAME_DEBUG _Foundationd
+    )
+endif ()
 
 target_compile_definitions (${TARGETNAME} PRIVATE iIsLibraryBuild)
 target_include_directories (${TARGETNAME} PUBLIC
@@ -202,7 +211,7 @@ target_include_directories (${TARGETNAME} PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 tfdn_set_compile_options (${TARGETNAME})
-if (iPlatformLinux)
+if (iPlatformLinux OR iPlatformMsys)
     target_compile_definitions (${TARGETNAME} PRIVATE -D_GNU_SOURCE=1)
 endif ()
 
