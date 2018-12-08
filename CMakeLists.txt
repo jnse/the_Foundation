@@ -244,25 +244,6 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION include/the_Foun
 
 #----------------------------------------------------------------------------------------
 
-# Generate prototypes based on headers.
-#function (tfdn_generate_prototypes headerPath)
-#    get_filename_component (name ${headerPath} NAME_WE)
-#    add_custom_target (tfdn_proto_${name}
-#        ${CMAKE_CURRENT_LIST_DIR}/prototypes.py ${headerPath}
-#        DEPENDS ${headerPath}
-#        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-#        COMMENT "Generating prototypes: ${name}")
-#    add_dependencies (${TARGETNAME} tfdn_proto_${name})
-#endfunction ()
-
-#foreach (header ${HEADERS})
-#    tfdn_generate_prototypes (${header})
-#endforeach ()
-
-#add_subdirectory (lang/c++)
-
-#----------------------------------------------------------------------------------------
-
 macro (tfdn_add_test target sources)
     add_executable (${target} ${sources})
     target_link_libraries (${target} PRIVATE ${TARGETNAME} m)
