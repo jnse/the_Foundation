@@ -38,6 +38,7 @@ iString *   cwd_Path    (void);
 iBool       setCwd_Path (const iString *path);
 
 iBool       mkdir_Path  (const iString *path);
+iBool       rmdir_Path  (const iString *path);
 
 iBool       isAbsolute_Path     (const iString *);
 iString *   makeAbsolute_Path   (const iString *);

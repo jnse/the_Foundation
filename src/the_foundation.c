@@ -35,6 +35,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <time.h>
 #include <locale.h>
 
+static iBool hasBeenInitialized_ = iFalse;
+
 // datagram.c
 void init_DatagramThreads(void);
 
@@ -49,32 +51,40 @@ void init_Foundation(void) {
     init_Threads();
     init_Garbage();
     init_DatagramThreads();
-    printf("[c_Plus] version: %i.%i.%i cstd:%li\n",
+    printf("[the_Foundation] version: %i.%i.%i cstd:%li\n",
            version_Foundation.major, version_Foundation.minor, version_Foundation.patch,
            __STDC_VERSION__);
     const iTime now = now_Time();
     /* Random number generator. */ {
         long seed = nanoSeconds_Time(&now) ^ (integralSeconds_Time(&now) % 1000);
         srand((unsigned) seed);
-        printf("[c_Plus] random seed: %ld\n", seed);
+        printf("[the_Foundation] random seed: %ld\n", seed);
     }
     /* Locale. */ {
-        const char *lc = getenv("LC_CTYPE");
-        if (!lc) lc = getenv("LANG");
-        if (!lc) lc = "en_US.utf8";
-        setlocale(LC_CTYPE, lc? lc : "en_US.utf8");
-        const char *setlc = NULL;
-        if (!iCmpStr(setlc = setlocale(LC_CTYPE, NULL), "C")) {
-            setlocale(LC_CTYPE, "en_US.UTF-8");
-            setlc = setlocale(LC_CTYPE, NULL);
-        }
-        printf("[c_Plus] locale: %s\n", setlc);
+        setLocale_Foundation();
     }
+    hasBeenInitialized_ = iTrue;
     atexit(deinit_Foundation_);
 }
 
-void printMessage_Foundation(FILE *output, const char *format, ...)
-{
+iBool isInitialized_Foundation(void) {
+    return hasBeenInitialized_;
+}
+
+void setLocale_Foundation(void) {
+    const char *lc = getenv("LC_CTYPE");
+    if (!lc) lc = getenv("LANG");
+    if (!lc) lc = "en_US.utf8";
+    setlocale(LC_CTYPE, lc? lc : "en_US.utf8");
+    const char *setlc = NULL;
+    if (!iCmpStr(setlc = setlocale(LC_CTYPE, NULL), "C")) {
+        setlocale(LC_CTYPE, "en_US.UTF-8");
+        setlc = setlocale(LC_CTYPE, NULL);
+    }
+    printf("[the_Foundation] locale: %s\n", setlc);    
+}
+
+void printMessage_Foundation(FILE *output, const char *format, ...) {
     va_list args;
     va_start(args, format);
     vfprintf(output, format, args);

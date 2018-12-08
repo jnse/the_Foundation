@@ -3,7 +3,7 @@
 /** @file the_Foundation/object.h  Reference-counted object.
 
 Object is reference-counted and gets deleted only after all references are gone.
-Object is used as a base class for many of the objects in c_Plus.
+Object is used as a base class for many of the objects in the_Foundation.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 

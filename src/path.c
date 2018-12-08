@@ -149,5 +149,9 @@ iString *concat_Path(const iString *d, const iString *path) {
 }
 
 iBool mkdir_Path(const iString *path) {
-    return !mkdir(cstr_String(path), 0755);
+    return mkdir(cstr_String(path), 0755) == 0;
+}
+
+iBool rmdir_Path(const iString *path) {
+    return rmdir(cstr_String(path)) == 0;
 }

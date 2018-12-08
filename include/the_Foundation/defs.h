@@ -67,8 +67,10 @@ typedef void (*iDeleteFunc)(iAny *);
 
 #include "garbage.h"
 
-iPublic void        init_Foundation          (void);
-iPublic void        printMessage_Foundation  (FILE *, const char *format, ...);
+iPublic void        init_Foundation             (void);
+iPublic iBool       isInitialized_Foundation    (void);
+iPublic void        setLocale_Foundation        (void);
+iPublic void        printMessage_Foundation     (FILE *, const char *format, ...);
 
 iPublic uint32_t    iCrc32      (const char *data, size_t size);
 iPublic void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[16]);
