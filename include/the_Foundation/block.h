@@ -29,8 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 #include "range.h"
+#include "atomic.h"
 
-#include <stdatomic.h>
 #include <stdarg.h>
 
 iBeginPublic

@@ -27,9 +27,12 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include <stdatomic.h>
-
+#if __STDC_VERSION__ >= 201112
+#  include <stdatomic.h>
 typedef atomic_int iAtomicInt;
+#else
+typedef int iAtomicInt;
+#endif
 
 #define value_Atomic(a)         atomic_load(a)
 #define set_Atomic(a, value)    atomic_store(a, value)
