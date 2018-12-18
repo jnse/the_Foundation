@@ -55,14 +55,18 @@ if (CURL_FOUND)
 endif ()
 
 # C11 threads
+check_include_file (pthread.h iHavePThread)
 check_include_file (threads.h iHaveC11Threads)
 if (NOT iHaveC11Threads)
+    if (NOT iHavePThread)
+        message (FATAL_ERROR "Either pthread.h or C11 threads.h must be available")
+    endif ()
     check_c_source_compiles ("
         #include <pthread.h>
         int main(int argc, char **argv) {
             return PTHREAD_MUTEX_TIMED_NP;
         }"
-    iHavePthreadTimedMutex)
+    iHavePThreadTimedMutex)
 endif ()
 
 # SSE 4.1 instruction set
@@ -173,9 +177,14 @@ set (SOURCES
     src/treenode.c
     src/version.c
 )
+if (NOT iHaveC11Threads)
+    list (APPEND SOURCES src/c11threads.c)
+endif ()
 if (APPLE)
     set (iPlatformApple YES)
     set (SOURCES ${SOURCES} src/platform/apple.c)
+    # Darwin doesn't implement timed mutexes currently 
+    #add_definitions (-DC11THREADS_NO_TIMED_MUTEX=1)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set (iPlatformLinux YES)
     set (SOURCES ${SOURCES} src/platform/linux.c)

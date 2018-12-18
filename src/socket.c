@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/pipe.h"
 #include "the_Foundation/thread.h"
 
+#include <errno.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>

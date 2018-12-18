@@ -43,7 +43,7 @@ struct Impl_Block {
 };
 
 struct Impl_BlockData {
-    atomic_int refCount;
+    iAtomicInt refCount;
     char *data;
     size_t size;
     size_t allocSize;

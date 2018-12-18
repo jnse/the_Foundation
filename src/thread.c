@@ -75,7 +75,7 @@ static int run_Threads_(void *arg) {
 #endif
     }
     if (d->flags & terminationEnabled_ThreadFlag) {
-#if defined (iHavePthread)
+#if defined (iHavePThread)
         pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 #endif
     }
@@ -181,7 +181,7 @@ void join_Thread(iThread *d) {
 
 void terminate_Thread(iThread *d) {
     iAssert(d->flags & terminationEnabled_ThreadFlag);
-#if defined (iHavePthread)
+#if defined (iHavePThread)
     pthread_cancel(d->id);
 #endif
 }

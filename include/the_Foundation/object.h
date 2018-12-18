@@ -32,8 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 #include "class.h"
-
-#include <stdatomic.h>
+#include "atomic.h"
 
 iBeginPublic
 
@@ -80,7 +79,7 @@ iDeclareType(AudienceMember)
 
 struct Impl_Object {
     const iClass *classObj;
-    atomic_int refCount;
+    iAtomicInt refCount;
     iAudienceMember *memberOf;
     void *user; // custom user contextual data
 #if !defined (NDEBUG)

@@ -147,7 +147,14 @@ int             toInt_String    (const iString *);
 
 const char *    skipSpace_CStr  (const char *);
 
-static inline iRangecc rangeN_CStr  (const char *cstr, size_t size) { return (iRangecc){ cstr, cstr + size }; }
+static inline iRangecc rangeN_CStr  (const char *cstr, size_t size) {
+#if __STDC_VERSION__ >= 201112L
+    return (iRangecc){ cstr, cstr + size };
+#else
+    const iRangecc range = { cstr, cstr + size };
+    return range;
+#endif
+}
 static inline iRangecc range_CStr   (const char *cstr) { return rangeN_CStr(cstr, strlen(cstr)); }
 
 int             cmpCStrSc_Rangecc   (const iRangecc *, const char *cstr, const iStringComparison *);

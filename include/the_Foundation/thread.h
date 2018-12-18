@@ -64,7 +64,7 @@ struct Impl_Thread {
     iString name;
     iThreadId id;
     iThreadRunFunc run;
-    atomic_int state; // enum iThreadState
+    iAtomicInt state; // enum iThreadState
     uint32_t flags;
     void *userData;
     iThreadResult result;

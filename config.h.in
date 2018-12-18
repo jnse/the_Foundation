@@ -32,8 +32,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #cmakedefine iHaveDebugOutput
 #cmakedefine iHaveSSE4_1
 #cmakedefine iHaveBigEndian
-#cmakedefine iHavePthreadTimedMutex
 #cmakedefine iHaveC11Threads
+#cmakedefine iHavePThread
+#cmakedefine iHavePThreadTimedMutex
 #cmakedefine iHaveCurl
 #cmakedefine iHavePcre
 #cmakedefine iHaveZlib
@@ -43,7 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #cmakedefine iPlatformMsys
 #cmakedefine iPlatformOther
 
-#if !defined (iHavePthreadTimedMutex) && !defined (C11THREADS_NO_TIMED_MUTEX)
+#if !defined (iHavePThreadTimedMutex) && !defined (C11THREADS_NO_TIMED_MUTEX)
 #   define C11THREADS_NO_TIMED_MUTEX
 #endif
 

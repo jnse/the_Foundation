@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/thread.h"
 #include "the_Foundation/ptrset.h"
 
+#include <errno.h>
 #include <sys/socket.h>
 #include <unistd.h>
 

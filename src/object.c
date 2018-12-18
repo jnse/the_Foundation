@@ -40,7 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #endif
 
 #if !defined (NDEBUG)
-static atomic_int totalCount_;
+static iAtomicInt totalCount_;
 
 int totalCount_Object(void) {
     return totalCount_;

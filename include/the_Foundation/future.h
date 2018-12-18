@@ -43,7 +43,7 @@ struct Impl_Future {
     iObjectList threads;
     iMutex mutex;
     iCondition ready;
-    atomic_int pendingCount;
+    iAtomicInt pendingCount;
     iFutureResultAvailable resultAvailable;
 };
 
