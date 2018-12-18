@@ -28,21 +28,30 @@ if (TFDN_ENABLE_DEBUG_OUTPUT)
 endif ()
 
 # zlib
-find_package (ZLIB)
+pkg_check_modules (ZLIB zlib)    
 if (ZLIB_FOUND)
     set (iHaveZlib YES)
+    add_library (zlib INTERFACE)
+    target_include_directories (zlib INTERFACE ${ZLIB_INCLUDE_DIRS})
+    target_link_libraries (zlib INTERFACE ${ZLIB_LINK_LIBRARIES})
 endif ()
 
 # Regular expressions
 pkg_check_modules (PCRE libpcre)
 if (PCRE_FOUND)
     set (iHavePcre YES)
+    add_library (pcre INTERFACE)
+    target_include_directories (pcre INTERFACE ${PCRE_INCLUDE_DIRS})
+    target_link_libraries (pcre INTERFACE ${PCRE_LINK_LIBRARIES})
 endif ()
 
 # CURL
-find_package (CURL)
+pkg_check_modules (CURL libcurl)
 if (CURL_FOUND)
     set (iHaveCurl YES)
+    add_library (curl INTERFACE)
+    target_include_directories (curl INTERFACE ${CURL_INCLUDE_DIRS})
+    target_link_libraries (curl INTERFACE ${CURL_LINK_LIBRARIES})
 endif ()
 
 # C11 threads
@@ -222,16 +231,13 @@ endif ()
 # Dependencies.
 target_link_libraries (${TARGETNAME} PRIVATE m pthread)
 if (ZLIB_FOUND)
-    target_include_directories (${TARGETNAME} PRIVATE ${ZLIB_INCLUDE_DIRS})
-    target_link_libraries      (${TARGETNAME} PRIVATE ${ZLIB_LIBRARIES})
+    target_link_libraries (${TARGETNAME} PRIVATE zlib)
 endif ()
 if (PCRE_FOUND)
-    target_include_directories (${TARGETNAME} PRIVATE ${PCRE_INCLUDE_DIRS})
-    target_link_libraries      (${TARGETNAME} PRIVATE ${PCRE_LDFLAGS})
+    target_link_libraries (${TARGETNAME} PRIVATE pcre)
 endif ()
 if (CURL_FOUND)
-    target_include_directories (${TARGETNAME} PRIVATE ${CURL_INCLUDE_DIRS})
-    target_link_libraries      (${TARGETNAME} PRIVATE ${CURL_LIBRARIES})
+    target_link_libraries (${TARGETNAME} PRIVATE curl)
 endif ()
 
 # Installation.
