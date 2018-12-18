@@ -55,7 +55,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #if defined(_WIN32) && defined(_MSC_VER)
 #   if defined (iIsLibraryBuild)
 #       define iFoundationAPI       __declspec(dllexport)
-#       define iFoundationAPIData 
+#       define iFoundationAPIData
 #   else
 #       define iFoundationAPI       __declspec(dllimport)
 #       define iFoundationAPIData   __declspec(dllimport)
@@ -63,6 +63,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #   define iNoReturn __declspec(noreturn)
 #else
 #   define iFoundationAPI
-#   define iFoundationAPIData
-#   define iNoReturn __attribute__((__noreturn__))
+#   define iFoundationAPIData   extern
+#   define iNoReturn            __attribute__((__noreturn__))
 #endif
