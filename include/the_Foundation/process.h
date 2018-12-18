@@ -30,6 +30,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "object.h"
 #include <sys/types.h>
 
+#if defined (_WIN32)
+typedef int pid_t;
+#endif
+
 iBeginPublic
 
 iDeclareType(Process)

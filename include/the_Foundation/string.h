@@ -218,7 +218,10 @@ int             iCmpStrRange(const iRangecc *range, const char *cstr);
 int             iCmpStrCase (const char *a, const char *b);
 int             iCmpStrNCase(const char *a, const char *b, size_t len);
 
-extern iStringComparison iCaseSensitive;
-extern iStringComparison iCaseInsensitive;
+iFoundationAPIData iStringComparison iCaseSensitive;
+iFoundationAPIData iStringComparison iCaseInsensitive;
+
+char *          iDupStr (const char *);
+char *          iStrStrN(const char *, const char *, size_t);
 
 iEndPublic

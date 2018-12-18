@@ -571,3 +571,11 @@ iStringComparison iCaseInsensitive = {
     .cmpN   = iCmpStrNCase,
     .locate = strcasestr,
 };
+
+char *iDupStr(const char *a) {
+    return strdup(a);
+}
+
+char *iStrStrN(const char *a, const char *b, size_t n) {
+    return strnstr(a, b, n);
+}

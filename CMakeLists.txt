@@ -183,8 +183,6 @@ endif ()
 if (APPLE)
     set (iPlatformApple YES)
     set (SOURCES ${SOURCES} src/platform/apple.c)
-    # Darwin doesn't implement timed mutexes currently 
-    #add_definitions (-DC11THREADS_NO_TIMED_MUTEX=1)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set (iPlatformLinux YES)
     set (SOURCES ${SOURCES} src/platform/linux.c)
