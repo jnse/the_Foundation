@@ -137,7 +137,7 @@ static inline iAnyObject *iReleaseLater(const iAnyObject *d) {
 
 iEndPublic
 
-#if defined(__cplusplus)
+#if defined (__cplusplus)
 namespace tF {
 
 template <typename T>

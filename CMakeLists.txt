@@ -10,6 +10,12 @@ macro (tfdn_set_compile_options target)
     target_compile_options (${target} PRIVATE -Wall -Wpedantic -Werror)
     if (CMAKE_COMPILER_IS_GNUCC)
         target_compile_options (${target} PRIVATE -Wno-format)
+        if (iPlatformWindows)
+            target_compile_options (${target} PRIVATE 
+                -Wno-int-conversion
+                -Wno-int-to-pointer-cast
+                -Wno-pointer-to-int-cast)
+        endif ()
         if (iHaveSSE4_1)
             target_compile_options (${target} PUBLIC -msse4.1)
         endif ()
@@ -111,7 +117,6 @@ set (HEADERS
     include/the_Foundation/object.h
     include/the_Foundation/objectlist.h
     include/the_Foundation/path.h
-    include/the_Foundation/pipe.h
     include/the_Foundation/process.h
     include/the_Foundation/ptrarray.h
     include/the_Foundation/ptrset.h
@@ -134,7 +139,6 @@ set (HEADERS
 )
 set (SOURCES
     src/the_foundation.c
-    src/address.c
     src/audience.c
     src/array.c
     src/block.c
@@ -143,7 +147,6 @@ set (SOURCES
     src/class.c
     src/commandline.c
     src/crc32.c
-    src/datagram.c
     src/file.c
     src/fileinfo.c
     src/future.c
@@ -158,13 +161,9 @@ set (SOURCES
     src/object.c
     src/objectlist.c
     src/path.c
-    src/pipe.c
-    src/process.c
     src/ptrarray.c
     src/ptrset.c
     src/queue.c
-    src/service.c
-    src/socket.c
     src/sortedarray.c
     src/stream.c
     src/string.c
@@ -196,13 +195,33 @@ else ()
     set (iPlatformOther YES)
     set (SOURCES ${SOURCES} src/platform/generic.c)
 endif ()
+if (NOT iPlatformWindows) # POSIX
+    list (APPEND HEADERS
+        include/the_Foundation/pipe.h
+    )
+    list (APPEND SOURCES
+        src/platform/posix/address.c
+        src/platform/posix/datagram.c
+        src/platform/posix/pipe.c
+        src/platform/posix/process.c
+        src/platform/posix/service.c
+        src/platform/posix/socket.c
+    )
+else () # WIN32
+    list (APPEND HEADERS
+        src/platform/win32/msdirent.h
+    )
+    list (APPEND SOURCES
+        src/platform/win32/datagram.c
+    )
+endif ()
 if (PCRE_FOUND)
-    set (SOURCES ${SOURCES} src/regexp.c)
-    set (HEADERS ${HEADERS} include/the_Foundation/regexp.h)
+    list (APPEND SOURCES src/regexp.c)
+    list (APPEND HEADERS include/the_Foundation/regexp.h)
 endif ()
 if (CURL_FOUND)
-    set (SOURCES ${SOURCES} src/webrequest.c)
-    set (HEADERS ${HEADERS} include/the_Foundation/webrequest.h)
+    list (APPEND SOURCES src/webrequest.c)
+    list (APPEND HEADERS include/the_Foundation/webrequest.h)
 endif ()
 configure_file (config.h.in config.h)
 
@@ -213,7 +232,7 @@ if (iPlatformMsys)
         OUTPUT_NAME       Foundation
         OUTPUT_NAME_DEBUG Foundationd
     )
-elseif (UNIX)
+else ()
     set_target_properties (${TARGETNAME} PROPERTIES
         OUTPUT_NAME       _Foundation
         OUTPUT_NAME_DEBUG _Foundationd
@@ -237,6 +256,9 @@ endif ()
 
 # Dependencies.
 target_link_libraries (${TARGETNAME} PRIVATE m pthread)
+if (iPlatformWindows)
+    target_link_libraries (${TARGETNAME} PRIVATE Shlwapi.lib)
+endif ()
 if (ZLIB_FOUND)
     target_link_libraries (${TARGETNAME} PRIVATE zlib)
 endif ()

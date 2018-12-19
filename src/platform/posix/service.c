@@ -1,4 +1,4 @@
-/** @file the_Foundation/service.c  TCP server socket.
+/** @file posix/service.c  TCP server socket.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 

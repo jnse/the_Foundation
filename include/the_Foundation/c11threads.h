@@ -13,7 +13,7 @@ Main project site: https://github.com/jtsiomb/c11threads
 
 #include "defs.h"
 
-#if defined (iHavePThread) && !defined (_WIN32)
+#if defined (iHavePThread)
 #  include <pthread.h>
 #else
 typedef void * pthread_t;

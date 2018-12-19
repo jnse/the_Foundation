@@ -35,6 +35,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <ctype.h>
 #include <wctype.h>
 
+#if defined (iPlatformWindows)
+#   include "platform/win32/string.h"
+#endif
+
 iString *new_String(void) {
     iString *d = iMalloc(String);
     init_String(d);
@@ -263,6 +267,12 @@ iString *urlDecode_String(const iString *d) {
         }
     }
     return decoded;
+}
+
+iChar first_String(const iString *d) {
+    iStringConstIterator iter;
+    init_StringConstIterator(&iter, d);
+    return iter.value;
 }
 
 int cmpSc_String(const iString *d, const char *cstr, const iStringComparison *sc) {
@@ -560,6 +570,37 @@ int iCmpStrNCase(const char *a, const char *b, size_t len) {
     return strncasecmp(a, b, len);
 }
 
+static char *strcasestr_(const char *haystack, const char *needle) {
+    const iString hay = iStringLiteral(haystack);
+    const iString ndl = iStringLiteral(needle);
+    const iChar ndlFirstChar = towlower(first_String(&ndl));
+    if (size_String(&ndl) > size_String(&hay)) {
+        // Too long to be able to find it.
+        return NULL;
+    }
+    iConstForEach(String, i, &hay) {
+        if (towlower(i.value) == ndlFirstChar) {
+            // Check if the full needle matches.
+            iStringConstIterator hayStart;
+            memcpy(&hayStart, &i, sizeof(i));
+            iStringConstIterator j;
+            init_StringConstIterator(&j, &ndl);
+            for (;;) {
+                next_StringConstIterator(&j);
+                next_StringConstIterator(&i);
+                if (!j.value) return iConstCast(char *, hayStart.pos); // Matched full needle.
+                if (!i.value) return NULL; // Not long enough for needle.
+                if (towlower(i.value) != towlower(j.value)) {
+                    // Must match all need characters.
+                    break;
+                }
+            }
+            memcpy(&i, &hayStart, sizeof(i));
+        }
+    }
+    return NULL;
+}
+
 iStringComparison iCaseSensitive = {
     .cmp    = strcmp,
     .cmpN   = strncmp,
@@ -569,7 +610,7 @@ iStringComparison iCaseSensitive = {
 iStringComparison iCaseInsensitive = {
     .cmp    = iCmpStrCase,
     .cmpN   = iCmpStrNCase,
-    .locate = strcasestr,
+    .locate = strcasestr_,
 };
 
 char *iDupStr(const char *a) {

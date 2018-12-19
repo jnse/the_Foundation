@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file the_Foundation/process.h  Execute and communicate with child processes.
+/** @file posix/pipe.h  Pipe.
 
 @authors Copyright (c) 2018 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -27,34 +27,32 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "object.h"
-#include <sys/types.h>
-
-#if defined (iPlatformWindows)
-typedef int iProcessId;
-#else
-typedef pid_t iProcessId;
-#endif
+#include "defs.h"
 
 iBeginPublic
 
-iDeclareType(Process)
-iDeclareType(String)
-iDeclareType(StringList)
+iDeclareType(Pipe)
 
-iDeclareClass(Process)
-iDeclareObjectConstruction(Process)
+struct Impl_Pipe {
+    int fds[2];
+};
 
-void        setArguments_Process        (iProcess *, const iStringList *args);
-void        setWorkingDirectory_Process (iProcess *, const iString *cwd);
+iDeclareTypeConstruction(Pipe)
 
-iBool       start_Process   (iProcess *);
-void        kill_Process    (iProcess *);
+static inline int input_Pipe  (const iPipe *d) { return d->fds[1]; }
+static inline int output_Pipe (const iPipe *d) { return d->fds[0]; }
 
-iProcessId  pid_Process             (const iProcess *);
-iBool       isRunning_Process       (const iProcess *);
-void        waitForFinished_Process (iProcess *);
-iString *   readOutput_Process      (iProcess *);
-iString *   readError_Process       (iProcess *);
+size_t  write_Pipe  (const iPipe *, const void *data, size_t size);
+size_t  read_Pipe   (const iPipe *, size_t size, void *data_out);
+
+static inline void writeByte_Pipe(const iPipe *d, uint8_t value) {
+    write_Pipe(d, &(char){ value }, 1);
+}
+
+static inline uint8_t readByte_Pipe(const iPipe *d) {
+    uint8_t value = 0;
+    read_Pipe(d, 1, &value);
+    return value;
+}
 
 iEndPublic

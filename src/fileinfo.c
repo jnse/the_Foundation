@@ -31,11 +31,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/path.h"
 
 #include <stdlib.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/dir.h>
-#include <unistd.h>
-#include <dirent.h>
+#if defined (iPlatformWindows)
+#   include "platform/win32/msdirent.h"
+#else
+#   include <sys/stat.h>
+#   include <sys/types.h>
+#   include <sys/dir.h>
+#   include <unistd.h>
+#   include <dirent.h>
+#endif
 
 #if defined (iPlatformLinux) || defined(iPlatformMsys)
 #   define st_mtimespec st_mtim
@@ -69,7 +73,11 @@ void init_FileInfo(iFileInfo *d, const iString *path) {
     d->flags = 0;
     struct stat st;
     if (!stat(cstr_String(d->path), &st)) {
-        d->lastModified.ts = st.st_mtimespec;
+        #if defined (iPlatformWindows)
+            d->lastModified.ts = (struct timespec){ .tv_sec = st.st_mtime };
+        #else
+            d->lastModified.ts = st.st_mtimespec;
+        #endif
         d->size = st.st_size;
         d->flags |= exists_FileInfoFlag;
         if (st.st_mode & S_IFDIR) d->flags |= directory_FileInfoFlag;
@@ -131,7 +139,12 @@ iTime lastModified_FileInfo(const iFileInfo *d) {
     if (!isValid_Time(&d->lastModified)) {
         struct stat st;
         if (!stat(cstr_String(d->path), &st)) {
-            iConstCast(iFileInfo *, d)->lastModified.ts = st.st_mtimespec;
+            #if defined (iPlatformWindows)
+                iConstCast(iFileInfo *, d)->lastModified.ts = (struct timespec){ 
+                    .tv_sec = st.st_mtime };
+            #else
+                iConstCast(iFileInfo *, d)->lastModified.ts = st.st_mtimespec;
+            #endif
         }
     }
     return d->lastModified;

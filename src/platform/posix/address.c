@@ -1,4 +1,4 @@
-/** @file address.c  Network address.
+/** @file posix/address.c  Network address.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 

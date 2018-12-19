@@ -52,7 +52,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
  * The iFoundationAPI macro is used for declaring exported symbols. It must be
  * applied in all exported classes and functions.
  */
-#if defined(_WIN32) && defined(_MSC_VER)
+#if defined (_MSC_VER)
 #   if defined (iIsLibraryBuild)
 #       define iFoundationAPI       __declspec(dllexport)
 #       define iFoundationAPIData
@@ -60,7 +60,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #       define iFoundationAPI       __declspec(dllimport)
 #       define iFoundationAPIData   __declspec(dllimport)
 #   endif
-#   define iNoReturn __declspec(noreturn)
+#   define iNoReturn            __declspec(noreturn)
+#elif defined (iPlatformMsys)
+#   define iFoundationAPI    
+#   define iFoundationAPIData   extern
+#   define iNoReturn            __attribute__((__noreturn__))
 #else
 #   define iFoundationAPI
 #   define iFoundationAPIData   extern

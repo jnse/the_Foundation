@@ -36,7 +36,9 @@ static time_t initStdTime_(const iDate *date, struct tm *tm) {
     tm->tm_hour = date->hour;
     tm->tm_hour = date->minute;
     tm->tm_sec = date->second;
+#if !defined (iPlatformWindows) // we only know about daylight savings time 
     tm->tm_gmtoff = date->gmtOffsetSeconds;
+#endif
     return mktime(tm);
 }
 
@@ -92,6 +94,12 @@ void sub_Time(iTime *d, const iTime *time) {
 
 //---------------------------------------------------------------------------------------
 
+#if defined (iPlatformWindows)
+static inline void localtime_r(const time_t *sec, struct tm *t) {
+    localtime_s(t, sec);
+}
+#endif
+
 void initSinceEpoch_Date(iDate *d, time_t seconds) {
     struct tm t;
     localtime_r(&seconds, &t);
@@ -104,7 +112,11 @@ void initSinceEpoch_Date(iDate *d, time_t seconds) {
     d->minute           = t.tm_min;
     d->second           = t.tm_sec;
     d->nsecs            = 0;
+#if !defined (iPlatformWindows)
     d->gmtOffsetSeconds = t.tm_gmtoff;
+#else
+    d->gmtOffsetSeconds = 0;
+#endif
 }
 
 void init_Date(iDate *d, const iTime *time) {

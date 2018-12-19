@@ -1,4 +1,4 @@
-/** @file the_Foundation/datagram.c  UDP socket.
+/** @file posix/datagram.c  UDP socket.
 
 @authors Copyright (c) 2018 Jaakko Keränen <jaakko.keranen@iki.fi>
 

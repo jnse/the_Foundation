@@ -1,4 +1,4 @@
-/** @file socket.c  TCP socket.
+/** @file posix/socket.c  TCP socket.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 

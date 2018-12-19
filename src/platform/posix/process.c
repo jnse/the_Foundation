@@ -1,4 +1,4 @@
-/** @file process.c  Execute and communicate with child processes.
+/** @file posix/process.c  Execute and communicate with child processes.
 
 @authors Copyright (c) 2018 Jaakko Keränen <jaakko.keranen@iki.fi>
 

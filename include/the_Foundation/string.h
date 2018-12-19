@@ -85,6 +85,7 @@ iString *       lower_String    (const iString *);
 iStringList *   split_String    (const iString *, const char *separator);
 iString *       urlEncode_String(const iString *);
 iString *       urlDecode_String(const iString *);
+iChar           first_String    (const iString *);
 
 #define         range_String(d) (iRangecc){ constData_Block(&d->chars), constEnd_Block(&d->chars) }
 

@@ -32,6 +32,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#if defined (iPlatformWindows)
+#   include <direct.h>
+#   define mkdir(path, attr) _mkdir(path)
+#endif
+
 iString *cwd_Path(void) {
     char *cwd = getcwd(NULL, 0);
     if (cwd) {

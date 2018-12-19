@@ -1,6 +1,4 @@
-#pragma once
-
-/** @file the_Foundation/pipe.h  Pipe.
+/** @file posix/pipe.c  Pipe.
 
 @authors Copyright (c) 2018 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -27,32 +25,27 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
+#include "the_Foundation/pipe.h"
+#include <unistd.h>
 
-iBeginPublic
+iDefineTypeConstruction(Pipe)
 
-iDeclareType(Pipe)
-
-struct Impl_Pipe {
-    int fds[2];
-};
-
-iDeclareTypeConstruction(Pipe)
-
-static inline int input_Pipe  (const iPipe *d) { return d->fds[1]; }
-static inline int output_Pipe (const iPipe *d) { return d->fds[0]; }
-
-size_t  write_Pipe  (const iPipe *, const void *data, size_t size);
-size_t  read_Pipe   (const iPipe *, size_t size, void *data_out);
-
-static inline void writeByte_Pipe(const iPipe *d, uint8_t value) {
-    write_Pipe(d, &(char){ value }, 1);
+void init_Pipe(iPipe *d) {
+    if (pipe(d->fds)) {
+        iWarning("pipe: (%i) %s\n", errno, strerror(errno));
+        d->fds[0] = d->fds[1] = -1;
+    }
 }
 
-static inline uint8_t readByte_Pipe(const iPipe *d) {
-    uint8_t value = 0;
-    read_Pipe(d, 1, &value);
-    return value;
+void deinit_Pipe(iPipe *d) {
+    close(d->fds[0]);
+    close(d->fds[1]);
 }
 
-iEndPublic
+size_t write_Pipe(const iPipe *d, const void *data, size_t size) {
+    return write(input_Pipe(d), data, size);
+}
+
+size_t read_Pipe(const iPipe *d, size_t size, void *data_out) {
+    return read(output_Pipe(d), data_out, size);
+}
