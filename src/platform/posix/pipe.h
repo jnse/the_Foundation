@@ -27,7 +27,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
+#include "the_Foundation/defs.h"
 
 iBeginPublic
 
@@ -46,7 +46,7 @@ size_t  write_Pipe  (const iPipe *, const void *data, size_t size);
 size_t  read_Pipe   (const iPipe *, size_t size, void *data_out);
 
 static inline void writeByte_Pipe(const iPipe *d, uint8_t value) {
-    write_Pipe(d, &(char){ value }, 1);
+    write_Pipe(d, &(char){ (char) value }, 1);
 }
 
 static inline uint8_t readByte_Pipe(const iPipe *d) {

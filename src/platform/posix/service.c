@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/socket.h"
 #include "the_Foundation/string.h"
 #include "the_Foundation/thread.h"
-#include "the_Foundation/pipe.h"
+#include "pipe.h"
 
 #include <netdb.h>
 #include <unistd.h>

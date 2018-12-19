@@ -28,8 +28,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/socket.h"
 #include "the_Foundation/buffer.h"
 #include "the_Foundation/mutex.h"
-#include "the_Foundation/pipe.h"
 #include "the_Foundation/thread.h"
+#include "pipe.h"
 
 #include <errno.h>
 #include <unistd.h>

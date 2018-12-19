@@ -29,9 +29,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/mutex.h"
 #include "the_Foundation/address.h"
 #include "the_Foundation/queue.h"
-#include "the_Foundation/pipe.h"
 #include "the_Foundation/thread.h"
 #include "the_Foundation/ptrset.h"
+#include "pipe.h"
 
 #include <errno.h>
 #include <sys/socket.h>

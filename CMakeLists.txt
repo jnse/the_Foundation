@@ -197,7 +197,7 @@ else ()
 endif ()
 if (NOT iPlatformWindows) # POSIX
     list (APPEND HEADERS
-        include/the_Foundation/pipe.h
+        src/platform/posix/pipe.h
     )
     list (APPEND SOURCES
         src/platform/posix/address.c

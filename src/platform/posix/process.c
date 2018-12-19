@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/process.h"
 #include "the_Foundation/stringlist.h"
 #include "the_Foundation/path.h"
-#include "the_Foundation/pipe.h"
+#include "pipe.h"
 
 #include <spawn.h>
 #include <poll.h>
