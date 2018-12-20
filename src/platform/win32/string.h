@@ -29,18 +29,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <wchar.h>
 
 static char *strnstr(const char *haystack, const char *needle, size_t len) {
-    size_t i;
     size_t needleLen = strnlen(needle, len);
     if (needleLen == 0) {
         return iConstCast(char *, haystack);
     }
-    if (len >= needleLen) {
-        for (i = 0; i <= len - needleLen; i++) {
-            if (haystack[0] == needle[0] && !strncmp(haystack, needle, needleLen)) {
-                return iConstCast(char *, haystack);
-            }
-            haystack++;
+    size_t haystackLen = iMin(len, strlen(haystack));    
+    for (size_t remainder = haystackLen; remainder >= needleLen; remainder--) {
+        if (haystack[0] == needle[0] && !strncmp(haystack, needle, needleLen)) {
+            return iConstCast(char *, haystack);
         }
+        haystack++;
     }
     return NULL;
 }
