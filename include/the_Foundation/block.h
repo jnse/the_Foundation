@@ -75,6 +75,7 @@ const void *    constData_Block     (const iBlock *);
 const char *    constBegin_Block    (const iBlock *);
 const char *    constEnd_Block      (const iBlock *);
 
+static inline const char *cstr_Block(const iBlock *d) { return constBegin_Block(d); }
 static inline iBool isEmpty_Block   (const iBlock *d) { return size_Block(d) == 0; }
 
 #define         midRange_Block(d, rng)  mid_Block(d, (rng)->start, size_Range(rng))

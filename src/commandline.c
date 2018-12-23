@@ -151,12 +151,14 @@ void init_CommandLine(iCommandLine *d, int argc, char **argv) {
     d->defined = NULL;
     for (int i = 0; i < argc; ++i) {
         // Load response files.
-        if (!iCmpStrN(argv[i], "@", 1)) {
-            loadArgumentsFile_CommandLine_(d, argv[i] + 1);
+        iString *arg = newLocalCStr_String(argv[i]);
+        if (startsWith_String(arg, "@")) {
+            loadArgumentsFile_CommandLine_(d, cstr_String(arg) + 1);
         }
-        else {
-            pushBackCStr_StringList(&d->args, argv[i]);
+        else {            
+            pushBack_StringList(&d->args, arg);
         }
+        delete_String(arg);
     }
     d->execPath = makeAbsolute_Path(constFront_StringList(&d->args));
 }

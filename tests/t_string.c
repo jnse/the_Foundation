@@ -38,6 +38,17 @@ int main(int argc, char *argv[]) {
         puts(cstr_String(str));
         delete_String(str);
     }
+    /* Case conversions. */ {
+        const iString str = iStringLiteral("Ääkkönén");
+        iString *upper = collect_String(upper_String(&str));
+        iString *lower = collect_String(lower_String(&str));
+        printf("Original: %s Upper: %s Lower: %s\n", cstr_String(&str),
+               cstr_String(upper), cstr_String(lower));
+
+        iBlock *localUpper = collect_Block(toLocal_String(upper));
+        iBlock *localLower = collect_Block(toLocal_String(lower));
+        printf("Upper: %s Lower: %s\n", cstr_Block(localUpper), cstr_Block(localLower));
+    }
     /* Test Unicode strings. */ {
         iString *s = collect_String(newCStr_String("A_Äö\U0001f698a"));
         printf("String: %s length: %zu size: %zu\n", cstr_String(s), length_String(s), size_String(s)); {
@@ -53,9 +64,15 @@ int main(int argc, char *argv[]) {
         printf("Starts with: %i %i\n", startsWith_String(s, "a"), startsWithCase_String(s, "a"));
         printf("Ends with: %i %i\n", endsWith_String(s, "a"), endsWithCase_String(s, "A"));
         printf("Mid: %s\n", cstr_String(collect_String(mid_String(s, 3, 1))));
-        printf("ö is at: %zu %zu\n", indexOfCStr_String(s, "ö"), indexOf_String(s, u'ö'));
+        printf("ö is at: %zu %zu\n", indexOfCStr_String(s, "ö"), indexOf_String(s, U'ö'));
         truncate_String(s, 3);
         printf("Truncated: %s\n", cstr_String(s));
+    }
+    /* Test UTF-32. */ {
+        const iChar ucs[2] = { 0x1f698, 0 };
+        iString *s = collect_String(newUnicode_String(ucs));
+        iBlock *lc = collect_Block(toLocal_String(s));
+        printf("UTF-32: %s\n", cstr_Block(lc));
     }
     /* Test an array of strings. */ {
         iStringArray *sar = newStringsCStr_StringArray("Hello World", "Another string", "3rd text", NULL);

@@ -43,7 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #   include "platform/win32/string.h"
 #endif
 
-static inline const char *currentLocaleLanguage_(void) {
+static inline const char *currentLocaleLanguage_(void) {    
     return uc_locale_language();
 }
 
@@ -129,7 +129,8 @@ void initUnicode_String(iString *d, const iChar *ucs) {
 void initUnicodeN_String(iString *d, const iChar *ucs, size_t n) {
     size_t len = 0;
     uint8_t *str = u32_to_u8(ucs, n, NULL, &len);
-    iAssert(str[len] == 0);
+    str = realloc(str, len + 1);
+    str[len] = 0;
     iBlock chars;
     initPrealloc_Block(&chars, str, len, len + 1);
     initBlock_String(d, &chars);
@@ -229,7 +230,8 @@ iString *upper_String(const iString *d) {
                               NULL,
                               NULL,
                               &len);
-    iAssert(str[len] == 0);
+    str = realloc(str, len + 1);
+    str[len] = 0;
     iBlock data;
     initPrealloc_Block(&data, str, len, len + 1);
     iString *up = newBlock_String(&data);
@@ -245,7 +247,8 @@ iString *lower_String(const iString *d) {
                               NULL,
                               NULL,
                               &len);
-    iAssert(str[len] == 0);
+    str = realloc(str, len + 1);
+    str[len] = 0;
     iBlock data;
     initPrealloc_Block(&data, str, len, len + 1);
     iString *lwr = newBlock_String(&data);
@@ -317,6 +320,8 @@ iBlock *toLocal_String(const iString *d) {
                                     NULL,
                                     NULL,
                                     &len);
+    str = realloc(str, len + 1);
+    str[len] = 0;
     return newPrealloc_Block(str, len, len + 1);
 }
 

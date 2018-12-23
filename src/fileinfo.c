@@ -68,7 +68,7 @@ iFileInfo *newCStr_FileInfo(const char *path) {
     return info;
 }
 
-void init_FileInfo(iFileInfo *d, const iString *path) {
+void init_FileInfo(iFileInfo *d, const iString *path) {    
     d->path = copy_String(path);
     d->flags = 0;
     struct stat st;
