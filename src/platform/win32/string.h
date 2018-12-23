@@ -26,7 +26,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include <string.h>
-#include <wchar.h>
 
 static char *strnstr(const char *haystack, const char *needle, size_t len) {
     size_t needleLen = strnlen(needle, len);

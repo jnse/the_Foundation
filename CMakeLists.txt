@@ -33,6 +33,15 @@ if (TFDN_ENABLE_DEBUG_OUTPUT)
     set (iHaveDebugOutput YES)
 endif ()
 
+# unistring
+set (UNISTRING_DIR /usr CACHE PATH "Location of libunistring")
+if (NOT EXISTS ${UNISTRING_DIR}/include/unistr.h)
+    message (FATAL_ERROR "Not found: ${UNISTRING_DIR}/include/unistr.h (set UNISTRING_DIR)")
+endif ()
+add_library (unistring INTERFACE)
+target_include_directories (unistring INTERFACE ${UNISTRING_DIR}/include)
+target_link_libraries (unistring INTERFACE -L${UNISTRING_DIR}/lib -lunistring)
+
 # zlib
 pkg_check_modules (ZLIB zlib)    
 if (ZLIB_FOUND)
@@ -255,10 +264,7 @@ if (CMAKE_COMPILER_IS_GNUCC)
 endif ()
 
 # Dependencies.
-target_link_libraries (${TARGETNAME} PRIVATE m pthread)
-if (iPlatformWindows)
-    target_link_libraries (${TARGETNAME} PRIVATE Shlwapi.lib)
-endif ()
+target_link_libraries (${TARGETNAME} PRIVATE m pthread unistring)
 if (ZLIB_FOUND)
     target_link_libraries (${TARGETNAME} PRIVATE zlib)
 endif ()
@@ -270,9 +276,17 @@ if (CURL_FOUND)
 endif ()
 
 # Installation.
-install (TARGETS ${TARGETNAME} EXPORT ${TARGETNAME} DESTINATION lib)
-install (EXPORT ${TARGETNAME} DESTINATION lib/cmake/${TARGETNAME} NAMESPACE the_Foundation:: FILE ${TARGETNAME}Config.cmake)
-install (DIRECTORY include/the_Foundation DESTINATION include
+install (TARGETS ${TARGETNAME}
+    EXPORT ${TARGETNAME}
+    DESTINATION lib
+)
+install (EXPORT ${TARGETNAME}
+    DESTINATION lib/cmake/${TARGETNAME}
+    NAMESPACE the_Foundation::
+    FILE ${TARGETNAME}Config.cmake
+)
+install (DIRECTORY include/the_Foundation
+    DESTINATION include
     FILES_MATCHING PATTERN "*.h"
 )
 install (FILES ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION include/the_Foundation)

@@ -42,12 +42,12 @@ int main(int argc, char *argv[]) {
         iString *s = collect_String(newCStr_String("A_Äö\U0001f698a"));
         printf("String: %s length: %zu size: %zu\n", cstr_String(s), length_String(s), size_String(s)); {
             iConstForEach(String, i, s) {
-                printf(" char: %04x [%lc]\n", i.value, i.value);
+                printf(" char: %06x [%s]\n", i.value, cstrLocal_Char(i.value));
             }
         }
         puts("Backwards:"); {
             iReverseConstForEach(String, i , s) {
-                printf(" char: %04x [%lc]\n", i.value, i.value);
+                printf(" char: %06x [%s]\n", i.value, cstrLocal_Char(i.value));
             }
         }
         printf("Starts with: %i %i\n", startsWith_String(s, "a"), startsWithCase_String(s, "a"));

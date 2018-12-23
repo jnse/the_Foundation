@@ -1,4 +1,4 @@
-/** @file string.c  UTF-8 text string with copy-on-write semantics.
+/** @file string.c  UTF-8 string with copy-on-write semantics.
 
 @authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -28,16 +28,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/string.h"
 #include "the_Foundation/stringlist.h"
 #include "the_Foundation/range.h"
+#include "the_Foundation/stdthreads.h"
 
 #include <stdlib.h>
 #include <stdarg.h>
 #include <strings.h>
+#include <unicase.h>
+#include <unictype.h>
+#include <uniconv.h>
+#include <unistr.h>
 #include <ctype.h>
-#include <wctype.h>
 
 #if defined (iPlatformWindows)
 #   include "platform/win32/string.h"
 #endif
+
+static inline const char *currentLocaleLanguage_(void) {
+    return uc_locale_language();
+}
 
 iString *new_String(void) {
     iString *d = iMalloc(String);
@@ -55,13 +63,27 @@ iString *newCStrN_String(const char *cstr, size_t n) {
     return d;
 }
 
-iString *newWide_String(const iChar *wstr) {
-    return newWideN_String(wstr, wcslen(wstr));
+iString *newLocalCStr_String(const char *localCStr) {
+    return newLocalCStrN_String(localCStr, strlen(localCStr));
 }
 
-iString *newWideN_String(const iChar *wstr, size_t n) {
+iString *newLocalCStrN_String(const char *localCStr, size_t n) {
+    size_t len = 0;
+    uint8_t *data = u8_conv_from_encoding("", iconveh_question_mark, localCStr, n, NULL, NULL, &len);
+    iBlock chars;
+    initPrealloc_Block(&chars, data, len, len + 1);
+    iString *str = newBlock_String(&chars);
+    deinit_Block(&chars);
+    return str;
+}
+
+iString *newUnicode_String(const iChar *ucs) {
+    return newUnicodeN_String(ucs, u32_strlen(ucs));
+}
+
+iString *newUnicodeN_String(const iChar *ucs, size_t n) {
     iString *d = iMalloc(String);
-    initWideN_String(d, wstr, n);
+    initUnicodeN_String(d, ucs, n);
     return d;
 }
 
@@ -100,17 +122,18 @@ void initCStrN_String(iString *d, const char *cstr, size_t size) {
     initData_Block(&d->chars, cstr, size);
 }
 
-void initWide_String(iString *d, const iChar *wstr) {
-    initWideN_String(d, wstr, wcslen(wstr));
+void initUnicode_String(iString *d, const iChar *ucs) {
+    initUnicodeN_String(d, ucs, u32_strlen(ucs));
 }
 
-void initWideN_String(iString *d, const iChar *wstr, size_t n) {
-    init_String(d);
-    for (size_t i = 0; i < n; ++i, ++wstr) {
-        iMultibyteChar mb;
-        init_MultibyteChar(&mb, *wstr);
-        appendCStr_String(d, mb.bytes);
-    }
+void initUnicodeN_String(iString *d, const iChar *ucs, size_t n) {
+    size_t len = 0;
+    uint8_t *str = u32_to_u8(ucs, n, NULL, &len);
+    iAssert(str[len] == 0);
+    iBlock chars;
+    initPrealloc_Block(&chars, str, len, len + 1);
+    initBlock_String(d, &chars);
+    deinit_Block(&chars);
 }
 
 void initCopy_String(iString *d, const iString *other) {
@@ -132,7 +155,7 @@ void truncate_String(iString *d, size_t len) {
         if (len-- == 0) break;
         pos = i.next;
     }
-    truncate_Block(&d->chars, pos - start);
+    truncate_Block(&d->chars, (size_t) (pos - start));
 }
 
 void trimStart_String(iString *d) {
@@ -143,7 +166,7 @@ void trimStart_String(iString *d) {
         while (pos != end && isspace(*pos)) {
             pos++;
         }
-        remove_Block(&d->chars, 0, pos - start);
+        remove_Block(&d->chars, 0, (size_t) (pos - start));
     }
 }
 
@@ -155,7 +178,7 @@ void trimEnd_String(iString *d) {
         while (pos != start && isspace(pos[-1])) {
             pos--;
         }
-        truncate_Block(&d->chars, pos - start);
+        truncate_Block(&d->chars, (size_t) (pos - start));
     }
 }
 
@@ -169,9 +192,7 @@ const char *cstr_String(const iString *d) {
 }
 
 size_t length_String(const iString *d) {
-    size_t len = 0;
-    iConstForEach(String, i, d) len++;
-    return len;
+    return u8_mbsnlen((const uint8_t *) cstr_String(d), size_String(d));
 }
 
 size_t size_String(const iString *d) {
@@ -201,23 +222,35 @@ iString *mid_String(const iString *d, size_t charStartPos, size_t charCount) {
 }
 
 iString *upper_String(const iString *d) {
-    iString *up = new_String();
-    iConstForEach(String, i, d) {
-        iMultibyteChar mb;
-        init_MultibyteChar(&mb, towupper(i.value));
-        appendCStr_String(up, mb.bytes);
-    }
+    size_t len = 0;
+    uint8_t *str = u8_toupper((const uint8_t *) cstr_String(d),
+                              size_String(d),
+                              currentLocaleLanguage_(),
+                              NULL,
+                              NULL,
+                              &len);
+    iAssert(str[len] == 0);
+    iBlock data;
+    initPrealloc_Block(&data, str, len, len + 1);
+    iString *up = newBlock_String(&data);
+    deinit_Block(&data);
     return up;
 }
 
 iString *lower_String(const iString *d) {
-    iString *low = new_String();
-    iConstForEach(String, i, d) {
-        iMultibyteChar mb;
-        init_MultibyteChar(&mb, towlower(i.value));
-        appendCStr_String(low, mb.bytes);
-    }
-    return low;
+    size_t len = 0;
+    uint8_t *str = u8_tolower((const uint8_t *) cstr_String(d),
+                              size_String(d),
+                              currentLocaleLanguage_(),
+                              NULL,
+                              NULL,
+                              &len);
+    iAssert(str[len] == 0);
+    iBlock data;
+    initPrealloc_Block(&data, str, len, len + 1);
+    iString *lwr = newBlock_String(&data);
+    deinit_Block(&data);
+    return lwr;
 }
 
 iStringList *split_String(const iString *d, const char *separator) {
@@ -273,6 +306,18 @@ iChar first_String(const iString *d) {
     iStringConstIterator iter;
     init_StringConstIterator(&iter, d);
     return iter.value;
+}
+
+iBlock *toLocal_String(const iString *d) {
+    size_t len = 0;
+    char * str = u8_conv_to_encoding("",
+                                    iconveh_question_mark,
+                                    (const uint8_t *) cstr_String(d),
+                                    size_String(d),
+                                    NULL,
+                                    NULL,
+                                    &len);
+    return newPrealloc_Block(str, len, len + 1);
 }
 
 int cmpSc_String(const iString *d, const char *cstr, const iStringComparison *sc) {
@@ -481,27 +526,44 @@ iStringList *split_CStr(const char *cstr, const char *separator) {
 //---------------------------------------------------------------------------------------
 
 static void decodeNextMultibyte_StringConstIterator_(iStringConstIterator *d) {
-    const int rc = mbrtowc(&d->value, d->next, d->remaining, &d->mbs);
-    if (rc > 0) {
-        d->remaining -= rc;
+//    const int rc = mbrtowc(&d->value, d->next, d->remaining, &d->mbs);
+//    if (rc > 0) {
+//        d->remaining -= rc;
+//        d->next += rc;
+//    }
+//    else {
+//        // Finished, invalid or incomplete.
+//        d->value = 0;
+//    }
+    d->value = 0;
+    size_t n = iMin(8, d->remaining);
+    if (n > 0) {
+        const int rc = u8_mbtouc(&d->value, (const uint8_t *) d->next, n);
         d->next += rc;
-    }
-    else {
-        // Finished, invalid or incomplete.
-        d->value = 0;
+        iAssert(d->remaining >= (size_t) rc);
+        d->remaining -= (size_t) rc;
     }
 }
 
 static iBool decodePrecedingMultibyte_StringConstIterator_(iStringConstIterator *d) {
     if (!d->remaining) return iFalse;
-    for (int i = 1; i <= iMin(MB_CUR_MAX, d->remaining); i++) {
-        const int rc = mbrtowc(&d->value, d->next - i, i, &d->mbs);
+//    for (int i = 1; i <= iMin(MB_CUR_MAX, d->remaining); i++) {
+//        const int rc = mbrtowc(&d->value, d->next - i, i, &d->mbs);
+//        if (rc >= 0) {
+//            // Single-byte character.
+//            d->remaining -= rc;
+//            d->next -= rc;
+//            break;
+//        }
+//    }
+    for (size_t i = 1; i <= iMin(d->remaining, 8); ++i) {
+        const int rc = u8_mbtoucr(&d->value, (const uint8_t *) d->next - i, i);
         if (rc >= 0) {
-            // Single-byte character.
-            d->remaining -= rc;
+            d->remaining -= (size_t) rc;
             d->next -= rc;
             break;
         }
+        // Incomplete or invalid.
     }
     return iTrue;
 }
@@ -511,7 +573,7 @@ void init_StringConstIterator(iStringConstIterator *d, const iString *str) {
     d->value = 0;
     d->pos = d->next = constData_Block(&str->chars);
     d->remaining = size_Block(&str->chars);
-    iZap(d->mbs);
+//    iZap(d->mbs);
     // Decode the first character.
     decodeNextMultibyte_StringConstIterator_(d);
 }
@@ -526,7 +588,7 @@ void init_StringReverseConstIterator(iStringConstIterator *d, const iString *str
     d->value = 0;
     d->pos = d->next = constEnd_Block(&str->chars);
     d->remaining = size_Block(&str->chars);
-    iZap(d->mbs);
+//    iZap(d->mbs);
     // Decode the first (last) character.
     decodePrecedingMultibyte_StringConstIterator_(d);
 }
@@ -541,15 +603,38 @@ void next_StringReverseConstIterator(iStringConstIterator *d) {
 //---------------------------------------------------------------------------------------
 
 void init_MultibyteChar(iMultibyteChar *d, iChar ch) {
-    mbstate_t mbs;
-    iZap(mbs);
-    const size_t count = wcrtomb(d->bytes, ch, &mbs);
-    if (count != iInvalidSize) {
-        d->bytes[count] = 0;
+//    mbstate_t mbs;
+//    iZap(mbs);
+//    const size_t count = wcrtomb(d->bytes, ch, &mbs);
+//    if (count != iInvalidSize) {
+//        d->bytes[count] = 0;
+//    }
+//    else {
+//        d->bytes[0] = 0;
+//    }
+    int len = u8_uctomb((uint8_t *) d->bytes, ch, sizeof(d->bytes));
+    d->bytes[iMax(0, len)] = 0;
+}
+
+static char *threadLocalCharBuffer_(void) {
+    static tss_t bufKey = 0;
+    if (!bufKey) {
+        tss_create(&bufKey, free);
     }
-    else {
-        d->bytes[0] = 0;
+    char *buf = tss_get(bufKey);
+    if (!buf) {
+        tss_set(bufKey, buf = malloc(iMultibyteCharMaxSize + 1));
     }
+    return buf;
+}
+
+const char *cstrLocal_Char(iChar ch) {
+    char *chBuf = threadLocalCharBuffer_();
+    const iChar ucs[2] = { ch, 0 };
+    size_t len = iMultibyteCharMaxSize;
+    u32_conv_to_encoding("", iconveh_question_mark, ucs, 1, NULL, chBuf, &len);
+    chBuf[len] = 0;
+    return chBuf;
 }
 
 int iCmpStrRange(const iRangecc *range, const char *cstr) {
@@ -563,23 +648,39 @@ int iCmpStrRange(const iRangecc *range, const char *cstr) {
 }
 
 int iCmpStrCase(const char *a, const char *b) {
-    return strcasecmp(a, b);
+    int rc = 0;
+    u8_casecmp((const uint8_t *) a,
+               strlen(a),
+               (const uint8_t *) b,
+               strlen(b),
+               currentLocaleLanguage_(),
+               NULL,
+               &rc);
+    return rc;
 }
 
 int iCmpStrNCase(const char *a, const char *b, size_t len) {
-    return strncasecmp(a, b, len);
+    int rc = 0;
+    u8_casecmp((const uint8_t *) a,
+               strnlen(a, len),
+               (const uint8_t *) b,
+               strnlen(b, len),
+               currentLocaleLanguage_(),
+               NULL,
+               &rc);
+    return rc;
 }
 
 static char *strcasestr_(const char *haystack, const char *needle) {
     const iString hay = iStringLiteral(haystack);
     const iString ndl = iStringLiteral(needle);
-    const iChar ndlFirstChar = towlower(first_String(&ndl));
+    const iChar ndlFirstChar = uc_tolower(first_String(&ndl));
     if (size_String(&ndl) > size_String(&hay)) {
         // Too long to be able to find it.
         return NULL;
     }
     iConstForEach(String, i, &hay) {
-        if (towlower(i.value) == ndlFirstChar) {
+        if (uc_tolower(i.value) == ndlFirstChar) {
             // Check if the full needle matches.
             iStringConstIterator hayStart;
             memcpy(&hayStart, &i, sizeof(i));
@@ -590,7 +691,7 @@ static char *strcasestr_(const char *haystack, const char *needle) {
                 next_StringConstIterator(&i);
                 if (!j.value) return iConstCast(char *, hayStart.pos); // Matched full needle.
                 if (!i.value) return NULL; // Not long enough for needle.
-                if (towlower(i.value) != towlower(j.value)) {
+                if (uc_tolower(i.value) != uc_tolower(j.value)) {
                     // Must match all need characters.
                     break;
                 }
@@ -601,9 +702,19 @@ static char *strcasestr_(const char *haystack, const char *needle) {
     return NULL;
 }
 
+int iCmpStr(const char *a, const char *b) {
+    return u8_strcmp((const uint8_t *) a, (const uint8_t *) b);
+}
+
+int iCmpStrN(const char *a, const char *b, size_t n) {
+    const size_t n1 = strnlen(a, n);
+    const size_t n2 = strnlen(b, n);
+    return u8_cmp2((const uint8_t *) a, n1, (const uint8_t *) b, n2);
+}
+
 iStringComparison iCaseSensitive = {
-    .cmp    = strcmp,
-    .cmpN   = strncmp,
+    .cmp    = iCmpStr,
+    .cmpN   = iCmpStrN,
     .locate = strstr,
 };
 

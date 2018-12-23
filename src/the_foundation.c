@@ -73,15 +73,19 @@ iBool isInitialized_Foundation(void) {
 
 void setLocale_Foundation(void) {
     const char *lc = getenv("LC_CTYPE");
+    if (!lc) lc = getenv("LC_ALL");
     if (!lc) lc = getenv("LANG");
     if (!lc) lc = "en_US.utf8";
-    setlocale(LC_CTYPE, lc? lc : "en_US.utf8");
+    setlocale(LC_CTYPE, lc);
     const char *setlc = NULL;
     if (!iCmpStr(setlc = setlocale(LC_CTYPE, NULL), "C")) {
         setlocale(LC_CTYPE, "en_US.UTF-8");
         setlc = setlocale(LC_CTYPE, NULL);
     }
-    printf("[the_Foundation] locale: %s\n", setlc);    
+    printf("[the_Foundation] locale: %s\n", setlc);
+
+    // Expect to have non-localized number representation.
+    setlocale(LC_NUMERIC, "C");
 }
 
 void printMessage_Foundation(FILE *output, const char *format, ...) {

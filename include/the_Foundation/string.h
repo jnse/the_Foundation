@@ -1,10 +1,9 @@
 #pragma once
 
-/** @file the_Foundation/string.h  Text string with multibyte characters (copy-on-write).
+/** @file the_Foundation/string.h  UTF-8 string with copy-on-write semantics.
 
 String is derived from Block, and contains text with multibyte characters. When
-iterating a string, the multibyte characters are converted to wchar_t according to the
-current locale.
+iterating a string, the multibyte characters are converted to UTF-32 code points.
 
 String uses copy-on-write semantics (thanks to Block), so making copies is very
 efficient. Conversions between String and Block are also trivial, and can be done
@@ -40,11 +39,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "block.h"
 
 #include <limits.h>
-#include <wchar.h>
 
 iBeginPublic
 
-typedef wchar_t iChar;
+typedef uint32_t iChar;
 
 iDeclareType(String)
 iDeclareType(StringList)
@@ -59,22 +57,27 @@ struct Impl_String {
 
 iDeclareTypeConstruction(String)
 
-iString *       newCStr_String  (const char *cstr);
-iString *       newCStrN_String (const char *cstr, size_t n);
-iString *       newWide_String  (const iChar *wstr);
-iString *       newWideN_String (const iChar *wstr, size_t n);
-iString *       newBlock_String (const iBlock *data);
-iString *       copy_String     (const iString *);
+iString *       newCStr_String      (const char *utf8CStr);
+iString *       newCStrN_String     (const char *utf8CStr, size_t n);
+iString *       newUnicode_String   (const iChar *ucs);
+iString *       newUnicodeN_String  (const iChar *ucs, size_t n);
+iString *       newLocalCStr_String (const char *localCStr);
+iString *       newLocalCStrN_String(const char *localCStr, size_t n);
+iString *       newBlock_String     (const iBlock *utf8Data);
+iString *       copy_String         (const iString *);
 
 static inline iString *newRange_String(const iRangecc *range) { return newCStrN_String(range->start, size_Range(range)); }
+static inline iString *newLocal_String(const iBlock *block) { return newLocalCStrN_String(constData_Block(block), size_Block(block)); }
 
-void            init_String     (iString *);
-void            initCStr_String (iString *, const char *cstr);
-void            initCStrN_String(iString *, const char *cstr, size_t n);
-void            initWide_String (iString *, const iChar *wstr);
-void            initWideN_String(iString *, const iChar *wstr, size_t n);
-void            initBlock_String(iString *, const iBlock *chars);
-void            initCopy_String (iString *, const iString *other);
+void            init_String             (iString *);
+void            initCStr_String         (iString *, const char *utf8CStr);
+void            initCStrN_String        (iString *, const char *utf8CStr, size_t n);
+void            initUnicode_String      (iString *, const iChar *ucs);
+void            initUnicodeN_String     (iString *, const iChar *ucs, size_t n);
+void            initLocalCStr_String    (iString *, const char *localCStr);
+void            initLocalCStrN_String   (iString *, const char *localCStr, size_t n);
+void            initBlock_String        (iString *, const iBlock *chars);
+void            initCopy_String         (iString *, const iString *other);
 
 const char *    cstr_String     (const iString *);
 size_t          length_String   (const iString *);
@@ -86,6 +89,7 @@ iStringList *   split_String    (const iString *, const char *separator);
 iString *       urlEncode_String(const iString *);
 iString *       urlDecode_String(const iString *);
 iChar           first_String    (const iString *);
+iBlock *        toLocal_String  (const iString *);
 
 #define         range_String(d) (iRangecc){ constData_Block(&d->chars), constEnd_Block(&d->chars) }
 
@@ -188,22 +192,29 @@ iDeclareConstIterator(String, const iString *)
 struct ConstIteratorImpl_String {
     iChar value;
     const char *pos;
-    const iString *str;
     const char *next;
+    const iString *str;
     size_t remaining;
-    mbstate_t mbs;
 };
 ///@}
 
 //---------------------------------------------------------------------------------------
 
-#define iMultibyteCharMaxSize 7
+#define iMultibyteCharMaxSize ((size_t) 7)
 
 struct Impl_MultibyteChar {
-    char bytes[8];
+    char bytes[8]; // UTF-8 encoding
 };
 
 void init_MultibyteChar(iMultibyteChar *d, iChar ch);
+
+const char *    cstrLocal_Char  (iChar ch); // locale-encoding
+
+int             iCmpStr     (const char *a, const char *b);
+int             iCmpStrN    (const char *a, const char *b, size_t n);
+int             iCmpStrRange(const iRangecc *range, const char *cstr);
+int             iCmpStrCase (const char *a, const char *b);
+int             iCmpStrNCase(const char *a, const char *b, size_t len);
 
 struct Impl_StringComparison {
     int     (*cmp)      (const char *, const char *);
@@ -211,18 +222,10 @@ struct Impl_StringComparison {
     char *  (*locate)   (const char *, const char *);
 };
 
-#define         iCmpStr(a, b)       strcmp(a, b)
-#define         iCmpStrN(a, b, len) strncmp(a, b, len)
-
-int             iCmpStrRange(const iRangecc *range, const char *cstr);
-
-int             iCmpStrCase (const char *a, const char *b);
-int             iCmpStrNCase(const char *a, const char *b, size_t len);
-
 iFoundationAPIData iStringComparison iCaseSensitive;
 iFoundationAPIData iStringComparison iCaseInsensitive;
 
-char *          iDupStr (const char *);
-char *          iStrStrN(const char *, const char *, size_t);
+char *          iDupStr     (const char *);
+char *          iStrStrN    (const char *, const char *, size_t);
 
 iEndPublic
