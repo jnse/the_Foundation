@@ -153,7 +153,7 @@ int             toInt_String    (const iString *);
 const char *    skipSpace_CStr  (const char *);
 
 static inline iRangecc rangeN_CStr  (const char *cstr, size_t size) {
-#if __STDC_VERSION__ >= 201112L
+#if __STDC_VERSION__ >= 201100L
     return (iRangecc){ cstr, cstr + size };
 #else
     const iRangecc range = { cstr, cstr + size };

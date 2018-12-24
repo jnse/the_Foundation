@@ -32,7 +32,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iBeginPublic
 
-#define iPathSeparator  "/"
+#if !defined (iPlatformWindows)
+#   define iPathSeparator   "/"
+#else
+#   define iPathSeparator   "\\"
+#endif
 
 iString *   cwd_Path    (void);
 iBool       setCwd_Path (const iString *path);

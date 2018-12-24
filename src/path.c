@@ -55,7 +55,28 @@ iBool setCwd_Path(const iString *path) {
 }
 
 iBool isAbsolute_Path(const iString *d) {
+#if defined (iPlatformWindows)
+    if (startsWith_String(d, iPathSeparator)) {
+        return iTrue;
+    }
+    if (size_String(d) >= 3) {
+        iStringConstIterator i;
+        init_StringConstIterator(&i, d);
+        const iChar drive = towupper(i.value);
+        if (drive < 'A' || drive > 'Z') {
+            return iFalse;
+        }
+        next_StringConstIterator(&i);
+        if (i.value != ':') {
+            return iFalse;
+        }
+        next_StringConstIterator(&i);
+        return i.value == '\\';
+    }
+    return iFalse;
+#else
     return startsWith_String(d, iPathSeparator) || startsWith_String(d, "~");
+#endif
 }
 
 iString *makeAbsolute_Path(const iString *d) {
@@ -79,6 +100,7 @@ static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments,
             *changed = iTrue;
             continue;
         }
+#if !defined (iPlatformWindows)
         if (*count == 0 && !iCmpStrRange(&seg, "~")) {
             const char *home = getenv("HOME");
             if (home && iCmpStrN(home, "~", 1)) {
@@ -90,6 +112,7 @@ static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments,
                 continue;
             }
         }
+#endif
         if (!iCmpStrRange(&seg, ".")) {
             *changed = iTrue;
             continue; // No change in directory.
