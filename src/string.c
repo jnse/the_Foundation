@@ -70,6 +70,8 @@ iString *newLocalCStr_String(const char *localCStr) {
 iString *newLocalCStrN_String(const char *localCStr, size_t n) {
     size_t len = 0;
     uint8_t *data = u8_conv_from_encoding("", iconveh_question_mark, localCStr, n, NULL, NULL, &len);
+    data = realloc(data, len + 1);
+    data[len] = 0;
     iBlock chars;
     initPrealloc_Block(&chars, data, len, len + 1);
     iString *str = newBlock_String(&chars);

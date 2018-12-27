@@ -91,6 +91,18 @@ iString *       urlDecode_String(const iString *);
 iChar           first_String    (const iString *);
 iBlock *        toLocal_String  (const iString *);
 
+/**
+ * Returns a pointer to the string converted to the current locale's encoding.
+ * The temporary conversion is collected as garbage.
+ * 
+ * @param str  String to convert.
+ * 
+ * @return Converted text. The pointer will remain valid until garbage is recycled.
+ */
+static inline const char *cstrLocal_String(const iString *str) {
+    return cstr_Block(collect_Block(toLocal_String(str)));
+}
+
 #define         range_String(d) (iRangecc){ constData_Block(&d->chars), constEnd_Block(&d->chars) }
 
 static inline iBool         isEmpty_String   (const iString *d) { return size_String(d) == 0; }

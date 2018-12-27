@@ -213,7 +213,7 @@ int main(int argc, char *argv[]) {
         printf("Working directory: \"%s\"\n", cstr_String(collect_String(cwd_Path())));
         puts("Options from command line:");
         iConstForEach(StringList, i, args_CommandLine(cmdline)) {
-            printf("%2zu: \"%s\"\n", i.pos, cstr_String(i.value));
+            printf("%2zu: \"%s\"\n", i.pos, cstrLocal_String(i.value));
         }
         puts("Iterated:");
         iConstForEach(CommandLine, j, cmdline) {
@@ -223,12 +223,12 @@ int main(int argc, char *argv[]) {
                    ( j.argType == value_CommandLineArgType? "value"
                    : j.argType == shortArgument_CommandLineArgType? "short" : "long" ),
                    j.valueCount,
-                   cstr_String(e));
+                   cstrLocal_String(e));
             const iCommandLineArg *arg = argument_CommandLineConstIterator(&j);
             if (arg && !isEmpty_StringList(values_CommandLineArg(arg))) {
-                printf("  arguments for \"%s\":\n", cstr_String(&arg->arg));
+                printf("  arguments for \"%s\":\n", cstrLocal_String(&arg->arg));
                 iConstForEach(StringList, i, values_CommandLineArg(arg)) {
-                    printf("    %2zu: \"%s\"\n", i.pos, cstr_String(i.value));
+                    printf("    %2zu: \"%s\"\n", i.pos, cstrLocal_String(i.value));
                 }
                 iRelease(arg);
             }
@@ -241,14 +241,14 @@ int main(int argc, char *argv[]) {
             iConstForEach(StringList, k, values_CommandLineArg(arg)) {
                 iString *clean = copy_String(k.value);
                 clean_Path(clean);
-                printf(" %s", cstr_String(clean));
+                printf(" %s", cstrLocal_String(clean));
                 delete_String(clean);
             }
             puts("");
         }
         arg = iClob(checkArgumentValues_CommandLine(cmdline, "V;value", 1));
         if (arg) {
-            printf("value option: %s\n", cstr_String(value_CommandLineArg(arg, 0)));
+            printf("value option: %s\n", cstrLocal_String(value_CommandLineArg(arg, 0)));
         }
         if (contains_CommandLine(cmdline, "x")) {
             puts("x option");
@@ -509,7 +509,7 @@ int main(int argc, char *argv[]) {
         iRegExpMatch match;
         while (matchString_RegExp(rx, s, &match)) {
             iString *cap = captured_RegExpMatch(&match, 1);
-            printf("match: %i -> %i [%s]\n", match.range.start, match.range.end, cstr_String(cap));
+            printf("match: %i -> %i [%s]\n", match.range.start, match.range.end, cstrLocal_String(cap));
             delete_String(cap);
         }
         iRelease(rx);
