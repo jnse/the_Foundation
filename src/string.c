@@ -43,8 +43,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #   include "platform/win32/string.h"
 #endif
 
+static char localeCharSet_[64];
+
 static inline const char *currentLocaleLanguage_(void) {    
     return uc_locale_language();
+}
+
+void setLocaleCharSet_String(const char *charSet) {
+    const size_t n = sizeof(localeCharSet_);
+    strncpy(localeCharSet_, charSet, n);
+    localeCharSet_[n - 1] = 0;
 }
 
 iString *new_String(void) {
@@ -69,7 +77,8 @@ iString *newLocalCStr_String(const char *localCStr) {
 
 iString *newLocalCStrN_String(const char *localCStr, size_t n) {
     size_t len = 0;
-    uint8_t *data = u8_conv_from_encoding("", iconveh_question_mark, localCStr, n, NULL, NULL, &len);
+    uint8_t *data = u8_conv_from_encoding(
+        localeCharSet_, iconveh_question_mark, localCStr, n, NULL, NULL, &len);
     data = realloc(data, len + 1);
     data[len] = 0;
     iBlock chars;
@@ -315,13 +324,13 @@ iChar first_String(const iString *d) {
 
 iBlock *toLocal_String(const iString *d) {
     size_t len = 0;
-    char * str = u8_conv_to_encoding("",
-                                    iconveh_question_mark,
-                                    (const uint8_t *) cstr_String(d),
-                                    size_String(d),
-                                    NULL,
-                                    NULL,
-                                    &len);
+    char * str = u8_conv_to_encoding(localeCharSet_,
+                                     iconveh_question_mark,
+                                     (const uint8_t *) cstr_String(d),
+                                     size_String(d),
+                                     NULL,
+                                     NULL,
+                                     &len);
     str = realloc(str, len + 1);
     str[len] = 0;
     return newPrealloc_Block(str, len, len + 1);
@@ -639,7 +648,7 @@ const char *cstrLocal_Char(iChar ch) {
     char *chBuf = threadLocalCharBuffer_();
     const iChar ucs[2] = { ch, 0 };
     size_t len = iMultibyteCharMaxSize;
-    u32_conv_to_encoding("", iconveh_question_mark, ucs, 1, NULL, chBuf, &len);
+    u32_conv_to_encoding(localeCharSet_, iconveh_question_mark, ucs, 1, NULL, chBuf, &len);
     chBuf[len] = 0;
     return chBuf;
 }

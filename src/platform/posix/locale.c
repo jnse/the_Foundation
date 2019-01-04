@@ -1,6 +1,6 @@
-/** @file platform_windows.c  Windows platform specific routines.
+/** @file posix/locale.c  Locale and language.
 
-@authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
+@authors Copyright (c) 2019 Jaakko Keränen <jaakko.keranen@iki.fi>
 
 @par License
 
@@ -25,26 +25,22 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "the_Foundation/defs.h"
-#include <stdio.h>
+#include "the_Foundation/string.h"
+#include <stdlib.h>
+#include <locale.h>
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
-void setLocaleCharSet_String(const char *);
-
-int idealConcurrentCount_Thread(void) {
-    static int ncpu;
-    if (ncpu == 0) {
-        SYSTEM_INFO sysinfo;
-        GetSystemInfo(&sysinfo);
-        ncpu = sysinfo.dwNumberOfProcessors;
+void init_Locale(void) {    
+    const char *lc = getenv("LC_CTYPE");
+    if (!lc) lc = getenv("LC_ALL");
+    if (!lc) lc = getenv("LANG");
+    if (!lc) lc = "en_US.utf8";
+    setlocale(LC_CTYPE, lc);
+    const char *setlc = NULL;
+    if (!iCmpStr(setlc = setlocale(LC_CTYPE, NULL), "C")) {
+        setlocale(LC_CTYPE, "en_US.UTF-8");
+        setlc = setlocale(LC_CTYPE, NULL);
     }
-    return ncpu;
-}
-
-void init_Locale(void) {
-    char cpName[16];
-    sprintf(cpName, "CP%d", GetOEMCP());
-    setLocaleCharSet_String(cpName);
+    printf("[the_Foundation] locale: %s\n", setlc);
+    // Expect to have non-localized number representation.
+    setlocale(LC_NUMERIC, "C");
 }

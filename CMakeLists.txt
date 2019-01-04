@@ -211,6 +211,7 @@ if (NOT iPlatformWindows) # POSIX
     list (APPEND SOURCES
         src/platform/posix/address.c
         src/platform/posix/datagram.c
+        src/platform/posix/locale.c
         src/platform/posix/pipe.c
         src/platform/posix/process.c
         src/platform/posix/service.c
