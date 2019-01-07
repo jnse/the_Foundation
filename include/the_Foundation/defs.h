@@ -51,10 +51,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define iInvalidPos     ((size_t) -1)
 #define iInvalidSize    ((size_t) -1)
 
-#define iMin(a, b)              ((a) < (b)? (a) : (b))
-#define iMax(a, b)              ((a) > (b)? (a) : (b))
-#define iClamp(i, low, high)    ((i) < (low)? (low) : (i) > (high)? (high) : (i))
-#define iCmp(a, b)              ((a) == (b)? 0 : (a) < (b)? -1 : 1)
+#define iBit(n1_to_32)          (1UL << (n1_to_32 - 1))
+#define iMin(a, b)              ((a) < (b) ? (a) : (b))
+#define iMax(a, b)              ((a) > (b) ? (a) : (b))
+#define iAbs(a)                 ((a) > 0 ? (a) : -(a))
+#define iClamp(i, low, high)    ((i) < (low) ? (low) : (i) > (high) ? (high) : (i))
+#define iCmp(a, b)              ((a) == (b) ? 0 : (a) < (b) ? -1 : 1)
 
 #define iChangeFlags(var, flags, doSet)   {if (doSet) { (var) |= (flags); } else { (var) &= ~(flags); }}
 

@@ -129,6 +129,7 @@ set (HEADERS
     include/the_Foundation/process.h
     include/the_Foundation/ptrarray.h
     include/the_Foundation/ptrset.h
+    include/the_Foundation/rect.h
     include/the_Foundation/queue.h
     include/the_Foundation/range.h
     include/the_Foundation/service.h
@@ -144,6 +145,7 @@ set (HEADERS
     include/the_Foundation/threadpool.h
     include/the_Foundation/time.h
     include/the_Foundation/treenode.h
+    include/the_Foundation/vec2.h
     include/the_Foundation/version.h
 )
 set (SOURCES
@@ -172,6 +174,7 @@ set (SOURCES
     src/path.c
     src/ptrarray.c
     src/ptrset.c
+    src/rect.c
     src/queue.c
     src/sortedarray.c
     src/stream.c
