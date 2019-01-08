@@ -125,6 +125,7 @@ static inline void setZ_F4(iFloat4 *d, float z) {
 typedef iFloat4 iBool4;
 
 static inline iFloat4 add_F4    (const iFloat4 a, const iFloat4 b)  { return (iFloat4){ _mm_add_ps(a.m, b.m) }; }
+static inline iFloat4 addf_F4   (const iFloat4 a, const float b)    { return (iFloat4){ _mm_add_ps(a.m, _mm_set1_ps(b)) }; }
 static inline iFloat4 sub_F4    (const iFloat4 a, const iFloat4 b)  { return (iFloat4){ _mm_sub_ps(a.m, b.m) }; }
 static inline iFloat4 mul_F4    (const iFloat4 a, const iFloat4 b)  { return (iFloat4){ _mm_mul_ps(a.m, b.m) }; }
 static inline iFloat4 mulf_F4   (const iFloat4 a, const float b)    { return (iFloat4){ _mm_mul_ps(a.m, _mm_set1_ps(b)) }; }
@@ -275,6 +276,7 @@ static inline void setZ_F3(iFloat3 *d, float z) {
 typedef iFloat3 iBool3;
 
 static inline iFloat3 add_F3    (const iFloat3 a, const iFloat3 b)  { return (iFloat3){ _mm_add_ps(a.m, b.m) }; }
+static inline iFloat3 addf_F3   (const iFloat3 a, const float b)    { return (iFloat3){ _mm_add_ps(a.m, _mm_set1_ps(b)) }; }
 static inline iFloat3 sub_F3    (const iFloat3 a, const iFloat3 b)  { return (iFloat3){ _mm_sub_ps(a.m, b.m) }; }
 static inline iFloat3 mul_F3    (const iFloat3 a, const iFloat3 b)  { return (iFloat3){ _mm_mul_ps(a.m, b.m) }; }
 static inline iFloat3 mulf_F3   (const iFloat3 a, const float b)    { return (iFloat3){ _mm_mul_ps(a.m, _mm_set1_ps(b)) }; }

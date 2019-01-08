@@ -62,6 +62,10 @@ static inline iBool isEmpty_Rect(const iRect *d) {
     return prod_I2(d->size) == 0;
 }
 
+static inline iBool equal_Rect(const iRect *d, const iRect *other) {
+    return equal_I2(d->pos, other->pos) && equal_I2(d->size, other->size);
+}
+
 static inline iRect union_Rect(const iRect *d, const iRect *other) {
     const iVec2 br = min_I2(bottomRight_Rect(d), bottomRight_Rect(other));
     const iVec2 tl = max_I2(d->pos, other->pos);

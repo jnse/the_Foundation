@@ -114,6 +114,10 @@ static inline iFloat4 add_F4    (const iFloat4 a, const iFloat4 b)  {
     return (iFloat4){ .v = { a.value.x + b.value.x, a.value.y + b.value.y, a.value.z + b.value.z, a.value.w + b.value.w } };
 }
 
+static inline iFloat4 addf_F4   (const iFloat4 a, const float b) {
+    return (iFloat4){ .v = { a.value.x + b, a.value.y + b, a.value.z + b, a.value.w + b } };
+}
+
 static inline iFloat4 sub_F4    (const iFloat4 a, const iFloat4 b)  {
     return (iFloat4){ .v = { a.value.x - b.value.x, a.value.y - b.value.y, a.value.z - b.value.z, a.value.w - b.value.w } };
 }
@@ -378,6 +382,10 @@ typedef iFloat3 iBool3;
 
 static inline iFloat3 add_F3    (const iFloat3 a, const iFloat3 b)  {
     return (iFloat3){ .v = { a.value.x + b.value.x, a.value.y + b.value.y, a.value.z + b.value.z } };
+}
+
+static inline iFloat3 addf_F3   (const iFloat3 a, const float b) {
+    return (iFloat3){ .v = { a.value.x + b, a.value.y + b, a.value.z + b } };
 }
 
 static inline iFloat3 sub_F3    (const iFloat3 a, const iFloat3 b)  {
