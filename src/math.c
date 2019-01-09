@@ -33,6 +33,11 @@ int iRandom(int start, int end) {
     return start + rand() % (end - start);
 }
 
+unsigned iRandomu(unsigned start, unsigned end) {
+    if (end <= start) return start;
+    return start + (unsigned) rand() % (end - start);
+}
+
 float iRandomf(void) {
     return rand() / (float) RAND_MAX;
 }

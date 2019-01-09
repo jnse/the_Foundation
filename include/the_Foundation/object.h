@@ -102,6 +102,10 @@ iAnyObject *    ref_Object      (const iAnyObject *);
 void            deref_Object    (const iAnyObject *);
 const iClass *  class_Object    (const iAnyObject *);
 
+static inline iBool isInstance_Object(const iAnyObject *d, const iAnyClass *pClass) {
+    return class_Object(d) == pClass;
+}
+
 void            setUserData_Object  (iAnyObject *, void *user);
 void *          userData_Object     (const iAnyObject *);
 
@@ -126,6 +130,8 @@ static inline iAnyObject *collect_Object(const iAnyObject *d) {
 static inline void iRelease(const iAnyObject *d) {
     deref_Object(d);
 }
+
+#define iChangeRef(d, ptr)   { iRelease(d); (d) = ref_Object(ptr); }
 
 #define iReleasePtr(d) { iAssert((d) != NULL); deref_Object(*(d)); *(d) = NULL; }
 

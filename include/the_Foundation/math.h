@@ -36,8 +36,9 @@ iBeginPublic
 #define iMathDegreeToRadianf(v) ((v) * iMathPif / 180.f)
 #define iMathRadianToDegreef(v) ((v) * 180.f / iMathPif)
 
-int     iRandom(int start, int end);
-float   iRandomf(void);
+int         iRandom(int start, int end);
+unsigned    iRandomu(unsigned start, unsigned end);
+float       iRandomf(void);
 
 iDeclareType(FloatVec3)
 iDeclareType(FloatVec4)
@@ -73,5 +74,7 @@ struct Impl_FloatVec4 {
 
 iBool inverse_Mat3(const iMat3 *d, iMat3 *inversed_out);
 iBool inverse_Mat4(const iMat4 *d, iMat4 *inversed_out);
+
+#include "vec2.h"
 
 iEndPublic

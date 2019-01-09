@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iDeclareType(Rect)
 
+iBeginPublic
+
 struct Impl_Rect {
     iVec2 pos;
     iVec2 size;
@@ -76,6 +78,8 @@ static inline iRect union_Rect(const iRect *d, const iRect *other) {
     return u;
 }
 
+iVec2   random_Rect (const iRect *d);
+
 iDeclareConstIterator(Rect, const iRect *)
 
 struct ConstIteratorImpl_Rect {
@@ -83,3 +87,5 @@ struct ConstIteratorImpl_Rect {
     iVec2 pos;
     const iRect *rect;
 };
+
+iEndPublic

@@ -48,6 +48,10 @@ static inline iVec2 init_I2(int x, int y) {
     return (iVec2){ x, y };
 }
 
+static inline iVec2 initu_I2(unsigned x, unsigned y) {
+    return (iVec2){ (int) x, (int) y };
+}
+
 static inline iVec2 initv_I2(const int *v) {
     return (iVec2){ v[0], v[1] };
 }
@@ -62,6 +66,7 @@ static inline iVec2 yx_I2(const iVec2 d) {
 }
 
 static inline iVec2 add_I2      (const iVec2 a, const iVec2 b)  { return (iVec2){ a.x + b.x, a.y + b.y }; }
+static inline iVec2 addi_I2     (const iVec2 a, int b)          { return (iVec2){ a.x + b, a.y + b }; }
 static inline iVec2 sub_I2      (const iVec2 a, const iVec2 b)  { return (iVec2){ a.x - b.x, a.y - b.y }; }
 static inline iVec2 mul_I2      (const iVec2 a, const iVec2 b)  { return (iVec2){ a.x * b.x, a.y * b.y }; }
 static inline iVec2 muli_I2     (const iVec2 a, int b)          { return (iVec2){ a.x * b, a.y * b }; }

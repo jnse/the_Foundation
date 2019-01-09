@@ -26,6 +26,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "the_Foundation/rect.h"
+#include "the_Foundation/math.h"
+
+iVec2 random_Rect(const iRect *d) {
+    return init_I2(iRandom(d->pos.x, right_Rect(d)), iRandom(d->pos.y, bottom_Rect(d)));
+}
 
 void init_RectConstIterator(iRectConstIterator *d, const iRect *rect) {
     d->rect = rect;
