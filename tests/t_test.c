@@ -278,7 +278,7 @@ int main(int argc, char *argv[]) {
                    size_FileInfo(i.value),
                    isDirectory_FileInfo(i.value)? "(dir)" : "     ",
                    lastModified_FileInfo(i.value).ts.tv_sec,
-                   cstrPath_FileInfo(i.value));
+                   cstrLocalPath_FileInfo(i.value));
         }
         iEndCollect();
     }

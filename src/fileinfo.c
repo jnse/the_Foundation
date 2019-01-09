@@ -91,9 +91,9 @@ void init_FileInfo(iFileInfo *d, const iString *path) {
 static iBool initDirEntry_FileInfo_(iFileInfo *d, const iString *dirPath, struct dirent *ent) {
     iString entryName;
 #if defined (iPlatformApple)
-    initCStrN_String(&entryName, ent->d_name, ent->d_namlen);
+    initLocalCStrN_String(&entryName, ent->d_name, ent->d_namlen);
 #else
-    initCStr_String(&entryName, ent->d_name);
+    initLocalCStr_String(&entryName, ent->d_name);
 #endif
     // Check for ignored entries.
     if (!cmp_String(&entryName, "..") || !cmp_String(&entryName, ".")) {

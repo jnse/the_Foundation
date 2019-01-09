@@ -66,6 +66,10 @@ static inline const char *cstrPath_FileInfo(const iFileInfo *d) {
     return cstr_String(path_FileInfo(d));
 }
 
+static inline const char *cstrLocalPath_FileInfo(const iFileInfo *d) {
+    return cstrLocal_String(path_FileInfo(d));
+}
+
 //---------------------------------------------------------------------------------------
 
 iDeclareObjectConstructionArgs(DirFileInfo, const iString *path)

@@ -104,7 +104,7 @@ iBool start_Process(iProcess *d) {
     return rc == 0;
 }
 
-pid_t pid_Process(const iProcess *d) {
+iProcessId pid_Process(const iProcess *d) {
     if (d) {
         return d->pid;
     }

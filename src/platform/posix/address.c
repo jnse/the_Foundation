@@ -191,18 +191,6 @@ iSocketParameters socketParameters_Address(const iAddress *d, int family) {
     return sp;
 }
 
-#if 0
-int ipVersion_Address(const iAddress *d) {
-    int ver = 0;
-    iGuardMutex(&d->mutex, {
-        if (d->info) {
-            ver = (d->info->ai_family == AF_INET6? 6 : 4);
-        }
-    });
-    return ver;
-}
-#endif
-
 iBool isValid_Address(const iAddress *d) {
     return count_Address(d) >= 0;
 }
@@ -266,7 +254,6 @@ void waitForFinished_Address(const iAddress *d) {
         guardJoin_Thread(d->pending, &d->mutex);
     }
 }
-
 
 void getSockAddr_Address(const iAddress *  d,
                          struct sockaddr **addr_out,

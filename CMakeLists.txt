@@ -225,7 +225,11 @@ else () # WIN32
         src/platform/win32/msdirent.h
     )
     list (APPEND SOURCES
+        src/platform/win32/address.c
         src/platform/win32/datagram.c
+        src/platform/win32/process.c
+        src/platform/win32/service.c
+        src/platform/win32/socket.c
     )
 endif ()
 if (PCRE_FOUND)
