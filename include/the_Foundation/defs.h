@@ -58,6 +58,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define iClamp(i, low, high)    ((i) < (low) ? (low) : (i) > (high) ? (high) : (i))
 #define iCmp(a, b)              ((a) == (b) ? 0 : (a) < (b) ? -1 : 1)
 
+static inline int iMaxi(const int a, const int b) { return a > b ? a : b; }
+static inline int iMini(const int a, const int b) { return a < b ? a : b; }
+
 #define iChangeFlags(var, flags, doSet)   {if (doSet) { (var) |= (flags); } else { (var) &= ~(flags); }}
 
 // Types.

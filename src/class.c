@@ -42,3 +42,10 @@ void delete_Class(const void *class, void *object) {
     deinit_Class(class, object);
     free(object);
 }
+
+iBool isDerived_Class(const iAnyClass *d, const iAnyClass *super) {
+    for (const iClass *c = d; c; c = c->super) {
+        if (c->super == super) return iTrue;
+    }
+    return iFalse;
+}

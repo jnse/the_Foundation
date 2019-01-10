@@ -103,7 +103,7 @@ void            deref_Object    (const iAnyObject *);
 const iClass *  class_Object    (const iAnyObject *);
 
 static inline iBool isInstance_Object(const iAnyObject *d, const iAnyClass *pClass) {
-    return class_Object(d) == pClass;
+    return class_Object(d) == pClass || isDerived_Class(class_Object(d), pClass);
 }
 
 void            setUserData_Object  (iAnyObject *, void *user);

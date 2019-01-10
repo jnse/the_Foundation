@@ -50,6 +50,7 @@ static inline int   left_Rect   (const iRect *d) { return d->pos.x; }
 static inline int   right_Rect  (const iRect *d) { return d->pos.x + d->size.x; }
 static inline int   top_Rect    (const iRect *d) { return d->pos.y; }
 static inline int   bottom_Rect (const iRect *d) { return d->pos.y + d->size.y; }
+static inline iVec2 mid_Rect    (const iRect *d) { return add_I2(d->pos, divi_I2(d->size, 2)); }
 
 static inline iVec2 bottomRight_Rect(const iRect *d) {
     return add_I2(d->pos, d->size);
@@ -78,6 +79,7 @@ static inline iRect union_Rect(const iRect *d, const iRect *other) {
     return u;
 }
 
+void    expand_Rect (iRect *d, int i);
 iVec2   random_Rect (const iRect *d);
 
 iDeclareConstIterator(Rect, const iRect *)

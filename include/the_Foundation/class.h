@@ -96,7 +96,9 @@ struct Impl_Class {
     iBeginDefineSubclass(className, superClass) \
     iEndDefineSubclass(className)
 
-void deinit_Class(const void *classObj, void *object);
-void delete_Class(const void *classObj, void *object);
+void    deinit_Class    (const void *classObj, void *object);
+void    delete_Class    (const void *classObj, void *object);
+
+iBool   isDerived_Class (const iAnyClass *, const iAnyClass *super);
 
 iEndPublic
