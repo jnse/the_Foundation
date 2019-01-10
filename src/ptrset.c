@@ -56,6 +56,7 @@ iBool insert_PtrSet(iPtrSet *d, void *ptr) {
 }
 
 iBool remove_PtrSet(iPtrSet *d, void *ptr) {
+    iAssert(d);
     return remove_SortedArray(d, &ptr);
 }
 
@@ -74,7 +75,7 @@ void next_PtrSetIterator(iPtrSetIterator *d) {
 }
 
 void init_PtrSetConstIterator(iPtrSetConstIterator *d, const iPtrSet *set) {
-    init_ArrayConstIterator(&d->iter, &set->values);
+    init_ArrayConstIterator(&d->iter, set ? &set->values : NULL);
 }
 
 void next_PtrSetConstIterator(iPtrSetConstIterator *d) {

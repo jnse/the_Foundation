@@ -47,9 +47,7 @@ void next_RectConstIterator(iRectConstIterator *d) {
     d->value = (d->pos.y < bottom_Rect(d->rect));
 }
 
-void expand_Rect(iRect *d, int i) {
-    d->pos.x -= i;
-    d->pos.y -= i;
-    d->size.x += 2 * i;
-    d->size.y += 2 * i;
+void expand_Rect(iRect *d, iVec2 value) {
+    subv_I2(&d->pos, value);
+    addv_I2(&d->size, muli_I2(value, 2));
 }

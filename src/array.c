@@ -287,9 +287,14 @@ void remove_ArrayIterator(iArrayIterator *d) {
 }
 
 void init_ArrayConstIterator(iArrayConstIterator *d, const iArray *array) {
-    d->array = array;
-    d->value = (!isEmpty_Array(array)? constAt_Array(array, 0) : NULL);
-    d->end = element_Array_(d->array, d->array->range.end);
+    if (array) {
+        d->array = array;
+        d->value = (!isEmpty_Array(array)? constAt_Array(array, 0) : NULL);
+        d->end = element_Array_(d->array, d->array->range.end);
+    }
+    else {
+        iZap(*d);
+    }
 }
 
 void next_ArrayConstIterator(iArrayConstIterator *d) {

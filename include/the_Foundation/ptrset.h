@@ -42,6 +42,9 @@ void *      at_PtrSet       (iPtrSet *, size_t pos);
 #define     isEmpty_PtrSet(d)   isEmpty_SortedArray(d)
 #define     size_PtrSet(d)      size_SortedArray(d)
 
+static inline void *    front_PtrSet  (iPtrSet *d) { return at_PtrSet(d, 0); }
+static inline void *    back_PtrSet   (iPtrSet *d) { return at_PtrSet(d, size_PtrSet(d) - 1); }
+
 iBool       insert_PtrSet   (iPtrSet *, void *ptr);
 iBool       remove_PtrSet   (iPtrSet *, void *ptr);
 
