@@ -65,6 +65,9 @@ static inline iVec2 yx_I2(const iVec2 d) {
     return (iVec2){ d.y, d.x };
 }
 
+static inline iVec2 dx_I2(const iVec2 a, int dx) { return (iVec2){ a.x + dx, a.y }; }
+static inline iVec2 dy_I2(const iVec2 a, int dy) { return (iVec2){ a.x, a.y + dy }; }
+
 static inline iVec2 add_I2      (const iVec2 a, const iVec2 b)  { return (iVec2){ a.x + b.x, a.y + b.y }; }
 static inline iVec2 addi_I2     (const iVec2 a, int b)          { return (iVec2){ a.x + b, a.y + b }; }
 static inline iVec2 sub_I2      (const iVec2 a, const iVec2 b)  { return (iVec2){ a.x - b.x, a.y - b.y }; }

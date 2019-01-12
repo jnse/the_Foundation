@@ -385,6 +385,18 @@ void format_String(iString *d, const char *format, ...) {
     va_end(args);
 }
 
+void appendFormat_String(iString *d, const char *format, ...) {
+    iBlock chars;
+    init_Block(&chars, 0); {
+        va_list args;
+        va_start(args, format);
+        vprintf_Block(&chars, format, args);
+        va_end(args);
+    }
+    append_Block(&d->chars, &chars);
+    deinit_Block(&chars);
+}
+
 size_t indexOf_String(const iString *d, iChar ch) {
     iMultibyteChar mb;
     init_MultibyteChar(&mb, ch);

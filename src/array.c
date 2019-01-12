@@ -266,7 +266,7 @@ void sort_Array(iArray *d, int (*cmp)(const void *, const void *)) {
 void init_ArrayIterator(iArrayIterator *d, iArray *array) {
     d->array = array;
     d->pos = 0;
-    d->value = (!isEmpty_Array(array)? at_Array(array, 0) : NULL);
+    d->value = (array && !isEmpty_Array(array) ? at_Array(array, 0) : NULL);
 }
 
 void next_ArrayIterator(iArrayIterator *d) {

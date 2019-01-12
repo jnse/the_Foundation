@@ -52,6 +52,10 @@ static inline int   top_Rect    (const iRect *d) { return d->pos.y; }
 static inline int   bottom_Rect (const iRect *d) { return d->pos.y + d->size.y; }
 static inline iVec2 mid_Rect    (const iRect *d) { return add_I2(d->pos, divi_I2(d->size, 2)); }
 
+static inline iVec2 bottomLeft_Rect(const iRect *d) {
+    return init_I2(d->pos.x, bottom_Rect(d));
+}
+
 static inline iVec2 topRight_Rect(const iRect *d) {
     return init_I2(right_Rect(d), d->pos.y);
 }
