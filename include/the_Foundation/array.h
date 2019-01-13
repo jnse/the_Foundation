@@ -70,7 +70,7 @@ const void * constEnd_Array  (const iArray *);
 
 size_t       size_Array      (const iArray *d);
 
-static inline iBool     isEmpty_Array   (const iArray *d) { return isEmpty_Range(&d->range); }
+static inline iBool     isEmpty_Array   (const iArray *d) { return d == NULL || isEmpty_Range(&d->range); }
 static inline void *    front_Array     (iArray *d) { return at_Array(d, 0); }
 static inline void *    back_Array      (iArray *d) { return at_Array(d, size_Array(d) - 1); }
 static inline const void * constFront_Array (const iArray *d) { return constAt_Array(d, 0); }
