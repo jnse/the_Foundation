@@ -46,6 +46,10 @@ static inline iRect initv_Rect(const int *v) {
     return (iRect){ initv_I2(v), initv_I2(v + 2) };
 }
 
+static inline iRect initCentered_Rect(const iVec2 center, const iVec2 size) {
+    return (iRect){ sub_I2(center, divi_I2(size, 2)), size };
+}
+
 static inline int   left_Rect   (const iRect *d) { return d->pos.x; }
 static inline int   right_Rect  (const iRect *d) { return d->pos.x + d->size.x; }
 static inline int   top_Rect    (const iRect *d) { return d->pos.y; }
@@ -97,5 +101,14 @@ struct ConstIteratorImpl_Rect {
     iVec2 pos;
     const iRect *rect;
 };
+
+#define iForRadius(iter, center, radius, body) { \
+    const iVec2 center_ForRadius_ = (center); \
+    const int radius_ForRadius_ = (radius); \
+    const iRect rect_ForRadius_ = initCentered_Rect(center_ForRadius_, init1_I2(radius_ForRadius_)); \
+    iConstForEach(Rect, iter, &rect_ForRadius_) { \
+        if (dist_I2(center_ForRadius_, iter.pos) + .5f <= radius_ForRadius_) { body } \
+    } \
+}
 
 iEndPublic

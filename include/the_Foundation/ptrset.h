@@ -58,6 +58,9 @@ struct IteratorImpl_PtrSet {
         iArrayIterator iter;
     };
 };
+
+void    remove_PtrSetIterator   (iPtrSetIterator *);
+
 struct ConstIteratorImpl_PtrSet {
     union {
         const void **value;

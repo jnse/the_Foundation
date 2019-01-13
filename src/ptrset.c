@@ -74,6 +74,10 @@ void next_PtrSetIterator(iPtrSetIterator *d) {
     next_ArrayIterator(&d->iter);
 }
 
+void remove_PtrSetIterator(iPtrSetIterator *d) {
+    remove_ArrayIterator(&d->iter);
+}
+
 void init_PtrSetConstIterator(iPtrSetConstIterator *d, const iPtrSet *set) {
     init_ArrayConstIterator(&d->iter, set ? &set->values : NULL);
 }

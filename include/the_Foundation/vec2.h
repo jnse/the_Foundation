@@ -105,6 +105,8 @@ static inline int   prod_I2     (const iVec2 a)                 { return a.x * a
 static inline int   dot_I2      (const iVec2 a, const iVec2 b)  { return sum_I2(mul_I2(a, b)); }
 static inline float lengthSq_I2 (const iVec2 a)                 { return dot_I2(a, a); }
 static inline float length_I2   (const iVec2 a)                 { return sqrtf(lengthSq_I2(a)); }
+static inline float dist_I2     (const iVec2 a, const iVec2 b)  { return length_I2(sub_I2(b, a)); }
+static inline int   idist_I2    (const iVec2 a, const iVec2 b)  { return (int) (length_I2(sub_I2(b, a)) + .5f); }
 
 static inline iVec2 mix_I2      (const iVec2 a, const iVec2 b, float t) {
     return add_I2(a, mulf_I2(sub_I2(b, a), t));

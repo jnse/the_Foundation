@@ -42,6 +42,10 @@ float iRandomf(void) {
     return rand() / (float) RAND_MAX;
 }
 
+int iRound(float value) {
+    return (int) lroundf(value);
+}
+
 //---------------------------------------------------------------------------------------
 
 static float determinant_Mat3_(const float *mat) {

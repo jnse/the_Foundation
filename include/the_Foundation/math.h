@@ -36,9 +36,11 @@ iBeginPublic
 #define iMathDegreeToRadianf(v) ((v) * iMathPif / 180.f)
 #define iMathRadianToDegreef(v) ((v) * 180.f / iMathPif)
 
-int         iRandom(int start, int end);
+int         iRandom (int start, int end);
 unsigned    iRandomu(unsigned start, unsigned end);
 float       iRandomf(void);
+
+int         iRound  (float value);
 
 iDeclareType(FloatVec3)
 iDeclareType(FloatVec4)
