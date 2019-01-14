@@ -102,7 +102,7 @@ struct ConstIteratorImpl_Rect {
     const iRect *rect;
 };
 
-#define iForRadius(iter, center, radius, body) { \
+#define iForRectRadius(iter, center, radius, body) { \
     const iVec2 center_ForRadius_ = (center); \
     const int radius_ForRadius_ = (radius); \
     const iRect rect_ForRadius_ = initCentered_Rect(center_ForRadius_, init1_I2(2 * radius_ForRadius_ + 1)); \
