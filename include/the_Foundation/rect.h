@@ -78,7 +78,7 @@ static inline iBool isEmpty_Rect(const iRect *d) {
 }
 
 static inline iBool equal_Rect(const iRect *d, const iRect *other) {
-    return equal_I2(d->pos, other->pos) && equal_I2(d->size, other->size);
+    return all_Bool2(equal_I2(d->pos, other->pos)) && all_Bool2(equal_I2(d->size, other->size));
 }
 
 static inline iRect union_Rect(const iRect *d, const iRect *other) {

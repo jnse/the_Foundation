@@ -36,6 +36,8 @@ struct Impl_Vec2 {
     int x, y;
 };
 
+typedef struct { uint8_t bits; } iBool2;
+
 static inline iVec2 zero_I2(void) {
     return (iVec2){ 0, 0 };
 }
@@ -96,8 +98,32 @@ static inline iVec2 max_I2      (const iVec2 a, const iVec2 b)  { return (iVec2)
 static inline iVec2 neg_I2      (const iVec2 a)                 { return (iVec2){ -a.x, -a.y }; }
 static inline iVec2 abs_I2      (const iVec2 a)                 { return (iVec2){ iAbs(a.x), iAbs(a.y) }; }
 
-static inline iBool equal_I2    (const iVec2 a, const iVec2 b)  { return a.x == b.x && a.y == b.y; }
-static inline iBool notEqual_I2 (const iVec2 a, const iVec2 b)  { return a.x != b.x || a.y != b.y; }
+static inline iBool2 equal_I2   (const iVec2 a, const iVec2 b) {
+    return (iBool2){ (a.x == b.x ? 1 : 0) | (a.y == b.y ? 2 : 0) };
+}
+
+static inline iBool2 notEqual_I2(const iVec2 a, const iVec2 b) {
+    return (iBool2){ (a.x != b.x ? 1 : 0) | (a.y != b.y ? 2 : 0) };
+}
+
+static inline iBool2 greater_I2 (const iVec2 a, const iVec2 b) {
+    return (iBool2){ (a.x > b.x ? 1 : 0) | (a.y > b.y ? 2 : 0) };
+}
+
+static inline iBool2 greaterEqual_I2 (const iVec2 a, const iVec2 b) {
+    return (iBool2){ (a.x >= b.x ? 1 : 0) | (a.y >= b.y ? 2 : 0) };
+}
+
+static inline iBool2 less_I2 (const iVec2 a, const iVec2 b) {
+    return (iBool2){ (a.x < b.x ? 1 : 0) | (a.y < b.y ? 2 : 0) };
+}
+
+static inline iBool2 lessEqual_I2 (const iVec2 a, const iVec2 b) {
+    return (iBool2){ (a.x <= b.x ? 1 : 0) | (a.y <= b.y ? 2 : 0) };
+}
+
+static inline iBool all_Bool2   (const iBool2 a)                { return a.bits == 3; }
+static inline iBool any_Bool2   (const iBool2 a)                { return a.bits != 0; }
 
 static inline iVec2 clamp_I2    (const iVec2 t, const iVec2 a, const iVec2 b) { return min_I2(max_I2(t, a), b); }
 static inline int   sum_I2      (const iVec2 a)                 { return a.x + a.y; }
