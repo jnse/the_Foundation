@@ -35,27 +35,37 @@ static int cmp_PtrSet_(const void *a, const void *b) {
 
 iDefineTypeConstruction(PtrSet)
 
+iPtrSet *newCmp_PtrSet(iSortedArrayCompareElemFunc cmp) {
+    iPtrSet *d = new_PtrSet();
+    if (cmp) d->cmp = cmp;
+    return d;
+}
+
 void init_PtrSet(iPtrSet *d) {
     init_SortedArray(d, sizeof(iPtr), cmp_PtrSet_);
+}
+
+void initCmp_PtrSet(iPtrSet *d, iSortedArrayCompareElemFunc cmp) {
+    init_SortedArray(d, sizeof(iPtr), cmp ? cmp : cmp_PtrSet_);
 }
 
 void deinit_PtrSet(iPtrSet *d) {
     deinit_SortedArray(d);
 }
 
-iBool contains_PtrSet(const iPtrSet *d, void *ptr) {
+iBool contains_PtrSet(const iPtrSet *d, const void *ptr) {
     return contains_SortedArray(d, &ptr);
 }
 
-iBool locate_PtrSet(const iPtrSet *d, void *ptr, size_t *pos_out) {
+iBool locate_PtrSet(const iPtrSet *d, const void *ptr, size_t *pos_out) {
     return locate_SortedArray(d, &ptr, pos_out);
 }
 
-iBool insert_PtrSet(iPtrSet *d, void *ptr) {
+iBool insert_PtrSet(iPtrSet *d, const void *ptr) {
     return insert_SortedArray(d, &ptr);
 }
 
-iBool remove_PtrSet(iPtrSet *d, void *ptr) {
+iBool remove_PtrSet(iPtrSet *d, const void *ptr) {
     iAssert(d);
     return remove_SortedArray(d, &ptr);
 }

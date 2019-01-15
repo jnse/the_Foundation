@@ -35,8 +35,14 @@ typedef iSortedArray iPtrSet;
 
 iDeclareTypeConstruction(PtrSet)
 
-iBool       contains_PtrSet (const iPtrSet *, void *ptr);
-iBool       locate_PtrSet   (const iPtrSet *, void *ptr, size_t *pos_out);
+/** Constructs a PtrSet with a custom comparison function. The default comparison
+    function is used if @a cmp is NULL. */
+iPtrSet *   newCmp_PtrSet   (iSortedArrayCompareElemFunc cmp);
+
+void        initCmp_PtrSet  (iPtrSet *, iSortedArrayCompareElemFunc cmp);
+
+iBool       contains_PtrSet (const iPtrSet *, const void *ptr);
+iBool       locate_PtrSet   (const iPtrSet *, const void *ptr, size_t *pos_out);
 void *      at_PtrSet       (iPtrSet *, size_t pos);
 
 #define     isEmpty_PtrSet(d)   isEmpty_SortedArray(d)
@@ -45,8 +51,8 @@ void *      at_PtrSet       (iPtrSet *, size_t pos);
 static inline void *    front_PtrSet  (iPtrSet *d) { return at_PtrSet(d, 0); }
 static inline void *    back_PtrSet   (iPtrSet *d) { return at_PtrSet(d, size_PtrSet(d) - 1); }
 
-iBool       insert_PtrSet   (iPtrSet *, void *ptr);
-iBool       remove_PtrSet   (iPtrSet *, void *ptr);
+iBool       insert_PtrSet   (iPtrSet *, const void *ptr);
+iBool       remove_PtrSet   (iPtrSet *, const void *ptr);
 
 /** @name Iterators */
 ///@{
