@@ -67,6 +67,7 @@ const void * constData_Array (const iArray *);
 void *       at_Array        (iArray *, size_t pos);
 const void * constAt_Array   (const iArray *, size_t pos);
 const void * constEnd_Array  (const iArray *);
+size_t       indexOf_Array   (const iArray *, const void *element);
 
 size_t       size_Array      (const iArray *d);
 

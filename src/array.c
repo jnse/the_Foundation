@@ -113,6 +113,13 @@ const void *constEnd_Array(const iArray *d) {
     return element_Array_(d, d->range.end);
 }
 
+size_t indexOf_Array(const iArray *d, const void *element) {
+    const size_t index =
+        (size_t) ((const char *) element - (const char *) constData_Array(d)) / d->elementSize;
+    if (index < size_Array(d)) return index;
+    return iInvalidPos;
+}
+
 void reserve_Array(iArray *d, size_t reservedSize) {
     size_t newSize = (d->allocSize == 0? iArrayMinAlloc : d->allocSize);
     while (newSize < reservedSize) {
