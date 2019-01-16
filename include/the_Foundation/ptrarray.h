@@ -49,6 +49,8 @@ void            set_PtrArray        (iPtrArray *, size_t pos, const void *ptr);
 void        pushBack_PtrArray       (iPtrArray *, const void *ptr);
 void        pushFront_PtrArray      (iPtrArray *, const void *ptr);
 
+static inline void *front_PtrArray  (iPtrArray *d) { return !isEmpty_PtrArray(d) ? at_PtrArray(d, 0) : NULL; }
+
 iBool       take_PtrArray           (iPtrArray *, size_t pos, void **ptr_out);
 size_t      takeN_PtrArray          (iPtrArray *, size_t pos, void **ptr_out, size_t count);
 void        insert_PtrArray         (iPtrArray *, size_t pos, const void *value);

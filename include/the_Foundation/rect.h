@@ -38,6 +38,8 @@ struct Impl_Rect {
     iVec2 size;
 };
 
+static inline iRect zero_Rect(void) { return (iRect){ zero_I2(), zero_I2() }; }
+
 static inline iRect init_Rect(int x, int y, int width, int height) {
     return (iRect){ init_I2(x, y), init_I2(width, height) };
 }
@@ -91,8 +93,9 @@ static inline iRect union_Rect(const iRect *d, const iRect *other) {
     return u;
 }
 
-void    expand_Rect (iRect *d, iVec2 value);
-iVec2   random_Rect (const iRect *d);
+void    expand_Rect     (iRect *, iVec2 value);
+void    adjustEdges_Rect(iRect *, int top, int right, int bottom, int left);
+iVec2   random_Rect     (const iRect *d);
 
 iDeclareConstIterator(Rect, const iRect *)
 

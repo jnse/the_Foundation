@@ -51,3 +51,12 @@ void expand_Rect(iRect *d, iVec2 value) {
     subv_I2(&d->pos, value);
     addv_I2(&d->size, muli_I2(value, 2));
 }
+
+void adjustEdges_Rect(iRect *d, int top, int right, int bottom, int left) {
+    d->pos.y += top;
+    d->size.y -= top;
+    d->size.y += bottom;
+    d->pos.x += left;
+    d->size.x -= left;
+    d->size.x += right;
+}
