@@ -54,7 +54,7 @@ void deinit_PtrSet(iPtrSet *d) {
 }
 
 iBool contains_PtrSet(const iPtrSet *d, const void *ptr) {
-    return contains_SortedArray(d, &ptr);
+    return d && contains_SortedArray(d, &ptr);
 }
 
 iBool locate_PtrSet(const iPtrSet *d, const void *ptr, size_t *pos_out) {
