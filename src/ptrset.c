@@ -53,6 +53,10 @@ void deinit_PtrSet(iPtrSet *d) {
     deinit_SortedArray(d);
 }
 
+iPtrSet *copy_PtrSet(const iPtrSet *d) {
+    return d ? copy_SortedArray(d) : NULL;
+}
+
 iBool contains_PtrSet(const iPtrSet *d, const void *ptr) {
     return d && contains_SortedArray(d, &ptr);
 }

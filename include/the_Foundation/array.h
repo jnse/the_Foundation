@@ -62,6 +62,8 @@ iArray *    newN_Array          (size_t elementSize, const void *value, size_t c
 iArray *    newElements_Array   (size_t elementSize, const void *value, ...);
 iArray *    copy_Array          (const iArray *);
 
+void        initCopy_Array      (iArray *, const iArray *other);
+
 void *       data_Array      (iArray *);
 const void * constData_Array (const iArray *);
 void *       at_Array        (iArray *, size_t pos);

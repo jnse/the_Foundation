@@ -67,18 +67,22 @@ iDefineTypeConstructionArgs(Array, (size_t elemSize), elemSize)
 
 iArray *copy_Array(const iArray *other) {
     iArray *d = iMalloc(Array);
-    d->range.start = 0;
-    d->range.end = size_Array(other);
-    d->allocSize = d->range.end + 1;
-    d->data = malloc(d->allocSize);
-    d->elementSize = other->elementSize;
-    memcpy(d->data, other->data, d->range.end);
+    initCopy_Array(d, other);
     return d;
 }
 
 void init_Array(iArray *d, size_t elementSize) {
     iZap(*d);
     d->elementSize = elementSize;
+}
+
+void initCopy_Array(iArray *d, const iArray *other) {
+    d->range.start = 0;
+    d->range.end = size_Array(other);
+    d->allocSize = d->range.end + 1;
+    d->data = malloc(d->allocSize);
+    d->elementSize = other->elementSize;
+    memcpy(d->data, other->data, d->range.end);
 }
 
 void deinit_Array(iArray *d) {

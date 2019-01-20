@@ -42,6 +42,13 @@ void deinit_SortedArray(iSortedArray *d) {
     deinit_Array(&d->values);
 }
 
+iSortedArray *copy_SortedArray(const iSortedArray *other) {
+    iSortedArray *d = iMalloc(SortedArray);
+    initCopy_Array(&d->values, &other->values);
+    d->cmp = other->cmp;
+    return d;
+}
+
 iBool contains_SortedArray(const iSortedArray *d, const void *value) {
     return locate_SortedArray(d, value, NULL);
 }

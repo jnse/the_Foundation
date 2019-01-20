@@ -55,6 +55,8 @@ struct Impl_SortedArray {
 
 iDeclareTypeConstructionArgs(SortedArray, size_t elementSize, iSortedArrayCompareElemFunc cmp)
 
+iSortedArray *          copy_SortedArray    (const iSortedArray *);
+
 static inline size_t    size_SortedArray    (const iSortedArray *d) { return size_Array(&d->values); }
 
 iBool       contains_SortedArray(const iSortedArray *, const void *value);

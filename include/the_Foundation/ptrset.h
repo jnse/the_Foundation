@@ -35,6 +35,8 @@ typedef iSortedArray iPtrSet;
 
 iDeclareTypeConstruction(PtrSet)
 
+iPtrSet *   copy_PtrSet     (const iPtrSet *);
+
 /** Constructs a PtrSet with a custom comparison function. The default comparison
     function is used if @a cmp is NULL. */
 iPtrSet *   newCmp_PtrSet   (iSortedArrayCompareElemFunc cmp);
