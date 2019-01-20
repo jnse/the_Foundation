@@ -97,6 +97,8 @@ void    expand_Rect     (iRect *, iVec2 value);
 void    adjustEdges_Rect(iRect *, int top, int right, int bottom, int left);
 iVec2   random_Rect     (const iRect *d);
 
+static inline void shrink_Rect  (iRect *d, iVec2 value) { expand_Rect(d, neg_I2(value)); }
+
 static inline iRect expanded_Rect(const iRect *d, iVec2 value) {
     iRect r = *d;
     expand_Rect(&r, value);

@@ -54,6 +54,8 @@ static inline void *    back_PtrSet   (iPtrSet *d) { return at_PtrSet(d, size_Pt
 iBool       insert_PtrSet   (iPtrSet *, const void *ptr);
 iBool       remove_PtrSet   (iPtrSet *, const void *ptr);
 
+static inline void  clear_PtrSet    (iPtrSet *d) { clear_SortedArray(d); }
+
 /** @name Iterators */
 ///@{
 iDeclareIterator(PtrSet, iPtrSet *)
