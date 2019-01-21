@@ -51,7 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define iInvalidPos     ((size_t) -1)
 #define iInvalidSize    ((size_t) -1)
 
-#define iBit(n1_to_32)          (1UL << (n1_to_32 - 1))
+#define iBit(n1_to_32)          (1 << (n1_to_32 - 1))
 #define iMin(a, b)              ((a) < (b) ? (a) : (b))
 #define iMax(a, b)              ((a) > (b) ? (a) : (b))
 #define iAbs(a)                 ((a) > 0 ? (a) : -(a))
