@@ -123,6 +123,7 @@ set (HEADERS
     include/the_Foundation/math.h
     include/the_Foundation/math_${mathSpec}.h
     include/the_Foundation/mutex.h
+    include/the_Foundation/noise.h
     include/the_Foundation/object.h
     include/the_Foundation/objectlist.h
     include/the_Foundation/path.h
@@ -169,6 +170,7 @@ set (SOURCES
     src/mutex.c
     src/math.c
     src/math_${mathSpec}.c
+    src/noise.c
     src/object.c
     src/objectlist.c
     src/path.c

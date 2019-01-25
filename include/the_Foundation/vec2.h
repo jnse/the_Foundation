@@ -42,6 +42,10 @@ static inline iVec2 zero_I2(void) {
     return (iVec2){ 0, 0 };
 }
 
+static inline iVec2 one_I2(void) {
+    return (iVec2){ 1, 1 };
+}
+
 static inline iVec2 init1_I2(int x) {
     return (iVec2){ x, x };
 }
