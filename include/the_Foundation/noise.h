@@ -41,6 +41,7 @@ iDeclareType(NoiseComponent)
 struct Impl_NoiseComponent {
     iVec2 size;
     float weight;
+    float offset;
 };
 
 iDeclareType(CombinedNoise)

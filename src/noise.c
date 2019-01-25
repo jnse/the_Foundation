@@ -63,6 +63,7 @@ iDeclareType(CombinedNoisePart)
 
 struct Impl_CombinedNoisePart {
     float weight;
+    float offset;
     iNoise noise;
 };
 
@@ -77,7 +78,8 @@ iDefineTypeConstructionArgs(CombinedNoise,
 void init_CombinedNoise(iCombinedNoise *d, const iNoiseComponent *components, size_t count) {
     init_Array(&d->parts, sizeof(iCombinedNoisePart));
     for (size_t i = 0; i < count; ++i) {
-        iCombinedNoisePart part = { .weight = components[i].weight };
+        iCombinedNoisePart part = { .weight = components[i].weight,
+                                    .offset = components[i].offset };
         init_Noise(&part.noise, components[i].size);
         pushBack_Array(&d->parts, &part);
     }
@@ -94,7 +96,7 @@ float eval_CombinedNoise(const iCombinedNoise *d, float normX, float normY) {
     float value = 0.f;
     iConstForEach(Array, i, &d->parts) {
         const iCombinedNoisePart *part = i.value;
-        value += part->weight * eval_Noise(&part->noise, normX, normY);
+        value += part->weight * eval_Noise(&part->noise, normX, normY) + part->offset;
     }
     return value;
 }
