@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
+#include "random.h"
 
 iBeginPublic
 
@@ -35,10 +36,6 @@ iBeginPublic
 #define iMathPif                3.14159265358979323846f
 #define iMathDegreeToRadianf(v) ((v) * iMathPif / 180.f)
 #define iMathRadianToDegreef(v) ((v) * 180.f / iMathPif)
-
-int         iRandom (int start, int end);
-unsigned    iRandomu(unsigned start, unsigned end);
-float       iRandomf(void);
 
 int         iRound  (float value);
 

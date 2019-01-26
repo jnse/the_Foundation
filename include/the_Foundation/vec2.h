@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
+#include "random.h"
 #include <math.h>
 
 iDeclareType(Vec2)
@@ -143,3 +144,5 @@ static inline int   idist_I2    (const iVec2 a, const iVec2 b)  { return (int) (
 static inline iVec2 mix_I2      (const iVec2 a, const iVec2 b, float t) {
     return add_I2(a, mulf_I2(sub_I2(b, a), t));
 }
+
+static inline iVec2 random_I2   (const iVec2 a) { return (iVec2){ iRandom(0, a.x), iRandom(0, a.y) }; }

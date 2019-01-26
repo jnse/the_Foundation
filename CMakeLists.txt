@@ -132,6 +132,7 @@ set (HEADERS
     include/the_Foundation/ptrset.h
     include/the_Foundation/rect.h
     include/the_Foundation/queue.h
+    include/the_Foundation/random.h
     include/the_Foundation/range.h
     include/the_Foundation/service.h
     include/the_Foundation/socket.h
@@ -176,6 +177,7 @@ set (SOURCES
     src/path.c
     src/ptrarray.c
     src/ptrset.c
+    src/random.c
     src/rect.c
     src/queue.c
     src/sortedarray.c

@@ -1,4 +1,6 @@
-/** @file rect.c 2D integer rectangle.
+#pragma once
+
+/** @file the_Foundation/random.h  Random number generators.
 
 @authors Copyright (c) 2019 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -25,38 +27,12 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "the_Foundation/rect.h"
-#include "the_Foundation/math.h"
+#include "defs.h"
 
-iVec2 random_Rect(const iRect *d) {
-    return add_I2(d->pos, random_I2(d->size));
-}
+iBeginPublic
 
-void init_RectConstIterator(iRectConstIterator *d, const iRect *rect) {
-    d->rect = rect;
-    d->pos = rect->pos;
-    d->value = !isEmpty_Rect(rect);
-}
+int         iRandom (int start, int end);
+unsigned    iRandomu(unsigned start, unsigned end);
+float       iRandomf(void);
 
-void next_RectConstIterator(iRectConstIterator *d) {
-    d->pos.x++;
-    if (d->pos.x == right_Rect(d->rect)) {
-        d->pos.x = left_Rect(d->rect);
-        d->pos.y++;
-    }
-    d->value = (d->pos.y < bottom_Rect(d->rect));
-}
-
-void expand_Rect(iRect *d, iVec2 value) {
-    subv_I2(&d->pos, value);
-    addv_I2(&d->size, muli_I2(value, 2));
-}
-
-void adjustEdges_Rect(iRect *d, int top, int right, int bottom, int left) {
-    d->pos.y += top;
-    d->size.y -= top;
-    d->size.y += bottom;
-    d->pos.x += left;
-    d->size.x -= left;
-    d->size.x += right;
-}
+iEndPublic
