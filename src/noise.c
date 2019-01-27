@@ -101,3 +101,6 @@ float eval_CombinedNoise(const iCombinedNoise *d, float normX, float normY) {
     return value;
 }
 
+void setOffset_CombinedNoise(iCombinedNoise *d, size_t index, float offset) {
+    ((iCombinedNoisePart *) at_Array(&d->parts, index))->offset = offset;
+}

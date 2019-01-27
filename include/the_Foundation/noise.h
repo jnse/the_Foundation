@@ -47,4 +47,6 @@ struct Impl_NoiseComponent {
 iDeclareType(CombinedNoise)
 iDeclareTypeConstructionArgs(CombinedNoise, const iNoiseComponent *components, size_t count)
 
-float   eval_CombinedNoise  (const iCombinedNoise *, float normX, float normY);
+float   eval_CombinedNoise      (const iCombinedNoise *, float normX, float normY);
+
+void    setOffset_CombinedNoise (iCombinedNoise *, size_t index, float offset);
