@@ -84,6 +84,8 @@ void            remove_StringArray          (iStringArray *, size_t pos);
 
 void            move_StringArray            (iStringArray *, const iRanges *range, iStringArray *dest, size_t destPos);
 
+iString *       joinCStr_StringArray        (const iStringArray *, const char *delim);
+
 /** @name Iterators */
 ///@{
 iDeclareIterator(StringArray, iStringArray *)

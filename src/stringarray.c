@@ -141,6 +141,17 @@ void move_StringArray(iStringArray *d, const iRanges *range, iStringArray *dest,
     move_Array(&d->strings, range, &dest->strings, destPos);
 }
 
+iString *joinCStr_StringArray(const iStringArray *d, const char *delim) {
+    iString *joined = new_String();
+    iConstForEach(StringArray, i, d) {
+        if (delim && index_StringArrayConstIterator(&i) > 0) {
+            appendCStr_String(joined, delim);
+        }
+        append_String(joined, *i.value);
+    }
+    return joined;
+}
+
 //---------------------------------------------------------------------------------------
 
 void init_StringArrayIterator(iStringArrayIterator *d, iStringArray *array) {

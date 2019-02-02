@@ -51,13 +51,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define iInvalidPos     ((size_t) -1)
 #define iInvalidSize    ((size_t) -1)
 
-#define iBit(n1_to_32)          (1 << (n1_to_32 - 1))
+#define iBit(n1_to_32)          (1u << (n1_to_32 - 1))
 #define iMin(a, b)              ((a) < (b) ? (a) : (b))
 #define iMax(a, b)              ((a) > (b) ? (a) : (b))
 #define iAbs(a)                 ((a) > 0 ? (a) : -(a))
 #define iClamp(i, low, high)    ((i) < (low) ? (low) : (i) > (high) ? (high) : (i))
 #define iCmp(a, b)              ((a) == (b) ? 0 : (a) < (b) ? -1 : 1)
 #define iElemCount(ar)          (sizeof(ar) / sizeof((ar)[0]))
+#define iSwap(typeName, a, b)   { typeName tmp_Swap_ = (a); (a) = (b); (b) = tmp_Swap_; }
 
 static inline int iAbsi(const int a) { return a < 0 ? -a : a; }
 static inline int iMaxi(const int a, const int b) { return a > b ? a : b; }

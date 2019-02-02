@@ -130,7 +130,7 @@ static inline iBool2 lessEqual_I2 (const iVec2 a, const iVec2 b) {
 static inline iBool all_Bool2   (const iBool2 a)                { return a.bits == 3; }
 static inline iBool any_Bool2   (const iBool2 a)                { return a.bits != 0; }
 
-static inline iBool isEqual_I2  (const iVec2 a, const iVec2 b)  { return a.x == a.y && b.x == b.y; }
+static inline iBool isEqual_I2  (const iVec2 a, const iVec2 b)  { return a.x == b.x && a.y == b.y; }
 
 static inline iVec2 clamp_I2    (const iVec2 t, const iVec2 a, const iVec2 b) { return min_I2(max_I2(t, a), b); }
 static inline int   sum_I2      (const iVec2 a)                 { return a.x + a.y; }
