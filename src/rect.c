@@ -32,6 +32,30 @@ iVec2 random_Rect(const iRect *d) {
     return add_I2(d->pos, random_I2(d->size));
 }
 
+static inline int edgeLength_Rect_(const iRect *d) {
+    return 2 * (d->size.x - 1) + 2 * (d->size.y - 1);
+}
+
+iVec2 edgePos_Rect(const iRect *d, int pos) {
+    if (pos < d->size.x) {
+        return init_I2(d->pos.x + pos, d->pos.y);
+    }
+    pos -= d->size.x - 1;
+    if (pos < d->size.y) {
+        return init_I2(right_Rect(d) - 1, top_Rect(d) + pos);
+    }
+    pos -= d->size.y - 1;
+    if (pos < d->size.x) {
+        return init_I2(right_Rect(d) - 1 - pos, bottom_Rect(d) - 1);
+    }
+    pos -= d->size.x - 1;
+    return init_I2(d->pos.x, bottom_Rect(d) - 1 - pos);
+}
+
+iVec2 randomEdgePos_Rect(const iRect *d) {
+    return edgePos_Rect(d, iRandom(0, edgeLength_Rect_(d)));
+}
+
 void init_RectConstIterator(iRectConstIterator *d, const iRect *rect) {
     d->rect = rect;
     d->pos = rect->pos;

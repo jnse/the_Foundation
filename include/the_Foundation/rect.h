@@ -93,9 +93,11 @@ static inline iRect union_Rect(const iRect *d, const iRect *other) {
     return u;
 }
 
-void    expand_Rect     (iRect *, iVec2 value);
-void    adjustEdges_Rect(iRect *, int top, int right, int bottom, int left);
-iVec2   random_Rect     (const iRect *d);
+void    expand_Rect         (iRect *, iVec2 value);
+void    adjustEdges_Rect    (iRect *, int top, int right, int bottom, int left);
+iVec2   random_Rect         (const iRect *d);
+iVec2   edgePos_Rect        (const iRect *d, int pos);
+iVec2   randomEdgePos_Rect  (const iRect *d);
 
 static inline void shrink_Rect  (iRect *d, iVec2 value) { expand_Rect(d, neg_I2(value)); }
 
