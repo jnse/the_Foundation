@@ -41,6 +41,10 @@ static inline iFloat4 initi_F4(int x, int y, int z, int w) {
     return (iFloat4){ .v = { (float) x, (float) y, (float) z, (float) w } };
 }
 
+static inline iFloat4 initiv_F4(const int *v)
+    return (iFloat4){ .v = { (float) v[0], (float) v[1], (float) v[2], (float) v[3] } };
+}
+
 static inline iFloat4 initv_F4(const float *v) {
     return (iFloat4){ .v = { v[0], v[1], v[2], v[3] } };
 }
@@ -318,6 +322,14 @@ static inline iFloat3 init_F3(float x, float y, float z) {
 
 static inline iFloat3 initi_F3(int x, int y, int z) {
     return (iFloat3){ .v = { (float) x, (float) y, (float) z } };
+}
+
+static inline iFloat3 initiv_F3(const int *v) {
+    return (iFloat3){ .v = { (float) v[0], (float) v[1], (float) v[2] } };
+}
+
+static inline iFloat3 initiv2_F3(const int *v) {
+    return (iFloat3){ .v = { (float) v[0], (float) v[1], 0.f } };
 }
 
 static inline iFloat3 initv_F3(const float *v) {
