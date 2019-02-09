@@ -33,6 +33,7 @@ iBeginPublic
 
 int         iRandom (int start, int end);
 unsigned    iRandomu(unsigned start, unsigned end);
+size_t      iRandoms(size_t start, size_t end);
 float       iRandomf(void);
 
 iEndPublic

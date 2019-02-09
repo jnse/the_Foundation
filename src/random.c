@@ -35,7 +35,14 @@ int iRandom(int start, int end) {
 
 unsigned iRandomu(unsigned start, unsigned end) {
     if (end <= start) return start;
+    iAssert((end - start) <= RAND_MAX);
     return start + (unsigned) rand() % (end - start);
+}
+
+size_t iRandoms(size_t start, size_t end) {
+    if (end <= start) return start;
+    iAssert((end - start) <= RAND_MAX);
+    return start + (size_t) rand() % (end - start);
 }
 
 float iRandomf(void) {
