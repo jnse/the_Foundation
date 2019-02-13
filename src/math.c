@@ -33,6 +33,14 @@ int iRound(float value) {
     return (int) lroundf(value);
 }
 
+int iWrap(int value, int low, int high) {
+    const int span = high - low;
+    if (span <= 0) return value;
+    while (value < low) { value += span; }
+    while (value >= high) { value -= span; }
+    return value;
+}
+
 //---------------------------------------------------------------------------------------
 
 static float determinant_Mat3_(const float *mat) {
