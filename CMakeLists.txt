@@ -102,6 +102,7 @@ test_big_endian (iHaveBigEndian)
 
 set (HEADERS
     include/the_Foundation/address.h
+    include/the_Foundation/argcount.h
     include/the_Foundation/array.h
     include/the_Foundation/atomic.h
     include/the_Foundation/audience.h

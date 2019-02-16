@@ -91,6 +91,8 @@ iPublic void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[
 #define iZap(var)               memset(&(var), 0, sizeof(var));
 #define iMalloc(typeName)       malloc(sizeof(i##typeName))
 
+#include "argcount.h"
+
 #if !defined (__cplusplus)
 #   define iConstCast(type, ptr)    ((type) (intptr_t) (ptr))
 #   define iFunctionCast(type, ptr) ((type) (ptr))
