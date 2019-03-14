@@ -61,6 +61,7 @@ iDeclareTypeConstructionArgs(Array, size_t elementSize)
 iArray *    newN_Array          (size_t elementSize, const void *value, size_t count);
 iArray *    newElements_Array   (size_t elementSize, const void *value, ...);
 iArray *    copy_Array          (const iArray *);
+iArray *    collectNew_Array    (size_t elementSize);
 
 void        initCopy_Array      (iArray *, const iArray *other);
 

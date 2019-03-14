@@ -106,7 +106,7 @@ iPublic void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[
 #define iDeclareTypeConstruction(typeName) \
     i##typeName *new_##typeName(void); \
     void delete_##typeName(i##typeName *); \
-    static inline i##typeName *collect_##typeName (i##typeName *d) { \
+    static inline i##typeName *collect_##typeName(i##typeName *d) { \
         return iCollectDel(d, delete_##typeName); \
     } \
     static inline i##typeName *collectNew_##typeName(void) { \
@@ -118,7 +118,7 @@ iPublic void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[
 #define iDeclareTypeConstructionArgs(typeName, ...) \
     i##typeName *new_##typeName(__VA_ARGS__); \
     void delete_##typeName(i##typeName *); \
-    static inline i##typeName *collect_##typeName (i##typeName *d) { \
+    static inline i##typeName *collect_##typeName(i##typeName *d) { \
         return iCollectDel(d, delete_##typeName); \
     } \
     void init_##typeName(i##typeName *, __VA_ARGS__); \

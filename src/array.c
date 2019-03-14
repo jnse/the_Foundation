@@ -65,6 +65,10 @@ static void rebalance_Array_(iArray *d) {
 
 iDefineTypeConstructionArgs(Array, (size_t elemSize), elemSize)
 
+iArray *collectNew_Array(size_t elementSize) {
+    return collect_Array(new_Array(elementSize));
+}
+
 iArray *copy_Array(const iArray *other) {
     iArray *d = iMalloc(Array);
     initCopy_Array(d, other);
