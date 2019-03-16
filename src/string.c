@@ -49,6 +49,14 @@ static inline const char *currentLocaleLanguage_(void) {
     return uc_locale_language();
 }
 
+iChar upper_Char(iChar d) {
+    return uc_toupper(d);
+}
+
+iChar lower_Char(iChar d) {
+    return uc_tolower(d);
+}
+
 void setLocaleCharSet_String(const char *charSet) {
     const size_t n = sizeof(localeCharSet_);
     strncpy(localeCharSet_, charSet, n);

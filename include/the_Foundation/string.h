@@ -44,6 +44,9 @@ iBeginPublic
 
 typedef uint32_t iChar;
 
+iChar   upper_Char  (iChar);
+iChar   lower_Char  (iChar);
+
 iDeclareType(String)
 iDeclareType(StringList)
 iDeclareType(StringComparison)
@@ -67,7 +70,7 @@ iString *       newBlock_String     (const iBlock *utf8Data);
 iString *       copy_String         (const iString *);
 
 static inline iString *newRange_String  (const iRangecc *range) { return newCStrN_String(range->start, size_Range(range)); }
-static inline iString *newLocal_String  (const iBlock *localChars) { return newLocalCStrN_String(constData_Block(localChars), size_Block(localChars)); }
+static inline iString *newLocal_String  (const iBlock *localChars) { return newLocalCStrN_String(cstr_Block(localChars), size_Block(localChars)); }
 
 void            init_String             (iString *);
 void            initCStr_String         (iString *, const char *utf8CStr);
