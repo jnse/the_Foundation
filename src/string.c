@@ -658,6 +658,10 @@ void init_MultibyteChar(iMultibyteChar *d, iChar ch) {
     d->bytes[iMax(0, len)] = 0;
 }
 
+int decodeBytes_MultibyteChar(const char *bytes, size_t n, iChar *ch_out) {
+    return u8_mbtouc(ch_out, (const uint8_t *) bytes, n);
+}
+
 static char *threadLocalCharBuffer_(void) {
     static tss_t bufKey = 0;
     if (!bufKey) {
