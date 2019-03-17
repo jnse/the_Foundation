@@ -1,28 +1,16 @@
 # the_Foundation: a C11 library
 
-Simplicity of C11 combined with the power of object-orientation! API usability
-is priority #1.
+Simplicity of C11 combined with the power of object-orientation! API usability is priority #1.
 
 ## Introduction
 
-C++ is an awesome language. It is also extremely complex and each of its modern
-updates adds even more complexity. It attempts to be low-level while supporting
-high-level programming styles; this conflict prevents it from being truly
-high-level while compromising the benefits of low-level C. The complexity also
-makes compiling C++ programs much slower than C.
+C++ is an awesome language. It is also extremely complex and each of its modern updates adds even more complexity. Like C, it is a thin abstraction layer over machine instructions, but it also reaches toward ever-higher level of concepts and programming styles. This conflict prevents it from being truly high-level while compromising the benefits of low-level C. The complexity — among other things — makes compiling C++ programs much slower than C.
 
-**the\_Foundation** is a C11 library (and a coding convention) for
-object-oriented programming that has been designed from the point of view of
-someone who appreciates the user-friendliness of Qt and the philosophy behind
-C++ STL. The preprocessor is used heavily to provide flexibility and
-convenience for the programmer.
+**the\_Foundation** is a C11 library and a coding convention for object-oriented programming that has been designed from the point of view of someone who appreciates the user-friendliness of Qt and some of the thinking behind C++ STL. The preprocessor is used heavily to provide flexibility and convenience for the programmer.
 
 ### Wait, what about GLib?
 
-GLib is a solid library that serves an important function in GTK. It also has
-its own coding style and naming conventions that come with a set of assumptions
-how things are expected to work. However, the\_Foundation aims to be more
-light-weight and bolder in its conventions to achieve specific design goals.
+GLib is a solid library that serves an important function in GTK. It also has its own coding style and naming conventions that come with a set of assumptions how things are expected to work. However, the\_Foundation aims to be more light-weight and bolder in its conventions to achieve specific design goals.
 
 ## Conventions
 
@@ -32,35 +20,23 @@ light-weight and bolder in its conventions to achieve specific design goals.
 
 - Method names and variables use camelCase.
 
-- Type names and classes start with a capital letter (following the `i` 
-  prefix).
+- Type names and classes start with a capital letter (following the `i` prefix).
 
-- Preprocessor macros and constants use naming similar to classes (e.g.,
-  `iDeclareType`). They begin with a verb.
+- Preprocessor macros and constants use naming similar to classes (e.g., `iDeclareType`). They begin with a verb.
 
-- The general base class `iObject` implements reference counting. The class of
-  an object determines how the object is deinitialized.
+- The general base class `iObject` implements reference counting. The class of an object determines how the object is deinitialized.
 
-- In functions where an object is passed as an argument, the reference count
-  must be incremented if the function holds a pointer to the object. Otherwise,
-  the reference count should not be modified.
+- In functions where an object is passed as an argument, the reference count must be incremented if the function holds a pointer to the object. Otherwise, the reference count should not be modified.
 
 ### Types and classes
 
-All class members use the class name as a _suffix_, e.g., `length_String`. This
-improves readability and associates the first argument (the `d` object,
-equivalent to `this` in C++) with the type of the class.
+All class members use the class name as a _suffix_, e.g., `length_String`. This improves readability and associates the first argument (the `d` object, equivalent to `this` in C++) with the type of the class.
 
-A static/private member of a class additionally adds an extra underscore to the
-suffix, e.g., `element_Array_`.
+A static/private member of a class additionally adds an extra underscore to the suffix, e.g., `element_Array_`.
 
-Type names are declared with the `iDeclareType(Name)` macro. The implementation
-struct is always called `struct Impl_Name` that has a typedef alias called
-`iName`. The `Impl_Name` struct should be kept opaque (only declared in the
-header) by default to hide the implementation details.
+Type names are declared with the `iDeclareType(Name)` macro. The implementation struct is always called `struct Impl_Name` that has a typedef alias called `iName`. The `Impl_Name` struct should be kept opaque (only declared in the header) by default to hide the implementation details.
 
-`static inline` functions (or macros) are used to define member functions with
-default values for parameters.
+`static inline` functions (or macros) are used to define member functions with default values for parameters.
 
 ### Construction and destruction
 
