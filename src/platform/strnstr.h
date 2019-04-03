@@ -1,4 +1,4 @@
-/** @file win32/string.h  WIN32 text string manipulations.
+/** @file strnstr.h  strnstr() implementation.
 
 @authors Copyright (c) 2018 Jaakko Keränen <jaakko.keranen@iki.fi>
 

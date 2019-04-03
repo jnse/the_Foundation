@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define iFoundationLibraryVersion { ${the_Foundation_VERSION_MAJOR}, ${the_Foundation_VERSION_MINOR}, ${the_Foundation_VERSION_PATCH} }
 
 #cmakedefine iHaveDebugOutput
+#cmakedefine iHaveStrnstr
 #cmakedefine iHaveSSE4_1
 #cmakedefine iHaveBigEndian
 #cmakedefine iHaveC11Threads

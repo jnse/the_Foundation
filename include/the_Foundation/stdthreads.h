@@ -37,3 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #   endif
 #   include "c11threads.h"
 #endif
+
+#if defined (iHavePThread)
+#   include <pthread.h>
+#endif

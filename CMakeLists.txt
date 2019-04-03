@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.1)
 project (the_Foundation VERSION 1.0.0 LANGUAGES C)
 include (CheckIncludeFile)
 include (CheckCSourceCompiles)
+include (CheckFunctionExists)
 include (TestBigEndian)
 find_package (PkgConfig)
 
@@ -32,6 +33,9 @@ option (TFDN_ENABLE_DEBUG_OUTPUT "Enable internal debug output to stdout/stderr"
 if (TFDN_ENABLE_DEBUG_OUTPUT)
     set (iHaveDebugOutput YES)
 endif ()
+
+# strnstr
+check_function_exists (strnstr iHaveStrnstr)
 
 # unistring
 set (UNISTRING_DIR /usr CACHE PATH "Location of libunistring")

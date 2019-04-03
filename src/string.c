@@ -39,8 +39,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <unistr.h>
 #include <ctype.h>
 
-#if defined (iPlatformWindows)
-#   include "platform/win32/string.h"
+#if !defined (iHaveStrnstr)
+#   include "platform/strnstr.h"
 #endif
 
 static char localeCharSet_[64];
