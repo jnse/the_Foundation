@@ -37,7 +37,6 @@ iDeclareType(HashBucket)
 #define iHashBucketChildCount   4
 #define iHashBucketChildMask    0x3
 #define iHashBucketChildShift   2
-#define iHashBucketLastChild    (iHashBucketChildCount - 1)
 
 struct Impl_HashBucket {
     iHashBucket *parent;
@@ -118,7 +117,7 @@ static iHashBucket *trim_HashBucket_(iHashBucket *d) {
            isEmpty_HashBucket_(d->parent->child[2]) &&
            isEmpty_HashBucket_(d->parent->child[3])) {
         d = d->parent;
-        // Both child nodes empty, get rid of them.
+        // All child nodes empty, get rid of them.
         for (int i = 0; i < iHashBucketChildCount; ++i) {
             free(d->child[i]);
             d->child[i] = NULL;
@@ -171,22 +170,20 @@ static iHashBucket *firstInOrder_HashBucket_(const iHashBucket *d) {
 }
 
 static iHashBucket *nextInOrder_HashBucket_(const iHashBucket *d) {
-    iAssert(d);
-    // Nothing follows the root.
-    if (!d->parent) return NULL;
-    // Switch to the next sibling.
-    for (int i = 0; i < iHashBucketLastChild; ++i) {
-        if (d->parent->child[i] == d) {
-            return firstInOrder_HashBucket_(d->parent->child[i + 1]);
+    while (d->parent) {
+        // Switch to the next sibling.
+        int ord = ordinal_HashBucket_(d);
+        iAssert(ord != -1);
+        for (int i = ord + 1; i < iHashBucketChildCount; ++i) {
+            iHashBucket *successor = firstInOrder_HashBucket_(d->parent->child[i]);
+            if (successor) {
+                return successor;
+            }
         }
+        // Go back up then and try again.
+        d = d->parent;
     }
-    // Go back up until there's a node on the right.
-    int ord = iHashBucketLastChild;
-    for (; ord == iHashBucketLastChild; d = d->parent) {
-        if (!d->parent) return NULL;
-        ord = ordinal_HashBucket_(d);
-    }
-    return firstInOrder_HashBucket_(d->child[ord + 1]);
+    return NULL;
 }
 
 //---------------------------------------------------------------------------------------

@@ -381,12 +381,17 @@ int main(int argc, char *argv[]) {
     }
     /* Test a hash. */ {
         iHash *h = new_Hash();
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < 8192; ++i) {
             iHashNode *node = iCollectMem(iMalloc(HashNode));
-            node->key = i;
-            insert_Hash(h, node);
+            for (;;) {
+                node->key = iRandomu(0, INT_MAX);
+                if (!contains_Hash(h, node->key)) {
+                    insert_Hash(h, node);
+                    break;
+                }
+            }
         }
-        puts("Hash iteration:");
+        printf("Hash iteration (size %zu):", size_Hash(h));
         int counter = 0;
         iForEach(Hash, i, h) {
             printf("%4i: %i\n", counter++, i.value->key);
