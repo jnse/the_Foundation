@@ -101,6 +101,17 @@ float eval_CombinedNoise(const iCombinedNoise *d, float normX, float normY) {
     return value;
 }
 
+iFloat3 randomCoord_CombinedNoise(const iCombinedNoise *d, iBool (*rangeCheck)(float)) {
+    const int maxAttempts = 1000;
+    for (int i = 0; i < maxAttempts; ++i) {
+        iFloat3 pos = init_F3(iRandomf(), iRandomf(), 0.f);
+        if (rangeCheck(eval_CombinedNoise(d, x_F3(pos), y_F3(pos)))) {
+            return pos;
+        }
+    }
+    return init1_F3(-1.f);
+}
+
 void setOffset_CombinedNoise(iCombinedNoise *d, size_t index, float offset) {
     ((iCombinedNoisePart *) at_Array(&d->parts, index))->offset = offset;
 }

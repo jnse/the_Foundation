@@ -73,6 +73,7 @@ struct Impl_FloatVec4 {
 #endif
 
 #define initI2_F3(v2)     initiv2_F3(&(v2).x)
+#define initF3_I2(f3)     init_I2((int) x_F3(f3), (int) y_F3(f3))
 
 iBool inverse_Mat3(const iMat3 *d, iMat3 *inversed_out);
 iBool inverse_Mat4(const iMat4 *d, iMat4 *inversed_out);

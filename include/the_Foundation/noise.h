@@ -27,7 +27,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "vec2.h"
+#include "math.h"
 
 iDeclareType(Noise)
 iDeclareTypeConstructionArgs(Noise, iVec2 size)
@@ -47,6 +47,7 @@ struct Impl_NoiseComponent {
 iDeclareType(CombinedNoise)
 iDeclareTypeConstructionArgs(CombinedNoise, const iNoiseComponent *components, size_t count)
 
-float   eval_CombinedNoise      (const iCombinedNoise *, float normX, float normY);
+float       eval_CombinedNoise          (const iCombinedNoise *, float normX, float normY);
+iFloat3     randomCoord_CombinedNoise   (const iCombinedNoise *, iBool (*rangeCheck)(float));
 
-void    setOffset_CombinedNoise (iCombinedNoise *, size_t index, float offset);
+void        setOffset_CombinedNoise     (iCombinedNoise *, size_t index, float offset);

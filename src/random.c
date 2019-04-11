@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdlib.h>
 
 int iRandom(int start, int end) {
+    if (end <= start) return start;
     return start + rand() % (end - start);
 }
 
