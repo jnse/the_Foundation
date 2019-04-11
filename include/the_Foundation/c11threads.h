@@ -92,19 +92,19 @@ void *tss_get(tss_t key);
 
 void call_once(once_flag *flag, void (*func)(void));
 
-// #if __STDC_VERSION__ < 201112L || defined(C11THREADS_NO_TIMED_MUTEX)
-// /* TODO take base into account */
-// static inline int timespec_get(struct timespec *ts, int base)
-// {
-// 	struct timeval tv;
+/* #if __STDC_VERSION__ < 201112L || defined(C11THREADS_NO_TIMED_MUTEX) */
+/* /* TODO take base into account */ */
+/* static inline int timespec_get(struct timespec *ts, int base) */
+/* { */
+/* 	struct timeval tv; */
 
-// 	gettimeofday(&tv, 0);
+/* 	gettimeofday(&tv, 0); */
 
-// 	ts->tv_sec = tv.tv_sec;
-// 	ts->tv_nsec = tv.tv_usec * 1000;
-// 	return base;
-// }
-// #endif	/* not C11 */
+/* 	ts->tv_sec = tv.tv_sec; */
+/* 	ts->tv_nsec = tv.tv_usec * 1000; */
+/* 	return base; */
+/* } */
+/* #endif	/* not C11 */ */
 
 iEndPublic
 

@@ -101,7 +101,7 @@ iThread *nextResult_Future(iFuture *d) {
     iThread *result = NULL;
     iGuardMutex(&d->mutex, {
         while (!isEmpty_ObjectList(&d->threads)) {
-            // Check for a finished thread.
+            /* Check for a finished thread. */
             iForEach(ObjectList, i, &d->threads) {
                 iThread *thread = (iThread *) i.object;
                 if (isFinished_Thread(thread)) {

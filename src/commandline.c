@@ -59,15 +59,15 @@ static void loadArgumentsFile_CommandLine_(iCommandLine *d, const char *path) {
         input = collect_String(readString_File(file));
         close_File(file);
     }
-    // Parse into separate arguments.
+    /* Parse into separate arguments. */
     const char *i = cstr_String(input);
     iBool isDone = iFalse;
     iBool inQuote = iFalse;
     iBlock *word = collect_Block(new_Block(0));
     while (i != constEnd_String(input) && !isDone) {
-        // Skip initial whitespace.
+        /* Skip initial whitespace. */
         i = skipSpace_CStr(i);
-        // Check for a nested argument file.
+        /* Check for a nested argument file. */
         iBool isResponse = iFalse;
         if (*i == '@') {
             isResponse = iTrue;
@@ -85,7 +85,7 @@ static void loadArgumentsFile_CommandLine_(iCommandLine *d, const char *path) {
             else { // Inside quotes.
                 if (*i == '"') { // Quote ends.
                     if (i[1] == '"') { // Doubled?
-                        // Normal processing, but output only one quote.
+                        /* Normal processing, but output only one quote. */
                         i++;
                     }
                     else {
@@ -97,7 +97,7 @@ static void loadArgumentsFile_CommandLine_(iCommandLine *d, const char *path) {
             if (copyChar) pushBack_Block(word, *i);
             i++;
         }
-        // Word has been extracted, examine it.
+        /* Word has been extracted, examine it. */
         if (isResponse) {
             loadArgumentsFile_CommandLine_(d, constData_Block(word));
         }
@@ -115,7 +115,7 @@ static int cmpArg_(const iRangecc *entry, const iRangecc *arg) {
     iAssert(*arg->start != '-');
     iAssert(*entry->start != '-');
     if (size_Range(arg) == 1) {
-        // Single-letter arguments can be joined in a longer entry.
+        /* Single-letter arguments can be joined in a longer entry. */
         return findAscii_Rangecc(entry, *arg->start)? 0 : 1;
     }
     const char *eql = findAscii_Rangecc(entry, '=');
@@ -150,7 +150,7 @@ void init_CommandLine(iCommandLine *d, int argc, char **argv) {
     init_StringList(&d->args);
     d->defined = NULL;
     for (int i = 0; i < argc; ++i) {
-        // Load response files.
+        /* Load response files. */
         iString *arg = newLocalCStr_String(argv[i]);
         if (startsWith_String(arg, "@")) {
             loadArgumentsFile_CommandLine_(d, cstr_String(arg) + 1);
@@ -202,7 +202,7 @@ static iCommandLineArg *checkArgumentPosValuesN_CommandLine_
     size_t equalPos;
     if ((equalPos = indexOf_String(lineEntry, '=')) != iInvalidPos) {
         if (minCount > 1 || maxCount == 0) return NULL;
-        // There is a single value included in the entry.
+        /* There is a single value included in the entry. */
         iCommandLineArg *clArg = new_CommandLineArg();
         clArg->pos = pos;
         set_String(&clArg->arg, lineEntry);
@@ -210,7 +210,7 @@ static iCommandLineArg *checkArgumentPosValuesN_CommandLine_
         truncate_String(&clArg->arg, equalPos);
         return clArg;
     }
-    // Check how many values are provided.
+    /* Check how many values are provided. */
     size_t endPos;
     for (endPos = pos + 1;
          endPos < size_StringList(&d->args) &&
@@ -320,15 +320,15 @@ static void updateShortArgumentValueCount_CommandLineConstIterator_
 
 void next_CommandLineConstIterator(iCommandLineConstIterator *d) {
     if (d->argType == shortArgument_CommandLineArgType) {
-        // Go to the next short argument, if there is one.
+        /* Go to the next short argument, if there is one. */
         if (*d->entry.end && *d->entry.end != '=') {
             shift_Range(&d->entry, 1);
-            // The last short option may have arguments.
+            /* The last short option may have arguments. */
             updateShortArgumentValueCount_CommandLineConstIterator_(d);
             return;
         }
     }
-    // Advance to the next entry.
+    /* Advance to the next entry. */
     d->value += d->valueCount + 1 + (d->isAssignedValue? -1 : 0);
     if (d->value >= size_StringList(&d->cmdLine->args)) { // Done?
         d->value = 0;

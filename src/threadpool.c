@@ -42,7 +42,7 @@ static iThreadResult run_PooledThread_(iThread *thread) {
     for (;;) {
         iThread *job = (iAny *) take_Queue(&d->pool->queue);
         if (job == (void *) d->pool) break; // Terminated.
-        // Run the job in this thread.
+        /* Run the job in this thread. */
         iAssert(job->state == created_ThreadState);
         iGuardMutex(&job->mutex, job->state = running_ThreadState);
         job->result = job->run(job);

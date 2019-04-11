@@ -183,9 +183,9 @@ static void transform_(uint32_t *state, const uint8_t *block) {
 
 static void update_Md5Context_(iMd5Context *d, const uint8_t *input, size_t inputLen) {
     size_t i, index, partLen;
-    // Number of bytes mod 64.
+    /* Number of bytes mod 64. */
     index = (size_t) ((d->count[0] >> 3) & 0x3f);
-    // Update number of bits.
+    /* Update number of bits. */
     if ((d->count[0] += ((uint32_t) inputLen << 3)) < ((uint32_t) inputLen << 3)) {
         d->count[1]++;
     }
@@ -202,7 +202,7 @@ static void update_Md5Context_(iMd5Context *d, const uint8_t *input, size_t inpu
     else {
         i = 0;
     }
-    // Buffer remanining input.
+    /* Buffer remanining input. */
     memcpy(d->buffer + index, input + i, inputLen - i);
 }
 
@@ -213,7 +213,7 @@ void iMd5Hash(const void *data, size_t size, uint8_t md5_out[16]) {
         uint8_t bits[8];
         size_t index, padLen;
         encode_(bits, ctx.count, 8);
-        // Pad out to 56 mod 64.
+        /* Pad out to 56 mod 64. */
         index = (size_t) ((ctx.count[0] >> 3) & 0x3f);
         padLen = (index < 56) ? (56 - index) : (120 - index);
         update_Md5Context_(&ctx, padding_, padLen);

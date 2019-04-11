@@ -37,17 +37,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 static iBool hasBeenInitialized_ = iFalse;
 
-// datagram.c
+/* datagram.c */
 void init_DatagramThreads(void);
 
-// locale
+/* locale */
 void init_Locale(void);
 
-// thread.c
+/* thread.c */
 void init_Threads(void);
 
 static void deinit_Foundation_(void) {
-    // nothing to do
+    /* nothing to do */
 }
 
 void init_Foundation(void) {

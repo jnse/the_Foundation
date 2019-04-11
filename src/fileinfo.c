@@ -95,7 +95,7 @@ static iBool initDirEntry_FileInfo_(iFileInfo *d, const iString *dirPath, struct
 #else
     initLocalCStr_String(&entryName, ent->d_name);
 #endif
-    // Check for ignored entries.
+    /* Check for ignored entries. */
     if (!cmp_String(&entryName, "..") || !cmp_String(&entryName, ".")) {
         deinit_String(&entryName);
         return iFalse;

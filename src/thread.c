@@ -80,10 +80,10 @@ static int run_Threads_(void *arg) {
 #endif
     }
     d->result = d->run(d);
-    // Deregister the thread since it's stopping.
+    /* Deregister the thread since it's stopping. */
     iGuard(runningThreads_, remove_ThreadHash(runningThreads_->value, &d->id));
     d->id = 0;
-    // Notify observers that the thread is done.
+    /* Notify observers that the thread is done. */
     finish_Thread_(d);
     deref_Object(d);
     thrd_exit(0); // thread-local data gets deleted
@@ -126,7 +126,7 @@ void start_Thread(iThread *d) {
         thrd_create(&d->id, run_Threads_, d);
         iDebug("[Thread] created thread ID %p (%s)\n", d->id, cstr_String(&d->name));
     });
-    // Register this thread as a running thread.
+    /* Register this thread as a running thread. */
     iGuard(threads, insert_ThreadHash(threads->value, &d->id, d));
 }
 

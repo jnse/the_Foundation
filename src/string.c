@@ -493,7 +493,7 @@ iBool nextSplit_Rangecc(const iRangecc *str, const char *separator, iRangecc *ra
     iAssert(separatorSize > 0);
     if (range->start == NULL) {
         if (separatorSize > size_Range(str)) {
-            // Doesn't fit in the string.
+            /* Doesn't fit in the string. */
             return iFalse;
         }
         if (!cmpCStrSc_Rangecc(str, separator, &iCaseSensitive)) {
@@ -501,7 +501,7 @@ iBool nextSplit_Rangecc(const iRangecc *str, const char *separator, iRangecc *ra
         }
         range->start = range->end = str->start;
         if (!iCmpStrN(range->start, separator, separatorSize)) {
-            // Skip the first separator.
+            /* Skip the first separator. */
             range->start += separatorSize;
         }
     }
@@ -568,15 +568,15 @@ iStringList *split_CStr(const char *cstr, const char *separator) {
 //---------------------------------------------------------------------------------------
 
 static void decodeNextMultibyte_StringConstIterator_(iStringConstIterator *d) {
-//    const int rc = mbrtowc(&d->value, d->next, d->remaining, &d->mbs);
-//    if (rc > 0) {
-//        d->remaining -= rc;
-//        d->next += rc;
-//    }
-//    else {
-//        // Finished, invalid or incomplete.
-//        d->value = 0;
-//    }
+/*    const int rc = mbrtowc(&d->value, d->next, d->remaining, &d->mbs); */
+/*    if (rc > 0) { */
+/*        d->remaining -= rc; */
+/*        d->next += rc; */
+/*    } */
+/*    else { */
+/*        // Finished, invalid or incomplete. */
+/*        d->value = 0; */
+/*    } */
     d->value = 0;
     size_t n = iMin(8, d->remaining);
     if (n > 0) {
@@ -589,15 +589,15 @@ static void decodeNextMultibyte_StringConstIterator_(iStringConstIterator *d) {
 
 static iBool decodePrecedingMultibyte_StringConstIterator_(iStringConstIterator *d) {
     if (!d->remaining) return iFalse;
-//    for (int i = 1; i <= iMin(MB_CUR_MAX, d->remaining); i++) {
-//        const int rc = mbrtowc(&d->value, d->next - i, i, &d->mbs);
-//        if (rc >= 0) {
-//            // Single-byte character.
-//            d->remaining -= rc;
-//            d->next -= rc;
-//            break;
-//        }
-//    }
+/*    for (int i = 1; i <= iMin(MB_CUR_MAX, d->remaining); i++) { */
+/*        const int rc = mbrtowc(&d->value, d->next - i, i, &d->mbs); */
+/*        if (rc >= 0) { */
+/*            // Single-byte character. */
+/*            d->remaining -= rc; */
+/*            d->next -= rc; */
+/*            break; */
+/*        } */
+/*    } */
     for (size_t i = 1; i <= iMin(d->remaining, 8); ++i) {
         const int rc = u8_mbtoucr(&d->value, (const uint8_t *) d->next - i, i);
         if (rc >= 0) {
@@ -605,7 +605,7 @@ static iBool decodePrecedingMultibyte_StringConstIterator_(iStringConstIterator 
             d->next -= rc;
             break;
         }
-        // Incomplete or invalid.
+        /* Incomplete or invalid. */
     }
     return iTrue;
 }
@@ -615,8 +615,8 @@ void init_StringConstIterator(iStringConstIterator *d, const iString *str) {
     d->value = 0;
     d->pos = d->next = constData_Block(&str->chars);
     d->remaining = size_Block(&str->chars);
-//    iZap(d->mbs);
-    // Decode the first character.
+/*    iZap(d->mbs); */
+    /* Decode the first character. */
     decodeNextMultibyte_StringConstIterator_(d);
 }
 
@@ -630,8 +630,8 @@ void init_StringReverseConstIterator(iStringConstIterator *d, const iString *str
     d->value = 0;
     d->pos = d->next = constEnd_Block(&str->chars);
     d->remaining = size_Block(&str->chars);
-//    iZap(d->mbs);
-    // Decode the first (last) character.
+/*    iZap(d->mbs); */
+    /* Decode the first (last) character. */
     decodePrecedingMultibyte_StringConstIterator_(d);
 }
 
@@ -645,15 +645,15 @@ void next_StringReverseConstIterator(iStringConstIterator *d) {
 //---------------------------------------------------------------------------------------
 
 void init_MultibyteChar(iMultibyteChar *d, iChar ch) {
-//    mbstate_t mbs;
-//    iZap(mbs);
-//    const size_t count = wcrtomb(d->bytes, ch, &mbs);
-//    if (count != iInvalidSize) {
-//        d->bytes[count] = 0;
-//    }
-//    else {
-//        d->bytes[0] = 0;
-//    }
+/*    mbstate_t mbs; */
+/*    iZap(mbs); */
+/*    const size_t count = wcrtomb(d->bytes, ch, &mbs); */
+/*    if (count != iInvalidSize) { */
+/*        d->bytes[count] = 0; */
+/*    } */
+/*    else { */
+/*        d->bytes[0] = 0; */
+/*    } */
     int len = u8_uctomb((uint8_t *) d->bytes, ch, sizeof(d->bytes));
     d->bytes[iMax(0, len)] = 0;
 }
@@ -722,12 +722,12 @@ static char *strcasestr_(const char *haystack, const char *needle) {
     const iString ndl = iStringLiteral(needle);
     const iChar ndlFirstChar = uc_tolower(first_String(&ndl));
     if (size_String(&ndl) > size_String(&hay)) {
-        // Too long to be able to find it.
+        /* Too long to be able to find it. */
         return NULL;
     }
     iConstForEach(String, i, &hay) {
         if (uc_tolower(i.value) == ndlFirstChar) {
-            // Check if the full needle matches.
+            /* Check if the full needle matches. */
             iStringConstIterator hayStart;
             memcpy(&hayStart, &i, sizeof(i));
             iStringConstIterator j;
@@ -738,7 +738,7 @@ static char *strcasestr_(const char *haystack, const char *needle) {
                 if (!j.value) return iConstCast(char *, hayStart.pos); // Matched full needle.
                 if (!i.value) return NULL; // Not long enough for needle.
                 if (uc_tolower(i.value) != uc_tolower(j.value)) {
-                    // Must match all need characters.
+                    /* Must match all need characters. */
                     break;
                 }
             }

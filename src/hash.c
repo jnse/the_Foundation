@@ -91,12 +91,12 @@ static void addNode_HashBucket_(iHashBucket *d, iHashNode *node) {
 
 static void split_HashBucket_(iHashBucket *d, int depth) {
     iAssert(depth < iHashMaxDepth);
-    // Create the new children.
+    /* Create the new children. */
     for (int i = 0; i < iHashBucketChildCount; ++i) {
         d->child[i] = calloc(sizeof(iHashBucket), 1);
         d->child[i]->parent = d;
     }
-    // Divide the listed nodes.
+    /* Divide the listed nodes. */
     iHashNode *next;
     for (iHashNode *i = d->node; i; i = next) {
         next = i->next;
@@ -117,7 +117,7 @@ static iHashBucket *trim_HashBucket_(iHashBucket *d) {
            isEmpty_HashBucket_(d->parent->child[2]) &&
            isEmpty_HashBucket_(d->parent->child[3])) {
         d = d->parent;
-        // All child nodes empty, get rid of them.
+        /* All child nodes empty, get rid of them. */
         for (int i = 0; i < iHashBucketChildCount; ++i) {
             free(d->child[i]);
             d->child[i] = NULL;
@@ -132,7 +132,7 @@ static iHashNode *remove_HashBucket_(iHashBucket **d, iHashKey key) {
             *prev = i->next;
             i->next = NULL;
             if ((*d)->node == NULL) {
-                // Node became empty, it may need removing.
+                /* Node became empty, it may need removing. */
                 *d = trim_HashBucket_(*d);
             }
             return i;
@@ -171,7 +171,7 @@ static iHashBucket *firstInOrder_HashBucket_(const iHashBucket *d) {
 
 static iHashBucket *nextInOrder_HashBucket_(const iHashBucket *d) {
     while (d->parent) {
-        // Switch to the next sibling.
+        /* Switch to the next sibling. */
         int ord = ordinal_HashBucket_(d);
         iAssert(ord != -1);
         for (int i = ord + 1; i < iHashBucketChildCount; ++i) {
@@ -180,7 +180,7 @@ static iHashBucket *nextInOrder_HashBucket_(const iHashBucket *d) {
                 return successor;
             }
         }
-        // Go back up then and try again.
+        /* Go back up then and try again. */
         d = d->parent;
     }
     return NULL;
@@ -221,7 +221,7 @@ iHashNode *insert_Hash(iHash *d, iHashNode *node) {
     iHashBucket *bucket = find_HashBucket_(d->root, node->key, &depth);
     iHashNode *existing = NULL;
     size_t nodeSize = 0;
-    // An existing node with a clashing key must be removed.
+    /* An existing node with a clashing key must be removed. */
     for (iHashNode *i = bucket->node, **prev = &bucket->node; i; i = i->next, nodeSize++) {
         if (i->key == node->key) {
             *prev = i->next;
@@ -239,7 +239,7 @@ iHashNode *insert_Hash(iHash *d, iHashNode *node) {
     else {
         addNode_HashBucket_(bucket, node);
     }
-    // Update total count.
+    /* Update total count. */
     d->size++;
     return existing;
 }
@@ -258,7 +258,7 @@ void init_HashIterator(iHashIterator *d, iHash *hash) {
     d->hash = hash;
     d->bucket = firstInOrder_HashBucket_(hash->root);
     d->value = (d->bucket? d->bucket->node : NULL);
-    // The current node may be deleted, so keep the next one in a safe place.
+    /* The current node may be deleted, so keep the next one in a safe place. */
     d->next = (d->value? d->value->next : NULL);
 }
 

@@ -79,13 +79,13 @@ iBool inverse_Mat3(const iMat3 *d, iMat3 *inversed_out) {
 }
 
 static void submatrix_Mat4(const float *mat4, float *mat3, int i, int j) {
-    // Loop through 3x3 submatrix.
+    /* Loop through 3x3 submatrix. */
     for (int di = 0; di < 3; di++) {
         for (int dj = 0; dj < 3; dj++) {
-            // Map 3x3 element (destination) to 4x4 element (source).
+            /* Map 3x3 element (destination) to 4x4 element (source). */
             int si = di + (di >= i? 1 : 0);
             int sj = dj + (dj >= j? 1 : 0);
-            // Copy element.
+            /* Copy element. */
             mat3[di * 3 + dj] = mat4[si * 4 + sj];
         }
     }

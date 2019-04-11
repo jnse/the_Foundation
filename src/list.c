@@ -48,7 +48,7 @@ void init_List(iList *d) {
 }
 
 void deinit_List(iList *d) {
-    // List doesn't own any memory, so nothing needs to be deinitialized.
+    /* List doesn't own any memory, so nothing needs to be deinitialized. */
     iUnused(d);
 }
 
@@ -157,7 +157,7 @@ static void quicksort_ListNode_(iListNode **start, iListNode **end,
                                 iListCompareFunc cmp) {
     if (*start != *end) {
         iListNode *p = quicksortPartition_ListNode_(start, end, cmp);
-        // Recurse to both halves.
+        /* Recurse to both halves. */
         if (p != *start) {
             iListNode *firstHalf = p->prev;
             quicksort_ListNode_(start, &firstHalf, cmp);

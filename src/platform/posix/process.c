@@ -87,7 +87,7 @@ iBool start_Process(iProcess *d) {
         argv[i] = cstr_String(at_StringList(d->args, i));
     }
     argv[size_StringList(d->args)] = NULL;
-    // Use pipes to redirect the child's stdout/stderr to us.
+    /* Use pipes to redirect the child's stdout/stderr to us. */
     posix_spawn_file_actions_init(&facts);
     posix_spawn_file_actions_addclose(&facts, output_Pipe(&d->pout));
     posix_spawn_file_actions_addclose(&facts, output_Pipe(&d->perr));
@@ -95,7 +95,7 @@ iBool start_Process(iProcess *d) {
     posix_spawn_file_actions_adddup2 (&facts, input_Pipe(&d->perr), 2); // stderr
     posix_spawn_file_actions_addclose(&facts, input_Pipe(&d->pout));
     posix_spawn_file_actions_addclose(&facts, input_Pipe(&d->perr));
-    // Start the child process.
+    /* Start the child process. */
     rc = posix_spawn(&d->pid, argv[0], &facts, NULL, iConstCast(char **, argv), environ);
     free(argv);
     setCwd_Path(oldCwd);

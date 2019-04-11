@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <sys/socket.h>
 #include <sys/types.h>
 
-// address.c
+/* address.c */
 void getSockAddr_Address(const iAddress *  d,
                          struct sockaddr **addr_out,
                          socklen_t *       addrSize_out,
@@ -55,7 +55,7 @@ struct Impl_Socket {
     iSocketThread *thread;
     iCondition allSent;
     iMutex mutex;
-    // Audiences:
+    /* Audiences: */
     iAudience *connected;
     iAudience *disconnected;
     iAudience *error;
@@ -94,10 +94,10 @@ static iThreadResult run_SocketThread_(iThread *thread) {
     iBlock *inbuf = collect_Block(new_Block(0x20000));
     while (d->mode == run_SocketThreadMode) {
         if (bytesToSend_Socket(d->socket) > 0) {
-            // Make sure we won't block on select() when there's still data to send.
+            /* Make sure we won't block on select() when there's still data to send. */
             writeByte_Pipe(&d->wakeup, 0);
         }
-        // Wait for activity.
+        /* Wait for activity. */
         fd_set reads, errors; {
             FD_ZERO(&reads);
             FD_ZERO(&errors);
@@ -113,7 +113,7 @@ static iThreadResult run_SocketThread_(iThread *thread) {
         if (FD_ISSET(output_Pipe(&d->wakeup), &reads)) {
             readByte_Pipe(&d->wakeup);
         }
-        // Problem with the socket?
+        /* Problem with the socket? */
         if (FD_ISSET(d->socket->fd, &errors)) {
             if (status_Socket(d->socket) == connected_SocketStatus) {
                 iWarning("[Socket] error when receiving: %s\n", strerror(errno));
@@ -138,7 +138,7 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                 while (remaining > 0) {
                     ssize_t sent = send(d->socket->fd, ptr, remaining, 0);
                     if (sent == -1) {
-                        // Error!
+                        /* Error! */
                         delete_Block(data);
                         shutdown_Socket_(d->socket);
                         return errno;
@@ -159,7 +159,7 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                 }
             });
         }
-        // Check for incoming data.
+        /* Check for incoming data. */
         if (FD_ISSET(d->socket->fd, &reads)) {
             ssize_t readSize = recv(d->socket->fd, data_Block(inbuf), size_Block(inbuf), 0);
             if (readSize == 0) {
@@ -173,7 +173,7 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                     shutdown_Socket_(d->socket);
                     return errno;
                 }
-                // This was expected.
+                /* This was expected. */
                 return 0;
             }
             iGuardMutex(smx, {
@@ -339,7 +339,7 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
 }
 
 static iBool open_Socket_(iSocket *d) {
-    // The socket is assumed to be locked already.
+    /* The socket is assumed to be locked already. */
     if (isPending_Address(d->address)) {
         setStatus_Socket_(d, connecting_SocketStatus);
         return iTrue; // when address is resolved, the socket will be opened.
@@ -362,7 +362,7 @@ static iBool open_Socket_(iSocket *d) {
 static void addressLookedUp_Socket_(iAny *any, const iAddress *address) {
     iUnused(address);
     iSocket *d = any;
-    // This is being called from another thread.
+    /* This is being called from another thread. */
     iGuardMutex(&d->mutex, {
         if (d->status == addressLookup_SocketStatus) {
             setStatus_Socket_(d, initialized_SocketStatus);

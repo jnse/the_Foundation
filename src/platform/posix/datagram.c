@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <sys/socket.h>
 #include <unistd.h>
 
-// address.c
+/* address.c */
 void getSockAddr_Address(const iAddress *  d,
                          struct sockaddr **addr_out,
                          socklen_t *       addrSize_out,
@@ -78,7 +78,7 @@ struct Impl_Datagram {
     iCondition messageReceived;
     iQueue *output;
     iQueue *input;
-    // Audiences:
+    /* Audiences: */
     iAudience *error;
     iAudience *message;
     iAudience *writeFinished;
@@ -106,7 +106,7 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
     iDatagramThread *d = (iAny *) thread;
     iMutex *mtx = &d->mutex;
     while (d->mode == run_DatagramThreadMode) {
-        // Wait for activity.
+        /* Wait for activity. */
         fd_set reads, errors; {
             FD_ZERO(&reads);
             FD_ZERO(&errors);
@@ -125,18 +125,18 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
                 return errno;
             }
         }
-        // Clear the wakeup.
+        /* Clear the wakeup. */
         if (FD_ISSET(output_Pipe(&d->wakeup), &reads)) {
             readByte_Pipe(&d->wakeup);
         }
         lock_Mutex(mtx); { // thread locked during datagram iteration
             iForEach(PtrSet, i, &d->datagrams) {
                 iDatagram *dgm = *i.value;
-                // Problem with the socket?
+                /* Problem with the socket? */
                 if (FD_ISSET(dgm->fd, &errors)) {
                     iWarning("[Datagram] socket %i has exception status\n", dgm->fd);
                 }
-                // Check for incoming data.
+                /* Check for incoming data. */
                 if (FD_ISSET(dgm->fd, &reads)) {
                     char buf[iMessageMaxDataSize];
                     struct sockaddr_storage addr;
@@ -147,7 +147,7 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
                         iWarning("[Datagram] socket %i: error %i while receiving: %s\n",
                                  dgm->fd, errno, strerror(errno));
                         iNotifyAudienceArgs(dgm, error, DatagramError, errno, strerror(errno));
-                        // Maybe remove the datagram from the set?
+                        /* Maybe remove the datagram from the set? */
                     }
                     /* Keep the data as a message. */ {
                         iMessage *msg = new_Message();
@@ -164,7 +164,7 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
             }
         }
         unlock_Mutex(mtx);
-        // Now that received messages have been handled, check for outgoing messages.
+        /* Now that received messages have been handled, check for outgoing messages. */
         lock_Mutex(mtx); {  // thread locked during datagram iteration
             iForEach(PtrSet, i, &d->datagrams) {
                 iDatagram *dgm = *i.value;
@@ -187,7 +187,7 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
                                  size_Block(&msg->data),
                                  strerror(errno));
                         iNotifyAudienceArgs(dgm, error, DatagramError, errno, strerror(errno));
-                        // Maybe remove the datagram from the set?
+                        /* Maybe remove the datagram from the set? */
                     }
                     iRelease(msg);
                     didSend = iTrue;
@@ -249,8 +249,8 @@ void init_DatagramThreads(void) { // called from init_Foundation)
 }
 
 //static iDatagramThread *datagramThread_(void) {
-//    iAssert(datagramIO_ != NULL);
-//    return datagramIO_;
+/*    iAssert(datagramIO_ != NULL); */
+/*    return datagramIO_; */
 //}
 
 iDefineSubclass(DatagramThread, Thread)
@@ -329,7 +329,7 @@ iBool open_Datagram(iDatagram *d, uint16_t port) {
 
 void close_Datagram(iDatagram *d) {
     flush_Datagram(d);
-    // Remove from the I/O thread.
+    /* Remove from the I/O thread. */
     if (datagramIO_) { // may have been deleted by atexit() already
         iGuardMutex(&datagramIO_->mutex, remove_PtrSet(&datagramIO_->datagrams, d));
         writeByte_Pipe(&datagramIO_->wakeup, 1); // update the set of waiting datagrams
@@ -361,8 +361,8 @@ void deinit_Datagram(iDatagram *d) {
 void send_Datagram(iDatagram *d, const iBlock *data, const iAddress *to) {
     iAssert(to != NULL);
     iMessage *msg = new_Message();
-    // Block here until the address is resolved. We cannot block the datagram I/O thread because
-    // it handles multiple sockets at once.
+    /* Block here until the address is resolved. We cannot block the datagram I/O thread because */
+    /* it handles multiple sockets at once. */
     waitForFinished_Address(to);
     msg->address = ref_Object(to);
     set_Block(&msg->data, data);

@@ -46,7 +46,7 @@ struct Impl_WebRequest {
     size_t lastNotifySize;
     iString errorMessage;
     iStringArray *headers;
-    // Audiences:
+    /* Audiences: */
     iAudience *progress;
     iAudience *readyRead;
 };

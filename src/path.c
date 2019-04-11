@@ -97,7 +97,7 @@ static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments,
     iRangecc seg = iNullRange;
     while (nextSplit_Rangecc(path, iPathSeparator, &seg)) {
         if (*count > 0 && size_Range(&seg) == 0) {
-            // Skip repeated slashes.
+            /* Skip repeated slashes. */
             *changed = iTrue;
             continue;
         }
@@ -140,7 +140,7 @@ void clean_Path(iString *d) {
     size_t count = 0;
     iBool changed = iFalse;
     splitSegments_Path_(&range_String(d), segments, &count, &changed);
-    // Recompose the remaining segments.
+    /* Recompose the remaining segments. */
     if (changed) {
         if (count == 0) {
             set_String(d, &iStringLiteral("."));

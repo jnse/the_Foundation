@@ -83,7 +83,7 @@ static void reserve_BlockData_(iBlockData *d, size_t size) {
     if (d->allocSize >= size) return;
     iAssert(d->refCount == 1);
     iAssert(d->allocSize > 0);
-    // Reserve increased amount of memory in powers-of-two.
+    /* Reserve increased amount of memory in powers-of-two. */
     for (d->allocSize = 8; d->allocSize < size; d->allocSize <<= 1) {}
     d->data = realloc(d->data, d->allocSize);
 }
@@ -432,11 +432,11 @@ static iBool process_ZStream_(iZStream *d, int (*process)(z_streamp, int)) {
             break;
         }
         else if (rc != Z_OK && rc != Z_BUF_ERROR) {
-            // Something went wrong.
+            /* Something went wrong. */
             return iFalse;
         }
         if (d->stream.avail_out == 0) {
-            // Allocate more room.
+            /* Allocate more room. */
             const size_t oldSize = size_Block(d->out);
             resize_Block(d->out, oldSize * 2);
             d->stream.next_out = (Bytef *) d->out->i->data + oldSize;

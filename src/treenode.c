@@ -54,7 +54,7 @@ void *new_TreeNode(const iAnyClass *class) {
 void delete_TreeNode(iAnyTreeNode *any) {
     iTreeNode *d = (iTreeNode *) any;
     setParent_TreeNode(d, NULL);
-    // Destroy children, who will remove themselves.
+    /* Destroy children, who will remove themselves. */
     while (!isEmpty_List(d->children)) {
         delete_TreeNode(front_List(d->children));
     }
@@ -68,7 +68,7 @@ void setParent_TreeNode(iAnyTreeNode *any, iAnyTreeNode *parent) {
     iTreeNode *d = (iTreeNode *) any;
     if (d->parent == parent) return;
     if (d->parent) {
-        // Remove from old parent.
+        /* Remove from old parent. */
         iAssert(d->parent->children);
         remove_List(d->parent->children, d);
     }

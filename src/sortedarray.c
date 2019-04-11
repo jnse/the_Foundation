@@ -54,16 +54,16 @@ iBool contains_SortedArray(const iSortedArray *d, const void *value) {
 }
 
 iBool locate_SortedArray(const iSortedArray *d, const void *value, size_t *pos_out) {
-    // We will narrow down the span until the pointer is found or we'll know where
-    // it would be if it were inserted.
+    /* We will narrow down the span until the pointer is found or we'll know where
+     * it would be if it were inserted. */
     iRanges span = { 0, size_Array(&d->values) };
     iAssert(span.end == 0 || d->values.data != NULL);
     while (!isEmpty_Range(&span)) {
-        // Narrow down the search by a half.
+        /* Narrow down the search by a half. */
         const size_t mid = (span.start + span.end) / 2;
         const int cmp = d->cmp(value, constAt_SortedArray(d, mid));
         if (cmp == 0) {
-            // Oh, it's here.
+            /* Oh, it's here. */
             if (pos_out) *pos_out = mid;
             return iTrue;
         }
@@ -125,8 +125,8 @@ void clear_SortedArray(iSortedArray *d) {
 iBool insert_SortedArray(iSortedArray *d, const void *value) {
     size_t pos;
     if (locate_SortedArray(d, value, &pos)) {
-        // The value already exists in the set. It is written anyway, since some
-        // contents of the element may have changed.
+        /* The value already exists in the set. It is written anyway, since some
+         * contents of the element may have changed. */
         set_Array(&d->values, pos, value);
         return iFalse; // No new elements.
     }

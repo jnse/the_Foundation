@@ -126,7 +126,7 @@ static void replaceNode_Map_(iMap *d, iMapNode *node, iMapNode *replacement) {
 
 static void swapNodes_Map_(iMap *d, iMapNode *node, iMapNode *other) {
     iAssert(d->root != other); // never replacing with the root
-    // node and other will swap places in the tree.
+    /* node and other will swap places in the tree. */
     if (d->root == node) {
         d->root = other;
     }
@@ -145,10 +145,10 @@ static void swapNodes_Map_(iMap *d, iMapNode *node, iMapNode *other) {
     if (opar == node)  opar = other;
     if (oc0  == node)  oc0  = other;
     if (oc1  == node)  oc1  = other;
-    // Set downlinks first.
+    /* Set downlinks first. */
     setChild_MapNode_(npar, nside, other);
     setChild_MapNode_(opar, oside, node);
-    // Set all children.
+    /* Set all children. */
     setChild_MapNode_(other, 0, nc0);
     setChild_MapNode_(other, 1, nc1);
     setChild_MapNode_(node,  0, oc0);
@@ -156,7 +156,7 @@ static void swapNodes_Map_(iMap *d, iMapNode *node, iMapNode *other) {
 }
 
 static void repairAfterInsert_MapNode_(iMapNode *node) {
-    // Restore the required red/black properties.
+    /* Restore the required red/black properties. */
     while (node) {
         if (!node->parent) {
             node->flags = black_MapNodeFlag;
@@ -260,7 +260,7 @@ static iMapNode *insertNode_Map_(iMap *d, iMapNode *insert) {
     while (root) {
         const int cmp = d->cmp(insert->key, root->key);
         if (cmp == 0) {
-            // Replace this node; keys must be unique.
+            /* Replace this node; keys must be unique. */
             replaceNode_Map_(d, root, insert);
             setChild_MapNode_(insert, 0, root->child[0]);
             setChild_MapNode_(insert, 1, root->child[1]);
@@ -308,7 +308,7 @@ static void removeNodeWithZeroOrOneChild_Map_(iMap *d, iMapNode *node) {
             *downLink_MapNode_(node) = NULL;
         }
     }
-    // Update root after repairing the tree.
+    /* Update root after repairing the tree. */
     iAssert(d->root);
     while (d->root->parent) d->root = d->root->parent;
 }
@@ -349,7 +349,7 @@ void clear_Map(iMap *d) {
 iMapNode *insert_Map(iMap *d, iMapNode *node) {
     iMapNode *old = insertNode_Map_(d, node);
     if (old) {
-        // The root may have been replaced.
+        /* The root may have been replaced. */
 #if defined (iMapDebug)
         iAssert(isBlack_MapNode_(d->root));
         verify_MapNode_(d->root);
@@ -372,8 +372,8 @@ iMapNode *removeNode_Map(iMap *d, iMapNode *node) {
     if (!node) return NULL;
     d->size--;
     if (node->child[0] && node->child[1]) {
-        // It would be much simpler to just swap the values, but the node itself
-        // is the value, so we have to swap the nodes.
+        /* It would be much simpler to just swap the values, but the node itself */
+        /* is the value, so we have to swap the nodes. */
         iMapNode *pred = adjacent_MapNode_(node, 0);
         swapNodes_Map_(d, node, pred);
     }
@@ -400,7 +400,7 @@ static const iMapNode *constNextInOrder_MapNode_(const iMapNode *d, int dir) {
     if (!d) return NULL;
     const iMapNode *adj = constAdjacent_MapNode_(d, dir);
     if (adj) return adj;
-    // Go back up until there's a forward node.
+    /* Go back up until there's a forward node. */
     for (; d->parent; d = d->parent) {
         if (isChild_MapNode_(d, dir ^ 1) && d->parent->child[dir]) {
             return d->parent;
@@ -415,7 +415,7 @@ static const iMapNode *constNextInOrder_MapNode_(const iMapNode *d, int dir) {
 void init_MapIterator(iMapIterator *d, iMap *map) {
     d->map = map;
     d->value = firstInOrder_MapNode_(map->root, 1);
-    // The current node may be deleted, so keep the next one in a safe place.
+    /* The current node may be deleted, so keep the next one in a safe place. */
     d->next = nextInOrder_MapNode_(d->value, 1);
 }
 
@@ -425,8 +425,8 @@ void next_MapIterator(iMapIterator *d) {
 }
 
 iMapNode *remove_MapIterator(iMapIterator *d) {
-    // The `next` pointer will remain valid even though the structure of
-    // the tree changes.
+    /* The `next` pointer will remain valid even though the structure of */
+    /* the tree changes. */
     return removeNode_Map(d->map, d->value);
 }
 
@@ -442,7 +442,7 @@ void next_MapConstIterator(iMapConstIterator *d) {
 void init_MapReverseIterator(iMapReverseIterator *d, iMap *map) {
     d->map = map;
     d->value = firstInOrder_MapNode_(map->root, 0);
-    // The current node may be deleted, so keep the next one in a safe place.
+    /* The current node may be deleted, so keep the next one in a safe place. */
     d->next = nextInOrder_MapNode_(d->value, 0);
 }
 
@@ -452,8 +452,8 @@ void next_MapReverseIterator(iMapReverseIterator *d) {
 }
 
 iMapNode *remove_MapReverseIterator(iMapReverseIterator *d) {
-    // The `next` pointer will remain valid even though the structure of
-    // the tree changes.
+    /* The `next` pointer will remain valid even though the structure of */
+    /* the tree changes. */
     return removeNode_Map(d->map, d->value);
 }
 

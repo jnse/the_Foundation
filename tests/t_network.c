@@ -110,7 +110,7 @@ static void communicate_(iAny *d, iService *sv, iSocket *sock) {
     iString *addr = toString_Address(address_Socket(sock));
     printf("incoming connecting from %s\n", cstr_String(addr));
     delete_String(addr);
-    // Start a new thread to communicate through the socket.
+    /* Start a new thread to communicate through the socket. */
     iThread *receiver = new_Thread(messageReceiver_);
     setUserData_Thread(receiver, ref_Object(sock));
     observeSocket_(sock);
@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
         }
         iRelease(ifs);
     }
-    // Check the arguments.
+    /* Check the arguments. */
     iCommandLine *cmdline = iClob(new_CommandLine(argc, argv)); {
 #if defined (iHaveCurl)
         iCommandLineArg *getUrl = iClob(checkArgumentValues_CommandLine(cmdline, "g", 1));

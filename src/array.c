@@ -152,12 +152,12 @@ void resize_Array(iArray *d, size_t size) {
     }
     reserve_Array(d, size);
     if (d->range.start + size > d->allocSize) {
-        // Rebalance according to the new size.
+        /* Rebalance according to the new size. */
         const int leftSide = (d->allocSize - size) / 2;
         shift_Array_(d, leftSide - (int) d->range.start);
     }
     setSize_Range(&d->range, size);
-    // Zero newly added elements.
+    /* Zero newly added elements. */
     memset(element_Array_(d, d->range.start + oldSize), 0, d->elementSize * (size - oldSize));
 }
 
@@ -198,9 +198,9 @@ void insertN_Array(iArray *d, size_t pos, const void *value, size_t count) {
     iAssert(pos <= size_Array(d));
     reserve_Array(d, size_Array(d) + count);
     rebalance_Array_(d);
-    // Map to internal range.
+    /* Map to internal range. */
     pos += d->range.start;
-    // Easy insertions.
+    /* Easy insertions. */
     if (pos == d->range.end && d->range.end + count <= d->allocSize) { // At the end.
         memcpy(element_Array_(d, pos), value, count * d->elementSize);
         d->range.end += count;
@@ -211,7 +211,7 @@ void insertN_Array(iArray *d, size_t pos, const void *value, size_t count) {
         d->range.start -= count;
     }
     else {
-        // Need to make some room. Shift backward?
+        /* Need to make some room. Shift backward? */
         if (d->range.start >= count &&
                 (d->range.end + count > d->allocSize ||
                  pos - d->range.start < d->range.end - pos)) {
@@ -263,7 +263,7 @@ void move_Array(iArray *d, const iRanges *range, iArray *dest, size_t destPos) {
     const int count = size_Range(range);
     const int oldDestSize = size_Array(dest);
     resize_Array(dest, oldDestSize + count); // dest size increased
-    // Make room for the moved elements.
+    /* Make room for the moved elements. */
     moveElements_Array_(dest, &(iRanges){ dest->range.start + destPos,
                                           dest->range.start + oldDestSize }, count);
     memcpy(element_Array_(dest, dest->range.start + destPos),

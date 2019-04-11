@@ -36,7 +36,7 @@ static int cmpObject_Observer_(const void *a, const void *b) {
 static int cmp_Observer_(const void *a, const void *b) {
     const int cmp = cmpObject_Observer_(a, b);
     if (cmp != 0) return cmp;
-    // Same object.
+    /* Same object. */
     const iObserver *x = a, *y = b;
     return iCmp((intptr_t) x->func, (intptr_t) y->func);
 }
@@ -49,7 +49,7 @@ void init_Audience(iAudience *d) {
 }
 
 void deinit_Audience(iAudience *d) {
-    // Tells members of this audience that the audience is going away.
+    /* Tells members of this audience that the audience is going away. */
     iGuardMutex(&d->mutex, {
         iConstForEach(Audience, i, d) {
             iAudienceMember *memberOf = ((const iObject *) i.value->object)->memberOf;
@@ -62,7 +62,7 @@ void deinit_Audience(iAudience *d) {
 }
 
 iBool insert_Audience(iAudience *d, iAnyObject *object, iObserverFunc func) {
-    // This object becomes an audience member.
+    /* This object becomes an audience member. */
     iAssert(object != NULL);
     iBool inserted;
     iGuardMutex(&d->mutex, {
@@ -84,7 +84,7 @@ static iBool removeObject_Audience_(iAudience *d, const iAnyObject *object) {
 }
 
 iBool remove_Audience(iAudience *d, iAnyObject *object, iObserverFunc func) {
-    // This object is no longer an audience member.
+    /* This object is no longer an audience member. */
     iBool removed;
     iGuardMutex(&d->mutex, {
         remove_AudienceMember(audienceMember_Object(object), d);

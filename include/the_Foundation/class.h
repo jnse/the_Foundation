@@ -36,7 +36,7 @@ iDeclareType(Stream)
 
 typedef void iAnyClass;
 
-// The mandatory members:
+/* The mandatory members: */
 struct Impl_Class {
     const iClass *super;
     const char *name;

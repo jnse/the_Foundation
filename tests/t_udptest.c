@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
     init_Foundation();
     iCommandLine *cmdline = iClob(new_CommandLine(argc, argv));
     defineValues_CommandLine(cmdline, "c;client", 1);
-    // Check the arguments.
+    /* Check the arguments. */
     if (contains_CommandLine(cmdline, "s;server")) {
         iDatagram *listen = iClob(new_Datagram());
         observe_(listen);

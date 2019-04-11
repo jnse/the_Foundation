@@ -117,7 +117,7 @@ struct ConstIteratorImpl_BlockHash {
 ///@}
 
 //---------------------------------------------------------------------------------------
-// Deriving specialized hashes:
+/* Deriving specialized hashes: */
 
 #define iDeclareBlockHash(typeName, keyType, valueType) \
     typedef iBlockHash i##typeName; \

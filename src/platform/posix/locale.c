@@ -41,6 +41,6 @@ void init_Locale(void) {
         setlc = setlocale(LC_CTYPE, NULL);
     }
     printf("[the_Foundation] locale: %s\n", setlc);
-    // Expect to have non-localized number representation.
+    /* Expect to have non-localized number representation. */
     setlocale(LC_NUMERIC, "C");
 }

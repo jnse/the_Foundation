@@ -67,7 +67,7 @@ static inline int iSign(const int a) { return a < 0 ? -1 : a > 0 ? +1 : 0; }
 
 #define iChangeFlags(var, flags, doSet)   {if (doSet) { (var) |= (flags); } else { (var) &= ~(flags); }}
 
-// Types.
+/* Types. */
 typedef bool iBool;
 typedef void iAny;
 typedef void iAnyObject;

@@ -206,7 +206,7 @@ iBool isPending_Address(const iAddress *d) {
 iBool equal_Address(const iAddress *d, const iAddress *other) {
     waitForFinished_Address(d);
     waitForFinished_Address(other);
-    // Compare the addresses with each other.
+    /* Compare the addresses with each other. */
     for (const struct addrinfo *i = d->info; i; i = i->ai_next) {
         for (const struct addrinfo *j = other->info; j; j = j->ai_next) {
             if (i->ai_family == j->ai_family && i->ai_protocol == j->ai_protocol &&
@@ -250,7 +250,7 @@ void lookupCStr_Address(iAddress *d, const char *hostName, uint16_t port, enum i
 
 void waitForFinished_Address(const iAddress *d) {
     if (~d->flags & finished_AddressFlag) {
-        // Prevent the thread from being deleted while we're checking.
+        /* Prevent the thread from being deleted while we're checking. */
         guardJoin_Thread(d->pending, &d->mutex);
     }
 }
@@ -312,14 +312,14 @@ iObjectList *networkInterfaces_Address(void) {
         for (struct ifaddrs *i = addrs; i; i = i->ifa_next) {
             char hbuf[NI_MAXHOST];
             struct sockaddr *sockAddr = i->ifa_addr;
-            // Only IPv4 and IPv6 addresses.
+            /* Only IPv4 and IPv6 addresses. */
             if (sockAddr->sa_family != AF_INET && sockAddr->sa_family != AF_INET6) continue;
             const socklen_t size = sockAddr->sa_family == AF_INET6 ? sizeof(struct sockaddr_in6)
                                                                    : sizeof(struct sockaddr_in);
             if (!getnameinfo(sockAddr, size, hbuf, sizeof(hbuf), NULL, 0, NI_NUMERICHOST)) {
                 if (strlen(hbuf)) {
                     iAddress *addr = newSockAddr_Address(sockAddr, size, tcp_SocketType);
-                    // We also have a text version of the host address.
+                    /* We also have a text version of the host address. */
                     setCStr_String(&addr->hostName, hbuf);
                     pushBack_ObjectList(list, addr);
                 }

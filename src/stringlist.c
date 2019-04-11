@@ -108,7 +108,7 @@ static iStringListNode *locateNode_StringList_(const iStringList *d, size_t pos,
     range.start = (forwards? 0 : (d->size - size_StringListNode_(node)));
     setSize_Range(&range, size_StringListNode_(node));
     while (!contains_Range(&range, pos)) {
-        // Advance the front node.
+        /* Advance the front node. */
         if (forwards) {
             range.start = range.end;
             node = next_StringListNode_(node);
@@ -172,7 +172,7 @@ static void splitNode_StringList_(iStringList *d, iStringListNode *node) {
 
 static void mergeIntoAndRemoveNode_StringList_(iStringList *d, iStringListNode *from,
                                                iStringListNode *to) {
-    // Move all the strings to the previous node.
+    /* Move all the strings to the previous node. */
     move_StringArray(&from->strings,
                      &(iRanges){ 0, size_StringListNode_(from) },
                      &to->strings,

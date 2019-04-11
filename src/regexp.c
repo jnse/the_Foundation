@@ -69,7 +69,7 @@ void deinit_RegExp(iRegExp *d) {
 iBool match_RegExp(const iRegExp *d, const char *subject, size_t len, iRegExpMatch *match) {
     if (!d->re || !subject) return iFalse;
     if (match->subject != subject) {
-        // The match object is uninitialized, so initialize it now.
+        /* The match object is uninitialized, so initialize it now. */
         iZap(*match);
         match->subject = subject;
     }
