@@ -85,7 +85,7 @@ void insertN_PtrArray(iPtrArray *d, size_t pos, const void **values, size_t coun
     insertN_Array(d, pos, values, count);
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 #define value_PtrArrayIterator_(d)      (((d)->iter.value? *(void **) (d)->iter.value : NULL));
 #define value_PtrArrayConstIterator_(d) (((d)->iter.value? *(void * const *) (d)->iter.value : NULL));

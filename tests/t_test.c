@@ -55,7 +55,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <locale.h>
 #include <time.h>
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDeclareStaticClass(TestNode)
 iDeclareType(TestNode)
@@ -81,7 +81,7 @@ iTestNode *new_TestNode(int value) {
     return d;
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDeclareStaticClass(SuperNode)
 iDeclareType(SuperNode)
@@ -108,7 +108,7 @@ iSuperNode *new_SuperNode(int value, int member) {
     return d;
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDeclareStaticClass(TestObject)
 iDeclareType(TestObject)
@@ -130,7 +130,7 @@ iTestObject *new_TestObject(int value) {
     return d;
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 void printArray(const iArray *d) {
     printf("%4lu %4lu -> %-4lu : %4lu [", size_Array(d), d->range.start, d->range.end, d->allocSize);

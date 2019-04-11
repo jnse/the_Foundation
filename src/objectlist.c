@@ -102,7 +102,7 @@ void popBack_ObjectList(iObjectList *d) {
     delete_ObjectListNode_(popBack_List(&d->list));
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 void init_ObjectListIterator(iObjectListIterator *d, iObjectList *list) {
     d->list = list;
@@ -148,7 +148,7 @@ void remove_ObjectListReverseIterator(iObjectListReverseIterator *d) {
     removeNode_ObjectList(d->list, d->value);
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 void init_ObjectListConstIterator(iObjectListConstIterator *d, const iObjectList *list) {
     d->list = list;

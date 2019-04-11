@@ -34,7 +34,7 @@ iDeclareTypeConstructionArgs(Noise, iVec2 size)
 
 float   eval_Noise  (const iNoise *, float normX, float normY);
 
-//-------------------------------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------------------------*/
 
 iDeclareType(NoiseComponent)
 

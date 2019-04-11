@@ -72,7 +72,7 @@ iDefineAudienceGetter(Socket, error)
 iDefineAudienceGetter(Socket, readyRead)
 iDefineAudienceGetter(Socket, writeFinished)
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 enum iSocketThreadMode {
     run_SocketThreadMode,
@@ -217,7 +217,7 @@ iDefineObjectConstructionArgs(SocketThread,
 
 static inline void start_SocketThread(iSocketThread *d) { start_Thread(&d->thread); }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDefineObjectConstructionArgs(Socket,
                               (const char *hostName, uint16_t port),

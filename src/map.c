@@ -385,7 +385,7 @@ iMapNode *removeNode_Map(iMap *d, iMapNode *node) {
     return node;
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 static const iMapNode *constFirstInOrder_MapNode_(const iMapNode *d, int dir) {
     if (!d) return NULL;

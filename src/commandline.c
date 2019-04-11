@@ -295,7 +295,7 @@ iCommandLineArg *checkArgument_CommandLine(const iCommandLine *d, const char *ar
     return checkArgumentValuesN_CommandLine(d, arg, minCount, maxCount);
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 void init_CommandLineConstIterator(iCommandLineConstIterator *d, const iCommandLine *cmdLine) {
     d->value = 0;
@@ -376,7 +376,7 @@ const iString *value_CommandLineConstIterator(iCommandLineConstIterator *d) {
     return NULL;
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 void init_DefinedArg(iDefinedArg *d, int min, int max) {
     d->minCount = min;
@@ -391,7 +391,7 @@ static iDefineClass(DefinedArg)
 
 iDefineObjectConstructionArgs(DefinedArg, (int min, int max), min, max)
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDefineClass(CommandLineArg)
 iDefineObjectConstruction(CommandLineArg)

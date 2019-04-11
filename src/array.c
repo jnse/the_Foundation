@@ -276,7 +276,7 @@ void sort_Array(iArray *d, int (*cmp)(const void *, const void *)) {
     qsort(front_Array(d), size_Array(d), d->elementSize, cmp);
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 void init_ArrayIterator(iArrayIterator *d, iArray *array) {
     d->array = array;

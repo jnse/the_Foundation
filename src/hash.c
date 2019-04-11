@@ -186,7 +186,7 @@ static iHashBucket *nextInOrder_HashBucket_(const iHashBucket *d) {
     return NULL;
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDefineTypeConstruction(Hash)
 
@@ -252,7 +252,7 @@ iHashNode *remove_Hash(iHash *d, iHashKey key) {
     return removed;
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 void init_HashIterator(iHashIterator *d, iHash *hash) {
     d->hash = hash;

@@ -96,7 +96,7 @@ iBool remove_Audience(iAudience *d, iAnyObject *object, iObserverFunc func) {
     return removed;
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 void init_AudienceConstIterator(iAudienceConstIterator *d, const iAudience *audience) {
     if (audience) {
@@ -111,7 +111,7 @@ void next_AudienceConstIterator(iAudienceConstIterator *d) {
     next_ArrayConstIterator(&d->iter);
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDefineTypeConstructionArgs(AudienceMember, (iAnyObject *object), object)
 

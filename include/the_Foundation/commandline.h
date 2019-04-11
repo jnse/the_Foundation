@@ -124,7 +124,7 @@ struct ConstIteratorImpl_CommandLine {
 iCommandLineArg *   argument_CommandLineConstIterator   (iCommandLineConstIterator *);
 const iString *     value_CommandLineConstIterator      (iCommandLineConstIterator *);
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 struct Impl_CommandLineArg {
     iStringList values;

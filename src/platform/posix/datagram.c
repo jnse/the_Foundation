@@ -65,7 +65,7 @@ static void deinit_Message(iMessage *d) {
 iDefineObjectConstruction(Message)
 iDefineClass(Message)
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 struct Impl_Datagram {
     iObject object;
@@ -255,7 +255,7 @@ void init_DatagramThreads(void) { // called from init_Foundation)
 
 iDefineSubclass(DatagramThread, Thread)
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDefineObjectConstruction(Datagram)
 iDefineClass(Datagram)

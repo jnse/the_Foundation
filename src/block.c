@@ -105,7 +105,7 @@ static void detach_Block_(iBlock *d, size_t allocSize) {
     iAssert(d->i->refCount == 1);
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDefineTypeConstructionArgs(Block, (size_t size), size)
 
@@ -405,7 +405,7 @@ void md5_Block(const iBlock *d, uint8_t md5_out[16]) {
     iMd5Hash(d->i->data, d->i->size, md5_out);
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 #if defined (iHaveZlib)
 
 iDeclareType(ZStream)

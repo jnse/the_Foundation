@@ -49,7 +49,7 @@ iHashKey hashKey_BlockHashNode(const iBlock *key) {
     return crc32_Block(key);
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDefineObjectConstruction(BlockHash)
 
@@ -141,7 +141,7 @@ iBool remove_BlockHash(iBlockHash *d, const iBlock *key) {
     return iFalse;
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 void init_BlockHashIterator(iBlockHashIterator *d, iBlockHash *hash) {
     init_HashIterator(&d->iter, &hash->hash);

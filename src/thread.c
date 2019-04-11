@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iDefinePlainKeyBlockHash(ThreadHash, ThreadId, Thread)
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDefineLockableObject(ThreadHash)
 
@@ -90,7 +90,7 @@ static int run_Threads_(void *arg) {
     return 0;
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDefineClass(Thread)
 iDefineObjectConstructionArgs(Thread, (iThreadRunFunc run), run)

@@ -61,7 +61,7 @@ static size_t size_StringListNode_(const iStringListNode *d) {
 
 iDefineStaticTypeConstruction(StringListNode)
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDefineClass(StringList)
 iDefineObjectConstruction(StringList)
@@ -275,7 +275,7 @@ iString *take_StringList(iStringList *d, size_t pos) {
     return str;
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 #define updateValue_StringListIterator(d)   \
     {(d)->value = at_StringArray(&((iStringListNode *) (d)->node)->strings, (d)->nodePos);}

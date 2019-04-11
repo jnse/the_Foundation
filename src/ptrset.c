@@ -78,7 +78,7 @@ void *at_PtrSet(iPtrSet *d, size_t pos) {
     return *(iPtr *) at_SortedArray(d, pos);
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 void init_PtrSetIterator(iPtrSetIterator *d, iPtrSet *set) {
     init_ArrayIterator(&d->iter, &set->values);

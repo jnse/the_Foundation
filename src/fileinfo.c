@@ -182,7 +182,7 @@ long fileSizeCStr_FileInfo(const char *path) {
     return iFileInfoUnknownSize;
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 struct Impl_DirFileInfo {
     iObject object;

@@ -565,7 +565,7 @@ iStringList *split_CStr(const char *cstr, const char *separator) {
     return split_Rangecc(&(iRangecc){ cstr, cstr + strlen(cstr) }, separator);
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 static void decodeNextMultibyte_StringConstIterator_(iStringConstIterator *d) {
 /*    const int rc = mbrtowc(&d->value, d->next, d->remaining, &d->mbs); */
@@ -642,7 +642,7 @@ void next_StringReverseConstIterator(iStringConstIterator *d) {
     }
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 void init_MultibyteChar(iMultibyteChar *d, iChar ch) {
 /*    mbstate_t mbs; */

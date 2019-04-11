@@ -189,7 +189,7 @@ static inline iFloat4 mix_F4   (const iFloat4 a, const iFloat4 b, float t) {
     return add_F4(a, mulf_F4(sub_F4(b, a), t));
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 struct Impl_Float3 {
     __m128 m;
@@ -341,7 +341,7 @@ static inline iFloat3 mix_F3   (const iFloat3 a, const iFloat3 b, float t) {
     return add_F3(a, mulf_F3(sub_F3(b, a), t));
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDeclareType(Mat4)
 
@@ -449,7 +449,7 @@ static inline iFloat3 mulF3_Mat3(const iMat3 *d, iFloat3 v) {
                    dot_F3(initmm_F3(d->col[2]), v));
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 static inline float iMinf(float a, float b) {
     return _mm_cvtss_f32(_mm_min_ss(_mm_set_ss(a), _mm_set_ss(b)));

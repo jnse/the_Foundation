@@ -306,7 +306,7 @@ static inline iFloat4 mix_F4   (const iFloat4 a, const iFloat4 b, float t) {
     return add_F4(a, mulf_F4(sub_F4(b, a), t));
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 static inline iFloat3 zero_F3(void) {
     return (iFloat3){ .v = { 0, 0, 0 } };
@@ -570,7 +570,7 @@ static inline iFloat3 cross_F3(const iFloat3 a, const iFloat3 b) {
                          mul_F3(a, zxy_F3(b))));
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDeclareType(Mat4)
 
@@ -667,7 +667,7 @@ static inline iFloat3 mulF3_Mat3(const iMat3 *d, iFloat3 v) {
                    dot_F3(initv_F3(d->col[2].v), v));
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 static inline float iMinf(float a, float b) { return iMin(a, b); }
 static inline float iMaxf(float a, float b) { return iMax(a, b); }

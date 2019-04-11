@@ -68,7 +68,7 @@ iDefineObjectConstructionArgs(PooledThread, (iThreadPool *pool), pool)
 static inline void start_PooledThread(iPooledThread *d) { start_Thread(&d->thread); }
 static inline void join_PooledThread (iPooledThread *d) { join_Thread(&d->thread); }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 iDefineClass(ThreadPool)
 iDefineObjectConstruction(ThreadPool)

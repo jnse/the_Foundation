@@ -152,7 +152,7 @@ iString *joinCStr_StringArray(const iStringArray *d, const char *delim) {
     return joined;
 }
 
-//---------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------*/
 
 void init_StringArrayIterator(iStringArrayIterator *d, iStringArray *array) {
     init_PtrArrayIterator(&d->iter, &array->strings);
