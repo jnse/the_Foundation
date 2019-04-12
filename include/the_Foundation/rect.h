@@ -58,12 +58,20 @@ static inline int   top_Rect    (const iRect *d) { return d->pos.y; }
 static inline int   bottom_Rect (const iRect *d) { return d->pos.y + d->size.y; }
 static inline iVec2 mid_Rect    (const iRect *d) { return add_I2(d->pos, divi_I2(d->size, 2)); }
 
-static inline iVec2 bottomLeft_Rect(const iRect *d) {
-    return init_I2(d->pos.x, bottom_Rect(d));
+static inline iVec2 topMid_Rect(const iRect *d) {
+    return init_I2(d->pos.x + d->size.x / 2, d->pos.y);
 }
 
 static inline iVec2 topRight_Rect(const iRect *d) {
     return init_I2(right_Rect(d), d->pos.y);
+}
+
+static inline iVec2 bottomLeft_Rect(const iRect *d) {
+    return init_I2(d->pos.x, bottom_Rect(d));
+}
+
+static inline iVec2 bottomMid_Rect(const iRect *d) {
+    return init_I2(d->pos.x + d->size.x / 2, bottom_Rect(d));
 }
 
 static inline iVec2 bottomRight_Rect(const iRect *d) {
@@ -97,7 +105,7 @@ void    expand_Rect         (iRect *, iVec2 value);
 void    adjustEdges_Rect    (iRect *, int top, int right, int bottom, int left);
 iVec2   random_Rect         (const iRect *d);
 iVec2   edgePos_Rect        (const iRect *d, int pos);
-iVec2   randomEdgePos_Rect  (const iRect *d);
+iVec2   randomEdgePos_Rect  (const iRect *d); // not a corner
 
 static inline void shrink_Rect  (iRect *d, iVec2 value) { expand_Rect(d, neg_I2(value)); }
 
