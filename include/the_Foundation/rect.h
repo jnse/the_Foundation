@@ -58,6 +58,8 @@ static inline int   top_Rect    (const iRect *d) { return d->pos.y; }
 static inline int   bottom_Rect (const iRect *d) { return d->pos.y + d->size.y; }
 static inline iVec2 mid_Rect    (const iRect *d) { return add_I2(d->pos, divi_I2(d->size, 2)); }
 
+static inline iVec2 topLeft_Rect(const iRect *d) { return d->pos; }
+
 static inline iVec2 topMid_Rect(const iRect *d) {
     return init_I2(d->pos.x + d->size.x / 2, d->pos.y);
 }
@@ -82,6 +84,9 @@ static inline iBool contains_Rect(const iRect *d, const iVec2 pos) {
     const iVec2 br = bottomRight_Rect(d);
     return pos.x >= d->pos.x && pos.y >= d->pos.y && pos.x < br.x && pos.y < br.y;
 }
+
+iBool   containsRect_Rect   (const iRect *, const iRect *other);
+iBool   isOverlapping_Rect  (const iRect *, const iRect *other);
 
 static inline iBool isEmpty_Rect(const iRect *d) {
     return prod_I2(d->size) == 0;
@@ -109,10 +114,14 @@ iVec2   randomEdgePos_Rect  (const iRect *d); // not a corner
 
 static inline void shrink_Rect  (iRect *d, iVec2 value) { expand_Rect(d, neg_I2(value)); }
 
-static inline iRect expanded_Rect(const iRect *d, iVec2 value) {
-    iRect r = *d;
-    expand_Rect(&r, value);
-    return r;
+static inline iRect expanded_Rect(iRect d, iVec2 value) {
+    expand_Rect(&d, value);
+    return d;
+}
+
+static inline iRect shrunk_Rect(iRect d, iVec2 value) {
+    expand_Rect(&d, neg_I2(value));
+    return d;
 }
 
 iDeclareConstIterator(Rect, const iRect *)

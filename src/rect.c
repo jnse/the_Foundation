@@ -28,6 +28,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/rect.h"
 #include "the_Foundation/math.h"
 
+iBool containsRect_Rect(const iRect *d, const iRect *other) {
+    const iVec2 br = sub_I2(bottomRight_Rect(other), one_I2());
+    return contains_Rect(d, topLeft_Rect(other)) &&
+           contains_Rect(d, init_I2(br.x, top_Rect(other))) && contains_Rect(d, br) &&
+           contains_Rect(d, init_I2(left_Rect(other), br.y));
+}
+
+iBool isOverlapping_Rect(const iRect *d, const iRect *other) {
+    /* Overlaps unless any one of the edges makes it impossible. */
+    return !(other->pos.x >= right_Rect(d) || other->pos.y >= bottom_Rect(d) ||
+             right_Rect(other) <= d->pos.x || bottom_Rect(other) <= d->pos.y);
+}
+
 iVec2 random_Rect(const iRect *d) {
     return add_I2(d->pos, random_I2(d->size));
 }
