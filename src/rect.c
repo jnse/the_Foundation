@@ -53,7 +53,16 @@ iVec2 edgePos_Rect(const iRect *d, int pos) {
 }
 
 iVec2 randomEdgePos_Rect(const iRect *d) {
-    return edgePos_Rect(d, iRandom(0, edgeLength_Rect_(d)));
+    const iVec2 dim = sub_I2(d->size, one_I2());
+    int i;
+    for (;;) {
+        i = iRandom(1, edgeLength_Rect_(d));
+        /* Do not pick one of the corners. */
+        if (i != dim.x && i != dim.x + dim.y && i != 2 * dim.x + dim.y) {
+            break;
+        }
+    }
+    return edgePos_Rect(d, i);
 }
 
 void init_RectConstIterator(iRectConstIterator *d, const iRect *rect) {
