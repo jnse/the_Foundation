@@ -140,6 +140,7 @@ static inline float lengthSq_I2 (const iVec2 a)                 { return dot_I2(
 static inline float length_I2   (const iVec2 a)                 { return sqrtf(lengthSq_I2(a)); }
 static inline float dist_I2     (const iVec2 a, const iVec2 b)  { return length_I2(sub_I2(b, a)); }
 static inline int   idist_I2    (const iVec2 a, const iVec2 b)  { return (int) (length_I2(sub_I2(b, a)) + .5f); }
+static inline int   manhattan_I2(const iVec2 a, const iVec2 b)  { return sum_I2(abs_I2(sub_I2(b, a))); }
 
 static inline iVec2 mix_I2      (const iVec2 a, const iVec2 b, float t) {
     return add_I2(a, mulf_I2(sub_I2(b, a), t));
