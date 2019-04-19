@@ -1,6 +1,7 @@
 #include "the_Foundation/noise.h"
 #include "the_Foundation/array.h"
 #include "the_Foundation/math.h"
+#include "the_Foundation/geometry.h"
 
 struct Impl_Noise {
     iVec2    size;
@@ -69,7 +70,17 @@ struct Impl_CombinedNoisePart {
 
 struct Impl_CombinedNoise {
     iArray parts;
+    iArray offsets; // iFloat3
 };
+
+#if 0
+static inline const iPlane *quadrantPlane_CombinedNoise_(const iCombinedNoise *d, const iFloat3 normPos) {
+    int index = 0;
+    if (x_F3(normPos) >= .5f) index |= 1;
+    if (y_F3(normPos) >= .5f) index |= 2;
+    return d->planes + index;
+}
+#endif
 
 iDefineTypeConstructionArgs(CombinedNoise,
                             (const iNoiseComponent *components, size_t count),
@@ -83,6 +94,10 @@ void init_CombinedNoise(iCombinedNoise *d, const iNoiseComponent *components, si
         init_Noise(&part.noise, components[i].size);
         pushBack_Array(&d->parts, &part);
     }
+//    for (size_t i = 0; i < iElemCount(d->planes); ++i) {
+//        init_Plane(d->planes + i, zero_F3(), init_F3(0.f, 0.f, 1.f));
+//    }
+    init_Array(&d->offsets, sizeof(iFloat3));
 }
 
 void deinit_CombinedNoise(iCombinedNoise *d) {
@@ -90,6 +105,66 @@ void deinit_CombinedNoise(iCombinedNoise *d) {
         deinit_Noise(&((iCombinedNoisePart *) i.value)->noise);
     }
     deinit_Array(&d->parts);
+    deinit_Array(&d->offsets);
+}
+
+#if 0
+void setQuadrantPlane_CombinedNoise(iCombinedNoise *d, size_t quadrant, iFloat3 origin, iFloat3 normal) {
+    if (quadrant >= iElemCount(d->planes)) {
+        for (quadrant = 0; quadrant < iElemCount(d->planes); ++quadrant) {
+            setQuadrantPlane_CombinedNoise(d, quadrant, origin, normal);
+        }
+    }
+    else {
+        init_Plane(d->planes + quadrant, origin, normal);
+    }
+}
+#endif
+
+static float weightedOffset_CombinedNoise_(const iCombinedNoise *d, float x, float y) {
+    if (isEmpty_Array(&d->offsets)) {
+        return 0.f;
+    }
+    iDeclareType(Nearest);
+    struct Impl_Nearest {
+        size_t index;
+        float dist;
+    };
+    iNearest nearest[] = {
+        {iInvalidPos, 0.f}, {iInvalidPos, 0.f}, {iInvalidPos, 0.f}, {iInvalidPos, 0.f}};
+    const iFloat3 pos = init_F3(x, y, 0.f);
+    iConstForEach(Array, i, &d->offsets) {
+        const iFloat3 offPos = *(const iFloat3 *) i.value;
+        float dist = length_F3(sub_F3(init_F3(x_F3(offPos), y_F3(offPos), 0.f), pos));
+        /* Is this one of the nearest ones? */
+        for (size_t k = 0; k < iElemCount(nearest); ++k) {
+            iNearest *near = nearest + k;
+            if (near->index == iInvalidPos || dist < near->dist) {
+                near->index = index_ArrayConstIterator(&i);
+                near->dist = dist;
+                break;
+            }
+        }
+    }
+    float maxDist = 0.f;
+    for (size_t k = 0; k < iElemCount(nearest); ++k) {
+        maxDist = iMax(nearest[k].dist, maxDist);
+    }
+    float weights = 0.f;
+    float offset = 0.f;
+    for (size_t k = 0; k < iElemCount(nearest); ++k) {
+        const iNearest *near = nearest + k;
+        if (near->index != iInvalidPos) {
+            const iFloat3 offPos = *(const iFloat3 *) constAt_Array(&d->offsets, near->index);
+            const float weight = (maxDist - near->dist) / maxDist;
+            offset += z_F3(offPos) * weight;
+            weights += weight;
+        }
+    }
+    if (weights > 0.f) {
+        offset /= weights;
+    }
+    return offset;
 }
 
 float eval_CombinedNoise(const iCombinedNoise *d, float normX, float normY) {
@@ -98,7 +173,7 @@ float eval_CombinedNoise(const iCombinedNoise *d, float normX, float normY) {
         const iCombinedNoisePart *part = i.value;
         value += part->weight * eval_Noise(&part->noise, normX, normY) + part->offset;
     }
-    return value;
+    return value + weightedOffset_CombinedNoise_(d, normX, normY);
 }
 
 iFloat3 randomCoord_CombinedNoise(const iCombinedNoise *d, iBool (*rangeCheck)(float)) {
@@ -114,4 +189,9 @@ iFloat3 randomCoord_CombinedNoise(const iCombinedNoise *d, iBool (*rangeCheck)(f
 
 void setOffset_CombinedNoise(iCombinedNoise *d, size_t index, float offset) {
     ((iCombinedNoisePart *) at_Array(&d->parts, index))->offset = offset;
+}
+
+void setPointOffset_CombinedNoise(iCombinedNoise *d, float normX, float normY, float offset) {
+    const iFloat3 off = init_F3(normX, normY, offset);
+    pushBack_Array(&d->offsets, &off);
 }

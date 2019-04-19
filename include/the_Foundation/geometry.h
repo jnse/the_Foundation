@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file the_Foundation/noise.h  2D Perlin noise.
+/** @file the_Foundation/geometry.h  Geometry routines.
 
 @authors Copyright (c) 2019 Jaakko Keränen <jaakko.keranen@iki.fi>
 
@@ -29,26 +29,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "math.h"
 
-iDeclareType(Noise)
-iDeclareTypeConstructionArgs(Noise, iVec2 size)
+iDeclareType(Plane)
 
-float   eval_Noise  (const iNoise *, float normX, float normY);
+iBeginPublic
 
-/*-----------------------------------------------------------------------------------------------*/
-
-iDeclareType(NoiseComponent)
-
-struct Impl_NoiseComponent {
-    iVec2 size;
-    float weight;
-    float offset;
+struct Impl_Plane {
+    iFloat3 origin;
+    iFloat3 normal;
 };
 
-iDeclareType(CombinedNoise)
-iDeclareTypeConstructionArgs(CombinedNoise, const iNoiseComponent *components, size_t count)
+void    init_Plane  (iPlane *d, iFloat3 origin, iFloat3 normal);
+float   z_Plane     (const iPlane *d, iFloat3 pos);
 
-float       eval_CombinedNoise          (const iCombinedNoise *, float normX, float normY);
-iFloat3     randomCoord_CombinedNoise   (const iCombinedNoise *, iBool (*rangeCheck)(float));
-
-void        setOffset_CombinedNoise     (iCombinedNoise *, size_t index, float offset);
-void        setPointOffset_CombinedNoise(iCombinedNoise *, float normX, float normY, float offset);
+iEndPublic

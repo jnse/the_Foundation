@@ -122,6 +122,7 @@ set (HEADERS
     include/the_Foundation/fileinfo.h
     include/the_Foundation/future.h
     include/the_Foundation/garbage.h
+    include/the_Foundation/geometry.h
     include/the_Foundation/hash.h
     include/the_Foundation/list.h
     include/the_Foundation/map.h
@@ -169,6 +170,7 @@ set (SOURCES
     src/fileinfo.c
     src/future.c
     src/garbage.c
+    src/geometry.c
     src/hash.c
     src/list.c
     src/map.c
