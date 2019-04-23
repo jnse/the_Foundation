@@ -12,7 +12,7 @@ macro (tfdn_set_compile_options target)
     if (CMAKE_COMPILER_IS_GNUCC)
         target_compile_options (${target} PRIVATE -Wno-format)
         if (iPlatformWindows)
-            target_compile_options (${target} PRIVATE 
+            target_compile_options (${target} PRIVATE
                 -Wno-int-conversion
                 -Wno-int-to-pointer-cast
                 -Wno-pointer-to-int-cast)
@@ -21,7 +21,10 @@ macro (tfdn_set_compile_options target)
             target_compile_options (${target} PUBLIC -msse4.1)
         endif ()
     else ()
-        target_compile_options (${target} PRIVATE -Wno-format-pedantic)
+        target_compile_options (${target} PRIVATE -Wno-format-pedantic -Wno-format)
+        if (iHaveSSE4_1)
+            target_compile_options (${target} PUBLIC -msse4.1)
+        endif ()
     endif ()
 endmacro ()
 
@@ -47,7 +50,7 @@ target_include_directories (unistring INTERFACE ${UNISTRING_DIR}/include)
 target_link_libraries (unistring INTERFACE -L${UNISTRING_DIR}/lib -lunistring)
 
 # zlib
-pkg_check_modules (ZLIB zlib)    
+pkg_check_modules (ZLIB zlib)
 if (ZLIB_FOUND)
     set (iHaveZlib YES)
     add_library (zlib INTERFACE)
