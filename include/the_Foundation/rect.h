@@ -96,16 +96,8 @@ static inline iBool equal_Rect(const iRect *d, const iRect *other) {
     return all_Bool2(equal_I2(d->pos, other->pos)) && all_Bool2(equal_I2(d->size, other->size));
 }
 
-static inline iRect union_Rect(const iRect *d, const iRect *other) {
-    const iVec2 br = min_I2(bottomRight_Rect(d), bottomRight_Rect(other));
-    const iVec2 tl = max_I2(d->pos, other->pos);
-    iRect u = { tl, sub_I2(br, tl) };
-    if (u.size.x < 0 || u.size.y < 0) {
-        u.size = zero_I2();
-    }
-    return u;
-}
-
+iRect   union_Rect          (const iRect *d, const iRect *other);
+iRect   intersect_Rect      (const iRect *d, const iRect *other);
 void    expand_Rect         (iRect *, iVec2 value);
 void    adjustEdges_Rect    (iRect *, int top, int right, int bottom, int left);
 iVec2   random_Rect         (const iRect *d);
