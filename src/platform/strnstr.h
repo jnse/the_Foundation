@@ -25,6 +25,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
+#include "the_Foundation/defs.h"
 #include <string.h>
 
 static char *strnstr(const char *haystack, const char *needle, size_t len) {
