@@ -100,13 +100,9 @@ iRect union_Rect(const iRect *d, const iRect *other) {
     if (isEmpty_Rect(other)) {
         return *d;
     }
-    const iVec2 br = min_I2(bottomRight_Rect(d), bottomRight_Rect(other));
-    const iVec2 tl = max_I2(d->pos, other->pos);
-    iRect u = { tl, sub_I2(br, tl) };
-    if (u.size.x < 0 || u.size.y < 0) {
-        u.size = zero_I2();
-    }
-    return u;
+    const iVec2 tl = min_I2(d->pos, other->pos);
+    const iVec2 br = max_I2(bottomRight_Rect(d), bottomRight_Rect(other));
+    return (iRect){ tl, sub_I2(br, tl) };
 }
 
 iRect intersect_Rect(const iRect *d, const iRect *other) {
