@@ -51,13 +51,16 @@ int main(int argc, char *argv[]) {
             iRelease(runPool_Future(future, new_Thread(run_Worker_), pool));
         }
         puts("Waiting for threads to finish...");
-        //wait_Future(future);
+#if 0
+        wait_Future(future);
+#else
         while (!isEmpty_Future(future)) {
             iThread *result = nextResult_Future(future);
             iAssert(isFinished_Thread(result));
             printf("Result from future %p: %li\n", result, result_Thread(result));
             iRelease(result);
         }
+#endif
         iRelease(future);
         iRelease(pool);
     }

@@ -31,25 +31,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iDefineClass(Future)
 iDefineObjectConstruction(Future)
 
-void init_Future(iFuture *d) {
-    initHandler_Future(d, NULL);
-}
-
-void initHandler_Future(iFuture *d, iFutureResultAvailable resultAvailable) {
-    init_ObjectList(&d->threads);
-    init_Mutex(&d->mutex);
-    init_Condition(&d->ready);
-    d->pendingCount = 0;
-    d->resultAvailable = resultAvailable;
-}
-
-void deinit_Future(iFuture *d) {
-    wait_Future(d);
-    deinit_Condition(&d->ready);
-    deinit_Mutex(&d->mutex);
-    deinit_ObjectList(&d->threads);
-}
-
 static void threadFinished_Future_(iAny *any, iThread *thread) {
     iFuture *d = any;
     if (d->resultAvailable) {
@@ -60,6 +41,29 @@ static void threadFinished_Future_(iAny *any, iThread *thread) {
         iAssert(d->pendingCount >= 0);
         signal_Condition(&d->ready);
     });
+}
+
+void init_Future(iFuture *d) {
+    initHandler_Future(d, NULL);
+}
+
+void initHandler_Future(iFuture *d, iFutureResultAvailable resultAvailable) {
+    init_Mutex(&d->mutex);
+    init_Condition(&d->ready);
+    init_ObjectList(&d->threads);
+    d->pendingCount = 0;
+    d->resultAvailable = resultAvailable;
+}
+
+void deinit_Future(iFuture *d) {
+    wait_Future(d);
+    /* Stop observing the remaining threads. */
+    iForEach(ObjectList, i, &d->threads) {
+        iDisconnect(Thread, (iThread *) i.object, finished, d, threadFinished_Future_);
+    }
+    deinit_ObjectList(&d->threads);
+    deinit_Condition(&d->ready);
+    deinit_Mutex(&d->mutex);
 }
 
 void add_Future(iFuture *d, iThread *thread) {
@@ -107,6 +111,7 @@ iThread *nextResult_Future(iFuture *d) {
                 if (isFinished_Thread(thread)) {
                     result = ref_Object(thread);
                     remove_ObjectListIterator(&i);
+                    iDisconnect(Thread, thread, finished, d, threadFinished_Future_);
                     break;
                 }
             }

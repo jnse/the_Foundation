@@ -83,6 +83,7 @@ void deinit_Object(iAnyObject *any) {
     deinit_Class(d->classObj, d);
     if (d->memberOf) {
         delete_AudienceMember(d->memberOf);
+        d->memberOf = NULL;
     }
 }
 
