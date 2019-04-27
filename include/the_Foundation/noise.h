@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "math.h"
 
 iDeclareType(Noise)
-iDeclareTypeConstructionArgs(Noise, iVec2 size)
+iDeclareTypeConstructionArgs(Noise, iInt2 size)
 
 float   eval_Noise  (const iNoise *, float normX, float normY);
 
@@ -39,7 +39,7 @@ float   eval_Noise  (const iNoise *, float normX, float normY);
 iDeclareType(NoiseComponent)
 
 struct Impl_NoiseComponent {
-    iVec2 size;
+    iInt2 size;
     float weight;
     float offset;
 };

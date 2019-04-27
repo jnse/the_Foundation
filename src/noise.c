@@ -4,18 +4,18 @@
 #include "the_Foundation/geometry.h"
 
 struct Impl_Noise {
-    iVec2    size;
+    iInt2    size;
     float    scale; // normalizing output values
     iFloat3 *gradients;
 };
 
-iDefineTypeConstructionArgs(Noise, (iVec2 size), size)
+iDefineTypeConstructionArgs(Noise, (iInt2 size), size)
 
-static inline iFloat3 *gradient_Noise_(const iNoise *d, const iVec2 pos) {
+static inline iFloat3 *gradient_Noise_(const iNoise *d, const iInt2 pos) {
     return d->gradients + (d->size.x * pos.y + pos.x);
 }
 
-void init_Noise(iNoise *d, iVec2 size) {
+void init_Noise(iNoise *d, iInt2 size) {
     d->size = add_I2(size, one_I2()); // gradients at cell corners
     d->scale = 1.45f;
     d->gradients = malloc(sizeof(iFloat3) * (size_t) prod_I2(d->size));
@@ -38,15 +38,15 @@ static inline float hermite_(float a, float b, float w) {
     return a + (b - a) * (w * w * (3 - 2 * w));
 }
 
-iVec2 size_Noise(const iNoise *d) {
+iInt2 size_Noise(const iNoise *d) {
     return sub_I2(d->size, one_I2());
 }
 
 float eval_Noise(const iNoise *d, float normX, float normY) {
     const float x = normX * (d->size.x - 1);
     const float y = normY * (d->size.y - 1);
-    const iVec2 c0 = init_I2((int) x, (int) y);
-    const iVec2 c1 = add_I2(c0, init_I2(1, 1));
+    const iInt2 c0 = init_I2((int) x, (int) y);
+    const iInt2 c1 = add_I2(c0, init_I2(1, 1));
     if (any_Bool2(less_I2(c0, zero_I2())) || any_Bool2(greaterEqual_I2(c1, d->size))) {
         return 0.f;
     }

@@ -34,8 +34,8 @@ iDeclareType(Rect)
 iBeginPublic
 
 struct Impl_Rect {
-    iVec2 pos;
-    iVec2 size;
+    iInt2 pos;
+    iInt2 size;
 };
 
 static inline iRect zero_Rect(void) { return (iRect){ zero_I2(), zero_I2() }; }
@@ -48,7 +48,7 @@ static inline iRect initv_Rect(const int *v) {
     return (iRect){ initv_I2(v), initv_I2(v + 2) };
 }
 
-static inline iRect initCentered_Rect(const iVec2 center, const iVec2 size) {
+static inline iRect initCentered_Rect(const iInt2 center, const iInt2 size) {
     return (iRect){ sub_I2(center, divi_I2(size, 2)), size };
 }
 
@@ -56,32 +56,32 @@ static inline int   left_Rect   (const iRect *d) { return d->pos.x; }
 static inline int   right_Rect  (const iRect *d) { return d->pos.x + d->size.x; }
 static inline int   top_Rect    (const iRect *d) { return d->pos.y; }
 static inline int   bottom_Rect (const iRect *d) { return d->pos.y + d->size.y; }
-static inline iVec2 mid_Rect    (const iRect *d) { return add_I2(d->pos, divi_I2(d->size, 2)); }
+static inline iInt2 mid_Rect    (const iRect *d) { return add_I2(d->pos, divi_I2(d->size, 2)); }
 
-static inline iVec2 topLeft_Rect(const iRect *d) { return d->pos; }
+static inline iInt2 topLeft_Rect(const iRect *d) { return d->pos; }
 
-static inline iVec2 topMid_Rect(const iRect *d) {
+static inline iInt2 topMid_Rect(const iRect *d) {
     return init_I2(d->pos.x + d->size.x / 2, d->pos.y);
 }
 
-static inline iVec2 topRight_Rect(const iRect *d) {
+static inline iInt2 topRight_Rect(const iRect *d) {
     return init_I2(right_Rect(d), d->pos.y);
 }
 
-static inline iVec2 bottomLeft_Rect(const iRect *d) {
+static inline iInt2 bottomLeft_Rect(const iRect *d) {
     return init_I2(d->pos.x, bottom_Rect(d));
 }
 
-static inline iVec2 bottomMid_Rect(const iRect *d) {
+static inline iInt2 bottomMid_Rect(const iRect *d) {
     return init_I2(d->pos.x + d->size.x / 2, bottom_Rect(d));
 }
 
-static inline iVec2 bottomRight_Rect(const iRect *d) {
+static inline iInt2 bottomRight_Rect(const iRect *d) {
     return add_I2(d->pos, d->size);
 }
 
-static inline iBool contains_Rect(const iRect *d, const iVec2 pos) {
-    const iVec2 br = bottomRight_Rect(d);
+static inline iBool contains_Rect(const iRect *d, const iInt2 pos) {
+    const iInt2 br = bottomRight_Rect(d);
     return pos.x >= d->pos.x && pos.y >= d->pos.y && pos.x < br.x && pos.y < br.y;
 }
 
@@ -98,20 +98,20 @@ static inline iBool equal_Rect(const iRect *d, const iRect *other) {
 
 iRect   union_Rect          (const iRect *d, const iRect *other);
 iRect   intersect_Rect      (const iRect *d, const iRect *other);
-void    expand_Rect         (iRect *, iVec2 value);
+void    expand_Rect         (iRect *, iInt2 value);
 void    adjustEdges_Rect    (iRect *, int top, int right, int bottom, int left);
-iVec2   random_Rect         (const iRect *d);
-iVec2   edgePos_Rect        (const iRect *d, int pos);
-iVec2   randomEdgePos_Rect  (const iRect *d); // not a corner
+iInt2   random_Rect         (const iRect *d);
+iInt2   edgePos_Rect        (const iRect *d, int pos);
+iInt2   randomEdgePos_Rect  (const iRect *d); // not a corner
 
-static inline void shrink_Rect  (iRect *d, iVec2 value) { expand_Rect(d, neg_I2(value)); }
+static inline void shrink_Rect  (iRect *d, iInt2 value) { expand_Rect(d, neg_I2(value)); }
 
-static inline iRect expanded_Rect(iRect d, iVec2 value) {
+static inline iRect expanded_Rect(iRect d, iInt2 value) {
     expand_Rect(&d, value);
     return d;
 }
 
-static inline iRect shrunk_Rect(iRect d, iVec2 value) {
+static inline iRect shrunk_Rect(iRect d, iInt2 value) {
     expand_Rect(&d, neg_I2(value));
     return d;
 }
@@ -120,12 +120,12 @@ iDeclareConstIterator(Rect, const iRect *)
 
 struct ConstIteratorImpl_Rect {
     iBool value; // position is valid
-    iVec2 pos;
+    iInt2 pos;
     const iRect *rect;
 };
 
 #define iForRectRadius(iter, center, radius, body) { \
-    const iVec2 center_ForRadius_ = (center); \
+    const iInt2 center_ForRadius_ = (center); \
     const int radius_ForRadius_ = (radius); \
     const iRect rect_ForRadius_ = initCentered_Rect(center_ForRadius_, init1_I2(2 * radius_ForRadius_ + 1)); \
     iConstForEach(Rect, iter, &rect_ForRadius_) { \

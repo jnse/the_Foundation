@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/math.h"
 
 iBool containsRect_Rect(const iRect *d, const iRect *other) {
-    const iVec2 br = sub_I2(bottomRight_Rect(other), one_I2());
+    const iInt2 br = sub_I2(bottomRight_Rect(other), one_I2());
     return contains_Rect(d, topLeft_Rect(other)) &&
            contains_Rect(d, init_I2(br.x, top_Rect(other))) && contains_Rect(d, br) &&
            contains_Rect(d, init_I2(left_Rect(other), br.y));
@@ -41,7 +41,7 @@ iBool isOverlapping_Rect(const iRect *d, const iRect *other) {
              right_Rect(other) <= d->pos.x || bottom_Rect(other) <= d->pos.y);
 }
 
-iVec2 random_Rect(const iRect *d) {
+iInt2 random_Rect(const iRect *d) {
     return add_I2(d->pos, random_I2(d->size));
 }
 
@@ -49,7 +49,7 @@ static inline int edgeLength_Rect_(const iRect *d) {
     return 2 * (d->size.x - 1) + 2 * (d->size.y - 1);
 }
 
-iVec2 edgePos_Rect(const iRect *d, int pos) {
+iInt2 edgePos_Rect(const iRect *d, int pos) {
     if (pos < d->size.x) {
         return init_I2(d->pos.x + pos, d->pos.y);
     }
@@ -65,8 +65,8 @@ iVec2 edgePos_Rect(const iRect *d, int pos) {
     return init_I2(d->pos.x, bottom_Rect(d) - 1 - pos);
 }
 
-iVec2 randomEdgePos_Rect(const iRect *d) {
-    const iVec2 dim = sub_I2(d->size, one_I2());
+iInt2 randomEdgePos_Rect(const iRect *d) {
+    const iInt2 dim = sub_I2(d->size, one_I2());
     int i;
     for (;;) {
         i = iRandom(1, edgeLength_Rect_(d));
@@ -100,8 +100,8 @@ iRect union_Rect(const iRect *d, const iRect *other) {
     if (isEmpty_Rect(other)) {
         return *d;
     }
-    const iVec2 tl = min_I2(d->pos, other->pos);
-    const iVec2 br = max_I2(bottomRight_Rect(d), bottomRight_Rect(other));
+    const iInt2 tl = min_I2(d->pos, other->pos);
+    const iInt2 br = max_I2(bottomRight_Rect(d), bottomRight_Rect(other));
     return (iRect){ tl, sub_I2(br, tl) };
 }
 
@@ -109,12 +109,12 @@ iRect intersect_Rect(const iRect *d, const iRect *other) {
     if (!isOverlapping_Rect(d, other)) {
         return zero_Rect();
     }
-    const iVec2 tl = max_I2(d->pos, other->pos);
-    const iVec2 br = min_I2(bottomRight_Rect(d), bottomRight_Rect(other));
+    const iInt2 tl = max_I2(d->pos, other->pos);
+    const iInt2 br = min_I2(bottomRight_Rect(d), bottomRight_Rect(other));
     return (iRect){ tl, sub_I2(br, tl) };
 }
 
-void expand_Rect(iRect *d, iVec2 value) {
+void expand_Rect(iRect *d, iInt2 value) {
     subv_I2(&d->pos, value);
     addv_I2(&d->size, muli_I2(value, 2));
 }
