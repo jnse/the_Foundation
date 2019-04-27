@@ -67,6 +67,7 @@ iString *       newUnicodeN_String  (const iChar *ucs, size_t n);
 iString *       newLocalCStr_String (const char *localCStr);
 iString *       newLocalCStrN_String(const char *localCStr, size_t n);
 iString *       newBlock_String     (const iBlock *utf8Data);
+iString *       newFormat_String    (const char *format, ...);
 iString *       copy_String         (const iString *);
 
 static inline iString *newRange_String  (const iRangecc *range) { return newCStrN_String(range->start, size_Range(range)); }
@@ -157,6 +158,7 @@ void            appendRange_String  (iString *, const iRangecc *range);
 void            appendFormat_String (iString *, const char *format, ...);
 void            prepend_String      (iString *, const iString *other);
 void            prependChar_String  (iString *, iChar ch);
+void            prependCStr_String  (iString *, const char *cstr);
 
 void            clear_String    (iString *);
 void            truncate_String (iString *, size_t len);

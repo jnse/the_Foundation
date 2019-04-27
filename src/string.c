@@ -99,6 +99,15 @@ iString *newUnicodeN_String(const iChar *ucs, size_t n) {
     return d;
 }
 
+iString *newFormat_String(const char *format, ...) {
+    iString *d = new_String();
+    va_list args;
+    va_start(args, format);
+    vprintf_Block(&d->chars, format, args);
+    va_end(args);
+    return d;
+}
+
 iString *newBlock_String(const iBlock *data) {
     iString *d = iMalloc(String);
     initCopy_Block(&d->chars, data);
@@ -485,6 +494,14 @@ void prependChar_String(iString *d, iChar ch) {
     iMultibyteChar mb;
     init_MultibyteChar(&mb, ch);
     insertData_Block(&d->chars, 0, mb.bytes, strlen(mb.bytes));
+}
+
+void prependCStr_String(iString *d, const char *cstr) {
+    iString pre;
+    initCStr_String(&pre, cstr);
+    append_String(&pre, d);
+    set_String(d, &pre);
+    deinit_String(&pre);
 }
 
 iBool nextSplit_Rangecc(const iRangecc *str, const char *separator, iRangecc *range) {
