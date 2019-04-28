@@ -48,6 +48,10 @@ static inline iRect initv_Rect(const int *v) {
     return (iRect){ initv_I2(v), initv_I2(v + 2) };
 }
 
+static inline iRect initCorners_Rect(const iInt2 topLeft, const iInt2 bottomRight) {
+    return (iRect){ topLeft, sub_I2(bottomRight, topLeft) };
+}
+
 static inline iRect initCentered_Rect(const iInt2 center, const iInt2 size) {
     return (iRect){ sub_I2(center, divi_I2(size, 2)), size };
 }
@@ -114,6 +118,10 @@ static inline iRect expanded_Rect(iRect d, iInt2 value) {
 static inline iRect shrunk_Rect(iRect d, iInt2 value) {
     expand_Rect(&d, neg_I2(value));
     return d;
+}
+
+static inline iRect adjusted_Rect(const iRect *d, iInt2 topLeft, iInt2 bottomRight) {
+    return initCorners_Rect(add_I2(d->pos, topLeft), add_I2(bottomRight_Rect(d), bottomRight));
 }
 
 iDeclareConstIterator(Rect, const iRect *)
