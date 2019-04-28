@@ -108,6 +108,15 @@ iString *newFormat_String(const char *format, ...) {
     return d;
 }
 
+iString *collectNewFormat_String(const char *format, ...) {
+    iString *d = collectNew_String();
+    va_list args;
+    va_start(args, format);
+    vprintf_Block(&d->chars, format, args);
+    va_end(args);
+    return d;
+}
+
 iString *newBlock_String(const iBlock *data) {
     iString *d = iMalloc(String);
     initCopy_Block(&d->chars, data);

@@ -70,6 +70,8 @@ iString *       newBlock_String     (const iBlock *utf8Data);
 iString *       newFormat_String    (const char *format, ...);
 iString *       copy_String         (const iString *);
 
+iString *       collectNewFormat_String (const char *format, ...);
+
 static inline iString *newRange_String  (const iRangecc *range) { return newCStrN_String(range->start, size_Range(range)); }
 static inline iString *newLocal_String  (const iBlock *localChars) { return newLocalCStrN_String(cstr_Block(localChars), size_Block(localChars)); }
 
