@@ -116,6 +116,7 @@ void deinit_Thread(iThread *d) {
     deinit_String(&d->name);
     deinit_Condition(&d->finishedCond);
     deinit_Mutex(&d->mutex);
+    if (d->id) thrd_detach(d->id);
 }
 
 void start_Thread(iThread *d) {
