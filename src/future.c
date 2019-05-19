@@ -36,11 +36,9 @@ static void threadFinished_Future_(iAny *any, iThread *thread) {
     if (d->resultAvailable) {
         d->resultAvailable(d, thread);
     }
-    iGuardMutex(&d->mutex, {
-        d->pendingCount--;
-        iAssert(d->pendingCount >= 0);
-        signal_Condition(&d->ready);
-    });
+    d->pendingCount--;
+    iAssert(d->pendingCount >= 0);
+    signal_Condition(&d->ready);
 }
 
 void init_Future(iFuture *d) {

@@ -82,7 +82,6 @@ static int run_Threads_(void *arg) {
     d->result = d->run(d);
     /* Deregister the thread since it's stopping. */
     iGuard(runningThreads_, remove_ThreadHash(runningThreads_->value, &d->id));
-    d->id = 0;
     /* Notify observers that the thread is done. */
     finish_Thread_(d);
     deref_Object(d);
