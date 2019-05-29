@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
             }
         }
         puts("Backwards:"); {
-            iReverseConstForEach(String, i , s) {
+            iReverseConstForEach(String, i, s) {
                 printf(" char: %06x [%s]\n", i.value, cstrLocal_Char(i.value));
             }
         }
@@ -64,6 +64,14 @@ int main(int argc, char *argv[]) {
         printf("%s is at: %zu %zu\n", cstrLocal_Char(u'ö'), indexOfCStr_String(s, "ö"), indexOf_String(s, U'ö'));
         truncate_String(s, 3);
         printf("Truncated: %s\n", cstrLocal_String(s));
+        /* Test UTF-16. */
+        iBlock *u16 = collect_Block(toUtf16_String(s));
+        printf("UTF-16:");
+        for (size_t i = 0; i < size_Block(u16); ++i) {
+            printf(" %02x", (uint8_t) at_Block(u16, i));
+        }
+        printf("\n");
+        printf("Converted: %s\n", cstrLocal_String(collect_String(newUtf16_String(constData_Block(u16)))));
     }
     /* Test UTF-32. */ {
         const iChar ucs[2] = { 0x1f698, 0 };

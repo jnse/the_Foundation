@@ -62,6 +62,8 @@ iDeclareTypeConstruction(String)
 
 iString *       newCStr_String      (const char *utf8CStr);
 iString *       newCStrN_String     (const char *utf8CStr, size_t n);
+iString *       newUtf16_String     (const uint16_t *utf16Str);
+iString *       newUtf16N_String    (const uint16_t *utf16Str, size_t n);
 iString *       newUnicode_String   (const iChar *ucs);
 iString *       newUnicodeN_String  (const iChar *ucs, size_t n);
 iString *       newLocalCStr_String (const char *localCStr);
@@ -78,6 +80,8 @@ static inline iString *newLocal_String  (const iBlock *localChars) { return newL
 void            init_String             (iString *);
 void            initCStr_String         (iString *, const char *utf8CStr);
 void            initCStrN_String        (iString *, const char *utf8CStr, size_t n);
+void            initUtf16_String        (iString *, const uint16_t *utf16Str);
+void            initUtf16N_String       (iString *, const uint16_t *utf16Str, size_t n);
 void            initUnicode_String      (iString *, const iChar *ucs);
 void            initUnicodeN_String     (iString *, const iChar *ucs, size_t n);
 void            initLocalCStr_String    (iString *, const char *localCStr);
@@ -96,6 +100,7 @@ iString *       urlEncode_String(const iString *);
 iString *       urlDecode_String(const iString *);
 iChar           first_String    (const iString *);
 iBlock *        toLocal_String  (const iString *);
+iBlock *        toUtf16_String  (const iString *);
 
 /**
  * Returns a pointer to the string converted to the current locale's encoding.

@@ -79,6 +79,18 @@ iString *newCStrN_String(const char *cstr, size_t n) {
     return d;
 }
 
+iString *newUtf16_String(const uint16_t *utf16Str) {
+    iString *d = iMalloc(String);
+    initUtf16_String(d, utf16Str);
+    return d;
+}
+
+iString *newUtf16N_String(const uint16_t *utf16Str, size_t n) {
+    iString *d = iMalloc(String);
+    initUtf16N_String(d, utf16Str, n);
+    return d;
+}
+
 iString *newLocalCStr_String(const char *localCStr) {
     return newLocalCStrN_String(localCStr, strlen(localCStr));
 }
@@ -150,6 +162,18 @@ void initCStr_String(iString *d, const char *cstr) {
 
 void initCStrN_String(iString *d, const char *cstr, size_t size) {
     initData_Block(&d->chars, cstr, size);
+}
+
+void initUtf16_String(iString *d, const uint16_t *utf16Str) {
+    initUtf16N_String(d, utf16Str, u16_strlen(utf16Str));
+}
+
+void initUtf16N_String(iString *d, const uint16_t *utf16Str, size_t n) {
+    size_t len = 0;
+    uint8_t *data = u16_to_u8(utf16Str, n, NULL, &len);
+    data = realloc(data, len + 1);
+    data[len] = 0; // terminate
+    initPrealloc_Block(&d->chars, data, len, len + 1);
 }
 
 void initLocalCStr_String(iString *d, const char *localCStr) {
@@ -366,6 +390,19 @@ iBlock *toLocal_String(const iString *d) {
     str = realloc(str, len + 1);
     str[len] = 0;
     return newPrealloc_Block(str, len, len + 1);
+}
+
+iBlock *toUtf16_String(const iString *d) {
+    size_t len = 0;
+    uint16_t *u16 = u8_to_u16((const uint8_t *) cstr_String(d),
+                              size_String(d),
+                              NULL,
+                              &len);
+    // Make it null-terminated.
+    const size_t bytes = 2 * len;
+    u16 = realloc(u16, bytes + 2);
+    u16[len] = 0;
+    return newPrealloc_Block(u16, bytes, bytes + 2);
 }
 
 int cmpSc_String(const iString *d, const char *cstr, const iStringComparison *sc) {
