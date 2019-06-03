@@ -243,6 +243,9 @@ int main(int argc, char *argv[]) {
                 clean_Path(clean);
                 printf(" %s", cstrLocal_String(clean));
                 delete_String(clean);
+                iString *abso = makeAbsolute_Path(k.value);
+                printf("\n  absolute: %s", cstrLocal_String(abso));
+                delete_String(abso);
             }
             puts("");
         }
@@ -381,10 +384,10 @@ int main(int argc, char *argv[]) {
     }
     /* Test a hash. */ {
         iHash *h = new_Hash();
-        for (int i = 0; i < 8192; ++i) {
+        for (int i = 0; i < 8/*192*/; ++i) {
             iHashNode *node = iCollectMem(iMalloc(HashNode));
             for (;;) {
-                node->key = iRandomu(0, INT_MAX);
+                node->key = iRandomu(0, RAND_MAX);
                 if (!contains_Hash(h, node->key)) {
                     insert_Hash(h, node);
                     break;

@@ -81,11 +81,14 @@ iBool isAbsolute_Path(const iString *d) {
 }
 
 iString *makeAbsolute_Path(const iString *d) {
+    iString *abs;
     if (isAbsolute_Path(d)) {
-        return copy_String(d);
+        abs = copy_String(d);
     }
-    iString *abs = cwd_Path();
-    append_Path(abs, d);
+    else {
+        abs = cwd_Path();
+        append_Path(abs, d);
+    }
     clean_Path(abs);
     return abs;
 }
@@ -149,7 +152,11 @@ void clean_Path(iString *d) {
         iString cleaned;
         init_String(&cleaned);
         for (size_t i = 0; i < count; ++i) {
-            if (i != 0 || isAbsolute_Path(d)) {
+            if (i != 0 || (isAbsolute_Path(d)
+#if defined (iPlatformWindows)
+                && startsWith_String(d, iPathSeparator)
+#endif
+                    )) {
                 appendCStr_String(&cleaned, iPathSeparator);
             }
             appendRange_String(&cleaned, segments + i);
