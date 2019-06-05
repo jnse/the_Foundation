@@ -301,6 +301,11 @@ iString *upper_String(const iString *d) {
     str[len] = 0;
     iBlock data;
     initPrealloc_Block(&data, str, len, len + 1);
+    if (cmp_Block(&data, &d->chars) == 0) {
+        /* Memory optimization: nothing changed so just use a reference. */
+        deinit_Block(&data);
+        return copy_String(d);
+    }
     iString *up = newBlock_String(&data);
     deinit_Block(&data);
     return up;
@@ -318,6 +323,11 @@ iString *lower_String(const iString *d) {
     str[len] = 0;
     iBlock data;
     initPrealloc_Block(&data, str, len, len + 1);
+    if (cmp_Block(&data, &d->chars) == 0) {
+        /* Memory optimization: nothing changed so just use a reference. */
+        deinit_Block(&data);
+        return copy_String(d);
+    }
     iString *lwr = newBlock_String(&data);
     deinit_Block(&data);
     return lwr;
