@@ -139,7 +139,7 @@ static inline iAnyObject *iReleaseLater(const iAnyObject *d) {
     return collect_Object(d);
 }
 
-#define iClob(d)     iReleaseLater(d) // clob == collect object
+#define iClob(d)     iReleaseLater(d)   // clob == collect object
 
 iEndPublic
 
@@ -150,7 +150,7 @@ template <typename T>
 class ref {
     T *_ptr;
 public:
-    ref(T *p = nullptr) : _ptr(p) {} // note: assume that ownership of ref is given
+    ref() : _ptr(nullptr) {}
     ref(const T *p) : _ptr(static_cast<T *>(ref_Object(p))) {}
     ref(const ref &other) : _ptr(static_cast<T *>(ref_Object(other._ptr))) {}
     ref(ref &&moved) : _ptr(moved._ptr) {
@@ -177,7 +177,18 @@ public:
     operator const T *() const { return _ptr; }
     T *operator->() const { return _ptr; }
     T &operator*() const { return *_ptr; }
+    static ref take(T *p) {
+        ref<T> r(p);
+        deref_Object(p);
+        return r;
+    }
 };
+
+template <typename T> ref<T> make_ref(T *p) {
+    ref<T> r(p);
+    iRelease(p);
+    return r;
+}
 
 } // namespace tF
 #endif
