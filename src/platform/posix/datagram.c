@@ -97,7 +97,7 @@ struct Impl_DatagramThread {
     iPipe wakeup;
     iMutex mutex;
     iPtrSet datagrams;
-    volatile enum iDatagramThreadMode mode;
+    iAtomicInt mode;
 };
 
 #define iMessageMaxDataSize 4096
@@ -237,6 +237,7 @@ static iDatagramThread *datagramIO_ = NULL;
 static void deleteSharedDatagramThread_(void) {
     if (datagramIO_) {
         exit_DatagramThread_(datagramIO_);
+        iRelease(datagramIO_);
         datagramIO_ = NULL;
     }
 }
