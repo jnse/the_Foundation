@@ -182,6 +182,7 @@ void join_Thread(iThread *d) {
         if (d->state == running_ThreadState) {
             wait_Condition(&d->finishedCond, &d->mutex);
         }
+        thrd_join(d->id, NULL);
     );
 }
 
