@@ -37,23 +37,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 static iBool hasBeenInitialized_ = iFalse;
 
-/* datagram.c */
-void init_DatagramThreads(void);
-
-/* locale */
-void init_Locale(void);
-
-/* thread.c */
-void init_Threads(void);
-
-static void deinit_Foundation_(void) {
-    /* nothing to do */
-}
+void deinitForThread_Garbage_(void); /* garbage.c */
+void deinit_DatagramThreads_(void);  /* datagram.c */
+void deinit_Threads_(void);          /* thread.c */
+void init_DatagramThreads_(void);    /* datagram.c */
+void init_Locale(void);              /* locale */
+void init_Threads(void);             /* thread.c */
 
 void init_Foundation(void) {
     init_Threads();
     init_Garbage();
-    init_DatagramThreads();
+    init_DatagramThreads_();
     printf("[the_Foundation] version: %i.%i.%i cstd:%li\n",
            version_Foundation.major, version_Foundation.minor, version_Foundation.patch,
            __STDC_VERSION__);
@@ -67,7 +61,16 @@ void init_Foundation(void) {
         setLocale_Foundation();
     }
     hasBeenInitialized_ = iTrue;
-    atexit(deinit_Foundation_);
+    atexit(deinit_Foundation); /* should be manually called, though */
+}
+
+void deinit_Foundation(void) {
+    if (isInitialized_Foundation()) {
+        hasBeenInitialized_ = iFalse;
+        deinit_DatagramThreads_();
+        deinitForThread_Garbage_();
+        deinit_Threads_();
+    }
 }
 
 iBool isInitialized_Foundation(void) {

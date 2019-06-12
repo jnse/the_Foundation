@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "pipe.h"
 #include <unistd.h>
+#include <errno.h>
 
 iDefineTypeConstruction(Pipe)
 

@@ -77,6 +77,7 @@ typedef void (*iDeleteFunc)(iAny *);
 #include "garbage.h"
 
 iPublic void        init_Foundation             (void);
+iPublic void        deinit_Foundation           (void);
 iPublic iBool       isInitialized_Foundation    (void);
 iPublic void        setLocale_Foundation        (void);
 iPublic void        printMessage_Foundation     (FILE *, const char *format, ...);

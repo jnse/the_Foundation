@@ -234,25 +234,19 @@ static void exit_DatagramThread_(iDatagramThread *d) {
 
 static iDatagramThread *datagramIO_ = NULL;
 
-static void deleteSharedDatagramThread_(void) {
+void init_DatagramThreads_(void) { /* called from init_Foundation */
+    iAssert(datagramIO_ == NULL);
+    datagramIO_ = new_DatagramThread();
+    start_DatagramThread_(datagramIO_);
+}
+
+void deinit_DatagramThreads_(void) { /* called from deinit_Foundation */
     if (datagramIO_) {
         exit_DatagramThread_(datagramIO_);
         iRelease(datagramIO_);
         datagramIO_ = NULL;
     }
 }
-
-void init_DatagramThreads(void) { // called from init_Foundation)
-    iAssert(datagramIO_ == NULL);
-    atexit(deleteSharedDatagramThread_);
-    datagramIO_ = new_DatagramThread();
-    start_DatagramThread_(datagramIO_);
-}
-
-//static iDatagramThread *datagramThread_(void) {
-/*    iAssert(datagramIO_ != NULL); */
-/*    return datagramIO_; */
-//}
 
 iDefineSubclass(DatagramThread, Thread)
 
@@ -331,7 +325,7 @@ iBool open_Datagram(iDatagram *d, uint16_t port) {
 void close_Datagram(iDatagram *d) {
     flush_Datagram(d);
     /* Remove from the I/O thread. */
-    if (datagramIO_) { // may have been deleted by atexit() already
+    if (datagramIO_) {
         iGuardMutex(&datagramIO_->mutex, remove_PtrSet(&datagramIO_->datagrams, d));
         writeByte_Pipe(&datagramIO_->wakeup, 1); // update the set of waiting datagrams
     }

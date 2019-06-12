@@ -129,7 +129,7 @@ static void push_Collected_(iCollected *d, iCollectedPtr colptr) {
 
 static tss_t threadLocal_Garbage_;
 
-static void deinitForThread_Garbage_(void) {
+void deinitForThread_Garbage_(void) {
     iCollected *d = tss_get(threadLocal_Garbage_);
     if (d) {
         delete_Collected_(d);
@@ -139,7 +139,6 @@ static void deinitForThread_Garbage_(void) {
 
 void init_Garbage(void) {
     tss_create(&threadLocal_Garbage_, (tss_dtor_t) delete_Collected_);
-    atexit(deinitForThread_Garbage_);
 }
 
 static iCollected *initForThread_Garbage_(void) {

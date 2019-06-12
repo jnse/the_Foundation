@@ -29,6 +29,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/blockhash.h"
 #include "the_Foundation/mutex.h"
 
+/* garbage.c */
+void deinitForThread_Garbage_(void);
+
 iDefinePlainKeyBlockHash(ThreadHash, ThreadId, Thread)
 
 /*-------------------------------------------------------------------------------------*/
@@ -37,7 +40,7 @@ iDefineLockableObject(ThreadHash)
 
 static iLockableThreadHash *runningThreads_;
 
-static void deinit_Threads_(void) {
+void deinit_Threads_(void) {
     delete_LockableThreadHash(runningThreads_);
     runningThreads_ = NULL;
 }
@@ -45,7 +48,6 @@ static void deinit_Threads_(void) {
 static iLockableThreadHash *init_Threads_(void) {
     if (!runningThreads_) {
         runningThreads_ = new_LockableThreadHash();
-        atexit(deinit_Threads_);
     }
     return runningThreads_;
 }
@@ -85,6 +87,7 @@ static int run_Threads_(void *arg) {
     /* Notify observers that the thread is done. */
     finish_Thread_(d);
     deref_Object(d);
+    deinitForThread_Garbage_();
     thrd_exit(0); // thread-local data gets deleted
     return 0;
 }
@@ -112,10 +115,13 @@ void deinit_Thread(iThread *d) {
         iWarning("[Thread] thread %p is being destroyed while still running\n", d);
     }
     delete_Audience(d->finished);
-    deinit_String(&d->name);
     deinit_Condition(&d->finishedCond);
     deinit_Mutex(&d->mutex);
-    if (d->id) thrd_detach(d->id);
+    if (d->id) {
+        iDebug("[Thread] detaching thread ID %p (%s)\n", d->id, cstr_String(&d->name));
+        thrd_detach(d->id);
+    }
+    deinit_String(&d->name);
 }
 
 void start_Thread(iThread *d) {
