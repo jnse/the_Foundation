@@ -47,7 +47,11 @@ struct Impl_Datagram {
 
 //---------------------------------------------------------------------------------------
 
-void init_DatagramThreads(void) {
+void init_DatagramThreads_(void) {
+
+}
+
+void deinit_DatagramThreads_(void) {
 
 }
 
