@@ -72,7 +72,7 @@ iBool isAbsolute_Path(const iString *d) {
             return iFalse;
         }
         next_StringConstIterator(&i);
-        return i.value == '\\';
+        return i.value == '\\' || i.value == '/';
     }
     return iFalse;
 #else
