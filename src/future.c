@@ -36,9 +36,11 @@ static void threadFinished_Future_(iAny *any, iThread *thread) {
     if (d->resultAvailable) {
         d->resultAvailable(d, thread);
     }
-    d->pendingCount--;
-    iAssert(d->pendingCount >= 0);
-    signal_Condition(&d->ready);
+    iGuardMutex(&d->mutex, {
+        d->pendingCount--;
+        iAssert(d->pendingCount >= 0);
+        signalAll_Condition(&d->ready);
+    });
 }
 
 void init_Future(iFuture *d) {
@@ -109,8 +111,9 @@ iThread *nextResult_Future(iFuture *d) {
                 if (isFinished_Thread(thread)) {
                     result = ref_Object(thread);
                     remove_ObjectListIterator(&i);
+                    unlock_Mutex(&d->mutex);
                     iDisconnect(Thread, thread, finished, d, threadFinished_Future_);
-                    break;
+                    return result;
                 }
             }
             if (result) break;
