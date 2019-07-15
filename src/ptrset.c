@@ -74,8 +74,8 @@ iBool remove_PtrSet(iPtrSet *d, const void *ptr) {
     return remove_SortedArray(d, &ptr);
 }
 
-void *at_PtrSet(iPtrSet *d, size_t pos) {
-    return *(iPtr *) at_SortedArray(d, pos);
+void *at_PtrSet(const iPtrSet *d, size_t pos) {
+    return *(void * const *) constAt_SortedArray(d, pos);
 }
 
 /*-------------------------------------------------------------------------------------*/

@@ -45,7 +45,7 @@ void        initCmp_PtrSet  (iPtrSet *, iSortedArrayCompareElemFunc cmp);
 
 iBool       contains_PtrSet (const iPtrSet *, const void *ptr);
 iBool       locate_PtrSet   (const iPtrSet *, const void *ptr, size_t *pos_out);
-void *      at_PtrSet       (iPtrSet *, size_t pos);
+void *      at_PtrSet       (const iPtrSet *, size_t pos);
 
 #define     isEmpty_PtrSet(d)   isEmpty_SortedArray(d)
 #define     size_PtrSet(d)      size_SortedArray(d)
