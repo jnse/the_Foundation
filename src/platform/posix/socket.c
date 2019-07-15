@@ -215,7 +215,7 @@ iDefineObjectConstructionArgs(SocketThread,
                               (iSocket *socket, enum iSocketThreadMode mode),
                               socket, mode)
 
-static inline void start_SocketThread(iSocketThread *d) { start_Thread(&d->thread); }
+iLocalDef void start_SocketThread(iSocketThread *d) { start_Thread(&d->thread); }
 
 /*-------------------------------------------------------------------------------------*/
 

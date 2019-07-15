@@ -63,18 +63,18 @@ iFile *     newCStr_File    (const char *path);
 iBool       open_File       (iFile *, int mode);
 void        close_File      (iFile *);
 
-static inline iBool isOpen_File (const iFile *d) { return d->file != NULL; }
-static inline int   mode_File   (const iFile *d) { return d->flags ;}
-static inline long  pos_File    (const iFile *d) { return pos_Stream(&d->stream); }
-static inline long  size_File   (const iFile *d) { return size_Stream(&d->stream); }
-static inline iBool atEnd_File  (const iFile *d) { return atEnd_Stream(&(d)->stream); }
-static inline const iString *path_File(const iFile *d) { return d->path; }
+iLocalDef iBool isOpen_File (const iFile *d) { return d->file != NULL; }
+iLocalDef int   mode_File   (const iFile *d) { return d->flags ;}
+iLocalDef long  pos_File    (const iFile *d) { return pos_Stream(&d->stream); }
+iLocalDef long  size_File   (const iFile *d) { return size_Stream(&d->stream); }
+iLocalDef iBool atEnd_File  (const iFile *d) { return atEnd_Stream(&(d)->stream); }
+iLocalDef const iString *path_File(const iFile *d) { return d->path; }
 
-static inline void          seek_File       (iFile *d, long offset) { seek_Stream(&d->stream, offset); }
-static inline iBlock *      read_File       (iFile *d, size_t size) { return read_Stream(&d->stream, size); }
-static inline size_t        readData_File   (iFile *d, size_t size, void *data_out) { return readData_Stream(&d->stream, size, data_out); }
-static inline iBlock *      readAll_File    (iFile *d) { return readAll_Stream(&d->stream); }
-static inline iString *     readString_File (iFile *d) { return readString_Stream(&d->stream); }
-static inline iStringList * readLines_File  (iFile *d) { return readLines_Stream(&d->stream); }
+iLocalDef void          seek_File       (iFile *d, long offset) { seek_Stream(&d->stream, offset); }
+iLocalDef iBlock *      read_File       (iFile *d, size_t size) { return read_Stream(&d->stream, size); }
+iLocalDef size_t        readData_File   (iFile *d, size_t size, void *data_out) { return readData_Stream(&d->stream, size, data_out); }
+iLocalDef iBlock *      readAll_File    (iFile *d) { return readAll_Stream(&d->stream); }
+iLocalDef iString *     readString_File (iFile *d) { return readString_Stream(&d->stream); }
+iLocalDef iStringList * readLines_File  (iFile *d) { return readLines_Stream(&d->stream); }
 
 iEndPublic

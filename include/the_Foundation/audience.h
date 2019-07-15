@@ -55,7 +55,7 @@ iBeginPublic
     }
 
 #define iDefineInlineAudienceGetter(typeName, audienceName) \
-    static inline iDefineAudienceGetter(typeName, audienceName)
+    iLocalDef iDefineAudienceGetter(typeName, audienceName)
 
 #define iNotifyAudience(d, audienceName, notifyName) { \
     if ((d)->audienceName) { \
@@ -110,7 +110,7 @@ void    deinit_Audience (iAudience *);
 iBool   insert_Audience (iAudience *d, iAnyObject *object, iObserverFunc func);
 iBool   remove_Audience (iAudience *d, iAnyObject *object, iObserverFunc func);
 
-static inline iBool removeObject_Audience(iAudience *d, iAnyObject *object) {
+iLocalDef iBool removeObject_Audience(iAudience *d, iAnyObject *object) {
     return remove_Audience(d, object, NULL);
 }
 

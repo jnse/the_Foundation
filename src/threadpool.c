@@ -65,8 +65,8 @@ static void deinit_PooledThread(iPooledThread *d) {
 iDefineSubclass(PooledThread, Thread)
 iDefineObjectConstructionArgs(PooledThread, (iThreadPool *pool), pool)
 
-static inline void start_PooledThread(iPooledThread *d) { start_Thread(&d->thread); }
-static inline void join_PooledThread (iPooledThread *d) { join_Thread(&d->thread); }
+iLocalDef void start_PooledThread(iPooledThread *d) { start_Thread(&d->thread); }
+iLocalDef void join_PooledThread (iPooledThread *d) { join_Thread(&d->thread); }
 
 /*-------------------------------------------------------------------------------------*/
 

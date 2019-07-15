@@ -62,7 +62,7 @@ iQueueItem *tryTake_Queue       (iQueue *);
 
 size_t      size_Queue          (const iQueue *d);
 
-static inline iBool isEmpty_Queue(const iQueue *d) {
+iLocalDef iBool isEmpty_Queue(const iQueue *d) {
     return size_Queue(d) == 0;
 }
 

@@ -62,11 +62,11 @@ iDirFileInfo *  directoryContents_FileInfo  (const iFileInfo *);
 
 iFile *     open_FileInfo   (const iFileInfo *, int mode);
 
-static inline const char *cstrPath_FileInfo(const iFileInfo *d) {
+iLocalDef const char *cstrPath_FileInfo(const iFileInfo *d) {
     return cstr_String(path_FileInfo(d));
 }
 
-static inline const char *cstrLocalPath_FileInfo(const iFileInfo *d) {
+iLocalDef const char *cstrLocalPath_FileInfo(const iFileInfo *d) {
     return cstrLocal_String(path_FileInfo(d));
 }
 

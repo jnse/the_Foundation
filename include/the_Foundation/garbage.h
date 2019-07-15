@@ -42,14 +42,14 @@ void        endScope_Garbage    (void);
 iAny *      collect_Garbage     (iAny *ptr, iDeleteFunc del);
 
 #if !defined (__cplusplus)
-static inline iAny *iCollectMem(iAny *ptr) { return collect_Garbage(ptr, free); }
+iLocalDef iAny *iCollectMem(iAny *ptr) { return collect_Garbage(ptr, free); }
 #endif
 
 #define iCollectDel(ptr, del)   collect_Garbage(ptr, (iDeleteFunc) (del))
 
-static inline void      iBeginCollect (void) { beginScope_Garbage(); }
-static inline void      iEndCollect   (void) { endScope_Garbage(); }
-static inline void      iRecycle      (void) { recycle_Garbage(); }
+iLocalDef void      iBeginCollect (void) { beginScope_Garbage(); }
+iLocalDef void      iEndCollect   (void) { endScope_Garbage(); }
+iLocalDef void      iRecycle      (void) { recycle_Garbage(); }
 
 iEndPublic
 

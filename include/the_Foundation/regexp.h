@@ -66,7 +66,7 @@ void        deinit_RegExp(iRegExp *);
 
 iBool       match_RegExp(const iRegExp *, const char *subject, size_t len, iRegExpMatch *match);
 
-static inline iBool matchString_RegExp(const iRegExp *d, const iString *str, iRegExpMatch *match) {
+iLocalDef iBool matchString_RegExp(const iRegExp *d, const iString *str, iRegExpMatch *match) {
     return match_RegExp(d, cstr_String(str), size_String(str), match);
 }
 

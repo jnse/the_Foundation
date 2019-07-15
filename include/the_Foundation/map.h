@@ -61,8 +61,8 @@ struct Impl_MapNode {
 
 iDeclareTypeConstructionArgs(Map, iMapNodeCmpFunc cmp)
 
-static inline size_t    size_Map    (const iMap *d) { return d->size; }
-static inline iBool     isEmpty_Map (const iMap *d) { return size_Map(d) == 0; }
+iLocalDef size_t    size_Map    (const iMap *d) { return d->size; }
+iLocalDef iBool     isEmpty_Map (const iMap *d) { return size_Map(d) == 0; }
 
 iBool       contains_Map    (const iMap *, iMapKey key);
 iMapNode *  value_Map       (const iMap *, iMapKey key);

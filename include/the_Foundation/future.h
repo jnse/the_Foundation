@@ -83,7 +83,7 @@ iThread *   nextResult_Future (iFuture *);
 
 iBool       isEmpty_Future  (const iFuture *d);
 
-static inline const iObjectList *threads_Future(const iFuture *d) {
+iLocalDef const iObjectList *threads_Future(const iFuture *d) {
     return &d->threads;
 }
 

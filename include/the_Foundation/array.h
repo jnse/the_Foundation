@@ -74,11 +74,11 @@ size_t       indexOf_Array   (const iArray *, const void *element);
 
 size_t       size_Array      (const iArray *d);
 
-static inline iBool     isEmpty_Array   (const iArray *d) { return d == NULL || isEmpty_Range(&d->range); }
-static inline void *    front_Array     (iArray *d) { return at_Array(d, 0); }
-static inline void *    back_Array      (iArray *d) { return at_Array(d, size_Array(d) - 1); }
-static inline const void * constFront_Array (const iArray *d) { return constAt_Array(d, 0); }
-static inline const void * constBack_Array  (const iArray *d) { return constAt_Array(d, size_Array(d) - 1); }
+iLocalDef iBool     isEmpty_Array   (const iArray *d) { return d == NULL || isEmpty_Range(&d->range); }
+iLocalDef void *    front_Array     (iArray *d) { return at_Array(d, 0); }
+iLocalDef void *    back_Array      (iArray *d) { return at_Array(d, size_Array(d) - 1); }
+iLocalDef const void * constFront_Array (const iArray *d) { return constAt_Array(d, 0); }
+iLocalDef const void * constBack_Array  (const iArray *d) { return constAt_Array(d, size_Array(d) - 1); }
 
 void        reserve_Array   (iArray *, size_t reservedSize);
 void        clear_Array     (iArray *);
@@ -96,15 +96,15 @@ void        insertN_Array   (iArray *, size_t pos, const void *value, size_t cou
 void        removeN_Array   (iArray *, size_t pos, size_t count);
 void        move_Array      (iArray *, const iRanges *range, iArray *dest, size_t destPos);
 
-static inline void  set_Array           (iArray *d, size_t pos, const void *value)  { setN_Array(d, pos, value, 1); }
-static inline void  pushBack_Array      (iArray *d, const void *value)              { pushBackN_Array(d, value, 1); }
-static inline void  pushFront_Array     (iArray *d, const void *value)              { pushFrontN_Array(d, value, 1); }
-static inline iBool popBack_Array       (iArray *d)                                 { return popBackN_Array(d, 1) > 0; }
-static inline iBool popFront_Array      (iArray *d)                                 { return popFrontN_Array(d, 1); }
-static inline void  insert_Array        (iArray *d, size_t pos, const void *value)  { insertN_Array(d, pos, value, 1); }
-static inline void  remove_Array        (iArray *d, size_t pos)                     { removeN_Array(d, pos, 1); }
-static inline void  removeRange_Array   (iArray *d, const iRanges *range)           { removeN_Array(d, range->start, size_Range(range)); }
-static inline iBool take_Array          (iArray *d, size_t pos, void *value_out)    { return takeN_Array(d, pos, value_out, 1) > 0; }
+iLocalDef void  set_Array           (iArray *d, size_t pos, const void *value)  { setN_Array(d, pos, value, 1); }
+iLocalDef void  pushBack_Array      (iArray *d, const void *value)              { pushBackN_Array(d, value, 1); }
+iLocalDef void  pushFront_Array     (iArray *d, const void *value)              { pushFrontN_Array(d, value, 1); }
+iLocalDef iBool popBack_Array       (iArray *d)                                 { return popBackN_Array(d, 1) > 0; }
+iLocalDef iBool popFront_Array      (iArray *d)                                 { return popFrontN_Array(d, 1); }
+iLocalDef void  insert_Array        (iArray *d, size_t pos, const void *value)  { insertN_Array(d, pos, value, 1); }
+iLocalDef void  remove_Array        (iArray *d, size_t pos)                     { removeN_Array(d, pos, 1); }
+iLocalDef void  removeRange_Array   (iArray *d, const iRanges *range)           { removeN_Array(d, range->start, size_Range(range)); }
+iLocalDef iBool take_Array          (iArray *d, size_t pos, void *value_out)    { return takeN_Array(d, pos, value_out, 1) > 0; }
 
 /** @name Iterators */
 ///@{

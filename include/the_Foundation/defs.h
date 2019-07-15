@@ -45,8 +45,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #   define iEndPublic
 #endif
 
-#define iFalse  false
-#define iTrue   true
+#define iLocalDef   static inline
+
+#define iFalse      false
+#define iTrue       true
 
 #define iInvalidPos     ((size_t) -1)
 #define iInvalidSize    ((size_t) -1)
@@ -60,10 +62,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define iElemCount(ar)          (sizeof(ar) / sizeof((ar)[0]))
 #define iSwap(typeName, a, b)   { typeName tmp_Swap_ = (a); (a) = (b); (b) = tmp_Swap_; }
 
-static inline int iAbsi(const int a) { return a < 0 ? -a : a; }
-static inline int iMaxi(const int a, const int b) { return a > b ? a : b; }
-static inline int iMini(const int a, const int b) { return a < b ? a : b; }
-static inline int iSign(const int a) { return a < 0 ? -1 : a > 0 ? +1 : 0; }
+iLocalDef int iAbsi(const int a) { return a < 0 ? -a : a; }
+iLocalDef int iMaxi(const int a, const int b) { return a > b ? a : b; }
+iLocalDef int iMini(const int a, const int b) { return a < b ? a : b; }
+iLocalDef int iSign(const int a) { return a < 0 ? -1 : a > 0 ? +1 : 0; }
 
 #define iChangeFlags(var, flags, doSet)   {if (doSet) { (var) |= (flags); } else { (var) &= ~(flags); }}
 
@@ -107,10 +109,10 @@ iPublic void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[
 #define iDeclareTypeConstruction(typeName) \
     i##typeName *new_##typeName(void); \
     void delete_##typeName(i##typeName *); \
-    static inline i##typeName *collect_##typeName(i##typeName *d) { \
+    iLocalDef i##typeName *collect_##typeName(i##typeName *d) { \
         return iCollectDel(d, delete_##typeName); \
     } \
-    static inline i##typeName *collectNew_##typeName(void) { \
+    iLocalDef i##typeName *collectNew_##typeName(void) { \
         return collect_##typeName(new_##typeName()); \
     } \
     void init_##typeName(i##typeName *); \
@@ -119,7 +121,7 @@ iPublic void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[
 #define iDeclareTypeConstructionArgs(typeName, ...) \
     i##typeName *new_##typeName(__VA_ARGS__); \
     void delete_##typeName(i##typeName *); \
-    static inline i##typeName *collect_##typeName(i##typeName *d) { \
+    iLocalDef i##typeName *collect_##typeName(i##typeName *d) { \
         return iCollectDel(d, delete_##typeName); \
     } \
     void init_##typeName(i##typeName *, __VA_ARGS__); \

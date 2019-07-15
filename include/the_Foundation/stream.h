@@ -82,27 +82,27 @@ size_t      write_Stream        (iStream *, const iBlock *data);
 size_t      writeBuffer_Stream  (iStream *, const iBuffer *buf);
 size_t      writeData_Stream    (iStream *, const void *data, size_t size);
 
-static inline void write8_Stream(iStream *d, int8_t value) { writeData_Stream(d, &value, 1); }
+iLocalDef void write8_Stream(iStream *d, int8_t value) { writeData_Stream(d, &value, 1); }
 
 void        write16_Stream      (iStream *, int16_t value);
 void        write32_Stream      (iStream *, int32_t value);
 void        write64_Stream      (iStream *, int64_t value);
 
-static inline void writef_Stream    (iStream *d, float value)   { int32_t buf; memcpy(&buf, &value, 4); write32_Stream(d, buf); }
-static inline void writed_Stream    (iStream *d, double value)  { int64_t buf; memcpy(&buf, &value, 8); write64_Stream(d, buf); }
+iLocalDef void writef_Stream    (iStream *d, float value)   { int32_t buf; memcpy(&buf, &value, 4); write32_Stream(d, buf); }
+iLocalDef void writed_Stream    (iStream *d, double value)  { int64_t buf; memcpy(&buf, &value, 8); write64_Stream(d, buf); }
 
 int8_t      read8_Stream        (iStream *);
 int16_t     read16_Stream       (iStream *);
 int32_t     read32_Stream       (iStream *);
 int64_t     read64_Stream       (iStream *);
 
-static inline uint8_t  readU8_Stream    (iStream *d) { return (uint8_t)  read8_Stream(d); }
-static inline uint16_t readU16_Stream   (iStream *d) { return (uint16_t) read16_Stream(d); }
-static inline uint32_t readU32_Stream   (iStream *d) { return (uint32_t) read32_Stream(d); }
-static inline uint64_t readU64_Stream   (iStream *d) { return (uint64_t) read64_Stream(d); }
+iLocalDef uint8_t  readU8_Stream    (iStream *d) { return (uint8_t)  read8_Stream(d); }
+iLocalDef uint16_t readU16_Stream   (iStream *d) { return (uint16_t) read16_Stream(d); }
+iLocalDef uint32_t readU32_Stream   (iStream *d) { return (uint32_t) read32_Stream(d); }
+iLocalDef uint64_t readU64_Stream   (iStream *d) { return (uint64_t) read64_Stream(d); }
 
-static inline float    readf_Stream     (iStream *d) { int32_t buf = read32_Stream(d); float  v; memcpy(&v, &buf, 4); return v; }
-static inline double   readd_Stream     (iStream *d) { int64_t buf = read64_Stream(d); double v; memcpy(&v, &buf, 8); return v; }
+iLocalDef float    readf_Stream     (iStream *d) { int32_t buf = read32_Stream(d); float  v; memcpy(&v, &buf, 4); return v; }
+iLocalDef double   readd_Stream     (iStream *d) { int64_t buf = read64_Stream(d); double v; memcpy(&v, &buf, 8); return v; }
 
 void        flush_Stream        (iStream *);
 
@@ -112,8 +112,8 @@ iStringList *   readLines_Stream    (iStream *);
 iAnyObject *    readObject_Stream   (iStream *, iAnyObject *object);
 size_t          writeObject_Stream  (iStream *, const iAnyObject *object);
 
-static inline long  size_Stream     (const iStream *d) { return d->size; }
-static inline long  pos_Stream      (const iStream *d) { return d->pos; }
-static inline iBool atEnd_Stream    (const iStream *d) { return d->pos == d->size; }
+iLocalDef long  size_Stream     (const iStream *d) { return d->size; }
+iLocalDef long  pos_Stream      (const iStream *d) { return d->pos; }
+iLocalDef iBool atEnd_Stream    (const iStream *d) { return d->pos == d->size; }
 
 iEndPublic

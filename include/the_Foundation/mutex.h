@@ -91,19 +91,19 @@ struct Impl_Condition {
 
 iDeclareTypeConstruction(Condition)
 
-static inline void signal_Condition(iCondition *d) {
+iLocalDef void signal_Condition(iCondition *d) {
     cnd_signal(&d->cnd);
 }
 
-static inline void signalAll_Condition(iCondition *d) {
+iLocalDef void signalAll_Condition(iCondition *d) {
     cnd_broadcast(&d->cnd);
 }
 
-static inline void wait_Condition(iCondition *d, iMutex *mutex) {
+iLocalDef void wait_Condition(iCondition *d, iMutex *mutex) {
     cnd_wait(&d->cnd, &mutex->mtx);
 }
 
-static inline int waitTimeout_Condition(iCondition *d, iMutex *mutex, const iTime *timeout) {
+iLocalDef int waitTimeout_Condition(iCondition *d, iMutex *mutex, const iTime *timeout) {
     return cnd_timedwait(&d->cnd, &mutex->mtx, &timeout->ts);
 }
 

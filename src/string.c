@@ -45,7 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 static char localeCharSet_[64];
 
-static inline const char *currentLocaleLanguage_(void) {
+iLocalDef const char *currentLocaleLanguage_(void) {
     static iString *loc = NULL;
     if (!loc) {
         loc = newCStr_String(uc_locale_language());

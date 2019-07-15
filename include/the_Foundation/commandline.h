@@ -88,19 +88,19 @@ iCommandLineArg *checkArgument_CommandLine(const iCommandLine *, const char *arg
 iCommandLineArg *checkArgumentValuesN_CommandLine  (const iCommandLine *, const char *arg,
                                                    int minCount, int maxCount);
 
-static inline const iString *executablePath_CommandLine(const iCommandLine *d) {
+iLocalDef const iString *executablePath_CommandLine(const iCommandLine *d) {
     return d->execPath;
 }
 
-static inline const iStringList *args_CommandLine(const iCommandLine *d) {
+iLocalDef const iStringList *args_CommandLine(const iCommandLine *d) {
     return &d->args;
 }
 
-static inline const iString *at_CommandLine(const iCommandLine *d, size_t pos) {
+iLocalDef const iString *at_CommandLine(const iCommandLine *d, size_t pos) {
     return constAt_StringList(&d->args, pos);
 }
 
-static inline iCommandLineArg *checkArgumentValues_CommandLine(const iCommandLine *d, const char *arg, int count) {
+iLocalDef iCommandLineArg *checkArgumentValues_CommandLine(const iCommandLine *d, const char *arg, int count) {
     return checkArgumentValuesN_CommandLine(d, arg, count, count);
 }
 
@@ -138,11 +138,11 @@ iDeclareObjectConstruction(CommandLineArg)
 void        init_CommandLineArg     (iCommandLineArg *);
 void        deinit_CommandLineArg   (iCommandLineArg *);
 
-static inline const iString *value_CommandLineArg(const iCommandLineArg *d, size_t pos) {
+iLocalDef const iString *value_CommandLineArg(const iCommandLineArg *d, size_t pos) {
     return constAt_StringList(&d->values, pos);
 }
 
-static inline const iStringList *values_CommandLineArg(const iCommandLineArg *d) {
+iLocalDef const iStringList *values_CommandLineArg(const iCommandLineArg *d) {
     return &d->values;
 }
 

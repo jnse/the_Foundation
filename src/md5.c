@@ -42,7 +42,7 @@ static const uint8_t padding_[64] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
                                      0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                      0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-static inline void encode_(uint8_t *out, const uint32_t *in, size_t len) {
+iLocalDef void encode_(uint8_t *out, const uint32_t *in, size_t len) {
     size_t i, j;
     for (i = 0, j = 0; j < len; i++, j += 4) {
         out[j    ] = (uint8_t) ( in[i]        & 0xff);
@@ -52,7 +52,7 @@ static inline void encode_(uint8_t *out, const uint32_t *in, size_t len) {
     }
 }
 
-static inline void decode_(uint32_t *out, const uint8_t *in, size_t len) {
+iLocalDef void decode_(uint32_t *out, const uint8_t *in, size_t len) {
     size_t i, j;
     for (i = 0, j = 0; j < len; i++, j += 4) {
         out[i] = ( (uint32_t) in[j])            | (((uint32_t) in[j + 1]) << 8) |
@@ -60,7 +60,7 @@ static inline void decode_(uint32_t *out, const uint8_t *in, size_t len) {
     }
 }
 
-static inline uint32_t leftRotate_(uint32_t x, int n) {
+iLocalDef uint32_t leftRotate_(uint32_t x, int n) {
     return (x << n) | (x >> (32 - n));
 }
 

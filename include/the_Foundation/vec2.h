@@ -41,111 +41,111 @@ typedef iIntVec2 iInt2;
 
 typedef struct { uint8_t bits; } iBool2;
 
-static inline iInt2 zero_I2(void) {
+iLocalDef iInt2 zero_I2(void) {
     return (iInt2){ 0, 0 };
 }
 
-static inline iInt2 one_I2(void) {
+iLocalDef iInt2 one_I2(void) {
     return (iInt2){ 1, 1 };
 }
 
-static inline iInt2 init1_I2(int x) {
+iLocalDef iInt2 init1_I2(int x) {
     return (iInt2){ x, x };
 }
 
-static inline iInt2 init_I2(int x, int y) {
+iLocalDef iInt2 init_I2(int x, int y) {
     return (iInt2){ x, y };
 }
 
-static inline iInt2 initu_I2(unsigned x, unsigned y) {
+iLocalDef iInt2 initu_I2(unsigned x, unsigned y) {
     return (iInt2){ (int) x, (int) y };
 }
 
-static inline iInt2 initv_I2(const int *v) {
+iLocalDef iInt2 initv_I2(const int *v) {
     return (iInt2){ v[0], v[1] };
 }
 
-static inline void store_I2(const iInt2 d, int *p_out) {
+iLocalDef void store_I2(const iInt2 d, int *p_out) {
     p_out[0] = d.x;
     p_out[1] = d.y;
 }
 
-static inline iInt2 yx_I2(const iInt2 d) {
+iLocalDef iInt2 yx_I2(const iInt2 d) {
     return (iInt2){ d.y, d.x };
 }
 
-static inline iInt2 dx_I2(const iInt2 a, int dx) { return (iInt2){ a.x + dx, a.y }; }
-static inline iInt2 dy_I2(const iInt2 a, int dy) { return (iInt2){ a.x, a.y + dy }; }
+iLocalDef iInt2 dx_I2(const iInt2 a, int dx) { return (iInt2){ a.x + dx, a.y }; }
+iLocalDef iInt2 dy_I2(const iInt2 a, int dy) { return (iInt2){ a.x, a.y + dy }; }
 
-static inline iInt2 add_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ a.x + b.x, a.y + b.y }; }
-static inline iInt2 addi_I2     (const iInt2 a, int b)          { return (iInt2){ a.x + b, a.y + b }; }
-static inline iInt2 sub_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ a.x - b.x, a.y - b.y }; }
-static inline iInt2 mul_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ a.x * b.x, a.y * b.y }; }
-static inline iInt2 muli_I2     (const iInt2 a, int b)          { return (iInt2){ a.x * b, a.y * b }; }
-static inline iInt2 mulf_I2     (const iInt2 a, float b)        { return (iInt2){ (int) (a.x * b), (int) (a.y * b) }; }
-static inline iInt2 div_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ a.x / b.x, a.y / b.y }; }
-static inline iInt2 divi_I2     (const iInt2 a, int b)          { return (iInt2){ a.x / b, a.y / b }; }
-static inline iInt2 divf_I2     (const iInt2 a, float b)        { return (iInt2){ (int) (a.x / b), (int) (a.y / b) }; }
-static inline iInt2 mod_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ a.x % b.x, a.y % b.y }; }
-static inline iInt2 modi_I2     (const iInt2 a, int b)          { return (iInt2){ a.x % b, a.y % b }; }
+iLocalDef iInt2 add_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ a.x + b.x, a.y + b.y }; }
+iLocalDef iInt2 addi_I2     (const iInt2 a, int b)          { return (iInt2){ a.x + b, a.y + b }; }
+iLocalDef iInt2 sub_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ a.x - b.x, a.y - b.y }; }
+iLocalDef iInt2 mul_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ a.x * b.x, a.y * b.y }; }
+iLocalDef iInt2 muli_I2     (const iInt2 a, int b)          { return (iInt2){ a.x * b, a.y * b }; }
+iLocalDef iInt2 mulf_I2     (const iInt2 a, float b)        { return (iInt2){ (int) (a.x * b), (int) (a.y * b) }; }
+iLocalDef iInt2 div_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ a.x / b.x, a.y / b.y }; }
+iLocalDef iInt2 divi_I2     (const iInt2 a, int b)          { return (iInt2){ a.x / b, a.y / b }; }
+iLocalDef iInt2 divf_I2     (const iInt2 a, float b)        { return (iInt2){ (int) (a.x / b), (int) (a.y / b) }; }
+iLocalDef iInt2 mod_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ a.x % b.x, a.y % b.y }; }
+iLocalDef iInt2 modi_I2     (const iInt2 a, int b)          { return (iInt2){ a.x % b, a.y % b }; }
 
-static inline iInt2 addv_I2     (iInt2 *a, const iInt2 b)       { a->x += b.x; a->y += b.y; return *a; }
-static inline iInt2 subv_I2     (iInt2 *a, const iInt2 b)       { a->x -= b.x; a->y -= b.y; return *a; }
-static inline iInt2 mulv_I2     (iInt2 *a, const iInt2 b)       { a->x *= b.x; a->y *= b.y; return *a; }
-static inline iInt2 muliv_I2    (iInt2 *a, int b)               { a->x *= b; a->y *= b; return *a; }
-static inline iInt2 mulfv_I2    (iInt2 *a, float b)             { a->x *= b; a->y *= b; return *a; }
-static inline iInt2 divv_I2     (iInt2 *a, const iInt2 b)       { a->x /= b.x; a->y /= b.y; return *a; }
-static inline iInt2 diviv_I2    (iInt2 *a, int b)               { a->x /= b; a->y /= b; return *a; }
-static inline iInt2 divfv_I2    (iInt2 *a, float b)             { a->x /= b; a->y /= b; return *a; }
-static inline iInt2 modv_I2     (iInt2 *a, const iInt2 b)       { a->x %= b.x; a->y %= b.y; return *a; }
-static inline iInt2 modiv_I2    (iInt2 *a, int b)               { a->x %= b; a->y %= b; return *a; }
+iLocalDef iInt2 addv_I2     (iInt2 *a, const iInt2 b)       { a->x += b.x; a->y += b.y; return *a; }
+iLocalDef iInt2 subv_I2     (iInt2 *a, const iInt2 b)       { a->x -= b.x; a->y -= b.y; return *a; }
+iLocalDef iInt2 mulv_I2     (iInt2 *a, const iInt2 b)       { a->x *= b.x; a->y *= b.y; return *a; }
+iLocalDef iInt2 muliv_I2    (iInt2 *a, int b)               { a->x *= b; a->y *= b; return *a; }
+iLocalDef iInt2 mulfv_I2    (iInt2 *a, float b)             { a->x *= b; a->y *= b; return *a; }
+iLocalDef iInt2 divv_I2     (iInt2 *a, const iInt2 b)       { a->x /= b.x; a->y /= b.y; return *a; }
+iLocalDef iInt2 diviv_I2    (iInt2 *a, int b)               { a->x /= b; a->y /= b; return *a; }
+iLocalDef iInt2 divfv_I2    (iInt2 *a, float b)             { a->x /= b; a->y /= b; return *a; }
+iLocalDef iInt2 modv_I2     (iInt2 *a, const iInt2 b)       { a->x %= b.x; a->y %= b.y; return *a; }
+iLocalDef iInt2 modiv_I2    (iInt2 *a, int b)               { a->x %= b; a->y %= b; return *a; }
 
-static inline iInt2 min_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ iMin(a.x, b.x), iMin(a.y, b.y) }; }
-static inline iInt2 max_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ iMax(a.x, b.x), iMax(a.y, b.y) }; }
-static inline iInt2 neg_I2      (const iInt2 a)                 { return (iInt2){ -a.x, -a.y }; }
-static inline iInt2 abs_I2      (const iInt2 a)                 { return (iInt2){ iAbs(a.x), iAbs(a.y) }; }
+iLocalDef iInt2 min_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ iMin(a.x, b.x), iMin(a.y, b.y) }; }
+iLocalDef iInt2 max_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ iMax(a.x, b.x), iMax(a.y, b.y) }; }
+iLocalDef iInt2 neg_I2      (const iInt2 a)                 { return (iInt2){ -a.x, -a.y }; }
+iLocalDef iInt2 abs_I2      (const iInt2 a)                 { return (iInt2){ iAbs(a.x), iAbs(a.y) }; }
 
-static inline iBool2 equal_I2   (const iInt2 a, const iInt2 b) {
+iLocalDef iBool2 equal_I2   (const iInt2 a, const iInt2 b) {
     return (iBool2){ (a.x == b.x ? 1 : 0) | (a.y == b.y ? 2 : 0) };
 }
 
-static inline iBool2 notEqual_I2(const iInt2 a, const iInt2 b) {
+iLocalDef iBool2 notEqual_I2(const iInt2 a, const iInt2 b) {
     return (iBool2){ (a.x != b.x ? 1 : 0) | (a.y != b.y ? 2 : 0) };
 }
 
-static inline iBool2 greater_I2 (const iInt2 a, const iInt2 b) {
+iLocalDef iBool2 greater_I2 (const iInt2 a, const iInt2 b) {
     return (iBool2){ (a.x > b.x ? 1 : 0) | (a.y > b.y ? 2 : 0) };
 }
 
-static inline iBool2 greaterEqual_I2 (const iInt2 a, const iInt2 b) {
+iLocalDef iBool2 greaterEqual_I2 (const iInt2 a, const iInt2 b) {
     return (iBool2){ (a.x >= b.x ? 1 : 0) | (a.y >= b.y ? 2 : 0) };
 }
 
-static inline iBool2 less_I2 (const iInt2 a, const iInt2 b) {
+iLocalDef iBool2 less_I2 (const iInt2 a, const iInt2 b) {
     return (iBool2){ (a.x < b.x ? 1 : 0) | (a.y < b.y ? 2 : 0) };
 }
 
-static inline iBool2 lessEqual_I2 (const iInt2 a, const iInt2 b) {
+iLocalDef iBool2 lessEqual_I2 (const iInt2 a, const iInt2 b) {
     return (iBool2){ (a.x <= b.x ? 1 : 0) | (a.y <= b.y ? 2 : 0) };
 }
 
-static inline iBool all_Bool2   (const iBool2 a)                { return a.bits == 3; }
-static inline iBool any_Bool2   (const iBool2 a)                { return a.bits != 0; }
+iLocalDef iBool all_Bool2   (const iBool2 a)                { return a.bits == 3; }
+iLocalDef iBool any_Bool2   (const iBool2 a)                { return a.bits != 0; }
 
-static inline iBool isEqual_I2  (const iInt2 a, const iInt2 b)  { return a.x == b.x && a.y == b.y; }
+iLocalDef iBool isEqual_I2  (const iInt2 a, const iInt2 b)  { return a.x == b.x && a.y == b.y; }
 
-static inline iInt2 clamp_I2    (const iInt2 t, const iInt2 a, const iInt2 b) { return min_I2(max_I2(t, a), b); }
-static inline int   sum_I2      (const iInt2 a)                 { return a.x + a.y; }
-static inline int   prod_I2     (const iInt2 a)                 { return a.x * a.y; }
-static inline int   dot_I2      (const iInt2 a, const iInt2 b)  { return sum_I2(mul_I2(a, b)); }
-static inline float lengthSq_I2 (const iInt2 a)                 { return dot_I2(a, a); }
-static inline float length_I2   (const iInt2 a)                 { return sqrtf(lengthSq_I2(a)); }
-static inline float dist_I2     (const iInt2 a, const iInt2 b)  { return length_I2(sub_I2(b, a)); }
-static inline int   idist_I2    (const iInt2 a, const iInt2 b)  { return (int) (length_I2(sub_I2(b, a)) + .5f); }
-static inline int   manhattan_I2(const iInt2 a, const iInt2 b)  { return sum_I2(abs_I2(sub_I2(b, a))); }
+iLocalDef iInt2 clamp_I2    (const iInt2 t, const iInt2 a, const iInt2 b) { return min_I2(max_I2(t, a), b); }
+iLocalDef int   sum_I2      (const iInt2 a)                 { return a.x + a.y; }
+iLocalDef int   prod_I2     (const iInt2 a)                 { return a.x * a.y; }
+iLocalDef int   dot_I2      (const iInt2 a, const iInt2 b)  { return sum_I2(mul_I2(a, b)); }
+iLocalDef float lengthSq_I2 (const iInt2 a)                 { return dot_I2(a, a); }
+iLocalDef float length_I2   (const iInt2 a)                 { return sqrtf(lengthSq_I2(a)); }
+iLocalDef float dist_I2     (const iInt2 a, const iInt2 b)  { return length_I2(sub_I2(b, a)); }
+iLocalDef int   idist_I2    (const iInt2 a, const iInt2 b)  { return (int) (length_I2(sub_I2(b, a)) + .5f); }
+iLocalDef int   manhattan_I2(const iInt2 a, const iInt2 b)  { return sum_I2(abs_I2(sub_I2(b, a))); }
 
-static inline iInt2 mix_I2      (const iInt2 a, const iInt2 b, float t) {
+iLocalDef iInt2 mix_I2      (const iInt2 a, const iInt2 b, float t) {
     return add_I2(a, mulf_I2(sub_I2(b, a), t));
 }
 
-static inline iInt2 random_I2   (const iInt2 a) { return (iInt2){ iRandom(0, a.x), iRandom(0, a.y) }; }
+iLocalDef iInt2 random_I2   (const iInt2 a) { return (iInt2){ iRandom(0, a.x), iRandom(0, a.y) }; }

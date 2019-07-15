@@ -40,23 +40,23 @@ iBeginPublic
 
 #define iDeclareObjectConstruction(typeName) \
     i##typeName *new_##typeName(void); \
-    static inline i##typeName *collect_##typeName(i##typeName *d) { \
+    iLocalDef i##typeName *collect_##typeName(i##typeName *d) { \
         return iCollectDel(d, (iDeleteFunc) deref_Object); \
     } \
     void init_##typeName(i##typeName *d); \
     void deinit_##typeName(i##typeName *d); \
-    static inline const i##typeName##Class *class_##typeName(const i##typeName *d) { \
+    iLocalDef const i##typeName##Class *class_##typeName(const i##typeName *d) { \
         return (const i##typeName##Class *) class_Object(d);\
     }
 
 #define iDeclareObjectConstructionArgs(typeName, ...) \
     i##typeName *new_##typeName(__VA_ARGS__); \
-    static inline i##typeName *collect_##typeName(i##typeName *d) { \
+    iLocalDef i##typeName *collect_##typeName(i##typeName *d) { \
         return iCollectDel(d, (iDeleteFunc) deref_Object); \
     } \
     void init_##typeName(i##typeName *d, __VA_ARGS__); \
     void deinit_##typeName(i##typeName *d); \
-    static inline const i##typeName##Class *class_##typeName(const i##typeName *d) { \
+    iLocalDef const i##typeName##Class *class_##typeName(const i##typeName *d) { \
         return (const i##typeName##Class *) class_Object(d);\
     }
 
@@ -102,7 +102,7 @@ iAnyObject *    ref_Object      (const iAnyObject *);
 void            deref_Object    (const iAnyObject *);
 const iClass *  class_Object    (const iAnyObject *);
 
-static inline iBool isInstance_Object(const iAnyObject *d, const iAnyClass *pClass) {
+iLocalDef iBool isInstance_Object(const iAnyObject *d, const iAnyClass *pClass) {
     return class_Object(d) == pClass || isDerived_Class(class_Object(d), pClass);
 }
 
@@ -119,7 +119,7 @@ void            checkSignature_Object   (const iAnyObject *);
 #define iAssertIsObject(d)
 #endif
 
-static inline iAnyObject *collect_Object(const iAnyObject *d) {
+iLocalDef iAnyObject *collect_Object(const iAnyObject *d) {
     if (d) {
         iAssertIsObject(d);
         return collect_Garbage(iConstCast(iAnyObject *, d), (iDeleteFunc) deref_Object);
@@ -127,7 +127,7 @@ static inline iAnyObject *collect_Object(const iAnyObject *d) {
     return NULL;
 }
 
-static inline void iRelease(const iAnyObject *d) {
+iLocalDef void iRelease(const iAnyObject *d) {
     deref_Object(d);
 }
 
@@ -135,7 +135,7 @@ static inline void iRelease(const iAnyObject *d) {
 
 #define iReleasePtr(d) { iAssert((d) != NULL); deref_Object(*(d)); *(d) = NULL; }
 
-static inline iAnyObject *iReleaseLater(const iAnyObject *d) {
+iLocalDef iAnyObject *iReleaseLater(const iAnyObject *d) {
     return collect_Object(d);
 }
 

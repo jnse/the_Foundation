@@ -75,8 +75,8 @@ const void *    constData_Block     (const iBlock *);
 const char *    constBegin_Block    (const iBlock *);
 const char *    constEnd_Block      (const iBlock *);
 
-static inline const char *cstr_Block(const iBlock *d) { return constBegin_Block(d); }
-static inline iBool isEmpty_Block   (const iBlock *d) { return size_Block(d) == 0; }
+iLocalDef const char *cstr_Block(const iBlock *d) { return constBegin_Block(d); }
+iLocalDef iBool isEmpty_Block   (const iBlock *d) { return size_Block(d) == 0; }
 
 #define         midRange_Block(d, rng)  mid_Block(d, (rng)->start, size_Range(rng))
 
@@ -123,7 +123,7 @@ void            md5_Block           (const iBlock *, uint8_t md5_out[16]);
 iBlock *        compressLevel_Block (const iBlock *, int level);
 iBlock *        decompress_Block    (const iBlock *);
 
-static inline iBlock * compress_Block(const iBlock *d) {
+iLocalDef iBlock * compress_Block(const iBlock *d) {
     return compressLevel_Block(d, iBlockDefaultCompressionLevel);
 }
 

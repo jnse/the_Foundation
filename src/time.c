@@ -95,7 +95,7 @@ void sub_Time(iTime *d, const iTime *time) {
 /*-------------------------------------------------------------------------------------*/
 
 #if defined (iPlatformWindows)
-static inline void localtime_r(const time_t *sec, struct tm *t) {
+iLocalDef void localtime_r(const time_t *sec, struct tm *t) {
     localtime_s(t, sec);
 }
 #endif

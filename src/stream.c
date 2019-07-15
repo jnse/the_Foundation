@@ -42,13 +42,13 @@ struct Impl_ByteOrder {
     uint64_t (*order64)(uint64_t);
 };
 
-static inline uint16_t nop16_(uint16_t v) { return v; }
-static inline uint32_t nop32_(uint32_t v) { return v; }
-static inline uint64_t nop64_(uint64_t v) { return v; }
+iLocalDef uint16_t nop16_(uint16_t v) { return v; }
+iLocalDef uint32_t nop32_(uint32_t v) { return v; }
+iLocalDef uint64_t nop64_(uint64_t v) { return v; }
 
-static inline uint16_t swap16_(uint16_t v) { return (uint16_t) ((v >> 8) | ((v & 0xff) << 8)); }
-static inline uint32_t swap32_(uint32_t v) { return (v >> 24) | ((v & 0xff0000) >> 8) | ((v & 0xff00) << 8) | ((v & 0xff) << 24); }
-static inline uint64_t swap64_(uint64_t v) { return swap32_(v >> 32) | ((uint64_t) (swap32_(v & 0xffffffff)) << 32); }
+iLocalDef uint16_t swap16_(uint16_t v) { return (uint16_t) ((v >> 8) | ((v & 0xff) << 8)); }
+iLocalDef uint32_t swap32_(uint32_t v) { return (v >> 24) | ((v & 0xff0000) >> 8) | ((v & 0xff00) << 8) | ((v & 0xff) << 24); }
+iLocalDef uint64_t swap64_(uint64_t v) { return swap32_(v >> 32) | ((uint64_t) (swap32_(v & 0xffffffff)) << 32); }
 
 #if defined (iBigEndian)
 static uint16_t order16le_(uint16_t v) { return swap16_(v); }

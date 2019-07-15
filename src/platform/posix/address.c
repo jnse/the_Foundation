@@ -89,7 +89,7 @@ static iThreadResult runLookup_Address_(iThread *thd) {
     return 0;
 }
 
-static inline socklen_t sockAddrSize_addrinfo_(const struct addrinfo *d) {
+iLocalDef socklen_t sockAddrSize_addrinfo_(const struct addrinfo *d) {
     if (d->ai_family == AF_INET) {
         return sizeof(struct sockaddr_in);
     }

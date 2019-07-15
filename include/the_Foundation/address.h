@@ -89,11 +89,11 @@ void    lookupCStr_Address      (iAddress *, const char *hostName, uint16_t port
 
 void    waitForFinished_Address (const iAddress *);
 
-static inline void lookupTcpCStr_Address(iAddress *d, const char *hostName, uint16_t port) {
+iLocalDef void lookupTcpCStr_Address(iAddress *d, const char *hostName, uint16_t port) {
     lookupCStr_Address(d, hostName, port, tcp_SocketType);
 }
 
-static inline void lookupTcp_Address(iAddress *d, const iString *hostName, uint16_t port) {
+iLocalDef void lookupTcp_Address(iAddress *d, const iString *hostName, uint16_t port) {
     lookupTcpCStr_Address(d, cstr_String(hostName), port);
 }
 

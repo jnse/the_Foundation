@@ -48,8 +48,8 @@ struct Impl_GarbageNode {
     iCollectedPtr allocs[iGarbageNodeMax];
 };
 
-static inline iBool isEmpty_GarbageNode_(const iGarbageNode *d) { return d->count == 0; }
-static inline iBool isFull_GarbageNode_ (const iGarbageNode *d) { return d->count == iGarbageNodeMax; }
+iLocalDef iBool isEmpty_GarbageNode_(const iGarbageNode *d) { return d->count == 0; }
+iLocalDef iBool isFull_GarbageNode_ (const iGarbageNode *d) { return d->count == iGarbageNodeMax; }
 
 static iGarbageNode *new_GarbageNode_(void) {
     iGarbageNode *d = iMalloc(GarbageNode);

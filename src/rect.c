@@ -45,7 +45,7 @@ iInt2 random_Rect(const iRect *d) {
     return add_I2(d->pos, random_I2(d->size));
 }
 
-static inline int edgeLength_Rect_(const iRect *d) {
+iLocalDef int edgeLength_Rect_(const iRect *d) {
     return 2 * (d->size.x - 1) + 2 * (d->size.y - 1);
 }
 

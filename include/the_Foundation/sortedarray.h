@@ -57,7 +57,7 @@ iDeclareTypeConstructionArgs(SortedArray, size_t elementSize, iSortedArrayCompar
 
 iSortedArray *          copy_SortedArray    (const iSortedArray *);
 
-static inline size_t    size_SortedArray    (const iSortedArray *d) { return size_Array(&d->values); }
+iLocalDef size_t    size_SortedArray    (const iSortedArray *d) { return size_Array(&d->values); }
 
 iBool       contains_SortedArray(const iSortedArray *, const void *value);
 iBool       locate_SortedArray  (const iSortedArray *, const void *value, size_t *pos_out);
@@ -79,15 +79,15 @@ iRanges     locateRange_SortedArray (const iSortedArray *, const void *value, iS
 #define     at_SortedArray(d, pos)  at_Array(&(d)->values, pos)
 #define     isEmpty_SortedArray(d)  isEmpty_Array(&(d)->values)
 
-static inline const void * constAt_SortedArray      (const iSortedArray *d, size_t pos) { return constAt_Array(&d->values, pos); }
-static inline const void * constFront_SortedArray   (const iSortedArray *d) { return constFront_Array(&d->values); }
-static inline const void * constBack_SortedArray    (const iSortedArray *d) { return constBack_Array(&d->values); }
+iLocalDef const void * constAt_SortedArray      (const iSortedArray *d, size_t pos) { return constAt_Array(&d->values, pos); }
+iLocalDef const void * constFront_SortedArray   (const iSortedArray *d) { return constFront_Array(&d->values); }
+iLocalDef const void * constBack_SortedArray    (const iSortedArray *d) { return constBack_Array(&d->values); }
 
 void        clear_SortedArray   (iSortedArray *);
 iBool       insert_SortedArray  (iSortedArray *, const void *value);
 iBool       remove_SortedArray  (iSortedArray *, const void *value);
 
-static inline void removeRange_SortedArray(iSortedArray *d, const iRanges *range) {
+iLocalDef void removeRange_SortedArray(iSortedArray *d, const iRanges *range) {
     removeRange_Array(&d->values, range);
 }
 

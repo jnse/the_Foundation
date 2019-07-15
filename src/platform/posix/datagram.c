@@ -224,7 +224,7 @@ static void deinit_DatagramThread(iDatagramThread *d) {
 
 iDefineObjectConstruction(DatagramThread)
 
-static inline void start_DatagramThread_(iDatagramThread *d) { start_Thread(&d->thread); }
+iLocalDef void start_DatagramThread_(iDatagramThread *d) { start_Thread(&d->thread); }
 
 static void exit_DatagramThread_(iDatagramThread *d) {
     d->mode = stop_DatagramThreadMode;

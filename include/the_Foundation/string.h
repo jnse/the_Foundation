@@ -74,8 +74,8 @@ iString *       copy_String         (const iString *);
 
 iString *       collectNewFormat_String (const char *format, ...);
 
-static inline iString *newRange_String  (const iRangecc *range) { return newCStrN_String(range->start, size_Range(range)); }
-static inline iString *newLocal_String  (const iBlock *localChars) { return newLocalCStrN_String(cstr_Block(localChars), size_Block(localChars)); }
+iLocalDef iString *newRange_String  (const iRangecc *range) { return newCStrN_String(range->start, size_Range(range)); }
+iLocalDef iString *newLocal_String  (const iBlock *localChars) { return newLocalCStrN_String(cstr_Block(localChars), size_Block(localChars)); }
 
 void            init_String             (iString *);
 void            initCStr_String         (iString *, const char *utf8CStr);
@@ -110,15 +110,15 @@ iBlock *        toUtf16_String  (const iString *);
  * 
  * @return Converted text. The pointer will remain valid until garbage is recycled.
  */
-static inline const char *cstrLocal_String(const iString *str) {
+iLocalDef const char *cstrLocal_String(const iString *str) {
     return cstr_Block(collect_Block(toLocal_String(str)));
 }
 
 #define         range_String(d) (iRangecc){ constData_Block(&d->chars), constEnd_Block(&d->chars) }
 
-static inline iBool         isEmpty_String   (const iString *d) { return size_String(d) == 0; }
-static inline const char *  constBegin_String(const iString *d) { return cstr_String(d); }
-static inline const char *  constEnd_String  (const iString *d) { return cstr_String(d) + size_String(d); }
+iLocalDef iBool         isEmpty_String   (const iString *d) { return size_String(d) == 0; }
+iLocalDef const char *  constBegin_String(const iString *d) { return cstr_String(d); }
+iLocalDef const char *  constEnd_String  (const iString *d) { return cstr_String(d) + size_String(d); }
 
 int             cmpSc_String        (const iString *, const char *cstr, const iStringComparison *);
 int             cmpNSc_String       (const iString *, const char *cstr, size_t n, const iStringComparison *);
@@ -148,7 +148,7 @@ size_t          lastIndexOfCStr_String      (const iString *, const char *cstr);
 #define         indexOfString_String(d, s)      indexOfCStr_String(d, cstr_String(s))
 #define         lastIndexOfString_String(d, s)  lastIndexOfCStr_String(d, cstr_String(s))
 
-static inline iBool contains_String(const iString *d, iChar ch) {
+iLocalDef iBool contains_String(const iString *d, iChar ch) {
     return indexOf_String(d, ch) != iInvalidPos;
 }
 
@@ -177,7 +177,7 @@ int             toInt_String    (const iString *);
 
 const char *    skipSpace_CStr  (const char *);
 
-static inline iRangecc rangeN_CStr  (const char *cstr, size_t size) {
+iLocalDef iRangecc rangeN_CStr  (const char *cstr, size_t size) {
 #if __STDC_VERSION__ >= 201100L
     return (iRangecc){ cstr, cstr + size };
 #else
@@ -185,7 +185,7 @@ static inline iRangecc rangeN_CStr  (const char *cstr, size_t size) {
     return range;
 #endif
 }
-static inline iRangecc range_CStr   (const char *cstr) { return rangeN_CStr(cstr, strlen(cstr)); }
+iLocalDef iRangecc range_CStr   (const char *cstr) { return rangeN_CStr(cstr, strlen(cstr)); }
 
 int             cmpCStrSc_Rangecc   (const iRangecc *, const char *cstr, const iStringComparison *);
 int             cmpCStrNSc_Rangecc  (const iRangecc *, const char *cstr, size_t n, const iStringComparison *);

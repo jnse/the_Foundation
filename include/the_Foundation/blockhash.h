@@ -135,14 +135,14 @@ struct ConstIteratorImpl_BlockHash {
     \
     iDeclareObjectConstruction(typeName) \
     \
-    static inline size_t    size_##typeName     (const i##typeName *d) { return size_BlockHash(d); } \
-    static inline iBool     isEmpty_##typeName  (const i##typeName *d) { return isEmpty_BlockHash(d); } \
+    iLocalDef size_t    size_##typeName     (const i##typeName *d) { return size_BlockHash(d); } \
+    iLocalDef iBool     isEmpty_##typeName  (const i##typeName *d) { return isEmpty_BlockHash(d); } \
     \
     iBool                   contains_##typeName     (const i##typeName *, const i##keyType *key); \
     const i##valueType *    constValue_##typeName   (const i##typeName *, const i##keyType *key); \
     i##valueType *          value_##typeName        (i##typeName *, const i##keyType *key); \
     \
-    static inline void      clear_##typeName    (i##typeName *d) { clear_BlockHash(d); } \
+    iLocalDef void      clear_##typeName    (i##typeName *d) { clear_BlockHash(d); } \
     \
     iBool                   insert_##typeName   (i##typeName *, const i##keyType *key, const i##valueType *value); \
     iBool                   remove_##typeName   (i##typeName *, const i##keyType *key); \

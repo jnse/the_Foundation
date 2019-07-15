@@ -84,12 +84,12 @@ size_t              receivedBytes_Socket    (const iSocket *);
 size_t              bytesToSend_Socket      (const iSocket *);
 const iAddress *    address_Socket          (const iSocket *);
 
-static inline void      flush_Socket        (iSocket *d) { flush_Stream((iStream *) d); }
-static inline iBlock *  readAll_Socket      (iSocket *d) { return readAll_Stream((iStream *) d); }
-static inline size_t    writeData_Socket    (iSocket *d, const void *data, size_t size) {
+iLocalDef void      flush_Socket        (iSocket *d) { flush_Stream((iStream *) d); }
+iLocalDef iBlock *  readAll_Socket      (iSocket *d) { return readAll_Stream((iStream *) d); }
+iLocalDef size_t    writeData_Socket    (iSocket *d, const void *data, size_t size) {
     return writeData_Stream((iStream *) d, data, size);
 }
-static inline size_t    write_Socket        (iSocket *d, const iBlock *data) {
+iLocalDef size_t    write_Socket        (iSocket *d, const iBlock *data) {
     return writeData_Socket(d, constData_Block(data), size_Block(data));
 }
 

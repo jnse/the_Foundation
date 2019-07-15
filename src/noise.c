@@ -11,7 +11,7 @@ struct Impl_Noise {
 
 iDefineTypeConstructionArgs(Noise, (iInt2 size), size)
 
-static inline iFloat3 *gradient_Noise_(const iNoise *d, const iInt2 pos) {
+iLocalDef iFloat3 *gradient_Noise_(const iNoise *d, const iInt2 pos) {
     return d->gradients + (d->size.x * pos.y + pos.x);
 }
 
@@ -29,11 +29,11 @@ void deinit_Noise(iNoise *d) {
     free(d->gradients);
 }
 
-static inline float dotGradient_Noise_(const iNoise *d, const int x, int y, const iFloat3 b) {
+iLocalDef float dotGradient_Noise_(const iNoise *d, const int x, int y, const iFloat3 b) {
     return dot_F3(sub_F3(b, initi_F3(x, y, 0)), *gradient_Noise_(d, init_I2(x, y)));
 }
 
-static inline float hermite_(float a, float b, float w) {
+iLocalDef float hermite_(float a, float b, float w) {
     w = iClamp(w, 0, 1);
     return a + (b - a) * (w * w * (3 - 2 * w));
 }
@@ -74,7 +74,7 @@ struct Impl_CombinedNoise {
 };
 
 #if 0
-static inline const iPlane *quadrantPlane_CombinedNoise_(const iCombinedNoise *d, const iFloat3 normPos) {
+iLocalDef const iPlane *quadrantPlane_CombinedNoise_(const iCombinedNoise *d, const iFloat3 normPos) {
     int index = 0;
     if (x_F3(normPos) >= .5f) index |= 1;
     if (y_F3(normPos) >= .5f) index |= 2;

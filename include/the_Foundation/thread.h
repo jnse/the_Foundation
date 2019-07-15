@@ -113,11 +113,11 @@ iThread *   current_Thread  (void);
  */
 int     idealConcurrentCount_Thread (void);
 
-static inline thrd_t id_Thread(const iThread *d) {
+iLocalDef thrd_t id_Thread(const iThread *d) {
     return d->id;
 }
 
-static inline enum iThreadState state_Thread(const iThread *d) {
+iLocalDef enum iThreadState state_Thread(const iThread *d) {
     return (enum iThreadState) d->state;
 }
 

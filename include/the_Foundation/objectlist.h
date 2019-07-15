@@ -58,8 +58,8 @@ struct Impl_ObjectListNode {
 
 iDeclareObjectConstruction(ObjectList)
 
-static inline iBool     isEmpty_ObjectList  (const iObjectList *d) { return isEmpty_List(&d->list); }
-static inline size_t    size_ObjectList     (const iObjectList *d) { return size_List(&d->list); }
+iLocalDef iBool     isEmpty_ObjectList  (const iObjectList *d) { return isEmpty_List(&d->list); }
+iLocalDef size_t    size_ObjectList     (const iObjectList *d) { return size_List(&d->list); }
 #define         list_ObjectList(d)      (&(d)->list)
 
 iObject *       front_ObjectList        (const iObjectList *);
@@ -83,7 +83,7 @@ void            popBack_ObjectList      (iObjectList *);
 /**
  * Pops the front object. Caller is responsible for releasing the returned object.
  */
-static inline iAnyObject *takeFront_ObjectList(iObjectList *d) {
+iLocalDef iAnyObject *takeFront_ObjectList(iObjectList *d) {
     iAnyObject *obj = ref_Object(front_ObjectList(d));
     if (obj) iAssertIsObject(d);
     popFront_ObjectList(d);
@@ -93,7 +93,7 @@ static inline iAnyObject *takeFront_ObjectList(iObjectList *d) {
 /**
  * Pops the back object. Caller is responsible for releasing the returned object.
  */
-static inline iAnyObject *takeBack_ObjectList(iObjectList *d) {
+iLocalDef iAnyObject *takeBack_ObjectList(iObjectList *d) {
     iAnyObject *obj = ref_Object(back_ObjectList(d));
     popBack_ObjectList(d);
     return obj;

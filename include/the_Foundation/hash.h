@@ -62,8 +62,8 @@ iHashNode * value_Hash      (const iHash *, iHashKey key);
 
 void        clear_Hash  (iHash *);
 
-static inline size_t    size_Hash       (const iHash *d) { return d->size; }
-static inline iBool     isEmpty_Hash    (const iHash *d) { return size_Hash(d) == 0; }
+iLocalDef size_t    size_Hash       (const iHash *d) { return d->size; }
+iLocalDef iBool     isEmpty_Hash    (const iHash *d) { return size_Hash(d) == 0; }
 
 /**
  * Inserts a node into the hash.

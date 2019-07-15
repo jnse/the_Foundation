@@ -63,25 +63,25 @@ void        close_Buffer    (iBuffer *);
 
 const iBlock *data_Buffer   (const iBuffer *);
 
-static inline iStream *     stream_Buffer   (iBuffer *d) { return &d->stream; }
+iLocalDef iStream *     stream_Buffer   (iBuffer *d) { return &d->stream; }
 
 void        clear_Buffer    (iBuffer *);
 
-static inline iBool isOpen_Buffer (const iBuffer *d) { return d->data != NULL; }
-static inline int   mode_Buffer   (const iBuffer *d) { return d->mode ;}
-static inline long  pos_Buffer    (const iBuffer *d) { return pos_Stream(&d->stream); }
-static inline long  size_Buffer   (const iBuffer *d) { return size_Stream(&d->stream); }
-static inline iBool isEmpty_Buffer(const iBuffer *d) { return size_Buffer(d) == 0; }
-static inline iBool atEnd_Buffer  (const iBuffer *d) { return atEnd_Stream(&(d)->stream); }
+iLocalDef iBool isOpen_Buffer (const iBuffer *d) { return d->data != NULL; }
+iLocalDef int   mode_Buffer   (const iBuffer *d) { return d->mode ;}
+iLocalDef long  pos_Buffer    (const iBuffer *d) { return pos_Stream(&d->stream); }
+iLocalDef long  size_Buffer   (const iBuffer *d) { return size_Stream(&d->stream); }
+iLocalDef iBool isEmpty_Buffer(const iBuffer *d) { return size_Buffer(d) == 0; }
+iLocalDef iBool atEnd_Buffer  (const iBuffer *d) { return atEnd_Stream(&(d)->stream); }
 
-static inline void          rewind_Buffer       (iBuffer *d) { seek_Stream(&d->stream, 0); }
-static inline void          seek_Buffer         (iBuffer *d, long offset) { seek_Stream(&d->stream, offset); }
-static inline size_t        writeData_Buffer    (iBuffer *d, const void *data, size_t size) { return writeData_Stream(&d->stream, data, size); }
+iLocalDef void          rewind_Buffer       (iBuffer *d) { seek_Stream(&d->stream, 0); }
+iLocalDef void          seek_Buffer         (iBuffer *d, long offset) { seek_Stream(&d->stream, offset); }
+iLocalDef size_t        writeData_Buffer    (iBuffer *d, const void *data, size_t size) { return writeData_Stream(&d->stream, data, size); }
 
-static inline size_t        readData_Buffer     (iBuffer *d, size_t size, void *data_out) { return readData_Stream(&d->stream, size, data_out); }
-static inline iBlock *      readAll_Buffer      (iBuffer *d) { return readAll_Stream(&d->stream); }
-static inline iString *     readString_Buffer   (iBuffer *d) { return readString_Stream(&d->stream); }
-static inline iStringList * readLines_Buffer    (iBuffer *d) { return readLines_Stream(&d->stream); }
+iLocalDef size_t        readData_Buffer     (iBuffer *d, size_t size, void *data_out) { return readData_Stream(&d->stream, size, data_out); }
+iLocalDef iBlock *      readAll_Buffer      (iBuffer *d) { return readAll_Stream(&d->stream); }
+iLocalDef iString *     readString_Buffer   (iBuffer *d) { return readString_Stream(&d->stream); }
+iLocalDef iStringList * readLines_Buffer    (iBuffer *d) { return readLines_Stream(&d->stream); }
 
 size_t      consume_Buffer      (iBuffer *d, size_t size, void *data_out);
 iBlock *    consumeBlock_Buffer (iBuffer *d, size_t size);
