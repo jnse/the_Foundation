@@ -88,8 +88,12 @@ void        write16_Stream      (iStream *, int16_t value);
 void        write32_Stream      (iStream *, int32_t value);
 void        write64_Stream      (iStream *, int64_t value);
 
-iLocalDef void writef_Stream    (iStream *d, float value)   { int32_t buf; memcpy(&buf, &value, 4); write32_Stream(d, buf); }
-iLocalDef void writed_Stream    (iStream *d, double value)  { int64_t buf; memcpy(&buf, &value, 8); write64_Stream(d, buf); }
+iLocalDef void writeU8_Stream   (iStream *d, uint8_t value)     { write8_Stream(d, (int8_t) value); }
+iLocalDef void writeU16_Stream  (iStream *d, uint16_t value)    { write16_Stream(d, (int16_t) value); }
+iLocalDef void writeU32_Stream  (iStream *d, uint32_t value)    { write32_Stream(d, (int32_t) value); }
+iLocalDef void writeU64_Stream  (iStream *d, uint64_t value)    { write64_Stream(d, (int64_t) value); }
+iLocalDef void writef_Stream    (iStream *d, float value)       { int32_t buf; memcpy(&buf, &value, 4); write32_Stream(d, buf); }
+iLocalDef void writed_Stream    (iStream *d, double value)      { int64_t buf; memcpy(&buf, &value, 8); write64_Stream(d, buf); }
 
 int8_t      read8_Stream        (iStream *);
 int16_t     read16_Stream       (iStream *);

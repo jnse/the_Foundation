@@ -35,6 +35,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iBeginPublic
 
+iDeclareType(Stream)
+
 iDeclareType(Block)
 iDeclareType(BlockData)
 
@@ -126,5 +128,8 @@ iBlock *        decompress_Block    (const iBlock *);
 iLocalDef iBlock * compress_Block(const iBlock *d) {
     return compressLevel_Block(d, iBlockDefaultCompressionLevel);
 }
+
+void            serialize_Block     (const void *, iStream *outs);
+void            deserialize_Block   (void *, iStream *ins);
 
 iEndPublic

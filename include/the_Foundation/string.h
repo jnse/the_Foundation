@@ -52,6 +52,8 @@ iDeclareType(StringList)
 iDeclareType(StringComparison)
 iDeclareType(MultibyteChar)
 
+iDeclareType(Stream)
+
 struct Impl_String {
     iBlock chars;
 };
@@ -156,6 +158,9 @@ void            set_String      (iString *, const iString *other);
 void            setCStr_String  (iString *, const char *cstr);
 void            setBlock_String (iString *, const iBlock *block);
 void            format_String   (iString *, const char *format, ...);
+
+void            serialize_String    (const iString *, iStream *outs);
+void            deserialize_String  (iString *, iStream *ins);
 
 void            append_String       (iString *, const iString *other);
 void            appendCStr_String   (iString *, const char *cstr);
