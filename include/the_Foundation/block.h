@@ -129,7 +129,7 @@ iLocalDef iBlock * compress_Block(const iBlock *d) {
     return compressLevel_Block(d, iBlockDefaultCompressionLevel);
 }
 
-void            serialize_Block     (const void *, iStream *outs);
-void            deserialize_Block   (void *, iStream *ins);
+void            serialize_Block     (const iBlock *, iStream *outs);
+void            deserialize_Block   (iBlock *, iStream *ins);
 
 iEndPublic

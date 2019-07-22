@@ -484,19 +484,16 @@ iBlock *decompress_Block(const iBlock *d) {
     return out;
 }
 
-void serialize_Block(const void *ptr, iStream *outs) {
-    const iBlock *d = ptr;
+void serialize_Block(const iBlock *d, iStream *outs) {
     writeU32_Stream(outs, (uint32_t) d->i->size);
     writeData_Stream(outs, d->i->data, d->i->size);
 }
 
-void deserialize_Block(void *ptr, iStream *ins) {
-    iBlock *d = ptr;
+void deserialize_Block(iBlock *d, iStream *ins) {
     clear_Block(d);
     const size_t len = readU32_Stream(ins);
     resize_Block(d, len);
     readData_Stream(ins, len, d->i->data);
-
 }
 
 #endif // HaveZlib
