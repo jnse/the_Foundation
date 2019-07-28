@@ -47,6 +47,7 @@ iFile *newCStr_File(const char *path) {
 }
 
 void init_File(iFile *d, const iString *path) {
+    iAssertIsObject(d);
     init_Stream(&d->stream);
     d->path = copy_String(path);
     clean_Path(d->path);

@@ -92,6 +92,7 @@ void configure_WebRequest_(iWebRequest *d) {
 }
 
 void init_WebRequest(iWebRequest *d) {
+    iAssertIsObject(d);
     init_Mutex(&d->mutex);
     d->curl = curl_easy_init();
     init_Block(&d->postData, 0);

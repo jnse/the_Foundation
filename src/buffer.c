@@ -33,6 +33,7 @@ static iBufferClass Class_Buffer;
 iDefineObjectConstruction(Buffer)
 
 void init_Buffer(iBuffer *d) {
+    iAssertIsObject(d);
     init_Stream(&d->stream);
     init_Block(&d->block, 0);
     init_Condition(&d->dataAvailable);

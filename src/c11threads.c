@@ -52,12 +52,10 @@ void thrd_exit(int res) { pthread_exit((void *)(long)res); }
 
 int thrd_join(thrd_t thr, int *res) {
     void *retval;
-    if (pthread_join(thr, &retval) != 0)
-    {
+    if (pthread_join(thr, &retval) != 0) {
         return thrd_error;
     }
-    if (res)
-    {
+    if (res) {
         *res = (long)retval;
     }
     return thrd_success;
@@ -88,7 +86,7 @@ void thrd_yield(void) { sched_yield(); }
 int mtx_init(mtx_t *mtx, int type) {
     int res;
     pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr); 
+    pthread_mutexattr_init(&attr);
     if (type & mtx_timed) {
         pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_TIMED_NP);
     }
