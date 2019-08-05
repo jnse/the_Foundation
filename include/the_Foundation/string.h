@@ -107,9 +107,9 @@ iBlock *        toUtf16_String  (const iString *);
 /**
  * Returns a pointer to the string converted to the current locale's encoding.
  * The temporary conversion is collected as garbage.
- * 
+ *
  * @param str  String to convert.
- * 
+ *
  * @return Converted text. The pointer will remain valid until garbage is recycled.
  */
 iLocalDef const char *cstrLocal_String(const iString *str) {
@@ -196,6 +196,9 @@ int             cmpCStrSc_Rangecc   (const iRangecc *, const char *cstr, const i
 int             cmpCStrNSc_Rangecc  (const iRangecc *, const char *cstr, size_t n, const iStringComparison *);
 iBool           startsWithSc_Rangecc(const iRangecc *, const char *cstr, const iStringComparison *);
 iStringList *   split_Rangecc       (const iRangecc *, const char *separator);
+void            trimStart_Rangecc   (iRangecc *);
+void            trimEnd_Rangecc     (iRangecc *);
+void            trim_Rangecc        (iRangecc *);
 
 /**
  * Finds the next range between separators. Empty ranges at the beginning and end of

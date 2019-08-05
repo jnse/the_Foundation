@@ -81,4 +81,7 @@ struct Impl_RegExpMatch {
 iString *   captured_RegExpMatch        (const iRegExpMatch *, int index);
 void        capturedRange_RegExpMatch   (const iRegExpMatch *, int index, iRangecc *out);
 
+iLocalDef const char *  begin_RegExpMatch   (const iRegExpMatch *d) { return d->subject + d->range.start; }
+iLocalDef const char *  end_RegExpMatch     (const iRegExpMatch *d) { return d->subject + d->range.end; }
+
 iEndPublic

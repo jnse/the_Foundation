@@ -232,25 +232,30 @@ void truncate_String(iString *d, size_t len) {
 
 void trimStart_String(iString *d) {
     if (!isEmpty_String(d)) {
-        const char *start = constBegin_String(d);
-        const char *end   = constEnd_String(d);
-        const char *pos   = start;
-        while (pos != end && isspace(*pos)) {
-            pos++;
-        }
-        remove_Block(&d->chars, 0, (size_t) (pos - start));
+        iRangecc range = range_String(d);
+        const char *start = range.start;
+        trimStart_Rangecc(&range);
+        remove_Block(&d->chars, 0, (size_t) (range.start - start));
+    }
+}
+
+void trimStart_Rangecc(iRangecc *d) {
+    while (d->start != d->end && isspace(*d->start)) {
+        d->start++;
     }
 }
 
 void trimEnd_String(iString *d) {
     if (!isEmpty_String(d)) {
-        const char *start = constBegin_String(d);
-        const char *end   = constEnd_String(d);
-        const char *pos   = end;
-        while (pos != start && isspace(pos[-1])) {
-            pos--;
-        }
-        truncate_Block(&d->chars, (size_t) (pos - start));
+        iRangecc range = range_String(d);
+        trimEnd_Rangecc(&range);
+        truncate_Block(&d->chars, (size_t) (range.end - range.start));
+    }
+}
+
+void trimEnd_Rangecc(iRangecc *d) {
+    while (d->end != d->start && isspace(d->end[-1])) {
+        d->end--;
     }
 }
 
