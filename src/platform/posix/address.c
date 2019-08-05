@@ -57,7 +57,7 @@ struct Impl_Address {
 
 iDefineAudienceGetter(Address, lookupFinished)
 
-#if defined (iPlatformLinux) || defined (iPlatformMsys)
+#if defined (iPlatformLinux) || defined (iPlatformMsys) || defined (iPlatformCygwin)
 #   define AI_V4MAPPED_CFG  AI_V4MAPPED
 #endif
 

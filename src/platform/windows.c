@@ -43,7 +43,7 @@ int idealConcurrentCount_Thread(void) {
     return ncpu;
 }
 
-#if !defined (iPlatformMsys)
+#if !defined (iPlatformMsys) && !defined (iPlatformCygwin)
 void init_Locale(void) {
     char cpName[16];
     sprintf(cpName, "CP%d", GetOEMCP());

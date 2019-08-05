@@ -41,7 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #   include <dirent.h>
 #endif
 
-#if defined (iPlatformLinux) || defined(iPlatformMsys)
+#if defined (iPlatformLinux) || defined (iPlatformMsys) || defined (iPlatformCygwin)
 #   define st_mtimespec st_mtim
 #endif
 

@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #cmakedefine iHavePcre
 #cmakedefine iHaveZlib
 #cmakedefine iPlatformApple
+#cmakedefine iPlatformCygwin
 #cmakedefine iPlatformLinux
 #cmakedefine iPlatformWindows
 #cmakedefine iPlatformMsys
