@@ -259,6 +259,11 @@ void trimEnd_Rangecc(iRangecc *d) {
     }
 }
 
+void trim_Rangecc(iRangecc *d) {
+    trimStart_Rangecc(d);
+    trimEnd_Rangecc(d);
+}
+
 void trim_String(iString *d) {
     trimStart_String(d);
     trimEnd_String(d);
