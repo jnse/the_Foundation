@@ -320,7 +320,6 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION include/the_Foun
 macro (tfdn_add_test target sources)
     add_executable (${target} ${sources})
     target_link_libraries (${target} PRIVATE ${TARGETNAME})
-    #tfdn_link_depends (${target} PRIVATE)
     tfdn_set_compile_options (${target})
 endmacro ()
 
