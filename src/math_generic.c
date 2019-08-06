@@ -16,7 +16,7 @@
  * http://www.gnu.org/licenses</small>
  */
 
-#include "t_fdn/math.h"
+#include "the_Foundation/math.h"
 
 void init_Mat4(iMat4 *d) {
     d->col[0] = init_F4(1, 0, 0, 0);

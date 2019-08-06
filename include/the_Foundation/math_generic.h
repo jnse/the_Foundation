@@ -41,7 +41,7 @@ iLocalDef iFloat4 initi_F4(int x, int y, int z, int w) {
     return (iFloat4){ .v = { (float) x, (float) y, (float) z, (float) w } };
 }
 
-iLocalDef iFloat4 initiv_F4(const int *v)
+iLocalDef iFloat4 initiv_F4(const int *v) {
     return (iFloat4){ .v = { (float) v[0], (float) v[1], (float) v[2], (float) v[3] } };
 }
 
