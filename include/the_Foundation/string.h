@@ -116,7 +116,7 @@ iLocalDef const char *cstrLocal_String(const iString *str) {
     return cstr_Block(collect_Block(toLocal_String(str)));
 }
 
-#define         range_String(d) (iRangecc){ constData_Block(&d->chars), constEnd_Block(&d->chars) }
+#define         range_String(d) (iRangecc){ constBegin_Block(&d->chars), constEnd_Block(&d->chars) }
 
 iLocalDef iBool         isEmpty_String   (const iString *d) { return size_String(d) == 0; }
 iLocalDef const char *  constBegin_String(const iString *d) { return cstr_String(d); }
@@ -194,6 +194,7 @@ iLocalDef iRangecc rangeN_CStr  (const char *cstr, size_t size) {
 }
 iLocalDef iRangecc range_CStr   (const char *cstr) { return rangeN_CStr(cstr, strlen(cstr)); }
 
+#define         cmp_Rangecc(d, cstr) cmpCStrSc_Rangecc((d), (cstr), &iCaseSensitive)
 int             cmpCStrSc_Rangecc   (const iRangecc *, const char *cstr, const iStringComparison *);
 int             cmpCStrNSc_Rangecc  (const iRangecc *, const char *cstr, size_t n, const iStringComparison *);
 iBool           startsWithSc_Rangecc(const iRangecc *, const char *cstr, const iStringComparison *);
