@@ -179,6 +179,8 @@ void            trimEnd_String  (iString *);
 void            trim_String     (iString *);
 
 int             toInt_String    (const iString *);
+float           toFloat_String  (const iString *);
+double          toDouble_String (const iString *);
 
 const char *    skipSpace_CStr  (const char *);
 

@@ -635,6 +635,14 @@ int toInt_String(const iString *d) {
     return atoi(cstr_String(d));
 }
 
+float toFloat_String(const iString *d) {
+    return strtof(cstr_String(d), NULL);
+}
+
+double toDouble_String(const iString *d) {
+    return strtod(cstr_String(d), NULL);
+}
+
 const char *skipSpace_CStr(const char *cstr) {
     while (*cstr && isspace(*cstr)) {
         cstr++;
