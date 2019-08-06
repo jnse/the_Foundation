@@ -45,35 +45,29 @@ set (UNISTRING_DIR /usr CACHE PATH "Location of libunistring")
 if (NOT EXISTS ${UNISTRING_DIR}/include/unistr.h)
     message (FATAL_ERROR "Not found: ${UNISTRING_DIR}/include/unistr.h (set UNISTRING_DIR)")
 endif ()
-add_library (unistring INTERFACE)
-target_include_directories (unistring INTERFACE ${UNISTRING_DIR}/include)
-target_link_libraries (unistring INTERFACE -L${UNISTRING_DIR}/lib -lunistring)
+if (NOT UNISTRING_DIR STREQUAL "/usr")
+    set (UNISTRING_INCLUDE_DIRS ${UNISTRING_DIR}/include)
+    set (UNISTRING_LIBRARIES -L${UNISTRING_DIR}/lib unistring)
+else ()
+    set (UNISTRING_LIBRARIES unistring)
+endif ()
 
 # zlib
 pkg_check_modules (ZLIB zlib)
 if (ZLIB_FOUND)
     set (iHaveZlib YES)
-    add_library (zlib INTERFACE)
-    target_include_directories (zlib INTERFACE ${ZLIB_INCLUDE_DIRS})
-    target_link_libraries (zlib INTERFACE ${ZLIB_LINK_LIBRARIES})
 endif ()
 
 # Regular expressions
 pkg_check_modules (PCRE libpcre)
 if (PCRE_FOUND)
     set (iHavePcre YES)
-    add_library (pcre INTERFACE)
-    target_include_directories (pcre INTERFACE ${PCRE_INCLUDE_DIRS})
-    target_link_libraries (pcre INTERFACE ${PCRE_LINK_LIBRARIES})
 endif ()
 
 # CURL
 pkg_check_modules (CURL libcurl)
 if (CURL_FOUND)
     set (iHaveCurl YES)
-    add_library (curl INTERFACE)
-    target_include_directories (curl INTERFACE ${CURL_INCLUDE_DIRS})
-    target_link_libraries (curl INTERFACE ${CURL_LINK_LIBRARIES})
 endif ()
 
 # C11 threads
@@ -278,6 +272,7 @@ target_include_directories (${TARGETNAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<INSTALL_INTERFACE:include>
+    ${UNISTRING_INCLUDE_DIRS}
 )
 tfdn_set_compile_options (${TARGETNAME})
 if (iPlatformLinux OR iPlatformMsys)
@@ -289,16 +284,20 @@ if (CMAKE_COMPILER_IS_GNUCC)
 endif ()
 
 # Dependencies.
-target_link_libraries (${TARGETNAME} PRIVATE m pthread unistring)
-if (ZLIB_FOUND)
-    target_link_libraries (${TARGETNAME} PRIVATE zlib)
-endif ()
-if (PCRE_FOUND)
-    target_link_libraries (${TARGETNAME} PRIVATE pcre)
-endif ()
-if (CURL_FOUND)
-    target_link_libraries (${TARGETNAME} PRIVATE curl)
-endif ()
+macro (tfdn_link_depends target mode)
+    target_link_libraries (${target} ${mode} ${UNISTRING_LIBRARIES} pthread m)
+    if (ZLIB_FOUND)
+        target_link_libraries (${target} ${mode} ${ZLIB_LIBRARIES})
+    endif ()
+    if (PCRE_FOUND)
+        target_link_libraries (${target} ${mode} ${PCRE_LIBRARIES})
+    endif ()
+    if (CURL_FOUND)
+        target_link_libraries (${target} ${mode} ${CURL_LIBRARIES})
+    endif ()
+endmacro ()
+
+tfdn_link_depends (${TARGETNAME} PUBLIC)
 
 # Installation.
 install (TARGETS ${TARGETNAME}
@@ -320,7 +319,8 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION include/the_Foun
 
 macro (tfdn_add_test target sources)
     add_executable (${target} ${sources})
-    target_link_libraries (${target} PRIVATE ${TARGETNAME} m)
+    target_link_libraries (${target} PRIVATE ${TARGETNAME})
+    #tfdn_link_depends (${target} PRIVATE)
     tfdn_set_compile_options (${target})
 endmacro ()
 
