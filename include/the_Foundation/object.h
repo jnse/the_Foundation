@@ -81,10 +81,8 @@ struct Impl_Object {
     const iClass *classObj;
     iAtomicInt refCount;
     iAudienceMember *memberOf;
-    void *user; // custom user contextual data
-#if !defined (NDEBUG)
-    uint32_t __sig;
-#endif
+    void *user; /* custom user contextual data */
+    uint32_t __sig; /* validity checks in debug builds */
 };
 
 typedef void iAnyObject;
