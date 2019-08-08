@@ -56,10 +56,16 @@ iBool setCwd_Path(const iString *path) {
 }
 
 iBool isAbsolute_Path(const iString *d) {
-#if defined (iPlatformWindows)
+#if !defined (iPlatformWindows)
+    if (startsWith_String(d, "~")) {
+        return iTrue;
+    }
+#endif
     if (startsWith_String(d, iPathSeparator)) {
         return iTrue;
     }
+#if defined (iPlatformWindows) || defined (iPlatformCygwin)
+    /* Check for drive letters. */
     if (size_String(d) >= 3) {
         iStringConstIterator i;
         init_StringConstIterator(&i, d);
@@ -74,10 +80,8 @@ iBool isAbsolute_Path(const iString *d) {
         next_StringConstIterator(&i);
         return i.value == '\\' || i.value == '/';
     }
-    return iFalse;
-#else
-    return startsWith_String(d, iPathSeparator) || startsWith_String(d, "~");
 #endif
+    return iFalse;
 }
 
 iString *makeAbsolute_Path(const iString *d) {
