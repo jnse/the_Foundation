@@ -155,12 +155,18 @@ void init_CommandLine(iCommandLine *d, int argc, char **argv) {
         if (startsWith_String(arg, "@")) {
             loadArgumentsFile_CommandLine_(d, cstr_String(arg) + 1);
         }
-        else {            
+        else {
             pushBack_StringList(&d->args, arg);
         }
         delete_String(arg);
     }
     d->execPath = makeAbsolute_Path(constFront_StringList(&d->args));
+#if defined (iPlatformCygwin)
+    /* Cygwin strips the .exe extension from the executable name. */
+    if (!endsWithCase_String(d->execPath, ".exe")) {
+        appendCStr_String(d->execPath, ".exe");
+    }
+#endif
 }
 
 void deinit_CommandLine(iCommandLine *d) {

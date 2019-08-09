@@ -32,10 +32,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iBeginPublic
 
-#if !defined (iPlatformWindows)
-#   define iPathSeparator   "/"
-#else
+#if defined (iPlatformWindows) || defined (iPlatformCygwin)
 #   define iPathSeparator   "\\"
+#else
+#   define iPathSeparator   "/"
 #endif
 
 iString *   cwd_Path    (void);
@@ -50,5 +50,9 @@ iString *   concat_Path         (const iString *, const iString *path);
 
 void        clean_Path  (iString *);
 void        append_Path (iString *, const iString *path);
+
+#if defined (iPlatformCygwin)
+iString *   unixToWindows_Path  (const char *cstr);
+#endif
 
 iEndPublic

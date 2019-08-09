@@ -406,6 +406,18 @@ void md5_Block(const iBlock *d, uint8_t md5_out[16]) {
     iMd5Hash(d->i->data, d->i->size, md5_out);
 }
 
+size_t replace_Block(iBlock *d, char oldValue, char newValue) {
+    size_t count = 0;
+    detach_Block_(d, 0);
+    for (char *i = d->i->data, *end = d->i->data + d->i->size; i != end; ++i) {
+        if (*i == oldValue) {
+            *i = newValue;
+            count++;
+        }
+    }
+    return count;
+}
+
 /*-------------------------------------------------------------------------------------*/
 #if defined (iHaveZlib)
 

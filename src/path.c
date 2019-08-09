@@ -38,8 +38,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #   define mkdir(path, attr) _mkdir(path)
 #endif
 
+#if defined (iPlatformCygwin)
+#   include <sys/cygwin.h>
+#endif
+
 iString *cwd_Path(void) {
     char *cwd = getcwd(NULL, 0);
+#if defined (iPlatformCygwin)
+    iString *str = unixToWindows_Path(cwd);
+    free(cwd);
+    return str;
+#else
     if (cwd) {
         iBlock block;
         const size_t len = strlen(cwd);
@@ -49,6 +58,7 @@ iString *cwd_Path(void) {
         return d;
     }
     return new_String();
+#endif
 }
 
 iBool setCwd_Path(const iString *path) {
@@ -86,14 +96,17 @@ iBool isAbsolute_Path(const iString *d) {
 
 iString *makeAbsolute_Path(const iString *d) {
     iString *abs;
-    if (isAbsolute_Path(d)) {
-        abs = copy_String(d);
+    iString *path = copy_String(d);
+    clean_Path(path);
+    if (isAbsolute_Path(path)) {
+        abs = copy_String(path);
     }
     else {
         abs = cwd_Path();
-        append_Path(abs, d);
+        append_Path(abs, path);
+        clean_Path(abs);
     }
-    clean_Path(abs);
+    delete_String(path);
     return abs;
 }
 
@@ -143,6 +156,10 @@ static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments,
 
 void clean_Path(iString *d) {
     if (isEmpty_String(d)) return;
+#if defined (iPlatformWindows) || defined (iPlatformCygwin)
+    /* Use the correct separators. */
+    replace_Block(&d->chars, '/', '\\');
+#endif
     iRangecc segments[iPathMaxSegments];
     size_t count = 0;
     iBool changed = iFalse;
@@ -157,7 +174,7 @@ void clean_Path(iString *d) {
         init_String(&cleaned);
         for (size_t i = 0; i < count; ++i) {
             if (i != 0 || (isAbsolute_Path(d)
-#if defined (iPlatformWindows)
+#if defined (iPlatformWindows) || defined (iPlatformCygwin)
                 && startsWith_String(d, iPathSeparator)
 #endif
                     )) {
@@ -195,3 +212,15 @@ iBool mkdir_Path(const iString *path) {
 iBool rmdir_Path(const iString *path) {
     return rmdir(cstr_String(path)) == 0;
 }
+
+#if defined (iPlatformCygwin)
+iString *unixToWindows_Path(const char *cstr) {
+    uint16_t *winPath = cygwin_create_path(CCP_POSIX_TO_WIN_W, cstr);
+    if (winPath) {
+        iString *str = newUtf16_String(winPath);
+        free(winPath);
+        return str;
+    }
+    return new_String();
+}
+#endif
