@@ -89,6 +89,7 @@ iMapNode *  removeNode_Map  (iMap *, iMapNode *node);
 ///@{
 iDeclareIterator(Map, iMap *)
 iMapNode *remove_MapIterator(iMapIterator *d);
+iMapNode *remove_MapReverseIterator(iMapReverseIterator *d);
 struct IteratorImpl_Map {
     iMapNode *value;
     iMapNode *next;
