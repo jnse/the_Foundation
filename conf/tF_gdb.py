@@ -27,8 +27,30 @@ class StringPrinter:
         self.val = val
 
     def to_string(self):
-        return "{chars = " + str(self.val['chars']['i']['data']) + \
-            ", size = %d" % int(self.val['chars']['i']['size']) + "}"
+        size = int(self.val['chars']['i']['size'])
+        if size == 0: return "<empty String>"
+        return "{\"" + self.val['chars']['i']['data'].string('utf-8').replace('"', '\"') + \
+            "\" size = %d" % size  + "}"
+
+
+class ObjectPrinter:
+    def __init__(self, val):
+        self.val = val
+
+    def to_string(self):
+        return "{instance of %s, refCount = %d}" % (self.val['classObj'], self.val['refCount'])
+
+
+class PtrSetPrinter:
+    def __init__(self, val):
+        self.val = val
+
+    def to_string(self):
+        values = self.val['values']
+        set_range = (int(values['range']['start']), int(values['range']['end']))
+        set_size = set_range[1] - set_range[0]
+        if set_size == 0: return "<empty PtrSet>"
+        return "{size = %d}" % (set_size)
 
 
 def lookup_type(val):
@@ -43,8 +65,11 @@ def lookup_type(val):
         return Int2Printer(val)
     if type_str == 'iRect':
         return RectPrinter(val)
+    if type_str == 'iObject':
+        return ObjectPrinter(val)
+    if type_str == 'iPtrSet':
+        return PtrSetPrinter(val)
     return None
 
 
 gdb.pretty_printers.append(lookup_type)
-
