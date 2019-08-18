@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <the_Foundation/objectlist.h>
 #include <the_Foundation/path.h>
 #include <the_Foundation/ptrarray.h>
+#include <the_Foundation/ptrset.h>
 #include <the_Foundation/regexp.h>
 #include <the_Foundation/sortedarray.h>
 #include <the_Foundation/string.h>
@@ -355,6 +356,15 @@ int main(int argc, char *argv[]) {
             printf("- %s\n", i.ptr);
         }
         delete_PtrArray(par);
+    }
+    /* Test a set of pointers. */ {
+        iPtrSet *pst = new_PtrSet();
+        insert_PtrSet(pst, newCStr_String("This is a PtrSet"));
+        insert_PtrSet(pst, newCStr_String("Another String"));
+        iForEach(PtrSet, i, pst) {
+            delete_String(*i.value);
+        }
+        delete_PtrSet(pst);
     }
     /* Test an object list. */ {
         iObjectList *olist = new_ObjectList();
