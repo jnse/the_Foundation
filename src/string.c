@@ -61,6 +61,10 @@ iChar lower_Char(iChar d) {
     return uc_tolower(d);
 }
 
+iBool isSpace_Char(iChar d) {
+    return uc_is_space(d) ? iTrue : iFalse;
+}
+
 void setLocaleCharSet_String(const char *charSet) {
     const size_t n = sizeof(localeCharSet_);
     strncpy(localeCharSet_, charSet, n);

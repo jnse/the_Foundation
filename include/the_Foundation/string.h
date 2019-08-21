@@ -46,6 +46,7 @@ typedef uint32_t iChar;
 
 iChar   upper_Char  (iChar);
 iChar   lower_Char  (iChar);
+iBool   isSpace_Char(iChar);
 
 iDeclareType(String)
 iDeclareType(StringList)
