@@ -44,9 +44,13 @@ iBeginPublic
 
 typedef uint32_t iChar;
 
-iChar   upper_Char  (iChar);
-iChar   lower_Char  (iChar);
-iBool   isSpace_Char(iChar);
+iChar   upper_Char          (iChar);
+iChar   lower_Char          (iChar);
+
+iBool   isSpace_Char        (iChar);
+iBool   isAlpha_Char        (iChar);
+iBool   isNumeric_Char      (iChar);
+iBool   isAlphaNumeric_Char (iChar);
 
 iDeclareType(String)
 iDeclareType(StringList)
