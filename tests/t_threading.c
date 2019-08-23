@@ -32,11 +32,11 @@ static atomic_int thrCounter;
 
 static iThreadResult run_Worker_(iThread *d) {
     iBeginCollect();
-    int value;
+    int value = 0;
     for (int i = 0; i < 10000; ++i) {
         value = iRandom(0, 1000000);
     }
-    printf("%6i : Thread %p: value %i\n", ++thrCounter, d, value);
+    printf("%6i : Job %p on thread %p: value %i\n", ++thrCounter, d, current_Thread(), value);
     iEndCollect();
     return value;
 }

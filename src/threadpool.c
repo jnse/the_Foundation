@@ -39,16 +39,7 @@ struct Impl_PooledThread {
 
 static iThreadResult run_PooledThread_(iThread *thread) {
     iPooledThread *d = (iAny *) thread;
-    for (;;) {
-        iThread *job = (iAny *) take_Queue(&d->pool->queue);
-        if (job == (void *) d->pool) break; // Terminated.
-        /* Run the job in this thread. */
-        iAssert(job->state == created_ThreadState);
-        iGuardMutex(&job->mutex, job->state = running_ThreadState);
-        job->result = job->run(job);
-        finish_Thread_(job);
-        iRelease(job);
-    }
+    while (yield_ThreadPool(d->pool, 0.0)) { /* Keep going. */ }
     return 0;
 }
 
@@ -120,4 +111,25 @@ iThread *run_ThreadPool(iThreadPool *d, iThread *thread) {
         put_Queue(&d->queue, thread);
     }
     return thread;
+}
+
+iBool yield_ThreadPool(iThreadPool *d, double timeoutSeconds) {
+    iThread *job = NULL;
+    if (timeoutSeconds <= 0.0) {
+        job = (iAny *) take_Queue(&d->queue);
+    }
+    else {
+        job = (iAny *) takeTimeout_Queue(&d->queue, timeoutSeconds);
+    }
+    if (job == NULL || job == (void *) d) {
+        /* Terminated. */
+        return iFalse;
+    }
+    /* Run in the calling thread. */
+    iAssert(job->state == created_ThreadState);
+    iGuardMutex(&job->mutex, job->state = running_ThreadState);
+    job->result = job->run(job);
+    finish_Thread_(job);
+    iRelease(job);
+    return iTrue;
 }

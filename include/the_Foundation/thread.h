@@ -107,6 +107,7 @@ void        terminate_Thread(iThread *);
 
 void        sleep_Thread    (double seconds);
 iThread *   current_Thread  (void);
+iBool       isCurrent_Thread(const iThread *);
 
 /**
  * Determines the number of CPU cores on the system.

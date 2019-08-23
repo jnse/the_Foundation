@@ -56,7 +56,7 @@ void init_Threads(void) {
     init_Threads_();
 }
 
-void finish_Thread_(iThread *d) {
+void finish_Thread_(iThread *d) { /* called from threadpool.c as well */
     iGuardMutex(&d->mutex, {
         d->state = finished_ThreadState;
         signalAll_Condition(&d->finishedCond);
@@ -205,4 +205,9 @@ iThread *current_Thread(void) {
     const iLockableThreadHash *threads = init_Threads_();
     iGuard(threads, d = value_ThreadHash(threads->value, &cur));
     return d;
+}
+
+iBool isCurrent_Thread(const iThread *d) {
+    iAssert(d);
+    return d->id == thrd_current();
 }

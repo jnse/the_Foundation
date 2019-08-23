@@ -52,10 +52,22 @@ iDeclareObjectConstruction(ThreadPool)
  */
 iThreadPool *   newLimits_ThreadPool    (int minThreads, int reservedCores);
 
-void init_ThreadPool        (iThreadPool *);
-void initLimits_ThreadPool  (iThreadPool *, int minThreads, int reservedCores);
-void deinit_ThreadPool      (iThreadPool *);
+void        init_ThreadPool         (iThreadPool *);
+void        initLimits_ThreadPool   (iThreadPool *, int minThreads, int reservedCores);
+void        deinit_ThreadPool       (iThreadPool *);
 
-iThread *run_ThreadPool     (iThreadPool *, iThread *thread);
+iThread *   run_ThreadPool          (iThreadPool *, iThread *thread);
+
+/**
+ * Use the calling thread to run another queud thread. Returns immediately after a queued thread
+ * has finished executing. Use this to sleep in pooled threads; regular sleeping in a pooled
+ * thread would potentially block the pool from doing any work, if all the workers are sleeping.
+ *
+ * @param timeoutSeconds  Maximum duration to wait until queued threads become available.
+ *
+ * @return iTrue, if a queued thread was executed. iFalse, if timed out without running
+ * anything.
+ */
+iBool       yield_ThreadPool        (iThreadPool *, double timeoutSeconds);
 
 iEndPublic
