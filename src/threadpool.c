@@ -73,8 +73,8 @@ iLocalDef void join_PooledThread (iPooledThread *d) { join_Thread(&d->thread); }
 iDefineClass(ThreadPool)
 iDefineObjectConstruction(ThreadPool)
 
-static void startThreads_ThreadPool_(iThreadPool *d) {
-    const int count = idealConcurrentCount_Thread();
+static void startThreads_ThreadPool_(iThreadPool *d, int minThreads, int reservedCores) {
+    const int count = iMaxi(iMaxi(1, minThreads), idealConcurrentCount_Thread() - reservedCores);
     for (int i = 0; i < count; ++i) {
         iPooledThread *pt = new_PooledThread(d);
         pushBack_ObjectList(d->threads, pt);
@@ -93,10 +93,20 @@ static void stopThreads_ThreadPool_(iThreadPool *d) {
     }
 }
 
+iThreadPool *newLimits_ThreadPool(int minThreads, int reservedCores) {
+    iThreadPool *d = iNew(ThreadPool);
+    initLimits_ThreadPool(d, minThreads, reservedCores);
+    return d;
+}
+
 void init_ThreadPool(iThreadPool *d) {
+    initLimits_ThreadPool(d, 0, 0);
+}
+
+void initLimits_ThreadPool(iThreadPool *d, int minThreads, int reservedCores) {
     init_Queue(&d->queue);
     d->threads = new_ObjectList();
-    startThreads_ThreadPool_(d);
+    startThreads_ThreadPool_(d, minThreads, reservedCores);
 }
 
 void deinit_ThreadPool(iThreadPool *d) {

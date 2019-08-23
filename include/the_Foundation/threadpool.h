@@ -43,9 +43,19 @@ struct Impl_ThreadPool {
 
 iDeclareObjectConstruction(ThreadPool)
 
-void init_ThreadPool    (iThreadPool *);
-void deinit_ThreadPool  (iThreadPool *);
+/**
+ * Constructs a thread pool with a limited number of threads.
+ *
+ * @param minThreads     Minimum number of threads to create.
+ * @param reservedCores  Number of logical CPU cores to be considered reserved for other uses
+ *                       and therefore not included in the pool, making the pool smaller.
+ */
+iThreadPool *   newLimits_ThreadPool    (int minThreads, int reservedCores);
 
-iThread *run_ThreadPool (iThreadPool *, iThread *thread);
+void init_ThreadPool        (iThreadPool *);
+void initLimits_ThreadPool  (iThreadPool *, int minThreads, int reservedCores);
+void deinit_ThreadPool      (iThreadPool *);
+
+iThread *run_ThreadPool     (iThreadPool *, iThread *thread);
 
 iEndPublic
