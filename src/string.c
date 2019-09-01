@@ -778,7 +778,11 @@ void init_MultibyteChar(iMultibyteChar *d, iChar ch) {
 }
 
 int decodeBytes_MultibyteChar(const char *bytes, size_t n, iChar *ch_out) {
-    return u8_mbtouc(ch_out, (const uint8_t *) bytes, n);
+    int rc = u8_mbtouc(ch_out, (const uint8_t *) bytes, n);
+    if (*ch_out == 0xfffd) {
+        rc = -1; /* Decode failed. */
+    }
+    return rc;
 }
 
 static char *threadLocalCharBuffer_(void) {
