@@ -133,9 +133,7 @@ void init_Address(iAddress *d) {
 }
 
 void deinit_Address(iAddress *d) {
-    if (d->pending) {
-        join_Thread(d->pending);
-    }
+    waitForFinished_Address(d);
     if (d->info) freeaddrinfo(d->info);
     deinit_String(&d->service);
     deinit_String(&d->hostName);
