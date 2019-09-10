@@ -52,7 +52,7 @@ iDefineObjectConstructionArgs(Service, (uint16_t port), port)
 
 static iThreadResult listen_Service_(iThread *thd) {
     iService *d = userData_Thread(thd);
-    for (;;) {
+    while (d->fd >= 0) {
         /* Wait for activity. */
         fd_set fds;
         FD_ZERO(&fds);
@@ -148,9 +148,10 @@ void close_Service(iService *d) {
     if (d->listening) {
         /* Signal the listening thread to stop. */
         writeByte_Pipe(&d->stop, 1);
-        join_Thread(d->listening);
         close(d->fd);
         d->fd = -1;
+        join_Thread(d->listening);
+        iAssert(d->listening == NULL);
     }
 }
 
