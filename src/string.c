@@ -256,7 +256,7 @@ void trimStart_String(iString *d) {
 }
 
 void trimStart_Rangecc(iRangecc *d) {
-    while (d->start != d->end && isspace(*d->start)) {
+    while (d->start != d->end && isspace((int) *d->start)) {
         d->start++;
     }
 }
@@ -270,7 +270,7 @@ void trimEnd_String(iString *d) {
 }
 
 void trimEnd_Rangecc(iRangecc *d) {
-    while (d->end != d->start && isspace(d->end[-1])) {
+    while (d->end != d->start && isspace((int) d->end[-1])) {
         d->end--;
     }
 }
@@ -660,7 +660,7 @@ double toDouble_String(const iString *d) {
 }
 
 const char *skipSpace_CStr(const char *cstr) {
-    while (*cstr && isspace(*cstr)) {
+    while (*cstr && isspace((int) *cstr)) {
         cstr++;
     }
     return cstr;

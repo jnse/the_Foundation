@@ -74,7 +74,7 @@ static void loadArgumentsFile_CommandLine_(iCommandLine *d, const char *path) {
             i = skipSpace_CStr(i + 1);
         }
         clear_Block(word);
-        while (*i && (inQuote || !isspace(*i))) {
+        while (*i && (inQuote || !isspace((int) *i))) {
             iBool copyChar = iTrue;
             if (!inQuote) {
                 if (*i == '"') {
