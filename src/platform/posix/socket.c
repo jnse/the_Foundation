@@ -308,6 +308,7 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
     struct sockaddr *addr;
     socklen_t addrSize;
     getSockAddr_Address(d->address, &addr, &addrSize, AF_UNSPEC);
+    iDebug("[Socket] connecting async to %s\n", cstr_String(hostName_Address(d->address)));
     const int rc = connect(d->fd, addr, addrSize);
     iGuardMutex(&d->mutex, {
         if (d->status == connecting_SocketStatus) {
