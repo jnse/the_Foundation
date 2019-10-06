@@ -117,6 +117,26 @@ static void communicate_(iAny *d, iService *sv, iSocket *sock) {
     start_Thread(receiver);
 }
 
+static bool connectTo_(const char *address) {
+    iSocket *sock = iClob(new_Socket(address, 14666));
+    observeSocket_(sock);
+    if (!open_Socket(sock)) {
+        puts("Failed to connect");
+        return false;
+    }
+    puts("Type to send a message (empty to quit):");
+    for (;;) {
+        char buf[200];
+        if (!fgets(buf, sizeof(buf), stdin)) {
+            break;
+        }
+        if (strlen(buf) <= 1) break;
+        writeData_Socket(sock, buf, strlen(buf));
+    }
+    puts("Good day!");
+    return true;
+}
+
 int main(int argc, char *argv[]) {
     init_Foundation();
     /* List network interface addresses. */ {
@@ -175,24 +195,14 @@ int main(int argc, char *argv[]) {
         }
     }
     else if (contains_CommandLine(cmdline, "c;client")) {
-        iSocket *sock = iClob(new_Socket("localhost", 14666));
-        observeSocket_(sock);
-        if (!open_Socket(sock)) {
-            puts("Failed to connect");
-            return 1;
-        }
-        puts("Type to send a message (empty to quit):");
-        for (;;) {
-            char buf[200];
-            if (!fgets(buf, sizeof(buf), stdin)) {
-                break;
-            }
-            if (strlen(buf) <= 1) break;
-            writeData_Socket(sock, buf, strlen(buf));
-        }
-        puts("Good day!");
+        connectTo_("localhost");
     }
     else {
+        iCommandLineArg *arg = checkArgumentValuesN_CommandLine(cmdline, "h;host", 1, 1);
+        if (arg) {
+            connectTo_(cstr_String(value_CommandLineArg(arg, 0)));
+            iRelease(arg);
+        }
         iConstForEach(CommandLine, i, cmdline) {
             if (i.argType == value_CommandLineArgType) {
                 printf("\nLooking up \"%s\"...\n", cstr_String(value_CommandLineConstIterator(&i)));

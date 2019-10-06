@@ -256,8 +256,8 @@ void waitForFinished_Address(const iAddress *d) {
 void getSockAddr_Address(const iAddress *  d,
                          struct sockaddr **addr_out,
                          socklen_t *       addrSize_out,
-                         int               family)
-{
+                         int               family) {
+    waitForFinished_Address(d);
     *addr_out = NULL;
     *addrSize_out = 0;
     iGuardMutex(&d->mutex, {

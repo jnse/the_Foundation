@@ -107,7 +107,11 @@ iBool open_Service(iService *d) {
     /* Set up the socket. */ {
         struct addrinfo *info, hints = {
             .ai_socktype = SOCK_STREAM,
+#if defined (iPlatformCygwin)
+            .ai_family   = AF_INET, // listen IPv4
+#else
             .ai_family   = AF_UNSPEC,
+#endif
             .ai_flags    = AI_PASSIVE,
         };
         iString *port = new_String();
