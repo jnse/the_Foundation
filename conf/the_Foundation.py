@@ -40,8 +40,8 @@ class PtrSet_SynthProvider:
             self.range_end = values_range.GetChildMemberWithName('end')
             self.elem_count = self.range_end.GetValueAsUnsigned(0) \
                 - self.range_start.GetValueAsUnsigned(0)            
-        except Exception, x:
-            print "Problem:", x
+        except Exception as x:
+            print("Problem:", x)
 
     def has_children(self):
         return True
