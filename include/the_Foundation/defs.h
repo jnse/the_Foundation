@@ -76,6 +76,10 @@ typedef void iAnyObject;
 typedef void (*iDeinitFunc)(iAny *);
 typedef void (*iDeleteFunc)(iAny *);
 
+typedef struct { uint8_t bits; } iBool2;
+iLocalDef iBool all_Bool2   (const iBool2 a)                { return a.bits == 3; }
+iLocalDef iBool any_Bool2   (const iBool2 a)                { return a.bits != 0; }
+
 #include "garbage.h"
 
 iPublic void        init_Foundation             (void);

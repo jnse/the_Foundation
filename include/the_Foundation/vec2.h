@@ -39,8 +39,6 @@ struct Impl_IntVec2 {
 
 typedef iIntVec2 iInt2;
 
-typedef struct { uint8_t bits; } iBool2;
-
 iLocalDef iInt2 zero_I2(void) {
     return (iInt2){ 0, 0 };
 }
@@ -128,9 +126,6 @@ iLocalDef iBool2 less_I2 (const iInt2 a, const iInt2 b) {
 iLocalDef iBool2 lessEqual_I2 (const iInt2 a, const iInt2 b) {
     return (iBool2){ (a.x <= b.x ? 1 : 0) | (a.y <= b.y ? 2 : 0) };
 }
-
-iLocalDef iBool all_Bool2   (const iBool2 a)                { return a.bits == 3; }
-iLocalDef iBool any_Bool2   (const iBool2 a)                { return a.bits != 0; }
 
 iLocalDef iBool isEqual_I2  (const iInt2 a, const iInt2 b)  { return a.x == b.x && a.y == b.y; }
 

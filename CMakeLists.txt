@@ -117,6 +117,7 @@ set (HEADERS
     include/the_Foundation/defs.h
     include/the_Foundation/file.h
     include/the_Foundation/fileinfo.h
+    include/the_Foundation/fixedpoint.h
     include/the_Foundation/future.h
     include/the_Foundation/garbage.h
     include/the_Foundation/geometry.h
@@ -165,6 +166,7 @@ set (SOURCES
     src/crc32.c
     src/file.c
     src/fileinfo.c
+    src/fixedpoint.c
     src/future.c
     src/garbage.c
     src/geometry.c

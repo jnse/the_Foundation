@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <the_Foundation/defs.h>
 #include <the_Foundation/math.h>
 #include <the_Foundation/time.h>
+#include <the_Foundation/fixedpoint.h>
 
 static void printNum(float n) {
     if (n == 0.f) {
@@ -35,6 +36,33 @@ static void printNum(float n) {
     else {
         printf("%13f", n);
     }
+}
+
+static void printFixed(const iFixed x) {
+    uint32_t frac = x.comp.sign ? iFixedUnit - x.comp.frac : x.comp.frac;
+    uint64_t wnum = x.comp.sign ? iFixedMaxWNum - x.comp.wnum : x.comp.wnum;
+    if (frac == iFixedUnit) {
+        frac = 0;
+        wnum++;
+    }
+    printf("%c%llu.%05d",
+           x.comp.sign ? '-' : '+',
+           wnum,
+           (int) (f32_Fixed(init_Fixed(frac)) * 100000));
+}
+
+static void printx(const char *msg, const iFixed x) {
+    printf("%16s: ", msg);
+    printFixed(x);
+    printf("\n");
+}
+
+static void printx2(const char *msg, const iFixed2 v) {
+    printf("%16s: ( ", msg);
+    printFixed(v.x);
+    printf("  ");
+    printFixed(v.y);
+    printf(" )\n");
 }
 
 static void printv(const char *msg, iFloat4 v) {
@@ -76,6 +104,8 @@ static void printMat(const char *msg, const iMat4 *m) {
 #define print_(msg, val) _Generic(val, \
     iFloat4:       printv, \
     iFloat3:       printv3, \
+    iFixed:        printx, \
+    iFixed2:       printx2, \
     iMat3 *:       printMat3, \
     const iMat3 *: printMat3, \
     iMat4 *:       printMat, \
@@ -129,6 +159,28 @@ int main(int argc, char **argv) {
         iMat3 mat3;
         init_Mat3(&mat3);
         print_("mat3", &mat3);
+    }
+    /* Fixed-point numbers. */ {
+        puts("Fixed-point:");
+        print_("0.65f", initf_Fixed(0.65f));
+        print_("-0.25f", initf_Fixed(-0.25f));
+        print_("-1", initi_Fixed(-1));
+        print_("-2", initi_Fixed(-2));
+        print_("Pi", initd_Fixed(iMathPi));
+        print_("1<<32 + half", add_Fixed(init_Fixed(1UL << 32 << iFixedFracBits), half_Fixed()));
+        print_("mul 0.25 * -4", muli_Fixed(initd_Fixed(0.25), -4));
+        print_("div -5 / -0.5", div_Fixed(initi_Fixed(-5), neg_Fixed(half_Fixed())));
+        print_("random -10...10", mix_Fixed(initi_Fixed(-10), initi_Fixed(10), random_Fixed()));
+    }
+    /* Fixed-point 2D vectors. */ {
+        puts("Fixed-point vectors:");
+        iFixed2 v = initi_X2(1, 0);
+        print_("(1,0)", v);
+        print_("add one", addv_X2(&v, init1_X2(one_Fixed())));
+        print_("halved", mulv_X2(&v, divi_X2(one_X2(), 2)));
+        print_("length", length_X2(v));
+        printf("  length (float): %f\n", lengthf_X2(v));
+        print_("random", mix_X2(initi_X2(-1, 100), initi_X2(1, -100), random_Fixed()));
     }
     /* Matrices. */ {
         printf("dot3: %f\n", dot_F3(init_F3(1, 2, 3), init_F3(3, 4, 2)));
