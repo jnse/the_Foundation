@@ -51,12 +51,6 @@ void init_Foundation(void) {
     printf("[the_Foundation] version: %i.%i.%i cstd:%li\n",
            version_Foundation.major, version_Foundation.minor, version_Foundation.patch,
            __STDC_VERSION__);
-    const iTime now = now_Time();
-    /* Random number generator. */ {
-        long seed = nanoSeconds_Time(&now) ^ (integralSeconds_Time(&now) % 1000);
-        srand((unsigned) seed);
-        printf("[the_Foundation] random seed: %ld\n", seed);
-    }
     /* Locale. */ {
         setLocale_Foundation();
     }

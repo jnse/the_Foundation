@@ -26,26 +26,59 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "the_Foundation/random.h"
+#include "the_Foundation/time.h"
+#include "the_Foundation/atomic.h"
 
 #include <stdlib.h>
 
+#define iRandMax (1u << 31)
+
+static uint32_t rand31_(void) {
+    // For reference, see: https://en.wikipedia.org/wiki/Linear_congruential_generator
+    static atomic_uint seed;
+    static iBool inited = iFalse;
+    const uint32_t multiplier = 1103515245;
+    const uint32_t increment = 12345;
+    const uint32_t modulus = 0x7fffffff;
+    if (!inited) {
+        inited = iTrue;
+        const iTime now = now_Time();
+        const long val = nanoSeconds_Time(&now) ^ (integralSeconds_Time(&now) % 1000);
+        iDebug("[the_Foundation] random seed: %ld\n", val);
+        set_Atomic(&seed, val & modulus);
+    }
+    uint32_t val;
+    set_Atomic(&seed, val = (multiplier * value_Atomic(&seed) + increment) & modulus);
+    return val;
+}
+
+float iRandomf(void) {
+    return (float) rand31_() / (float) iRandMax;
+}
+
 int iRandom(int start, int end) {
     if (end <= start) return start;
-    return start + rand() % (end - start);
+    const unsigned range = end - start;
+    if (range >= iRandMax) {
+        return (int) (start + iRandomf() * range);
+    }
+    return start + rand31_() % range;
 }
 
 unsigned iRandomu(unsigned start, unsigned end) {
     if (end <= start) return start;
-    iAssert((end - start) <= RAND_MAX);
-    return start + (unsigned) rand() % (end - start);
+    const unsigned range = end - start;
+    if (range >= iRandMax) {
+        return (unsigned) (start + iRandomf() * range);
+    }
+    return start + rand31_() % range;
 }
 
 size_t iRandoms(size_t start, size_t end) {
     if (end <= start) return start;
-    iAssert((end - start) <= RAND_MAX);
-    return start + (size_t) rand() % (end - start);
-}
-
-float iRandomf(void) {
-    return rand() / (float) RAND_MAX;
+    const size_t range = end - start;
+    if (range >= iRandMax) {
+        return (size_t) (start + iRandomf() * range);
+    }
+    return start + rand31_() % range;
 }
