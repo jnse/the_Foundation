@@ -76,9 +76,17 @@ typedef void iAnyObject;
 typedef void (*iDeinitFunc)(iAny *);
 typedef void (*iDeleteFunc)(iAny *);
 
-typedef struct { uint8_t bits; } iBool2;
-iLocalDef iBool all_Bool2   (const iBool2 a)                { return a.bits == 3; }
-iLocalDef iBool any_Bool2   (const iBool2 a)                { return a.bits != 0; }
+typedef struct { uint8_t bits; } iBoolv;
+
+iLocalDef iBoolv init2_Boolv (const iBool a, const iBool b)  {
+    return (iBoolv){ .bits = (a ? 1 : 0) | (b ? 2 : 0) };
+}
+iLocalDef iBoolv init3_Boolv (const iBool a, const iBool b, const iBool c)  {
+    return (iBoolv){ .bits = (a ? 1 : 0) | (b ? 2 : 0) | (c ? 4 : 0) };
+}
+iLocalDef iBool  any_Boolv   (const iBoolv a)   { return a.bits != 0; }
+iLocalDef iBool  all_Boolv2  (const iBoolv a)   { return a.bits == 3; }
+iLocalDef iBool  all_Boolv3  (const iBoolv a)   { return a.bits == 7; }
 
 #include "garbage.h"
 

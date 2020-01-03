@@ -103,28 +103,30 @@ iLocalDef iInt2 max_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ iM
 iLocalDef iInt2 neg_I2      (const iInt2 a)                 { return (iInt2){ -a.x, -a.y }; }
 iLocalDef iInt2 abs_I2      (const iInt2 a)                 { return (iInt2){ iAbs(a.x), iAbs(a.y) }; }
 
+typedef iBoolv iBool2;
+
 iLocalDef iBool2 equal_I2   (const iInt2 a, const iInt2 b) {
-    return (iBool2){ (a.x == b.x ? 1 : 0) | (a.y == b.y ? 2 : 0) };
+    return init2_Boolv(a.x == b.x, a.y == b.y);
 }
 
 iLocalDef iBool2 notEqual_I2(const iInt2 a, const iInt2 b) {
-    return (iBool2){ (a.x != b.x ? 1 : 0) | (a.y != b.y ? 2 : 0) };
+    return init2_Boolv(a.x != b.x, a.y != b.y);
 }
 
 iLocalDef iBool2 greater_I2 (const iInt2 a, const iInt2 b) {
-    return (iBool2){ (a.x > b.x ? 1 : 0) | (a.y > b.y ? 2 : 0) };
+    return init2_Boolv(a.x > b.x, a.y > b.y);
 }
 
 iLocalDef iBool2 greaterEqual_I2 (const iInt2 a, const iInt2 b) {
-    return (iBool2){ (a.x >= b.x ? 1 : 0) | (a.y >= b.y ? 2 : 0) };
+    return init2_Boolv(a.x >= b.x, a.y >= b.y);
 }
 
 iLocalDef iBool2 less_I2 (const iInt2 a, const iInt2 b) {
-    return (iBool2){ (a.x < b.x ? 1 : 0) | (a.y < b.y ? 2 : 0) };
+    return init2_Boolv(a.x < b.x, a.y < b.y);
 }
 
 iLocalDef iBool2 lessEqual_I2 (const iInt2 a, const iInt2 b) {
-    return (iBool2){ (a.x <= b.x ? 1 : 0) | (a.y <= b.y ? 2 : 0) };
+    return init2_Boolv(a.x <= b.x, a.y <= b.y);
 }
 
 iLocalDef iBool isEqual_I2  (const iInt2 a, const iInt2 b)  { return a.x == b.x && a.y == b.y; }

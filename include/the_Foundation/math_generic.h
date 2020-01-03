@@ -225,7 +225,7 @@ iLocalDef iFloat4 rightv_F4(iFloat4 *a) {
     return *a;
 }
 
-#define iFloatVecBool(b)   ((b)? 1.0f : 0.0f)
+#define iFloatVecBool(b)   ((b) ? 1.0f : 0.0f)
 
 iLocalDef iBool4 equal_F4   (const iFloat4 a, const iFloat4 b)  {
     return (iFloat4){ .v = { iFloatVecBool(a.v[0] == b.v[0]),
@@ -497,8 +497,8 @@ iLocalDef iFloat3 rightv_F3(iFloat3 *a) {
 
 iLocalDef iBool3 equal_F3   (const iFloat3 a, const iFloat3 b)  {
     return (iBool3){ .v = { iFloatVecBool(a.v[0] == b.v[0]),
-                             iFloatVecBool(a.v[1] == b.v[1]),
-                             iFloatVecBool(a.v[2] == b.v[2]) } };
+                            iFloatVecBool(a.v[1] == b.v[1]),
+                            iFloatVecBool(a.v[2] == b.v[2]) } };
 }
 
 iLocalDef iBool3 notEqual_F3(const iFloat3 a, const iFloat3 b)  {

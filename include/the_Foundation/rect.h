@@ -97,7 +97,7 @@ iLocalDef iBool isEmpty_Rect(const iRect *d) {
 }
 
 iLocalDef iBool equal_Rect(const iRect *d, const iRect *other) {
-    return all_Bool2(equal_I2(d->pos, other->pos)) && all_Bool2(equal_I2(d->size, other->size));
+    return all_Boolv2(equal_I2(d->pos, other->pos)) && all_Boolv2(equal_I2(d->size, other->size));
 }
 
 iRect   union_Rect          (const iRect *d, const iRect *other);

@@ -244,28 +244,28 @@ iLocalDef iFixed2 abs_X2      (const iFixed2 a)                   { return (iFix
 
 iLocalDef iBool   isEqual_X2  (const iFixed2 a, const iFixed2 b)  { return a.x.v == b.x.v && a.y.v == b.y.v; }
 
-iLocalDef iBool2 equal_X2   (const iFixed2 a, const iFixed2 b) {
-    return (iBool2){ (a.x.v == b.x.v ? 1 : 0) | (a.y.v == b.y.v ? 2 : 0) };
+iLocalDef iBoolv equal_X2   (const iFixed2 a, const iFixed2 b) {
+    return init2_Boolv(a.x.v == b.x.v, a.y.v == b.y.v);
 }
 
-iLocalDef iBool2 notEqual_X2(const iFixed2 a, const iFixed2 b) {
-    return (iBool2){ (a.x.v != b.x.v ? 1 : 0) | (a.y.v != b.y.v ? 2 : 0) };
+iLocalDef iBoolv notEqual_X2(const iFixed2 a, const iFixed2 b) {
+    return init2_Boolv(a.x.v != b.x.v, a.y.v != b.y.v);
 }
 
-iLocalDef iBool2 greater_X2 (const iFixed2 a, const iFixed2 b) {
-    return (iBool2){ (a.x.v > b.x.v ? 1 : 0) | (a.y.v > b.y.v ? 2 : 0) };
+iLocalDef iBoolv greater_X2 (const iFixed2 a, const iFixed2 b) {
+    return init2_Boolv(a.x.v > b.x.v, a.y.v > b.y.v);
 }
 
-iLocalDef iBool2 greaterEqual_X2 (const iFixed2 a, const iFixed2 b) {
-    return (iBool2){ (a.x.v >= b.x.v ? 1 : 0) | (a.y.v >= b.y.v ? 2 : 0) };
+iLocalDef iBoolv greaterEqual_X2 (const iFixed2 a, const iFixed2 b) {
+    return init2_Boolv(a.x.v >= b.x.v, a.y.v >= b.y.v);
 }
 
-iLocalDef iBool2 less_X2 (const iFixed2 a, const iFixed2 b) {
-    return (iBool2){ (a.x.v < b.x.v ? 1 : 0) | (a.y.v < b.y.v ? 2 : 0) };
+iLocalDef iBoolv less_X2 (const iFixed2 a, const iFixed2 b) {
+    return init2_Boolv(a.x.v < b.x.v, a.y.v < b.y.v);
 }
 
-iLocalDef iBool2 lessEqual_X2 (const iFixed2 a, const iFixed2 b) {
-    return (iBool2){ (a.x.v <= b.x.v ? 1 : 0) | (a.y.v <= b.y.v ? 2 : 0) };
+iLocalDef iBoolv lessEqual_X2 (const iFixed2 a, const iFixed2 b) {
+    return init2_Boolv(a.x.v <= b.x.v, a.y.v <= b.y.v);
 }
 
 iLocalDef iFixed2   clamp_X2    (const iFixed2 t, const iFixed2 a, const iFixed2 b) { return min_X2(max_X2(t, a), b); }

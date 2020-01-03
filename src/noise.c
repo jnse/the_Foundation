@@ -47,7 +47,7 @@ float eval_Noise(const iNoise *d, float normX, float normY) {
     const float y = normY * (d->size.y - 1);
     const iInt2 c0 = init_I2((int) x, (int) y);
     const iInt2 c1 = add_I2(c0, init_I2(1, 1));
-    if (any_Bool2(less_I2(c0, zero_I2())) || any_Bool2(greaterEqual_I2(c1, d->size))) {
+    if (any_Boolv(less_I2(c0, zero_I2())) || any_Boolv(greaterEqual_I2(c1, d->size))) {
         return 0.f;
     }
     const iFloat3 pos = init_F3(x, y, 0.f);
