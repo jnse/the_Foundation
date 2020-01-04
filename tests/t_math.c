@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <the_Foundation/defs.h>
 #include <the_Foundation/math.h>
 #include <the_Foundation/time.h>
-#include <the_Foundation/fixedpoint.h>
+#include <the_Foundation/fixed2.h>
 
 static void printNum(float n) {
     if (n == 0.f) {
