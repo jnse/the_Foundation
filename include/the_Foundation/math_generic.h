@@ -135,6 +135,10 @@ iLocalDef iFloat4 sub_F4    (const iFloat4 a, const iFloat4 b)  {
     return (iFloat4){ .v = { a.value.x - b.value.x, a.value.y - b.value.y, a.value.z - b.value.z, a.value.w - b.value.w } };
 }
 
+iLocalDef iFloat4 subf_F4   (const iFloat4 a, const float b) {
+    return (iFloat4){ .v = { a.value.x - b, a.value.y - b, a.value.z - b, a.value.w - b } };
+}
+
 iLocalDef iFloat4 mul_F4    (const iFloat4 a, const iFloat4 b)  {
     return (iFloat4){ .v = { a.value.x * b.value.x, a.value.y * b.value.y, a.value.z * b.value.z, a.value.w * b.value.w } };
 }
@@ -411,6 +415,10 @@ iLocalDef iFloat3 addf_F3   (const iFloat3 a, const float b) {
 
 iLocalDef iFloat3 sub_F3    (const iFloat3 a, const iFloat3 b)  {
     return (iFloat3){ .v = { a.value.x - b.value.x, a.value.y - b.value.y, a.value.z - b.value.z } };
+}
+
+iLocalDef iFloat3 subf_F3   (const iFloat3 a, const float b)  {
+    return (iFloat3){ .v = { a.value.x - b, a.value.y - b, a.value.z - b } };
 }
 
 iLocalDef iFloat3 mul_F3    (const iFloat3 a, const iFloat3 b)  {

@@ -140,6 +140,7 @@ typedef iFloat4 iBool4;
 iLocalDef iFloat4 add_F4    (const iFloat4 a, const iFloat4 b)  { return (iFloat4){ _mm_add_ps(a.m, b.m) }; }
 iLocalDef iFloat4 addf_F4   (const iFloat4 a, const float b)    { return (iFloat4){ _mm_add_ps(a.m, _mm_set1_ps(b)) }; }
 iLocalDef iFloat4 sub_F4    (const iFloat4 a, const iFloat4 b)  { return (iFloat4){ _mm_sub_ps(a.m, b.m) }; }
+iLocalDef iFloat4 subf_F4   (const iFloat4 a, const float b)    { return (iFloat4){ _mm_sub_ps(a.m, _mm_set1_ps(b)) }; }
 iLocalDef iFloat4 mul_F4    (const iFloat4 a, const iFloat4 b)  { return (iFloat4){ _mm_mul_ps(a.m, b.m) }; }
 iLocalDef iFloat4 mulf_F4   (const iFloat4 a, const float b)    { return (iFloat4){ _mm_mul_ps(a.m, _mm_set1_ps(b)) }; }
 iLocalDef iFloat4 fmul_F4   (const float a, const iFloat4 b)    { return (iFloat4){ _mm_mul_ps(_mm_set1_ps(a), b.m) }; }
@@ -299,6 +300,7 @@ typedef iFloat3 iBool3;
 iLocalDef iFloat3 add_F3    (const iFloat3 a, const iFloat3 b)  { return (iFloat3){ _mm_add_ps(a.m, b.m) }; }
 iLocalDef iFloat3 addf_F3   (const iFloat3 a, const float b)    { return (iFloat3){ _mm_add_ps(a.m, _mm_set1_ps(b)) }; }
 iLocalDef iFloat3 sub_F3    (const iFloat3 a, const iFloat3 b)  { return (iFloat3){ _mm_sub_ps(a.m, b.m) }; }
+iLocalDef iFloat3 subf_F3   (const iFloat3 a, const float b)    { return (iFloat3){ _mm_sub_ps(a.m, _mm_set1_ps(b)) }; }
 iLocalDef iFloat3 mul_F3    (const iFloat3 a, const iFloat3 b)  { return (iFloat3){ _mm_mul_ps(a.m, b.m) }; }
 iLocalDef iFloat3 mulf_F3   (const iFloat3 a, const float b)    { return (iFloat3){ _mm_mul_ps(a.m, _mm_set1_ps(b)) }; }
 iLocalDef iFloat3 fmul_F3   (const float a, const iFloat3 b)    { return (iFloat3){ _mm_mul_ps(_mm_set1_ps(a), b.m) }; }

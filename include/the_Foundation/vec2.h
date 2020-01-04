@@ -72,12 +72,13 @@ iLocalDef iInt2 yx_I2(const iInt2 d) {
     return (iInt2){ d.y, d.x };
 }
 
-iLocalDef iInt2 dx_I2(const iInt2 a, int dx) { return (iInt2){ a.x + dx, a.y }; }
-iLocalDef iInt2 dy_I2(const iInt2 a, int dy) { return (iInt2){ a.x, a.y + dy }; }
+iLocalDef iInt2 addX_I2     (const iInt2 a, int dx) { return (iInt2){ a.x + dx, a.y }; }
+iLocalDef iInt2 addY_I2     (const iInt2 a, int dy) { return (iInt2){ a.x, a.y + dy }; }
 
 iLocalDef iInt2 add_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ a.x + b.x, a.y + b.y }; }
 iLocalDef iInt2 addi_I2     (const iInt2 a, int b)          { return (iInt2){ a.x + b, a.y + b }; }
 iLocalDef iInt2 sub_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ a.x - b.x, a.y - b.y }; }
+iLocalDef iInt2 subi_I2     (const iInt2 a, int b)          { return (iInt2){ a.x - b, a.y - b }; }
 iLocalDef iInt2 mul_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ a.x * b.x, a.y * b.y }; }
 iLocalDef iInt2 muli_I2     (const iInt2 a, int b)          { return (iInt2){ a.x * b, a.y * b }; }
 iLocalDef iInt2 mulf_I2     (const iInt2 a, float b)        { return (iInt2){ (int) (a.x * b), (int) (a.y * b) }; }
