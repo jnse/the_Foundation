@@ -30,9 +30,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #if __STDC_VERSION__ >= 201100L
 #  include <stdatomic.h>
 typedef atomic_int iAtomicInt;
-#  define value_Atomic(a)         atomic_load(a)
-#  define set_Atomic(a, value)    atomic_store(a, value)
-#  define add_Atomic(a, value)    atomic_fetch_add(a, value)
+#  define value_Atomic(a)               atomic_load(a)
+#  define set_Atomic(a, value)          atomic_store(a, value)
+#  define add_Atomic(a, value)          atomic_fetch_add(a, value)
+#  define addRelaxed_Atomic(a, value)   atomic_fetch_add_explicit(a, value, memory_order_relaxed);
 #else
 typedef int iAtomicInt;
 #endif

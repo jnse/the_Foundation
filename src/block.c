@@ -49,7 +49,7 @@ static iBlockData emptyBlockData = {
 
 static iBlockData *new_BlockData_(size_t size, size_t allocSize) {
     iBlockData *d = malloc(sizeof(iBlockData));
-    d->refCount = 1;
+    set_Atomic(&d->refCount, 1);
     d->size = size;
     d->allocSize = iMax(size + 1, allocSize);
     d->data = malloc(d->allocSize);
@@ -58,7 +58,7 @@ static iBlockData *new_BlockData_(size_t size, size_t allocSize) {
 
 static iBlockData *newPrealloc_BlockData_(void *data, size_t size, size_t allocSize) {
     iBlockData *d = malloc(sizeof(iBlockData));
-    d->refCount = 1;
+    set_Atomic(&d->refCount, 1);
     d->size = size;
     d->allocSize = allocSize;
     d->data = data;
@@ -72,7 +72,8 @@ static iBlockData *duplicate_BlockData_(const iBlockData *d, size_t allocSize) {
 }
 
 static void deref_BlockData_(iBlockData *d) {
-    if (--d->refCount == 0) {
+    const int refWas = addRelaxed_Atomic(&d->refCount, -1);
+    if (refWas == 1) {
         iAssert(d != &emptyBlockData);
         free(d->data);
         free(d);
@@ -82,7 +83,7 @@ static void deref_BlockData_(iBlockData *d) {
 static void reserve_BlockData_(iBlockData *d, size_t size) {
     size++;
     if (d->allocSize >= size) return;
-    iAssert(d->refCount == 1);
+    iAssert(value_Atomic(&d->refCount) == 1);
     iAssert(d->allocSize > 0);
     /* Reserve increased amount of memory in powers-of-two. */
     for (d->allocSize = 8; d->allocSize < size; d->allocSize <<= 1) {}
@@ -98,12 +99,12 @@ static void memcpyFrom_Block_(iBlock *d, const void *data, size_t size) {
 }
 
 static void detach_Block_(iBlock *d, size_t allocSize) {
-    if (d->i->refCount > 1) {
+    if (value_Atomic(&d->i->refCount) > 1) {
         iBlockData *detached = duplicate_BlockData_(d->i, allocSize);
         deref_BlockData_(d->i);
         d->i = detached;
     }
-    iAssert(d->i->refCount == 1);
+    iAssert(value_Atomic(&d->i->refCount) == 1);
 }
 
 /*-------------------------------------------------------------------------------------*/
@@ -140,7 +141,7 @@ iBlock *copy_Block(const iBlock *d) {
 void init_Block(iBlock *d, size_t size) {
     if (size == 0) {
         d->i = &emptyBlockData;
-        emptyBlockData.refCount++;
+        addRelaxed_Atomic(&emptyBlockData.refCount, 1);
     }
     else {
         d->i = new_BlockData_(size, 0);
@@ -168,7 +169,7 @@ void initPrealloc_Block(iBlock *d, void *data, size_t size, size_t allocSize) {
 void initCopy_Block(iBlock *d, const iBlock *other) {
     if (other) {
         d->i = other->i;
-        d->i->refCount++;
+        addRelaxed_Atomic(&d->i->refCount, 1);
     }
     else {
         init_Block(d, 0);
@@ -177,6 +178,18 @@ void initCopy_Block(iBlock *d, const iBlock *other) {
 
 void deinit_Block(iBlock *d) {
     deref_BlockData_(d->i);
+}
+
+void serialize_Block(const iBlock *d, iStream *outs) {
+    writeU32_Stream(outs, (uint32_t) d->i->size);
+    writeData_Stream(outs, d->i->data, d->i->size);
+}
+
+void deserialize_Block(iBlock *d, iStream *ins) {
+    clear_Block(d);
+    const size_t len = readU32_Stream(ins);
+    resize_Block(d, len);
+    readData_Stream(ins, len, d->i->data);
 }
 
 size_t size_Block(const iBlock *d) {
@@ -226,7 +239,7 @@ void *data_Block(iBlock *d) {
 void clear_Block(iBlock *d) {
     deref_BlockData_(d->i);
     d->i = &emptyBlockData;
-    emptyBlockData.refCount++;
+    addRelaxed_Atomic(&emptyBlockData.refCount, 1);
 }
 
 void reserve_Block(iBlock *d, size_t reservedSize) {
@@ -306,7 +319,7 @@ void popBack_Block(iBlock *d) {
 void set_Block(iBlock *d, const iBlock *other) {
     deref_BlockData_(d->i);
     d->i = other->i;
-    d->i->refCount++;
+    addRelaxed_Atomic(&d->i->refCount, 1);
 }
 
 void setByte_Block(iBlock *d, size_t pos, char value) {
@@ -418,18 +431,6 @@ size_t replace_Block(iBlock *d, char oldValue, char newValue) {
     return count;
 }
 
-void serialize_Block(const iBlock *d, iStream *outs) {
-    writeU32_Stream(outs, (uint32_t) d->i->size);
-    writeData_Stream(outs, d->i->data, d->i->size);
-}
-
-void deserialize_Block(iBlock *d, iStream *ins) {
-    clear_Block(d);
-    const size_t len = readU32_Stream(ins);
-    resize_Block(d, len);
-    readData_Stream(ins, len, d->i->data);
-}
-
 /*-------------------------------------------------------------------------------------*/
 #if defined (iHaveZlib)
 
@@ -443,9 +444,9 @@ struct Impl_ZStream {
 static void init_ZStream_(iZStream *d, const iBlock *in, iBlock *out) {
     d->out = out;
     iZap(d->stream);
-    d->stream.avail_in  = in->i->size;
+    d->stream.avail_in  = (uInt) in->i->size;
     d->stream.next_in   = (Bytef *) in->i->data;
-    d->stream.avail_out = out->i->size;
+    d->stream.avail_out = (uInt) out->i->size;
     d->stream.next_out  = (Bytef *) out->i->data;
 }
 
@@ -465,7 +466,7 @@ static iBool process_ZStream_(iZStream *d, int (*process)(z_streamp, int)) {
             const size_t oldSize = size_Block(d->out);
             resize_Block(d->out, oldSize * 2);
             d->stream.next_out = (Bytef *) d->out->i->data + oldSize;
-            d->stream.avail_out = size_Block(d->out) - oldSize;
+            d->stream.avail_out = (uInt) (size_Block(d->out) - oldSize);
         }
         if (d->stream.avail_in == 0) {
             opts = Z_FINISH;
