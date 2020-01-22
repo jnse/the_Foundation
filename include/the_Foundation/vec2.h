@@ -29,9 +29,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 #include "random.h"
+#include "stream.h"
 #include <math.h>
 
 iDeclareType(IntVec2)
+iDeclareType(Stream)
 
 struct Impl_IntVec2 {
     int x, y;
@@ -147,3 +149,15 @@ iLocalDef iInt2 mix_I2      (const iInt2 a, const iInt2 b, float t) {
 }
 
 iLocalDef iInt2 random_I2   (const iInt2 a) { return (iInt2){ iRandom(0, a.x), iRandom(0, a.y) }; }
+
+iLocalDef void writeInt2_Stream(iStream *d, const iInt2 vec) {
+    write32_Stream(d, vec.x);
+    write32_Stream(d, vec.y);
+}
+
+iLocalDef iInt2 readInt2_Stream(iStream *d) {
+    iInt2 vec;
+    vec.x = read32_Stream(d);
+    vec.y = read32_Stream(d);
+    return vec;
+}

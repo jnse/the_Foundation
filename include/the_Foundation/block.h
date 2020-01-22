@@ -55,6 +55,7 @@ struct Impl_BlockData {
     (iBlock){ &(iBlockData){ .refCount = 2, .data = iConstCast(char *, ptr), .size = (sz), .allocSize = (allocSz) } }
 
 iDeclareTypeConstructionArgs(Block, size_t size)
+iDeclareTypeSerialization(Block)
 
 iBlock *        newCStr_Block       (const char *cstr);
 iBlock *        newData_Block       (const void *data, size_t size);
@@ -129,8 +130,5 @@ iBlock *        decompress_Block    (const iBlock *);
 iLocalDef iBlock * compress_Block(const iBlock *d) {
     return compressLevel_Block(d, iBlockDefaultCompressionLevel);
 }
-
-void            serialize_Block     (const iBlock *, iStream *outs);
-void            deserialize_Block   (iBlock *, iStream *ins);
 
 iEndPublic

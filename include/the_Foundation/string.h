@@ -66,6 +66,7 @@ struct Impl_String {
 #define iStringLiteral(str)     (iString){ iBlockLiteral(str, strlen(str), strlen(str) + 1) }
 
 iDeclareTypeConstruction(String)
+iDeclareTypeSerialization(String)
 
 iString *       newCStr_String      (const char *utf8CStr);
 iString *       newCStrN_String     (const char *utf8CStr, size_t n);
@@ -163,9 +164,6 @@ void            set_String      (iString *, const iString *other);
 void            setCStr_String  (iString *, const char *cstr);
 void            setBlock_String (iString *, const iBlock *block);
 void            format_String   (iString *, const char *format, ...);
-
-void            serialize_String    (const iString *, iStream *outs);
-void            deserialize_String  (iString *, iStream *ins);
 
 void            append_String       (iString *, const iString *other);
 void            appendCStr_String   (iString *, const char *cstr);

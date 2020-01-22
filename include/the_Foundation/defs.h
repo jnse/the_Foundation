@@ -176,6 +176,10 @@ iPublic void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[
         } \
     }
 
+#define iDeclareTypeSerialization(typeName) \
+    void serialize_##typeName(const i##typeName *, iStream *); \
+    void deserialize_##typeName(i##typeName *, iStream *);
+
 #define iDeclareIterator_(iterType, typeName, container) \
     typedef struct iterType##Impl_##typeName i##typeName##iterType; \
     typedef struct iterType##Impl_##typeName i##typeName##Reverse##iterType; \

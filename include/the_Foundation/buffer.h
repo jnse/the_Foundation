@@ -76,6 +76,7 @@ iLocalDef iBool atEnd_Buffer  (const iBuffer *d) { return atEnd_Stream(&(d)->str
 
 iLocalDef void          rewind_Buffer       (iBuffer *d) { seek_Stream(&d->stream, 0); }
 iLocalDef void          seek_Buffer         (iBuffer *d, long offset) { seek_Stream(&d->stream, offset); }
+iLocalDef void          write32_Buffer      (iBuffer *d, int32_t value) { write32_Stream(&d->stream, value); }
 iLocalDef size_t        writeData_Buffer    (iBuffer *d, const void *data, size_t size) { return writeData_Stream(&d->stream, data, size); }
 
 iLocalDef size_t        readData_Buffer     (iBuffer *d, size_t size, void *data_out) { return readData_Stream(&d->stream, size, data_out); }

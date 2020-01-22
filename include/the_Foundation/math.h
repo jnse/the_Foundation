@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "defs.h"
 #include "random.h"
+#include "stream.h"
 
 iBeginPublic
 
@@ -74,6 +75,17 @@ struct Impl_FloatVec4 {
 
 #define initI2_F3(v2)     initiv2_F3(&(v2).x)
 #define initF3_I2(f3)     init_I2((int) x_F3(f3), (int) y_F3(f3))
+
+iLocalDef void writeFloat3_Stream(iStream *d, const iFloat3 vec) {
+    writef_Stream(d, x_F3(vec));
+    writef_Stream(d, y_F3(vec));
+    writef_Stream(d, z_F3(vec));
+}
+
+iLocalDef iFloat3 readFloat3_Stream(iStream *d) {
+    const float v[3] = { readf_Stream(d), readf_Stream(d), readf_Stream(d) };
+    return initv_F3(v);
+}
 
 iBool inverse_Mat3(const iMat3 *d, iMat3 *inversed_out);
 iBool inverse_Mat4(const iMat4 *d, iMat4 *inversed_out);

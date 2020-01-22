@@ -77,4 +77,8 @@ iLocalDef iBlock *      readAll_File    (iFile *d) { return readAll_Stream(&d->s
 iLocalDef iString *     readString_File (iFile *d) { return readString_Stream(&d->stream); }
 iLocalDef iStringList * readLines_File  (iFile *d) { return readLines_Stream(&d->stream); }
 
+iLocalDef size_t        write_File      (iFile *d, const iBlock *data) { return write_Stream(&d->stream, data); }
+iLocalDef size_t        writeData_File  (iFile *d, const void *data, size_t size) { return writeData_Stream(&d->stream, data, size); }
+iLocalDef void          write32_File    (iFile *d, int32_t value) { write32_Stream(&d->stream, value); }
+
 iEndPublic

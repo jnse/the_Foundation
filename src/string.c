@@ -232,6 +232,14 @@ void deinit_String(iString *d) {
     deinit_Block(&d->chars);
 }
 
+void serialize_String(const iString *d, iStream *outs) {
+    serialize_Block(&d->chars, outs);
+}
+
+void deserialize_String(iString *d, iStream *ins) {
+    deserialize_Block(&d->chars, ins);
+}
+
 void clear_String(iString *d) {
     clear_Block(&d->chars);
 }
@@ -674,14 +682,6 @@ const char *findAscii_Rangecc(const iRangecc *str, char ch) {
 
 iStringList *split_CStr(const char *cstr, const char *separator) {
     return split_Rangecc(&(iRangecc){ cstr, cstr + strlen(cstr) }, separator);
-}
-
-void serialize_String(const iString *d, iStream *outs) {
-    serialize_Block(&d->chars, outs);
-}
-
-void deserialize_String(iString *d, iStream *ins) {
-    deserialize_Block(&d->chars, ins);
 }
 
 /*-------------------------------------------------------------------------------------*/
