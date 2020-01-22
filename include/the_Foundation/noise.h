@@ -29,8 +29,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "math.h"
 
+/* Forward declarations */
+iDeclareType(Stream)
+
 iDeclareType(Noise)
 iDeclareTypeConstructionArgs(Noise, iInt2 size)
+iDeclareTypeSerialization(Noise)
 
 float   eval_Noise  (const iNoise *, float normX, float normY);
 
@@ -46,9 +50,11 @@ struct Impl_NoiseComponent {
 
 iDeclareType(CombinedNoise)
 iDeclareTypeConstructionArgs(CombinedNoise, const iNoiseComponent *components, size_t count)
+iDeclareTypeSerialization(CombinedNoise)
 
 float       eval_CombinedNoise          (const iCombinedNoise *, float normX, float normY);
 iFloat3     randomCoord_CombinedNoise   (const iCombinedNoise *, iBool (*rangeCheck)(float));
 
 void        setOffset_CombinedNoise     (iCombinedNoise *, size_t index, float offset);
 void        setPointOffset_CombinedNoise(iCombinedNoise *, float normX, float normY, float offset);
+

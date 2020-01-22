@@ -2,6 +2,7 @@
 #include "the_Foundation/array.h"
 #include "the_Foundation/math.h"
 #include "the_Foundation/geometry.h"
+#include "the_Foundation/stream.h"
 
 struct Impl_Noise {
     iInt2    size;
@@ -27,6 +28,23 @@ void init_Noise(iNoise *d, iInt2 size) {
 
 void deinit_Noise(iNoise *d) {
     free(d->gradients);
+}
+
+void serialize_Noise(const iNoise *d, iStream *outs) {
+    writeInt2_Stream(outs, d->size);
+    writef_Stream(outs, d->scale);
+    for (int i = 0; i < prod_I2(d->size); ++i) {
+        writeFloat3_Stream(outs, d->gradients[i]);
+    }
+}
+
+void deserialize_Noise(iNoise *d, iStream *ins) {
+    d->size = readInt2_Stream(ins);
+    d->scale = readf_Stream(ins);
+    d->gradients = realloc(d->gradients, sizeof(iFloat3) * (size_t) prod_I2(d->size));
+    for (int i = 0; i < prod_I2(d->size); ++i) {
+        d->gradients[i] = readFloat3_Stream(ins);
+    }
 }
 
 iLocalDef float dotGradient_Noise_(const iNoise *d, const int x, int y, const iFloat3 b) {
@@ -106,6 +124,39 @@ void deinit_CombinedNoise(iCombinedNoise *d) {
     }
     deinit_Array(&d->parts);
     deinit_Array(&d->offsets);
+}
+
+void serialize_CombinedNoise(const iCombinedNoise *d, iStream *outs) {
+    writeU16_Stream(outs, (uint16_t) size_Array(&d->parts));
+    iConstForEach(Array, i, &d->parts) {
+        const iCombinedNoisePart *part = i.value;
+        writef_Stream(outs, part->weight);
+        writef_Stream(outs, part->offset);
+        serialize_Noise(&part->noise, outs);
+    }
+    writeU16_Stream(outs, (uint16_t) size_Array(&d->offsets));
+    iConstForEach(Array, j, &d->offsets) {
+        writeFloat3_Stream(outs, *(const iFloat3 *) j.value);
+    }
+}
+
+void deserialize_CombinedNoise(iCombinedNoise *d, iStream *ins) {
+    deinit_CombinedNoise(d);
+    init_CombinedNoise(d, NULL, 0);
+    const size_t numParts = readU16_Stream(ins);
+    resize_Array(&d->parts, numParts);
+    iForEach(Array, i, &d->parts) {
+        iCombinedNoisePart *part = (iCombinedNoisePart *) i.value;
+        part->weight = readf_Stream(ins);
+        part->offset = readf_Stream(ins);
+        init_Noise(&part->noise, zero_I2());
+        deserialize_Noise(&part->noise, ins);
+    }
+    const size_t numOffsets = readU16_Stream(ins);
+    resize_Array(&d->offsets, numOffsets);
+    iForEach(Array, j, &d->offsets) {
+        *((iFloat3 *) j.value) = readFloat3_Stream(ins);
+    }
 }
 
 #if 0
