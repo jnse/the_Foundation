@@ -39,7 +39,6 @@ iBeginPublic
 
 iDeclareClass(ObjectList)
 
-iDeclareType(ObjectList)
 iDeclareType(ObjectListNode)
 
 struct Impl_ObjectList {

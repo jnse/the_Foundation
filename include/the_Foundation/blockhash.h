@@ -56,7 +56,6 @@ void                deinit_BlockHashNode    (iBlockHashNode *);
 ///@}
 
 iDeclareClass(BlockHash)
-iDeclareType(BlockHash)
 
 struct Impl_BlockHash {
     iObject object;
@@ -124,7 +123,7 @@ struct ConstIteratorImpl_BlockHash {
     typedef i##keyType i##typeName##Key; \
     typedef iBlockHashNode i##typeName##Node; \
     typedef iBlockHashNodeClass i##typeName##NodeClass; \
-    iDeclareClass(typeName) \
+    iDeclareClassOnly(typeName) \
     \
     i##typeName##Node *     new_##typeName##Node        (const i##keyType *key, const i##valueType *object); \
     void                    deinit_##typeName##Node     (i##typeName##Node *); \

@@ -34,7 +34,6 @@ iBeginPublic
 
 iDeclareClass(CommandLine)
 
-iDeclareType(CommandLine)
 iDeclareType(CommandLineArg)
 
 struct Impl_CommandLine {

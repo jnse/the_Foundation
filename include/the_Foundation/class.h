@@ -39,11 +39,11 @@ typedef void iAnyClass;
 /* The mandatory members: */
 struct Impl_Class {
     const iClass *super;
-    const char *name;
-    size_t size;
-    void (*deinit)      (void *);
-    void (*serialize)   (const void *, iStream *);
-    void (*deserialize) (void *, iStream *);
+    const char *  name;
+    size_t        size;
+    void        (*deinit)      (void *);
+    void        (*serialize)   (const void *, iStream *);
+    iAnyObject *(*deserialize) (iStream *);
 };
 
 #define iBeginDeclareClass(className) \
@@ -52,9 +52,9 @@ struct Impl_Class {
         const iAnyClass *super; \
         const char *name; \
         size_t size; \
-        void (*deinit)      (void *); \
-        void (*serialize)   (const void *, iStream *); \
-        void (*deserialize) (void *, iStream *);
+        void (*deinit)(void *); \
+        void (*serialize)(const iAnyObject *, iStream *); \
+        iAnyObject *(*deserialize)(iStream *);
 
 #define iEndDeclareClass(className) \
     }; \
@@ -65,10 +65,15 @@ struct Impl_Class {
     iDeclareType(className##Class)
 
 #define iDeclareStaticClass(className) \
+    iDeclareType(className) \
     iBeginDeclareClass(className) \
     iEndDeclareStaticClass(className)
 
 #define iDeclareClass(className) \
+    iDeclareType(className) \
+    iBeginDeclareClass(className) iEndDeclareClass(className)
+
+#define iDeclareClassOnly(className) \
     iBeginDeclareClass(className) iEndDeclareClass(className)
 
 #define iBeginDefineClass(className) \
@@ -80,12 +85,24 @@ struct Impl_Class {
         .deinit = (void (*)(void *)) deinit_##className, \
     };
 
+#define iBeginDefineSerializedClass(className) iBeginDefineClass(className)
+#define iEndDefineSerializedClass(className) \
+    .serialize   = (void (*)(const iAnyObject *, iStream *)) serialize_##className, \
+    .deserialize = (iAnyObject *(*)(iStream *)) deserialize_##className, \
+    iEndDefineClass(className)
+
 #define iBeginDefineSubclass(className, superClass) \
     i##className##Class Class_##className = { \
         .super = &Class_##superClass, \
 
 #define iEndDefineSubclass(className) \
     iEndDefineClass(className)
+
+#define iBeginDefineSerializedSubclass(className, superClass) \
+    iBeginDefineSubclass(className, superClass)
+
+#define iEndDefineSerializedSubclass(className) \
+    iEndDefineSerializedClass(className)
 
 #define iDefineClass(className) \
     iBeginDefineClass(className) \

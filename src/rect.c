@@ -27,6 +27,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "the_Foundation/rect.h"
 #include "the_Foundation/math.h"
+#include "the_Foundation/stream.h"
+
+void serialize_Rect(const iRect *d, iStream *outs) {
+    writeInt2_Stream(outs, d->pos);
+    writeInt2_Stream(outs, d->size);
+}
+
+void deserialize_Rect(iRect *d, iStream *ins) {
+    d->pos  = readInt2_Stream(ins);
+    d->size = readInt2_Stream(ins);
+}
 
 iBool containsRect_Rect(const iRect *d, const iRect *other) {
     const iInt2 br = sub_I2(bottomRight_Rect(other), one_I2());

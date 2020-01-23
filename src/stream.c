@@ -167,10 +167,9 @@ iString *readString_Stream(iStream *d) {
     return str;
 }
 
-iAnyObject *readObject_Stream(iStream *d, iAnyObject *object) {
-    iAssert(class_Object(object)->deserialize != NULL);
-    class_Object(object)->deserialize(object, d);
-    return object;
+iAnyObject *readObject_Stream(iStream *d, const iClass *class) {
+    iAssert(class->deserialize);
+    return class->deserialize(d);
 }
 
 size_t writeObject_Stream(iStream *d, const iAnyObject *object) {

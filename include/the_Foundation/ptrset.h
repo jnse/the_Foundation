@@ -28,12 +28,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "sortedarray.h"
+#include "class.h"
 
 iBeginPublic
 
 typedef iSortedArray iPtrSet;
 
 iDeclareTypeConstruction(PtrSet)
+iDeclareType(Stream)
 
 iPtrSet *   copy_PtrSet     (const iPtrSet *);
 
@@ -57,6 +59,10 @@ iBool       insert_PtrSet   (iPtrSet *, const void *ptr);
 iBool       remove_PtrSet   (iPtrSet *, const void *ptr);
 
 iLocalDef void  clear_PtrSet    (iPtrSet *d) { clear_SortedArray(d); }
+
+void        serializeObjects_PtrSet     (const iPtrSet *, iStream *);
+void        deserializeObjects_PtrSet   (iPtrSet *, iStream *ins, const iAnyClass *);
+iPtrSet *   newStreamObjects_PtrSet     (iStream *ins, const iAnyClass *);
 
 /** @name Iterators */
 ///@{

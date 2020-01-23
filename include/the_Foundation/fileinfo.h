@@ -36,8 +36,6 @@ iBeginPublic
 iDeclareClass(FileInfo)
 iDeclareClass(DirFileInfo)
 
-iDeclareType(FileInfo)
-iDeclareType(DirFileInfo)
 iDeclareType(File)
 iDeclareType(Time)
 

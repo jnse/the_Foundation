@@ -105,6 +105,7 @@ iPublic void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[
 #define iUnused(...)            iUnusedMany_(__VA_ARGS__, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 #define iZap(var)               memset(&(var), 0, sizeof(var));
 #define iMalloc(typeName)       ((i##typeName *) malloc(sizeof(i##typeName)))
+#define iZapMalloc(typeName)    ((i##typeName *) calloc(sizeof(i##typeName), 1))
 
 #include "argcount.h"
 

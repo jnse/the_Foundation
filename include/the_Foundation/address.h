@@ -37,7 +37,6 @@ iDeclareType(String)
 iDeclareType(ObjectList)
 
 iDeclareClass(Address)
-iDeclareType (Address)
 
 iDeclareConstNotifyFunc(Address, LookupFinished)
 

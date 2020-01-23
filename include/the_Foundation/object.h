@@ -72,7 +72,11 @@ iBeginPublic
         i##typeName *d = iNew(typeName); \
         init_##typeName(d, __VA_ARGS__); \
         return d; \
-    } \
+    }
+
+#define iDeclareObjectSerialization(typeName) \
+    void serialize_##typeName(const i##typeName *, iStream *); \
+    i##typeName *fromStream_##typeName(iStream *);
 
 iDeclareType(Object)
 iDeclareType(AudienceMember)

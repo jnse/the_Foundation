@@ -38,6 +38,9 @@ struct Impl_Rect {
     iInt2 size;
 };
 
+iDeclareType(Stream)
+iDeclareTypeSerialization(Rect)
+
 iLocalDef iRect zero_Rect(void) { return (iRect){ zero_I2(), zero_I2() }; }
 
 iLocalDef iRect init_Rect(int x, int y, int width, int height) {

@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "the_Foundation/ptrset.h"
+#include "the_Foundation/stream.h"
 
 typedef void * iPtr;
 
@@ -76,6 +77,38 @@ iBool remove_PtrSet(iPtrSet *d, const void *ptr) {
 
 void *at_PtrSet(const iPtrSet *d, size_t pos) {
     return *(void * const *) constAt_SortedArray(d, pos);
+}
+
+void serializeObjects_PtrSet(const iPtrSet *d, iStream *outs) {
+    if (!d) {
+        writeU32_Stream(outs, 0);
+        return;
+    }
+    writeU32_Stream(outs, (uint32_t) size_PtrSet(d));
+    iConstForEach(PtrSet, i, d) {
+        writeObject_Stream(outs, *i.value);
+    }
+}
+
+void deserializeObjects_PtrSet(iPtrSet *d, iStream *ins, const iAnyClass *class) {
+    iAssert(d);
+    iAssert(isEmpty_PtrSet(d));
+    uint32_t count = readU32_Stream(ins);
+    while (count--) {
+        insert_PtrSet(d, ((const iClass *) class)->deserialize(ins));
+    }
+}
+
+iPtrSet *newStreamObjects_PtrSet(iStream *ins, const iAnyClass *class) {
+    iPtrSet *d = NULL;
+    uint32_t count = readU32_Stream(ins);
+    if (count) {
+        d = new_PtrSet();
+        while (count--) {
+            insert_PtrSet(d, ((const iClass *) class)->deserialize(ins));
+        }
+    }
+    return d;
 }
 
 /*-------------------------------------------------------------------------------------*/

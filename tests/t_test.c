@@ -59,7 +59,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 /*-------------------------------------------------------------------------------------*/
 
 iDeclareStaticClass(TestNode)
-iDeclareType(TestNode)
 
 struct Impl_TestNode {
     iTreeNode node;
