@@ -108,13 +108,13 @@ iLocalDef uint64_t readU64_Stream   (iStream *d) { return (uint64_t) read64_Stre
 iLocalDef float    readf_Stream     (iStream *d) { int32_t buf = read32_Stream(d); float  v; memcpy(&v, &buf, 4); return v; }
 iLocalDef double   readd_Stream     (iStream *d) { int64_t buf = read64_Stream(d); double v; memcpy(&v, &buf, 8); return v; }
 
-void        flush_Stream        (iStream *);
+void            flush_Stream        (iStream *);
 
 iString *       readString_Stream   (iStream *);
 iStringList *   readLines_Stream    (iStream *);
 
 size_t          writeObject_Stream  (iStream *, const iAnyObject *object);
-iAnyObject *    readObject_Stream   (iStream *, const iClass *);
+iAnyObject *    readObject_Stream   (iStream *, const iAnyClass *);
 
 iLocalDef long  size_Stream     (const iStream *d) { return d->size; }
 iLocalDef long  pos_Stream      (const iStream *d) { return d->pos; }

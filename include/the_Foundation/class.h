@@ -42,8 +42,9 @@ struct Impl_Class {
     const char *  name;
     size_t        size;
     void        (*deinit)      (void *);
-    void        (*serialize)   (const void *, iStream *);
-    iAnyObject *(*deserialize) (iStream *);
+    iAnyObject *(*newObject)   (void); /* default constructor (optional) */
+    void        (*serialize)   (const iAnyObject *, iStream *);
+    void        (*deserialize) (iAnyObject *, iStream *);
 };
 
 #define iBeginDeclareClass(className) \
@@ -53,8 +54,9 @@ struct Impl_Class {
         const char *name; \
         size_t size; \
         void (*deinit)(void *); \
+        iAnyObject *(*newObject)(void); \
         void (*serialize)(const iAnyObject *, iStream *); \
-        iAnyObject *(*deserialize)(iStream *);
+        void (*deserialize)(iAnyObject *, iStream *);
 
 #define iEndDeclareClass(className) \
     }; \
@@ -87,8 +89,9 @@ struct Impl_Class {
 
 #define iBeginDefineSerializedClass(className) iBeginDefineClass(className)
 #define iEndDefineSerializedClass(className) \
-    .serialize   = (void (*)(const iAnyObject *, iStream *)) serialize_##className, \
-    .deserialize = (iAnyObject *(*)(iStream *)) deserialize_##className, \
+        .newObject   = (void *(*)(void)) new_##className, \
+        .serialize   = (void (*)(const iAnyObject *, iStream *)) serialize_##className, \
+        .deserialize = (void (*)(iAnyObject *, iStream *)) deserialize_##className, \
     iEndDefineClass(className)
 
 #define iBeginDefineSubclass(className, superClass) \

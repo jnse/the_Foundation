@@ -95,7 +95,7 @@ void deserializeObjects_PtrSet(iPtrSet *d, iStream *ins, const iAnyClass *class)
     iAssert(isEmpty_PtrSet(d));
     uint32_t count = readU32_Stream(ins);
     while (count--) {
-        insert_PtrSet(d, ((const iClass *) class)->deserialize(ins));
+        insert_PtrSet(d, readObject_Stream(ins, class));
     }
 }
 
@@ -105,7 +105,7 @@ iPtrSet *newStreamObjects_PtrSet(iStream *ins, const iAnyClass *class) {
     if (count) {
         d = new_PtrSet();
         while (count--) {
-            insert_PtrSet(d, ((const iClass *) class)->deserialize(ins));
+            insert_PtrSet(d, readObject_Stream(ins, class));
         }
     }
     return d;

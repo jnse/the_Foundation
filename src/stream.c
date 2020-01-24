@@ -167,17 +167,21 @@ iString *readString_Stream(iStream *d) {
     return str;
 }
 
-iAnyObject *readObject_Stream(iStream *d, const iClass *class) {
-    iAssert(class->deserialize);
-    return class->deserialize(d);
-}
-
 size_t writeObject_Stream(iStream *d, const iAnyObject *object) {
     iAssert(class_Object(object)->serialize != NULL);
     const long start = d->pos;
     class_Object(object)->serialize(object, d);
     iAssert(d->pos >= start);
     return d->pos - start;
+}
+
+iAnyObject *readObject_Stream(iStream *d, const iAnyClass *class) {
+    const iClass *cls = (const iClass *) class;
+    iAssert(cls->newObject);
+    iAssert(cls->deserialize);
+    iAnyObject *obj = cls->newObject();
+    cls->deserialize(obj, d);
+    return obj;
 }
 
 void write16_Stream(iStream *d, int16_t value) {

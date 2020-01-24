@@ -37,8 +37,8 @@ static void threadFinished_Future_(iAny *any, iThread *thread) {
         d->resultAvailable(d, thread);
     }
     iGuardMutex(&d->mutex, {
-        d->pendingCount--;
-        iAssert(d->pendingCount >= 0);
+        addRelaxed_Atomic(&d->pendingCount, -1);
+        iAssert(value_Atomic(&d->pendingCount) >= 0);
         signalAll_Condition(&d->ready);
     });
 }
@@ -51,7 +51,7 @@ void initHandler_Future(iFuture *d, iFutureResultAvailable resultAvailable) {
     init_Mutex(&d->mutex);
     init_Condition(&d->ready);
     init_ObjectList(&d->threads);
-    d->pendingCount = 0;
+    set_Atomic(&d->pendingCount, 0);
     d->resultAvailable = resultAvailable;
 }
 
@@ -69,7 +69,7 @@ void deinit_Future(iFuture *d) {
 void add_Future(iFuture *d, iThread *thread) {
     iAssert(!isRunning_Thread(thread));
     iGuardMutex(&d->mutex, {
-        d->pendingCount++;
+        addRelaxed_Atomic(&d->pendingCount, 1);
         iConnect(Thread, thread, finished, d, threadFinished_Future_);
         pushBack_ObjectList(&d->threads, thread);
     });
@@ -83,13 +83,13 @@ iThread *runPool_Future(iFuture *d, iThread *thread, iThreadPool *pool) {
 
 iBool isReady_Future(const iFuture *d) {
     iBool ready = iFalse;
-    iGuardMutex(&d->mutex, ready = (d->pendingCount == 0));
+    iGuardMutex(&d->mutex, ready = (value_Atomic(&d->pendingCount) == 0));
     return ready;
 }
 
 void wait_Future(iFuture *d) {
     iGuardMutex(&d->mutex, {
-        while (d->pendingCount > 0) {
+        while (value_Atomic(&d->pendingCount) > 0) {
             wait_Condition(&d->ready, &d->mutex);
         }
     });
