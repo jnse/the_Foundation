@@ -43,7 +43,7 @@ enum iFileMode {
     readOnly_FileMode   = 0x1,
     write_FileMode      = 0x2,
     writeOnly_FileMode  = 0x2,
-    append_FileMode     = 0x4 | write_FileMode,
+    append_FileMode     = 0x4,
     text_FileMode       = 0x8,
 
     readWrite_FileMode  = read_FileMode | write_FileMode,
@@ -70,12 +70,14 @@ iLocalDef long  size_File   (const iFile *d) { return size_Stream(&d->stream); }
 iLocalDef iBool atEnd_File  (const iFile *d) { return atEnd_Stream(&(d)->stream); }
 iLocalDef const iString *path_File(const iFile *d) { return d->path; }
 
+iLocalDef iStream *     stream_File     (iFile *d) { return &d->stream; }
 iLocalDef void          seek_File       (iFile *d, long offset) { seek_Stream(&d->stream, offset); }
 iLocalDef iBlock *      read_File       (iFile *d, size_t size) { return read_Stream(&d->stream, size); }
 iLocalDef size_t        readData_File   (iFile *d, size_t size, void *data_out) { return readData_Stream(&d->stream, size, data_out); }
 iLocalDef iBlock *      readAll_File    (iFile *d) { return readAll_Stream(&d->stream); }
 iLocalDef iString *     readString_File (iFile *d) { return readString_Stream(&d->stream); }
 iLocalDef iStringList * readLines_File  (iFile *d) { return readLines_Stream(&d->stream); }
+iLocalDef int32_t       read32_File     (iFile *d) { return read32_Stream(&d->stream); }
 
 iLocalDef size_t        write_File      (iFile *d, const iBlock *data) { return write_Stream(&d->stream, data); }
 iLocalDef size_t        writeData_File  (iFile *d, const void *data, size_t size) { return writeData_Stream(&d->stream, data, size); }

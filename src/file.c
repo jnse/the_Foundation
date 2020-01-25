@@ -64,14 +64,18 @@ void deinit_File(iFile *d) {
 
 iBool open_File(iFile *d, int modeFlags) {
     if (isOpen_File(d)) return iFalse;
-    setSize_Stream(&d->stream, fileSize_FileInfo(d->path));
     d->flags = modeFlags;
-    if (~d->flags & (readWrite_FileMode | append_FileMode)) {
+    if ((d->flags & (readWrite_FileMode | append_FileMode)) == 0) {
+        /* Default to read. */
         d->flags |= read_FileMode;
+    }
+    if (d->flags & (read_FileMode | append_FileMode)) {
+        setSize_Stream(&d->stream, fileSize_FileInfo(d->path));
     }
     char mode[4], *m = mode;
     if (d->flags & append_FileMode) {
         *m++ = 'a';
+        d->stream.pos = d->stream.size;
         if (d->flags & read_FileMode) { *m++ = '+'; }
     }
     else {
