@@ -76,7 +76,7 @@ iBeginPublic
 
 #define iDeclareObjectSerialization(typeName) \
     void serialize_##typeName(const i##typeName *, iStream *); \
-    i##typeName *fromStream_##typeName(iStream *);
+    void deserialize_##typeName(i##typeName *, iStream *);
 
 iDeclareType(Object)
 iDeclareType(AudienceMember)
