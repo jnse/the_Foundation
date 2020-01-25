@@ -65,7 +65,7 @@ static iBlockData *newPrealloc_BlockData_(void *data, size_t size, size_t allocS
     return d;
 }
 
-static iBlockData *duplicate_BlockData_(const iBlockData *d, size_t allocSize) {
+static iBlockData *duplicate_BlockData_(const iBlockData *d, size_t allocSize) { 
     iBlockData *dupl = new_BlockData_(d->size, allocSize);
     memcpy(dupl->data, d->data, iMin(d->allocSize, dupl->size + 1));
     return dupl;
@@ -182,14 +182,18 @@ void deinit_Block(iBlock *d) {
 
 void serialize_Block(const iBlock *d, iStream *outs) {
     writeU32_Stream(outs, (uint32_t) d->i->size);
-    writeData_Stream(outs, d->i->data, d->i->size);
+    if (d->i->size) {
+        writeData_Stream(outs, d->i->data, d->i->size);
+    }
 }
 
 void deserialize_Block(iBlock *d, iStream *ins) {
     clear_Block(d);
     const size_t len = readU32_Stream(ins);
-    resize_Block(d, len);
-    readData_Stream(ins, len, d->i->data);
+    if (len) {
+        resize_Block(d, len);
+        readData_Stream(ins, len, d->i->data);
+    }
 }
 
 size_t size_Block(const iBlock *d) {
