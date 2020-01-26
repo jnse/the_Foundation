@@ -33,7 +33,10 @@ iBeginPublic
 
 typedef iSortedArray iIntSet;
 
+iDeclareType(Stream)
+
 iDeclareTypeConstruction(IntSet)
+iDeclareTypeSerialization(IntSet)
 
 iIntSet *   copy_IntSet     (const iIntSet *);
 
@@ -50,13 +53,12 @@ int         at_IntSet       (const iIntSet *, size_t pos);
 #define     isEmpty_IntSet(d)   isEmpty_SortedArray(d)
 #define     size_IntSet(d)      size_SortedArray(d)
 
-iLocalDef int   front_IntSet  (iIntSet *d) { return at_IntSet(d, 0); }
-iLocalDef int   back_IntSet   (iIntSet *d) { return at_IntSet(d, size_IntSet(d) - 1); }
+iLocalDef int   front_IntSet  (const iIntSet *d) { return at_IntSet(d, 0); }
+iLocalDef int   back_IntSet   (const iIntSet *d) { return at_IntSet(d, size_IntSet(d) - 1); }
+iLocalDef void  clear_IntSet  (iIntSet *d) { clear_SortedArray(d); }
 
 iBool       insert_IntSet   (iIntSet *, int value);
 iBool       remove_IntSet   (iIntSet *, int value);
-
-iLocalDef void  clear_IntSet    (iIntSet *d) { clear_SortedArray(d); }
 
 /** @name Iterators */
 ///@{

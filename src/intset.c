@@ -77,6 +77,21 @@ int at_IntSet(const iIntSet *d, size_t pos) {
     return *(const int *) constAt_SortedArray(d, pos);
 }
 
+void serialize_IntSet(const iIntSet *d, iStream *outs) {
+    writeU32_Stream(outs, (uint32_t) size_IntSet(d));
+    iConstForEach(IntSet, i, d) {
+        write32_Stream(outs, *i.value);
+    }
+}
+
+void deserialize_IntSet(iIntSet *d, iStream *ins) {
+    clear_IntSet(d);
+    uint32_t count = readU32_Stream(ins);
+    while (count--) {
+        insert_IntSet(d, read32_Stream(ins));
+    }
+}
+
 /*-------------------------------------------------------------------------------------*/
 
 void init_IntSetIterator(iIntSetIterator *d, iIntSet *set) {
