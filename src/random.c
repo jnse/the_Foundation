@@ -47,7 +47,7 @@ static uint32_t rand24_(void) {
         iDebug("[the_Foundation] random seed: %ld\n", val);
         set_Atomic(&seed, val & modulus);
     }
-    return (exchange_Atomic(&seed, (multiplier * value_Atomic(&seed) + increment) & modulus) >> 3) &
+    return (exchange_Atomic(&seed, (multiplier * value_Atomic(&seed) + increment) & modulus) >> 6) &
            (iRandMax - 1);
 }
 
