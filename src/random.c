@@ -31,9 +31,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 
-#define iRandMax (1u << 31)
+#define iRandMax (1u << 24)
 
-static uint32_t rand31_(void) {
+static uint32_t rand24_(void) {
     // For reference, see: https://en.wikipedia.org/wiki/Linear_congruential_generator
     static atomic_uint seed;
     static iBool inited = iFalse;
@@ -43,17 +43,16 @@ static uint32_t rand31_(void) {
     if (!inited) {
         inited = iTrue;
         const iTime now = now_Time();
-        const long val = nanoSeconds_Time(&now) ^ (integralSeconds_Time(&now) % 1000);
+        const uint32_t val = (uint32_t) (nanoSeconds_Time(&now) ^ (integralSeconds_Time(&now) % 1000));
         iDebug("[the_Foundation] random seed: %ld\n", val);
         set_Atomic(&seed, val & modulus);
     }
-    uint32_t val;
-    set_Atomic(&seed, val = (multiplier * value_Atomic(&seed) + increment) & modulus);
-    return val;
+    return (exchange_Atomic(&seed, (multiplier * value_Atomic(&seed) + increment) & modulus) >> 3) &
+           (iRandMax - 1);
 }
 
 float iRandomf(void) {
-    return (float) rand31_() / (float) iRandMax;
+    return (float) rand24_() / (float) iRandMax;
 }
 
 int iRandom(int start, int end) {
@@ -62,7 +61,7 @@ int iRandom(int start, int end) {
     if (range >= iRandMax) {
         return (int) (start + iRandomf() * range);
     }
-    return start + rand31_() % range;
+    return start + rand24_() % range;
 }
 
 unsigned iRandomu(unsigned start, unsigned end) {
@@ -71,7 +70,7 @@ unsigned iRandomu(unsigned start, unsigned end) {
     if (range >= iRandMax) {
         return (unsigned) (start + iRandomf() * range);
     }
-    return start + rand31_() % range;
+    return start + rand24_() % range;
 }
 
 size_t iRandoms(size_t start, size_t end) {
@@ -80,5 +79,5 @@ size_t iRandoms(size_t start, size_t end) {
     if (range >= iRandMax) {
         return (size_t) (start + iRandomf() * range);
     }
-    return start + rand31_() % range;
+    return start + rand24_() % range;
 }

@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 typedef atomic_int iAtomicInt;
 #  define value_Atomic(a)               atomic_load(a)
 #  define set_Atomic(a, value)          atomic_store(a, value)
+#  define exchange_Atomic(a, value)     atomic_exchange(a, value)
 #  define add_Atomic(a, value)          atomic_fetch_add(a, value)
 #  define addRelaxed_Atomic(a, value)   atomic_fetch_add_explicit(a, value, memory_order_relaxed);
 #else
