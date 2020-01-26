@@ -124,6 +124,7 @@ set (HEADERS
     include/the_Foundation/garbage.h
     include/the_Foundation/geometry.h
     include/the_Foundation/hash.h
+    include/the_Foundation/intset.h
     include/the_Foundation/list.h
     include/the_Foundation/map.h
     include/the_Foundation/math.h
@@ -172,6 +173,7 @@ set (SOURCES
     src/garbage.c
     src/geometry.c
     src/hash.c
+    src/intset.c
     src/list.c
     src/map.c
     src/md5.c
