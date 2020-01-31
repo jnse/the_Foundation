@@ -64,7 +64,7 @@ iLocalDef iFixed2 initv_X2(const iFixed *v) {
 }
 
 iLocalDef iFixed2 zero_X2(void) {
-    return (iFixed2){ .x = { 0 }, .y = { 0 } };
+    return (iFixed2){ .x = zero_Fixed(), .y = zero_Fixed() };
 }
 
 iLocalDef iFixed2 one_X2(void) {
