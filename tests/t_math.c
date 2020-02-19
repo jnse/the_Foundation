@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
         print_("-1", initi_Fixed(-1));
         print_("-2", initi_Fixed(-2));
         print_("Pi", initd_Fixed(iMathPi));
-        print_("1<<32 + half", add_Fixed(init_Fixed(1UL << 32 << iFixedFracBits), half_Fixed()));
+        print_("1<<32 + half", add_Fixed(init_Fixed(1LL << 32 << iFixedFracBits), half_Fixed()));
         print_("mul 0.25 * -4", muli_Fixed(initd_Fixed(0.25), -4));
         print_("div -5 / -0.5", div_Fixed(initi_Fixed(-5), neg_Fixed(half_Fixed())));
         print_("random -10...10", mix_Fixed(initi_Fixed(-10), initi_Fixed(10), random_Fixed()));

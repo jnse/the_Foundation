@@ -35,7 +35,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iDeclareType(Fixed)
 
 typedef int64_t     iFixed64;
+#if defined(__SIZEOF_INT128__)
 typedef __int128_t  iFixedLong;
+#else
+typedef int64_t     iFixedLong; /* oops, will overflow */
+#endif
 
 struct Impl_Fixed {
     union {
@@ -50,7 +54,7 @@ struct Impl_Fixed {
 
 #define iFixedFracBits  16
 #define iFixedUnit      (1 << iFixedFracBits)
-#define iFixedMaxWNum   ((1UL << 47) - 1)
+#define iFixedMaxWNum   ((((iFixed64) 1) << 47) - 1)
 
 iLocalDef iFixed zero_Fixed(void) {
     return (iFixed){ .v = 0 };
