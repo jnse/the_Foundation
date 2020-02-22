@@ -38,13 +38,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #   define mkdir(path, attr) _mkdir(path)
 #endif
 
-#if defined (iPlatformCygwin)
+#if defined (iPlatformCygwin) || defined (iPlatformMsys)
 #   include <sys/cygwin.h>
+#   define iHaveCygwinPathConversion
 #endif
 
 iString *cwd_Path(void) {
     char *cwd = getcwd(NULL, 0);
-#if defined (iPlatformCygwin)
+#if defined (iHaveCygwinPathConversion)
     iString *str = unixToWindows_Path(cwd);
     free(cwd);
     return str;
@@ -74,7 +75,7 @@ iBool isAbsolute_Path(const iString *d) {
     if (startsWith_String(d, iPathSeparator)) {
         return iTrue;
     }
-#if defined (iPlatformWindows) || defined (iPlatformCygwin)
+#if defined (iPlatformWindows) || defined (iHaveCygwinPathConversion)
     /* Check for drive letters. */
     if (size_String(d) >= 3) {
         iStringConstIterator i;
@@ -156,7 +157,7 @@ static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments,
 
 void clean_Path(iString *d) {
     if (isEmpty_String(d)) return;
-#if defined (iPlatformWindows) || defined (iPlatformCygwin)
+#if defined (iPlatformWindows) || defined (iHaveCygwinPathConversion)
     /* Use the correct separators. */
     replace_Block(&d->chars, '/', '\\');
 #endif
@@ -174,7 +175,7 @@ void clean_Path(iString *d) {
         init_String(&cleaned);
         for (size_t i = 0; i < count; ++i) {
             if (i != 0 || (isAbsolute_Path(d)
-#if defined (iPlatformWindows) || defined (iPlatformCygwin)
+#if defined (iPlatformWindows) || defined (iHaveCygwinPathConversion)
                 && startsWith_String(d, iPathSeparator)
 #endif
                     )) {
@@ -213,7 +214,7 @@ iBool rmdir_Path(const iString *path) {
     return rmdir(cstr_String(path)) == 0;
 }
 
-#if defined (iPlatformCygwin)
+#if defined (iHaveCygwinPathConversion)
 iString *unixToWindows_Path(const char *cstr) {
     uint16_t *winPath = cygwin_create_path(CCP_POSIX_TO_WIN_W, cstr);
     if (winPath) {
