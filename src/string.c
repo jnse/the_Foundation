@@ -687,15 +687,6 @@ iStringList *split_CStr(const char *cstr, const char *separator) {
 /*-------------------------------------------------------------------------------------*/
 
 static void decodeNextMultibyte_StringConstIterator_(iStringConstIterator *d) {
-/*    const int rc = mbrtowc(&d->value, d->next, d->remaining, &d->mbs); */
-/*    if (rc > 0) { */
-/*        d->remaining -= rc; */
-/*        d->next += rc; */
-/*    } */
-/*    else { */
-/*        // Finished, invalid or incomplete. */
-/*        d->value = 0; */
-/*    } */
     d->value = 0;
     size_t n = iMin(8, d->remaining);
     if (n > 0) {
@@ -708,15 +699,6 @@ static void decodeNextMultibyte_StringConstIterator_(iStringConstIterator *d) {
 
 static iBool decodePrecedingMultibyte_StringConstIterator_(iStringConstIterator *d) {
     if (!d->remaining) return iFalse;
-/*    for (int i = 1; i <= iMin(MB_CUR_MAX, d->remaining); i++) { */
-/*        const int rc = mbrtowc(&d->value, d->next - i, i, &d->mbs); */
-/*        if (rc >= 0) { */
-/*            // Single-byte character. */
-/*            d->remaining -= rc; */
-/*            d->next -= rc; */
-/*            break; */
-/*        } */
-/*    } */
     for (size_t i = 1; i <= iMin(d->remaining, 8); ++i) {
         const int rc = u8_mbtoucr(&d->value, (const uint8_t *) d->next - i, i);
         if (rc >= 0) {
@@ -764,15 +746,6 @@ void next_StringReverseConstIterator(iStringConstIterator *d) {
 /*-------------------------------------------------------------------------------------*/
 
 void init_MultibyteChar(iMultibyteChar *d, iChar ch) {
-/*    mbstate_t mbs; */
-/*    iZap(mbs); */
-/*    const size_t count = wcrtomb(d->bytes, ch, &mbs); */
-/*    if (count != iInvalidSize) { */
-/*        d->bytes[count] = 0; */
-/*    } */
-/*    else { */
-/*        d->bytes[0] = 0; */
-/*    } */
     int len = u8_uctomb((uint8_t *) d->bytes, ch, sizeof(d->bytes));
     d->bytes[iMax(0, len)] = 0;
 }
