@@ -843,13 +843,13 @@ int iCmpStrNCase(const char *a, const char *b, size_t len) {
 static char *strcasestr_(const char *haystack, const char *needle) {
     const iString hay = iStringLiteral(haystack);
     const iString ndl = iStringLiteral(needle);
-    const iChar ndlFirstChar = uc_tolower(first_String(&ndl));
+    const iChar ndlFirstChar = lower_Char(first_String(&ndl));
     if (size_String(&ndl) > size_String(&hay)) {
         /* Too long to be able to find it. */
         return NULL;
     }
     iConstForEach(String, i, &hay) {
-        if (uc_tolower(i.value) == ndlFirstChar) {
+        if (lower_Char(i.value) == ndlFirstChar) {
             /* Check if the full needle matches. */
             iStringConstIterator hayStart;
             memcpy(&hayStart, &i, sizeof(i));
@@ -860,7 +860,7 @@ static char *strcasestr_(const char *haystack, const char *needle) {
                 next_StringConstIterator(&i);
                 if (!j.value) return iConstCast(char *, hayStart.pos); // Matched full needle.
                 if (!i.value) return NULL; // Not long enough for needle.
-                if (uc_tolower(i.value) != uc_tolower(j.value)) {
+                if (lower_Char(i.value) != lower_Char(j.value)) {
                     /* Must match all need characters. */
                     break;
                 }
