@@ -233,7 +233,6 @@ struct ConstIteratorImpl_String {
     const char *pos;
     const char *next;
     const iString *str;
-    size_t remaining;
 };
 ///@}
 

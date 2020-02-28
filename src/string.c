@@ -688,35 +688,20 @@ iStringList *split_CStr(const char *cstr, const char *separator) {
 
 static void decodeNextMultibyte_StringConstIterator_(iStringConstIterator *d) {
     d->value = 0;
-    size_t n = iMin(8, d->remaining);
-    if (n > 0) {
-        const int rc = u8_mbtouc(&d->value, (const uint8_t *) d->next, n);
-        d->next += rc;
-        iAssert(d->remaining >= (size_t) rc);
-        d->remaining -= (size_t) rc;
-    }
+    /* u8_next() returns NULL when end is reached. */
+    d->next = (const char *) u8_next(&d->value, (const uint8_t *) d->next);
 }
 
-static iBool decodePrecedingMultibyte_StringConstIterator_(iStringConstIterator *d) {
-    if (!d->remaining) return iFalse;
-    for (size_t i = 1; i <= iMin(d->remaining, 8); ++i) {
-        const int rc = u8_mbtoucr(&d->value, (const uint8_t *) d->next - i, i);
-        if (rc >= 0) {
-            d->remaining -= (size_t) rc;
-            d->next -= rc;
-            break;
-        }
-        /* Incomplete or invalid. */
-    }
-    return iTrue;
+static void decodePrecedingMultibyte_StringConstIterator_(iStringConstIterator *d) {
+    d->value = 0;
+    d->next = (const char *) u8_prev(
+        &d->value, (const uint8_t *) d->next, constData_Block(&d->str->chars));
 }
 
 void init_StringConstIterator(iStringConstIterator *d, const iString *str) {
     d->str = str;
     d->value = 0;
     d->pos = d->next = constData_Block(&str->chars);
-    d->remaining = size_Block(&str->chars);
-/*    iZap(d->mbs); */
     /* Decode the first character. */
     decodeNextMultibyte_StringConstIterator_(d);
 }
@@ -730,17 +715,13 @@ void init_StringReverseConstIterator(iStringConstIterator *d, const iString *str
     d->str = str;
     d->value = 0;
     d->pos = d->next = constEnd_Block(&str->chars);
-    d->remaining = size_Block(&str->chars);
-/*    iZap(d->mbs); */
     /* Decode the first (last) character. */
     decodePrecedingMultibyte_StringConstIterator_(d);
 }
 
 void next_StringReverseConstIterator(iStringConstIterator *d) {
     d->pos = d->next;
-    if (!decodePrecedingMultibyte_StringConstIterator_(d)) {
-        d->value = 0;
-    }
+    decodePrecedingMultibyte_StringConstIterator_(d);
 }
 
 /*-------------------------------------------------------------------------------------*/
