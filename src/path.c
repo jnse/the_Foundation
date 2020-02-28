@@ -29,7 +29,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/string.h"
 
 #include <unistd.h>
-#include <unicase.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -80,7 +79,7 @@ iBool isAbsolute_Path(const iString *d) {
     if (size_String(d) >= 3) {
         iStringConstIterator i;
         init_StringConstIterator(&i, d);
-        const iChar drive = uc_toupper(i.value);
+        const iChar drive = upper_Char(i.value);
         if (drive < 'A' || drive > 'Z') {
             return iFalse;
         }
