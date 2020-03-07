@@ -201,6 +201,9 @@ iPublic void        iMd5Hash    (const void *data, size_t size, uint8_t md5_out[
          iterName.value; \
          next_##typeName##iterType(&iterName))
 
+#define iForIndices(iterName, container) \
+    for (size_t iterName = 0; iterName < iElemCount(container); ++iterName)
+
 #define iForEach(typeName, iterName, container) \
     iIterate(typeName, Iterator, iterName, container)
 

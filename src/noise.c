@@ -188,7 +188,7 @@ static float weightedOffset_CombinedNoise_(const iCombinedNoise *d, float x, flo
         const iFloat3 offPos = *(const iFloat3 *) i.value;
         float dist = length_F3(sub_F3(init_F3(x_F3(offPos), y_F3(offPos), 0.f), pos));
         /* Is this one of the nearest ones? */
-        for (size_t k = 0; k < iElemCount(nearest); ++k) {
+        iForIndices(k, nearest) {
             iNearest *near = nearest + k;
             if (near->index == iInvalidPos || dist < near->dist) {
                 near->index = index_ArrayConstIterator(&i);
@@ -198,7 +198,7 @@ static float weightedOffset_CombinedNoise_(const iCombinedNoise *d, float x, flo
         }
     }
     float maxDist = 0.f;
-    for (size_t k = 0; k < iElemCount(nearest); ++k) {
+    iForIndices(k, nearest) {
         maxDist = iMax(nearest[k].dist, maxDist);
     }
     float weights = 0.f;
