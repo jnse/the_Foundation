@@ -255,6 +255,22 @@ int             iCmpStrRange(const iRangecc *range, const char *cstr);
 int             iCmpStrCase (const char *a, const char *b);
 int             iCmpStrNCase(const char *a, const char *b, size_t len);
 
+iLocalDef iBool equal_CStr(const char *a, const char *b) {
+    return iCmpStr(a, b) == 0;
+}
+
+iLocalDef iBool equalCase_CStr(const char *a, const char *b) {
+    return iCmpStrCase(a, b) == 0;
+}
+
+iLocalDef iBool beginsWith_CStr(const char *str, const char *pfx) {
+    return iCmpStrN(str, pfx, strlen(pfx)) == 0;
+}
+
+iLocalDef iBool beginsWithCase_CStr(const char *str, const char *pfx) {
+    return iCmpStrNCase(str, pfx, strlen(pfx)) == 0;
+}
+
 struct Impl_StringComparison {
     int     (*cmp)      (const char *, const char *);
     int     (*cmpN)     (const char *, const char *, size_t);
