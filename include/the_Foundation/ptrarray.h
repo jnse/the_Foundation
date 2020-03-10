@@ -51,6 +51,10 @@ void        pushFront_PtrArray      (iPtrArray *, const void *ptr);
 
 iLocalDef void *front_PtrArray  (iPtrArray *d) { return !isEmpty_PtrArray(d) ? at_PtrArray(d, 0) : NULL; }
 
+iLocalDef const void *constFront_PtrArray(const iPtrArray *d) {
+    return !isEmpty_PtrArray(d) ? constAt_PtrArray(d, 0) : NULL;
+}
+
 iBool       take_PtrArray           (iPtrArray *, size_t pos, void **ptr_out);
 size_t      takeN_PtrArray          (iPtrArray *, size_t pos, void **ptr_out, size_t count);
 void        insert_PtrArray         (iPtrArray *, size_t pos, const void *value);
