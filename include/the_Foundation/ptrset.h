@@ -52,8 +52,8 @@ void *      at_PtrSet       (const iPtrSet *, size_t pos);
 #define     isEmpty_PtrSet(d)   isEmpty_SortedArray(d)
 #define     size_PtrSet(d)      size_SortedArray(d)
 
-iLocalDef void *    front_PtrSet  (iPtrSet *d) { return at_PtrSet(d, 0); }
-iLocalDef void *    back_PtrSet   (iPtrSet *d) { return at_PtrSet(d, size_PtrSet(d) - 1); }
+iLocalDef void *    front_PtrSet  (const iPtrSet *d) { return at_PtrSet(d, 0); }
+iLocalDef void *    back_PtrSet   (const iPtrSet *d) { return at_PtrSet(d, size_PtrSet(d) - 1); }
 
 iBool       insert_PtrSet   (iPtrSet *, const void *ptr);
 iBool       remove_PtrSet   (iPtrSet *, const void *ptr);

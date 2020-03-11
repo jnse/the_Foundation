@@ -285,8 +285,8 @@ void init_ArrayIterator(iArrayIterator *d, iArray *array) {
 }
 
 void next_ArrayIterator(iArrayIterator *d) {
-    if (d->pos < size_Array(d->array) - 1) {
-        d->value = at_Array(d->array, ++d->pos);
+    if (++d->pos < size_Array(d->array)) {
+        d->value = at_Array(d->array, d->pos);
     }
     else {
         d->value = NULL;
