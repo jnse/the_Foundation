@@ -182,7 +182,8 @@ static float weightedOffset_CombinedNoise_(const iCombinedNoise *d, float x, flo
         float dist;
     };
     iNearest nearest[] = {
-        {iInvalidPos, 0.f}, {iInvalidPos, 0.f}, {iInvalidPos, 0.f}, {iInvalidPos, 0.f}};
+        { iInvalidPos, 0.f }, { iInvalidPos, 0.f }, { iInvalidPos, 0.f }, { iInvalidPos, 0.f }
+    };
     const iFloat3 pos = init_F3(x, y, 0.f);
     iConstForEach(Array, i, &d->offsets) {
         const iFloat3 offPos = *(const iFloat3 *) i.value;

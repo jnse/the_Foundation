@@ -27,7 +27,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
+#include "random.h"
 
 iDeclareType(Rangei)
 iDeclareType(Rangeui)
@@ -75,3 +75,6 @@ struct Impl_Rangecc {
 #define shift_Range(d, delta)       {(d)->start += (delta); (d)->end += (delta);}
 #define setSize_Range(d, ns)        {(d)->end = (d)->start + (ns);}
 
+iLocalDef float random_Rangef(iRangef range) {
+    return range.start + iRandomf() * (range.end - range.start);
+}

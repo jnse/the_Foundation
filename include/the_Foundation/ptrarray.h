@@ -89,4 +89,8 @@ struct ConstIteratorImpl_PtrArray {
 };
 ///@}
 
+iLocalDef void remove_PtrArrayIterator(iPtrArrayIterator *d) {
+    remove_ArrayIterator(&d->iter);
+}
+
 iEndPublic
