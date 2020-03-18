@@ -33,6 +33,10 @@ int iRound(float value) {
     return (int) lroundf(value);
 }
 
+int16_t iRound16(float value) {
+    return (int16_t) lroundf(value);
+}
+
 int iWrap(int value, int low, int high) {
     const int span = high - low;
     if (span <= 0) return value;

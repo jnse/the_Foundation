@@ -39,6 +39,7 @@ iBeginPublic
 #define iMathRadianToDegreef(v) ((v) * 180.f / iMathPif)
 
 int         iRound  (float value);
+int16_t     iRound16(float value);
 int         iWrap   (int value, int low, int high);
 
 iDeclareType(FloatVec3)
