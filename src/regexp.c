@@ -73,7 +73,7 @@ iBool match_RegExp(const iRegExp *d, const char *subject, size_t len, iRegExpMat
         iZap(*match);
         match->subject = subject;
     }
-    iAssert(match->pos <= len);
+    if (match->pos > len) return iFalse;
     int rc = pcre_exec(d->re, NULL,
                        subject, len,
                        match->pos, 0,
