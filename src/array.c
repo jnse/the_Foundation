@@ -84,9 +84,9 @@ void initCopy_Array(iArray *d, const iArray *other) {
     d->range.start = 0;
     d->range.end = size_Array(other);
     d->allocSize = d->range.end + 1;
-    d->data = malloc(d->allocSize);
     d->elementSize = other->elementSize;
-    memcpy(d->data, other->data, d->range.end);
+    d->data = malloc(d->allocSize * d->elementSize);
+    memcpy(d->data, constData_Array(other), size_Array(other) * d->elementSize);
 }
 
 void deinit_Array(iArray *d) {
