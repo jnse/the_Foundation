@@ -59,6 +59,10 @@ iLocalDef iRect initCentered_Rect(const iInt2 center, const iInt2 size) {
     return (iRect){ sub_I2(center, divi_I2(size, 2)), size };
 }
 
+iLocalDef iRect initSize_Rect(int width, int height) {
+    return init_Rect(0, 0, width, height);
+}
+
 iLocalDef int   left_Rect   (const iRect *d) { return d->pos.x; }
 iLocalDef int   right_Rect  (const iRect *d) { return d->pos.x + d->size.x; }
 iLocalDef int   top_Rect    (const iRect *d) { return d->pos.y; }
