@@ -131,6 +131,10 @@ iLocalDef iRect adjusted_Rect(const iRect *d, iInt2 topLeft, iInt2 bottomRight) 
     return initCorners_Rect(add_I2(d->pos, topLeft), add_I2(bottomRight_Rect(d), bottomRight));
 }
 
+iLocalDef iRect moved_Rect(iRect d, iInt2 offset) {
+    return (iRect){ add_I2(d.pos, offset), d.size };
+}
+
 iDeclareConstIterator(Rect, const iRect *)
 
 struct ConstIteratorImpl_Rect {
