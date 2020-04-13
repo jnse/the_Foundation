@@ -278,7 +278,7 @@ void trimEnd_String(iString *d) {
 }
 
 void trimEnd_Rangecc(iRangecc *d) {
-    while (d->end != d->start && isspace((int) d->end[-1])) {
+    while (d->end != d->start && (d->end[-1] == 0 || isspace((int) d->end[-1]))) {
         d->end--;
     }
 }
