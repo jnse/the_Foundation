@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define iRandMax (1u << 24)
 
 static uint32_t rand24_(void) {
-    // For reference, see: https://en.wikipedia.org/wiki/Linear_congruential_generator
+    /* For reference, see: https://en.wikipedia.org/wiki/Linear_congruential_generator */
     static atomic_uint seed;
     static iBool inited = iFalse;
     const uint32_t multiplier = 1103515245;
