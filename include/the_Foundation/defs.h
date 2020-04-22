@@ -58,7 +58,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define iMax(a, b)              ((a) > (b) ? (a) : (b))
 #define iAbs(a)                 ((a) > 0 ? (a) : -(a))
 #define iClamp(i, low, high)    ((i) < (low) ? (low) : (i) > (high) ? (high) : (i))
-#define iCmp(a, b)              ((a) == (b) ? 0 : (a) < (b) ? -1 : 1)
+#define iCmp(a, b)              ((a) > (b) ? 1 : (a) < (b) ? -1 : 0)
 #define iElemCount(ar)          (sizeof(ar) / sizeof((ar)[0]))
 #define iSwap(typeName, a, b)   { typeName tmp_Swap_ = (a); (a) = (b); (b) = tmp_Swap_; }
 
