@@ -106,8 +106,8 @@ void popBack_ObjectList(iObjectList *d) {
 
 void init_ObjectListIterator(iObjectListIterator *d, iObjectList *list) {
     d->list = list;
-    d->value = front_List(&list->list);
-    d->object = (d->value? d->value->object : NULL);
+    d->value = (list ? front_List(&list->list) : NULL);
+    d->object = (d->value ? d->value->object : NULL);
     d->next = next_ObjectListNode(d->value);
 }
 
@@ -128,8 +128,8 @@ void remove_ObjectListIterator(iObjectListIterator *d) {
 
 void init_ObjectListReverseIterator(iObjectListReverseIterator *d, iObjectList *list) {
     d->list = list;
-    d->value = back_List(&list->list);
-    d->object = (d->value? d->value->object : NULL);
+    d->value = (list ? back_List(&list->list) : NULL);
+    d->object = (d->value ? d->value->object : NULL);
     d->next = prev_ObjectListNode(d->value);
 }
 
@@ -152,8 +152,8 @@ void remove_ObjectListReverseIterator(iObjectListReverseIterator *d) {
 
 void init_ObjectListConstIterator(iObjectListConstIterator *d, const iObjectList *list) {
     d->list = list;
-    d->value = front_List(&list->list);
-    d->object = (d->value? d->value->object : NULL);
+    d->value = (list ? front_List(&list->list) : NULL);
+    d->object = (d->value ? d->value->object : NULL);
 }
 
 void next_ObjectListConstIterator(iObjectListConstIterator *d) {
@@ -166,8 +166,8 @@ void next_ObjectListConstIterator(iObjectListConstIterator *d) {
 
 void init_ObjectListReverseConstIterator(iObjectListReverseConstIterator *d, const iObjectList *list) {
     d->list = list;
-    d->value = back_List(&list->list);
-    d->object = (d->value? d->value->object : NULL);
+    d->value = (list ? back_List(&list->list) : NULL);
+    d->object = (d->value ? d->value->object : NULL);
 }
 
 void next_ObjectListReverseConstIterator(iObjectListReverseConstIterator *d) {

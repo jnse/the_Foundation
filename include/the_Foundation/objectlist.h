@@ -51,8 +51,8 @@ struct Impl_ObjectListNode {
     iObject *object;
 };
 
-#define next_ObjectListNode(d)      ((iObjectListNode *) ((d)? (d)->node.next : NULL))
-#define prev_ObjectListNode(d)      ((iObjectListNode *) ((d)? (d)->node.prev : NULL))
+#define next_ObjectListNode(d)      ((iObjectListNode *) ((d) ? (d)->node.next : NULL))
+#define prev_ObjectListNode(d)      ((iObjectListNode *) ((d) ? (d)->node.prev : NULL))
 #define object_ObjectListNode(d)    ((iAnyObject *) ((const iObjectListNode *) (d))->object)
 
 iDeclareObjectConstruction(ObjectList)
