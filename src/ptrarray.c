@@ -85,6 +85,15 @@ void insertN_PtrArray(iPtrArray *d, size_t pos, const void **values, size_t coun
     insertN_Array(d, pos, values, count);
 }
 
+size_t indexOf_PtrArray(const iPtrArray *d, const void *ptr) {
+    iConstForEach(PtrArray, i, d) {
+        if (i.ptr == ptr) {
+            return index_PtrArrayConstIterator(&i);
+        }
+    }
+    return iInvalidPos;
+}
+
 /*-------------------------------------------------------------------------------------*/
 
 #define value_PtrArrayIterator_(d)      (((d)->iter.value? *(void **) (d)->iter.value : NULL));

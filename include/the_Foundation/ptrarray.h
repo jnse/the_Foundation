@@ -63,13 +63,15 @@ void        insertN_PtrArray        (iPtrArray *, size_t pos, const void **value
 #define     resize_PtrArray(d, s)   resize_Array(d, s)
 #define     clear_PtrArray(d)       clear_Array(d)
 
+size_t      indexOf_PtrArray        (const iPtrArray *, const void *ptr); /* O(n) */
+
 /** @name Iterators */
 ///@{
 iDeclareIterator(PtrArray, iPtrArray *)
 iDeclareConstIterator(PtrArray, const iPtrArray *)
 
-#define index_PtrArrayIterator(d)               index_ArrayIterator(d)
-#define index_PtrArrayConstIterator(d)          index_ArrayConstIterator(d)
+#define index_PtrArrayIterator(d)               index_ArrayIterator(&(d)->iter)
+#define index_PtrArrayConstIterator(d)          index_ArrayConstIterator(&(d)->iter)
 #define index_PtrArrayReverseIterator(d)        index_ArrayReverseIterator(d)
 #define index_PtrArrayReverseConstIterator(d)   index_ArrayReverseConstIterator(d)
 
