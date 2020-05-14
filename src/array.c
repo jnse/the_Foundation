@@ -36,6 +36,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 static void moveElements_Array_(iArray *d, const iRanges *moved, int delta) {
     if (delta != 0) {
         char *ptr = element_Array_(d, moved->start);
+        iAssert(moved->start + delta >= 0);
+        iAssert(moved->end   + delta <= d->allocSize);
         memmove(ptr + delta * d->elementSize, ptr, d->elementSize * size_Range(moved));
     }
 }
@@ -49,17 +51,28 @@ static void shift_Array_(iArray *d, int delta) {
     }
 }
 
-/// Calculates the shift required to balance the list elements.
 static int imbalance_Array_(const iArray *d) {
+    /* Calculates the shift required to balance the list elements. */
     const int left  = d->range.start;
     const int right = d->allocSize - d->range.end;
-    return (right - left) / 2;
+    if (left <= iArrayMinAlloc && right <= iArrayMinAlloc) {
+        return 0; /* Too tight, shouldn't move just a little bit. */
+    }
+    /* The imbalance must be significant. */
+    if (left > 2 * right || right > 2 * left) {
+        return (right - left) / 2;
+    }
+    return 0;
 }
 
 static void rebalance_Array_(iArray *d) {
-    const int imbalance = imbalance_Array_(d);
-    if (d->range.end == d->allocSize || d->range.start == 0) {
-        shift_Array_(d, imbalance);
+    /* Rebalancing occurs if the elements are touching the start or end of the buffer,
+       which means elements cannot be added without moving existing ones. */
+    if (!isEmpty_Range(&d->range)) {
+        const int imbalance = imbalance_Array_(d);
+        if (d->range.end == d->allocSize || d->range.start == 0) {
+            shift_Array_(d, imbalance);
+        }
     }
 }
 
@@ -197,36 +210,58 @@ void insertN_Array(iArray *d, size_t pos, const void *value, size_t count) {
     if (!count) return;
     iAssert(pos <= size_Array(d));
     reserve_Array(d, size_Array(d) + count);
-    rebalance_Array_(d);
     /* Map to internal range. */
     pos += d->range.start;
-    /* Easy insertions. */
-    if (pos == d->range.end && d->range.end + count <= d->allocSize) { // At the end.
-        memcpy(element_Array_(d, pos), value, count * d->elementSize);
+    /* Check for non-splitting insertions first. */
+    if (pos == d->range.end)  { /* At the end. */
+        if (d->range.end + count > d->allocSize) {
+            size_t overrun = d->range.end + count - d->allocSize;
+            shift_Array_(d, -(int) overrun);
+        }
+        memcpy(element_Array_(d, d->range.end), value, count * d->elementSize);
         d->range.end += count;
     }
-    else if (d->range.start >= count && pos == d->range.start) { // At the beginning.
-        pos -= count;
-        memcpy(element_Array_(d, pos), value, count * d->elementSize);
+    else if (pos == d->range.start) { /* At the beginning. */
+        if (d->range.start < count) {
+            size_t overrun = count - d->range.start;
+            shift_Array_(d, overrun);
+        }
         d->range.start -= count;
+        memcpy(element_Array_(d, d->range.start), value, count * d->elementSize);
     }
     else {
-        /* Need to make some room. Shift backward? */
-        if (d->range.start >= count &&
-                (d->range.end + count > d->allocSize ||
-                 pos - d->range.start < d->range.end - pos)) {
-            const iRanges moved = { d->range.start, pos };
-            pos -= count;
-            moveElements_Array_(d, &moved, -(int)count);
-            d->range.start -= count;
-            memcpy(element_Array_(d, pos), value, count * d->elementSize);
+        /* Some of the existing elements must be moved.
+           [ . . . A A A | B B B B . . . ] */
+        int part[2];
+        if (pos - d->range.start <= d->range.end - pos) {
+            /* First half is smaller, move it first. */
+            part[0] = 0;
+            part[1] = 1;
         }
-        else { // Shift forward.
-            moveElements_Array_(d, &(iRanges) { pos, d->range.end }, count);
-            d->range.end += count;
-            memcpy(element_Array_(d, pos), value, count * d->elementSize);
+        else {
+            part[0] = 1;
+            part[1] = 0;
         }
+        size_t needed = count;
+        for (int i = 0; i < 2 && needed > 0; ++i) {
+            if (part[i] == 0) { /* Moving the first half. */
+                int avail = iMin(needed, d->range.start);
+                moveElements_Array_(d, &(iRanges){ d->range.start, pos }, -avail);
+                d->range.start -= avail;
+                pos += avail;
+                needed -= avail;
+            }
+            else if (part[i] == 1) { /* Moving the second half. */
+                int avail = iMin(needed, d->allocSize - d->range.end);
+                moveElements_Array_(d, &(iRanges) { pos, d->range.end }, avail);
+                d->range.end += avail;
+                needed -= avail;
+            }
+        }
+        iAssert(needed == 0);
+        memcpy(element_Array_(d, pos), value, count * d->elementSize);
     }
+    rebalance_Array_(d);
 }
 
 void removeN_Array(iArray *d, size_t pos, size_t count) {
