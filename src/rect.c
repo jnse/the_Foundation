@@ -39,45 +39,32 @@ void deserialize_Rect(iRect *d, iStream *ins) {
     d->size = readInt2_Stream(ins);
 }
 
-iBool containsRect_Rect(const iRect *d, const iRect *other) {
-    const iInt2 br = sub_I2(bottomRight_Rect(other), one_I2());
-    return contains_Rect(d, topLeft_Rect(other)) &&
-           contains_Rect(d, init_I2(br.x, top_Rect(other))) && contains_Rect(d, br) &&
-           contains_Rect(d, init_I2(left_Rect(other), br.y));
+iInt2 random_Rect(iRect d) {
+    return add_I2(d.pos, random_I2(d.size));
 }
 
-iBool isOverlapping_Rect(const iRect *d, const iRect *other) {
-    /* Overlaps unless any one of the edges makes it impossible. */
-    return !(other->pos.x >= right_Rect(d) || other->pos.y >= bottom_Rect(d) ||
-             right_Rect(other) <= d->pos.x || bottom_Rect(other) <= d->pos.y);
+iLocalDef int edgeLength_Rect_(const iRect d) {
+    return 2 * (d.size.x - 1) + 2 * (d.size.y - 1);
 }
 
-iInt2 random_Rect(const iRect *d) {
-    return add_I2(d->pos, random_I2(d->size));
-}
-
-iLocalDef int edgeLength_Rect_(const iRect *d) {
-    return 2 * (d->size.x - 1) + 2 * (d->size.y - 1);
-}
-
-iInt2 edgePos_Rect(const iRect *d, int pos) {
-    if (pos < d->size.x) {
-        return init_I2(d->pos.x + pos, d->pos.y);
+iInt2 edgePos_Rect(iRect d, int pos) {
+    if (pos < d.size.x) {
+        return init_I2(d.pos.x + pos, d.pos.y);
     }
-    pos -= d->size.x - 1;
-    if (pos < d->size.y) {
+    pos -= d.size.x - 1;
+    if (pos < d.size.y) {
         return init_I2(right_Rect(d) - 1, top_Rect(d) + pos);
     }
-    pos -= d->size.y - 1;
-    if (pos < d->size.x) {
+    pos -= d.size.y - 1;
+    if (pos < d.size.x) {
         return init_I2(right_Rect(d) - 1 - pos, bottom_Rect(d) - 1);
     }
-    pos -= d->size.x - 1;
-    return init_I2(d->pos.x, bottom_Rect(d) - 1 - pos);
+    pos -= d.size.x - 1;
+    return init_I2(d.pos.x, bottom_Rect(d) - 1 - pos);
 }
 
-iInt2 randomEdgePos_Rect(const iRect *d) {
-    const iInt2 dim = sub_I2(d->size, one_I2());
+iInt2 randomEdgePos_Rect(iRect d) {
+    const iInt2 dim = sub_I2(d.size, one_I2());
     int i;
     for (;;) {
         i = iRandom(1, edgeLength_Rect_(d));
@@ -89,9 +76,9 @@ iInt2 randomEdgePos_Rect(const iRect *d) {
     return edgePos_Rect(d, i);
 }
 
-void init_RectConstIterator(iRectConstIterator *d, const iRect *rect) {
+void init_RectConstIterator(iRectConstIterator *d, iRect rect) {
     d->rect = rect;
-    d->pos = rect->pos;
+    d->pos = rect.pos;
     d->value = !isEmpty_Rect(rect);
 }
 
@@ -102,27 +89,6 @@ void next_RectConstIterator(iRectConstIterator *d) {
         d->pos.y++;
     }
     d->value = (d->pos.y < bottom_Rect(d->rect));
-}
-
-iRect union_Rect(const iRect *d, const iRect *other) {
-    if (isEmpty_Rect(d)) {
-        return *other;
-    }
-    if (isEmpty_Rect(other)) {
-        return *d;
-    }
-    const iInt2 tl = min_I2(d->pos, other->pos);
-    const iInt2 br = max_I2(bottomRight_Rect(d), bottomRight_Rect(other));
-    return (iRect){ tl, sub_I2(br, tl) };
-}
-
-iRect intersect_Rect(const iRect *d, const iRect *other) {
-    if (!isOverlapping_Rect(d, other)) {
-        return zero_Rect();
-    }
-    const iInt2 tl = max_I2(d->pos, other->pos);
-    const iInt2 br = min_I2(bottomRight_Rect(d), bottomRight_Rect(other));
-    return (iRect){ tl, sub_I2(br, tl) };
 }
 
 void expand_Rect(iRect *d, iInt2 value) {

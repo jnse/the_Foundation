@@ -63,57 +63,86 @@ iLocalDef iRect initSize_Rect(int width, int height) {
     return init_Rect(0, 0, width, height);
 }
 
-iLocalDef int   left_Rect   (const iRect *d) { return d->pos.x; }
-iLocalDef int   right_Rect  (const iRect *d) { return d->pos.x + d->size.x; }
-iLocalDef int   top_Rect    (const iRect *d) { return d->pos.y; }
-iLocalDef int   bottom_Rect (const iRect *d) { return d->pos.y + d->size.y; }
-iLocalDef iInt2 mid_Rect    (const iRect *d) { return add_I2(d->pos, divi_I2(d->size, 2)); }
+iLocalDef int   left_Rect   (const iRect d) { return d.pos.x; }
+iLocalDef int   right_Rect  (const iRect d) { return d.pos.x + d.size.x; }
+iLocalDef int   top_Rect    (const iRect d) { return d.pos.y; }
+iLocalDef int   bottom_Rect (const iRect d) { return d.pos.y + d.size.y; }
+iLocalDef iInt2 mid_Rect    (const iRect d) { return add_I2(d.pos, divi_I2(d.size, 2)); }
 
-iLocalDef iInt2 topLeft_Rect(const iRect *d) { return d->pos; }
+iLocalDef iInt2 topLeft_Rect(const iRect d) { return d.pos; }
 
-iLocalDef iInt2 topMid_Rect(const iRect *d) {
-    return init_I2(d->pos.x + d->size.x / 2, d->pos.y);
+iLocalDef iInt2 topMid_Rect(const iRect d) {
+    return init_I2(d.pos.x + d.size.x / 2, d.pos.y);
 }
 
-iLocalDef iInt2 topRight_Rect(const iRect *d) {
-    return init_I2(right_Rect(d), d->pos.y);
+iLocalDef iInt2 topRight_Rect(const iRect d) {
+    return init_I2(right_Rect(d), d.pos.y);
 }
 
-iLocalDef iInt2 bottomLeft_Rect(const iRect *d) {
-    return init_I2(d->pos.x, bottom_Rect(d));
+iLocalDef iInt2 bottomLeft_Rect(const iRect d) {
+    return init_I2(d.pos.x, bottom_Rect(d));
 }
 
-iLocalDef iInt2 bottomMid_Rect(const iRect *d) {
-    return init_I2(d->pos.x + d->size.x / 2, bottom_Rect(d));
+iLocalDef iInt2 bottomMid_Rect(const iRect d) {
+    return init_I2(d.pos.x + d.size.x / 2, bottom_Rect(d));
 }
 
-iLocalDef iInt2 bottomRight_Rect(const iRect *d) {
-    return add_I2(d->pos, d->size);
+iLocalDef iInt2 bottomRight_Rect(const iRect d) {
+    return add_I2(d.pos, d.size);
 }
 
-iLocalDef iBool contains_Rect(const iRect *d, const iInt2 pos) {
+iLocalDef iBool contains_Rect(const iRect d, const iInt2 pos) {
     const iInt2 br = bottomRight_Rect(d);
-    return pos.x >= d->pos.x && pos.y >= d->pos.y && pos.x < br.x && pos.y < br.y;
+    return pos.x >= d.pos.x && pos.y >= d.pos.y && pos.x < br.x && pos.y < br.y;
 }
 
-iBool   containsRect_Rect   (const iRect *, const iRect *other);
-iBool   isOverlapping_Rect  (const iRect *, const iRect *other);
-
-iLocalDef iBool isEmpty_Rect(const iRect *d) {
-    return prod_I2(d->size) == 0;
+iLocalDef iBool containsRect_Rect(const iRect d, const iRect other) {
+    const iInt2 br = sub_I2(bottomRight_Rect(other), one_I2());
+    return contains_Rect(d, topLeft_Rect(other)) &&
+           contains_Rect(d, init_I2(br.x, top_Rect(other))) && contains_Rect(d, br) &&
+           contains_Rect(d, init_I2(left_Rect(other), br.y));
 }
 
-iLocalDef iBool equal_Rect(const iRect *d, const iRect *other) {
-    return all_Boolv2(equal_I2(d->pos, other->pos)) && all_Boolv2(equal_I2(d->size, other->size));
+iLocalDef iBool isOverlapping_Rect(const iRect d, const iRect other) {
+    /* Overlaps unless any one of the edges makes it impossible. */
+    return !(other.pos.x >= right_Rect(d) || other.pos.y >= bottom_Rect(d) ||
+             right_Rect(other) <= d.pos.x || bottom_Rect(other) <= d.pos.y);
 }
 
-iRect   union_Rect          (const iRect *d, const iRect *other);
-iRect   intersect_Rect      (const iRect *d, const iRect *other);
+iLocalDef iBool isEmpty_Rect(const iRect d) {
+    return prod_I2(d.size) == 0;
+}
+
+iLocalDef iBool equal_Rect(const iRect d, const iRect other) {
+    return isEqual_I2(d.pos, other.pos) && isEqual_I2(d.size, other.size);
+}
+
+iLocalDef iRect union_Rect(const iRect d, const iRect other) {
+    if (isEmpty_Rect(d)) {
+        return other;
+    }
+    if (isEmpty_Rect(other)) {
+        return d;
+    }
+    const iInt2 tl = min_I2(d.pos, other.pos);
+    const iInt2 br = max_I2(bottomRight_Rect(d), bottomRight_Rect(other));
+    return (iRect){ tl, sub_I2(br, tl) };
+}
+
+iLocalDef iRect intersect_Rect(const iRect d, const iRect other) {
+    if (!isOverlapping_Rect(d, other)) {
+        return zero_Rect();
+    }
+    const iInt2 tl = max_I2(d.pos, other.pos);
+    const iInt2 br = min_I2(bottomRight_Rect(d), bottomRight_Rect(other));
+    return (iRect){ tl, sub_I2(br, tl) };
+}
+
 void    expand_Rect         (iRect *, iInt2 value);
 void    adjustEdges_Rect    (iRect *, int top, int right, int bottom, int left);
-iInt2   random_Rect         (const iRect *d);
-iInt2   edgePos_Rect        (const iRect *d, int pos);
-iInt2   randomEdgePos_Rect  (const iRect *d); // not a corner
+iInt2   random_Rect         (iRect);
+iInt2   edgePos_Rect        (iRect, int pos);
+iInt2   randomEdgePos_Rect  (iRect); // not a corner
 
 iLocalDef void shrink_Rect  (iRect *d, iInt2 value) { expand_Rect(d, neg_I2(value)); }
 
@@ -127,20 +156,20 @@ iLocalDef iRect shrunk_Rect(iRect d, iInt2 value) {
     return d;
 }
 
-iLocalDef iRect adjusted_Rect(const iRect *d, iInt2 topLeft, iInt2 bottomRight) {
-    return initCorners_Rect(add_I2(d->pos, topLeft), add_I2(bottomRight_Rect(d), bottomRight));
+iLocalDef iRect adjusted_Rect(const iRect d, iInt2 topLeft, iInt2 bottomRight) {
+    return initCorners_Rect(add_I2(d.pos, topLeft), add_I2(bottomRight_Rect(d), bottomRight));
 }
 
-iLocalDef iRect moved_Rect(iRect d, iInt2 offset) {
+iLocalDef iRect moved_Rect(const iRect d, iInt2 offset) {
     return (iRect){ add_I2(d.pos, offset), d.size };
 }
 
-iDeclareConstIterator(Rect, const iRect *)
+iDeclareConstIterator(Rect, iRect)
 
 struct ConstIteratorImpl_Rect {
     iBool value; // position is valid
     iInt2 pos;
-    const iRect *rect;
+    iRect rect;
 };
 
 #define iForRectRadius(iter, center, radius, body) { \
