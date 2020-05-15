@@ -230,11 +230,33 @@ void insertN_Array(iArray *d, size_t pos, const void *value, size_t count) {
         memcpy(element_Array_(d, d->range.start), value, count * d->elementSize);
     }
     else {
-        /* Some of the existing elements must be moved.
-           [ . . . A A A | B B B B . . . ] */
+        /* Some of the existing elements must be moved. Below is an
+           example of inserting two elements in the middle, at the ^ mark.
+
+           Case A) Left side first:
+
+               [ . A A A B B B B . . . ]
+                         ^
+               [ A A A . B B B B . . . ]
+                       ^ *
+               [ A A A . . B B B B . . ]
+                       ^ *
+
+           Case B) Right side first:
+
+               [ . . . A A A A B B B . ]
+                               ^
+               [ . . . A A A A . B B B ]
+                               ^
+               [ . . A A A A . . B B B ]
+                             ^ *
+        */
+        const size_t splitPos = pos;
         int part[2];
-        if (pos - d->range.start <= d->range.end - pos) {
-            /* First half is smaller, move it first. */
+        if (splitPos - d->range.start <= d->range.end - splitPos &&
+            count < d->range.start) {
+            /* First half is smaller, move it first. However, we require that there is
+               some empty space remaning in the beginning to reduce need for balancing. */
             part[0] = 0;
             part[1] = 1;
         }
@@ -246,14 +268,14 @@ void insertN_Array(iArray *d, size_t pos, const void *value, size_t count) {
         for (int i = 0; i < 2 && needed > 0; ++i) {
             if (part[i] == 0) { /* Moving the first half. */
                 int avail = iMin(needed, d->range.start);
-                moveElements_Array_(d, &(iRanges){ d->range.start, pos }, -avail);
+                moveElements_Array_(d, &(iRanges){ d->range.start, splitPos }, -avail);
                 d->range.start -= avail;
-                pos += avail;
+                pos -= avail;
                 needed -= avail;
             }
             else if (part[i] == 1) { /* Moving the second half. */
                 int avail = iMin(needed, d->allocSize - d->range.end);
-                moveElements_Array_(d, &(iRanges) { pos, d->range.end }, avail);
+                moveElements_Array_(d, &(iRanges) { splitPos, d->range.end }, avail);
                 d->range.end += avail;
                 needed -= avail;
             }
