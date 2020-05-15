@@ -176,7 +176,7 @@ struct ConstIteratorImpl_Rect {
     const iInt2 center_ForRadius_ = (center); \
     const int radius_ForRadius_ = (radius); \
     const iRect rect_ForRadius_ = initCentered_Rect(center_ForRadius_, init1_I2(2 * radius_ForRadius_ + 1)); \
-    iConstForEach(Rect, iter, &rect_ForRadius_) { \
+    iConstForEach(Rect, iter, rect_ForRadius_) { \
         if (dist_I2(center_ForRadius_, iter.pos) + .5f <= radius_ForRadius_) { body } \
     } \
 }
