@@ -67,6 +67,8 @@ iLocalDef int   left_Rect   (const iRect d) { return d.pos.x; }
 iLocalDef int   right_Rect  (const iRect d) { return d.pos.x + d.size.x; }
 iLocalDef int   top_Rect    (const iRect d) { return d.pos.y; }
 iLocalDef int   bottom_Rect (const iRect d) { return d.pos.y + d.size.y; }
+iLocalDef int   width_Rect  (const iRect d) { return d.size.x; }
+iLocalDef int   height_Rect (const iRect d) { return d.size.y; }
 iLocalDef iInt2 mid_Rect    (const iRect d) { return add_I2(d.pos, divi_I2(d.size, 2)); }
 
 iLocalDef iInt2 topLeft_Rect(const iRect d) { return d.pos; }
