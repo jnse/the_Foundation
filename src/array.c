@@ -361,7 +361,7 @@ void remove_ArrayIterator(iArrayIterator *d) {
 void init_ArrayConstIterator(iArrayConstIterator *d, const iArray *array) {
     if (array) {
         d->array = array;
-        d->value = (!isEmpty_Array(array)? constAt_Array(array, 0) : NULL);
+        d->value = (!isEmpty_Array(array) ? constFront_Array(array) : NULL);
         d->end = element_Array_(d->array, d->array->range.end);
     }
     else {
@@ -382,5 +382,27 @@ size_t index_ArrayConstIterator(const iArrayConstIterator *d) {
             d->array->elementSize;
 }
 
+void init_ArrayReverseConstIterator(iArrayConstIterator *d, const iArray *array) {
+    if (array) {
+        d->array = array;
+        d->value = (!isEmpty_Array(array) ? constBack_Array(array) : NULL);
+        d->end = element_Array_(d->array, d->array->range.start);
+    }
+    else {
+        iZap(*d);
+    }
+}
+
+void next_ArrayReverseConstIterator(iArrayConstIterator *d) {
+    iAssert(d->value);
+    d->value = (const char *) d->value - d->array->elementSize;
+    if (d->value < d->end) {
+        d->value = NULL;
+    }
+}
+
 //size_t index_ArrayReverseIterator(const iArrayIterator *);
-//size_t index_ArrayReverseConstIterator(const iArrayIterator *);
+
+size_t index_ArrayReverseConstIterator(const iArrayReverseConstIterator *d) {
+    return index_ArrayConstIterator(d);
+}

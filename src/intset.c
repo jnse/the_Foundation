@@ -113,3 +113,11 @@ void init_IntSetConstIterator(iIntSetConstIterator *d, const iIntSet *set) {
 void next_IntSetConstIterator(iIntSetConstIterator *d) {
     next_ArrayConstIterator(&d->iter);
 }
+
+void init_IntSetReverseConstIterator(iIntSetReverseConstIterator *d, const iIntSet *set) {
+    init_ArrayReverseConstIterator(&d->iter, set ? &set->values : NULL);
+}
+
+void next_IntSetReverseConstIterator(iIntSetReverseConstIterator *d) {
+    next_ArrayReverseConstIterator(&d->iter);
+}
