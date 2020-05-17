@@ -40,9 +40,13 @@ int16_t iRound16(float value) {
 int iWrap(int value, int low, int high) {
     const int span = high - low;
     if (span <= 0) return value;
-    while (value < low) { value += span; }
-    while (value >= high) { value -= span; }
-    return value;
+    return low + (value - low) % span;
+}
+
+float iWrapf(float value, float low, float high) {
+    const float span = high - low;
+    if (span <= 0) return value;
+    return low + fmodf(value - low, span);
 }
 
 /*-------------------------------------------------------------------------------------*/

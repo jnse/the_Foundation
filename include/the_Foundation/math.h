@@ -41,6 +41,7 @@ iBeginPublic
 int         iRound  (float value);
 int16_t     iRound16(float value);
 int         iWrap   (int value, int low, int high); /* `high` is not inclusive */
+float       iWrapf  (float value, float low, float high); /* `high` is not inclusive */
 
 iDeclareType(FloatVec3)
 iDeclareType(FloatVec4)
