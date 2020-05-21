@@ -210,6 +210,7 @@ void append_Path(iString *d, const iString *path) {
         }
         append_String(d, path);
     }
+    clean_Path(d);
 }
 
 iString *concat_Path(const iString *d, const iString *path) {
