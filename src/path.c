@@ -213,6 +213,11 @@ iBool rmdir_Path(const iString *path) {
     return rmdir(cstr_String(path)) == 0;
 }
 
+const char *baseName_Path(const iString *d) {
+    const size_t sep = lastIndexOfCStr_String(d, iPathSeparator);
+    return cstr_String(d) + (sep == iInvalidSize ? 0 : (sep + 1));
+}
+
 #if defined (iHaveCygwinPathConversion)
 iString *unixToWindows_Path(const char *cstr) {
     uint16_t *winPath = cygwin_create_path(CCP_POSIX_TO_WIN_W, cstr);
