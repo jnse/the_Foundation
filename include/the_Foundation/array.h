@@ -97,6 +97,7 @@ void        removeN_Array   (iArray *, size_t pos, size_t count);
 void        move_Array      (iArray *, const iRanges *range, iArray *dest, size_t destPos);
 
 iLocalDef void  set_Array           (iArray *d, size_t pos, const void *value)  { setN_Array(d, pos, value, 1); }
+iLocalDef void  setCopy_Array       (iArray *d, const iArray *other)            { deinit_Array(d); initCopy_Array(d, other); }
 iLocalDef void  pushBack_Array      (iArray *d, const void *value)              { pushBackN_Array(d, value, 1); }
 iLocalDef void  pushFront_Array     (iArray *d, const void *value)              { pushFrontN_Array(d, value, 1); }
 iLocalDef iBool popBack_Array       (iArray *d)                                 { return popBackN_Array(d, 1) > 0; }
