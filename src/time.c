@@ -128,3 +128,29 @@ void initCurrent_Date(iDate *d) {
     const iTime now = now_Time();
     init_Date(d, &now);
 }
+
+void serialize_Date(const iDate *d, iStream *outs) {
+    writeU16_Stream(outs, d->year);
+    writeU8_Stream(outs, d->month);
+    writeU8_Stream(outs, d->day);
+    writeU16_Stream(outs, d->dayOfYear);
+    writeU8_Stream(outs, d->dayOfWeek);
+    writeU8_Stream(outs, d->hour);
+    writeU8_Stream(outs, d->minute);
+    writeU8_Stream(outs, d->second);
+    writeU32_Stream(outs, d->nsecs);
+    write16_Stream(outs, d->gmtOffsetSeconds);
+}
+
+void deserialize_Date(iDate *d, iStream *ins) {
+    d->year = readU16_Stream(ins);
+    d->month = readU8_Stream(ins);
+    d->day = readU8_Stream(ins);
+    d->dayOfYear = readU16_Stream(ins);
+    d->dayOfWeek = readU8_Stream(ins);
+    d->hour = readU8_Stream(ins);
+    d->minute = readU8_Stream(ins);
+    d->second = readU8_Stream(ins);
+    d->nsecs = readU32_Stream(ins);
+    d->gmtOffsetSeconds = read16_Stream(ins);
+}

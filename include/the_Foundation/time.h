@@ -28,12 +28,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "defs.h"
+#include "stream.h"
 #include <time.h>
 
 iBeginPublic
 
 iDeclareType(Time)
 iDeclareType(Date)
+iDeclareTypeSerialization(Date)
 
 struct Impl_Time {
     struct timespec ts;
