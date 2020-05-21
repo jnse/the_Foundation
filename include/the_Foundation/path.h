@@ -46,6 +46,7 @@ iBool       rmdir_Path      (const iString *path);
 
 iBool       isAbsolute_Path     (const iString *);
 iString *   makeAbsolute_Path   (const iString *);
+iString *   makeRelative_Path   (const iString *);
 iString *   concat_Path         (const iString *, const iString *path);
 
 void        clean_Path      (iString *);

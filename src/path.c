@@ -110,6 +110,19 @@ iString *makeAbsolute_Path(const iString *d) {
     return abs;
 }
 
+iString *makeRelative_Path(const iString *d) {
+    iString *rel = copy_String(d);
+    iString *cwd = cwd_Path();
+    if (startsWith_String(d, cstr_String(cwd))) {
+        remove_Block(&rel->chars, 0, size_String(cwd));
+        if (startsWith_String(rel, iPathSeparator)) {
+            remove_Block(&rel->chars, 0, 1);
+        }
+    }
+    delete_String(cwd);
+    return rel;
+}
+
 #define iPathMaxSegments 128
 
 static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments,
