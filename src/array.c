@@ -120,6 +120,13 @@ size_t size_Array(const iArray *d) {
     return size_Range(&d->range);
 }
 
+iBool equal_Array(const iArray *d, const iArray *other) {
+    if (size_Array(d) != size_Array(other) || d->elementSize != other->elementSize) {
+        return iFalse;
+    }
+    return memcmp(constData_Array(d), constData_Array(other), size_Array(d) * d->elementSize) == 0;
+}
+
 void *at_Array(iArray *d, size_t pos) {
     iAssert(pos < size_Range(&d->range));
     return element_Array_(d, d->range.start + pos);

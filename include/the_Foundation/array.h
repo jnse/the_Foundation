@@ -72,7 +72,8 @@ const void * constAt_Array   (const iArray *, size_t pos);
 const void * constEnd_Array  (const iArray *);
 size_t       indexOf_Array   (const iArray *, const void *element);
 
-size_t       size_Array      (const iArray *d);
+size_t       size_Array      (const iArray *);
+iBool        equal_Array     (const iArray *, const iArray *other);
 
 iLocalDef iBool     isEmpty_Array   (const iArray *d) { return d == NULL || isEmpty_Range(&d->range); }
 iLocalDef void *    front_Array     (iArray *d) { return at_Array(d, 0); }

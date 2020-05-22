@@ -104,6 +104,8 @@ iLocalDef iInt2 modiv_I2    (iInt2 *a, int b)               { a->x %= b; a->y %=
 iLocalDef iInt2 min_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ iMin(a.x, b.x), iMin(a.y, b.y) }; }
 iLocalDef iInt2 max_I2      (const iInt2 a, const iInt2 b)  { return (iInt2){ iMax(a.x, b.x), iMax(a.y, b.y) }; }
 iLocalDef iInt2 neg_I2      (const iInt2 a)                 { return (iInt2){ -a.x, -a.y }; }
+iLocalDef iInt2 negX_I2     (const iInt2 a)                 { return (iInt2){ -a.x, a.y }; }
+iLocalDef iInt2 negY_I2     (const iInt2 a)                 { return (iInt2){ a.x, -a.y }; }
 iLocalDef iInt2 abs_I2      (const iInt2 a)                 { return (iInt2){ iAbs(a.x), iAbs(a.y) }; }
 
 typedef iBoolv iBool2;
