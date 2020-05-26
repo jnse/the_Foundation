@@ -97,6 +97,8 @@ void            initLocalCStrN_String   (iString *, const char *localCStr, size_
 void            initBlock_String        (iString *, const iBlock *chars);
 void            initCopy_String         (iString *, const iString *other);
 
+iLocalDef void initRange_String (iString *d, const iRangecc *range) { initCStrN_String(d, range->start, size_Range(range)); }
+
 const char *    cstr_String     (const iString *);
 size_t          length_String   (const iString *);
 size_t          size_String     (const iString *);

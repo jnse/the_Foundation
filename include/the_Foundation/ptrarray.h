@@ -60,6 +60,14 @@ size_t      takeN_PtrArray          (iPtrArray *, size_t pos, void **ptr_out, si
 void        insert_PtrArray         (iPtrArray *, size_t pos, const void *value);
 void        insertN_PtrArray        (iPtrArray *, size_t pos, const void **values, size_t count);
 
+iLocalDef iBool takeFront_PtrArray(iPtrArray *d, void **ptr_out) {
+    return take_PtrArray(d, 0, ptr_out);
+}
+iLocalDef iBool takeBack_PtrArray(iPtrArray *d, void **ptr_out) {
+    if (isEmpty_PtrArray(d)) return iFalse;
+    return take_PtrArray(d, size_PtrArray(d) - 1, ptr_out);
+}
+
 #define     resize_PtrArray(d, s)   resize_Array(d, s)
 #define     clear_PtrArray(d)       clear_Array(d)
 
