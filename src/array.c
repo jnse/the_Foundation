@@ -337,7 +337,9 @@ void move_Array(iArray *d, const iRanges *range, iArray *dest, size_t destPos) {
 }
 
 void sort_Array(iArray *d, int (*cmp)(const void *, const void *)) {
-    qsort(front_Array(d), size_Array(d), d->elementSize, cmp);
+    if (size_Array(d) > 1) {
+        qsort(front_Array(d), size_Array(d), d->elementSize, cmp);
+    }
 }
 
 /*-------------------------------------------------------------------------------------*/
