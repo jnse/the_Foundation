@@ -160,12 +160,14 @@ void init_CommandLine(iCommandLine *d, int argc, char **argv) {
         }
         delete_String(arg);
     }
-    d->execPath = makeAbsolute_Path(constFront_StringList(&d->args));
 #if defined (iPlatformCygwin) || defined (iPlatformMsys)
+    d->execPath = unixToWindows_Path(cstr_String(constFront_StringList(&d->args)));
     /* Cygwin strips the .exe extension from the executable name. */
     if (!endsWithCase_String(d->execPath, ".exe")) {
         appendCStr_String(d->execPath, ".exe");
     }
+#else
+    d->execPath = makeAbsolute_Path(constFront_StringList(&d->args));
 #endif
 }
 
