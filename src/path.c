@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "the_Foundation/path.h"
+#include "the_Foundation/fileinfo.h"
 #include "the_Foundation/string.h"
 
 #include <unistd.h>
@@ -230,6 +231,24 @@ iBool rmdir_Path(const iString *path) {
 const char *baseName_Path(const iString *d) {
     const size_t sep = lastIndexOfCStr_String(d, iPathSeparator);
     return cstr_String(d) + (sep == iInvalidSize ? 0 : (sep + 1));
+}
+
+iString *dirName_Path(const iString *d) {
+    const size_t sep = lastIndexOfCStr_String(d, iPathSeparator);
+    if (sep == iInvalidSize) {
+        return newCStr_String(".");
+    }
+    return newCStrN_String(cstr_String(d), sep);
+}
+
+void makeDirs_Path(const iString *path) {
+    iString *dir = dirName_Path(path);
+    clean_Path(dir);
+    if (!fileExists_FileInfo(dir)) {
+        makeDirs_Path(dir);
+    }
+    delete_String(dir);
+    mkdir_Path(path);
 }
 
 #if defined (iHaveCygwinPathConversion)

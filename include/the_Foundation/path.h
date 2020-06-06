@@ -42,6 +42,7 @@ iString *   cwd_Path        (void);
 iBool       setCwd_Path     (const iString *path);
 
 iBool       mkdir_Path      (const iString *path);
+void        makeDirs_Path   (const iString *path);
 iBool       rmdir_Path      (const iString *path);
 
 iBool       isAbsolute_Path     (const iString *);
@@ -53,6 +54,7 @@ void        clean_Path      (iString *);
 void        append_Path     (iString *, const iString *path);
 
 const char *baseName_Path   (const iString *); /* returns address of last component */
+iString *   dirName_Path    (const iString *);
 
 #if defined (iPlatformCygwin) || defined (iPlatformMsys)
 iString *   unixToWindows_Path  (const char *cstr);
