@@ -242,13 +242,15 @@ iString *dirName_Path(const iString *d) {
 }
 
 void makeDirs_Path(const iString *path) {
-    iString *dir = dirName_Path(path);
-    clean_Path(dir);
+    iString *clean = copy_String(path);
+    clean_Path(clean);
+    iString *dir = dirName_Path(clean);
     if (!fileExists_FileInfo(dir)) {
         makeDirs_Path(dir);
     }
     delete_String(dir);
-    mkdir_Path(path);
+    mkdir_Path(clean);
+    delete_String(clean);
 }
 
 #if defined (iHaveCygwinPathConversion)
