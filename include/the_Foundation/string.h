@@ -81,6 +81,7 @@ iString *       newFormat_String    (const char *format, ...);
 iString *       copy_String         (const iString *);
 
 iString *       collectNewFormat_String (const char *format, ...);
+iLocalDef iString *collectNewCStr_String(const char *cstr) { return collect_String(newCStr_String(cstr)); }
 
 iLocalDef iString *newRange_String  (const iRangecc *range) { return newCStrN_String(range->start, size_Range(range)); }
 iLocalDef iString *newLocal_String  (const iBlock *localChars) { return newLocalCStrN_String(cstr_Block(localChars), size_Block(localChars)); }
