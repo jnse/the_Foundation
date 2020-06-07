@@ -215,9 +215,17 @@ void append_Path(iString *d, const iString *path) {
 }
 
 iString *concat_Path(const iString *d, const iString *path) {
-    iString *base = copy_String(d);
-    append_Path(base, path);
-    return base;
+    iString *cat = copy_String(d);
+    append_Path(cat, path);
+    return cat;
+}
+
+iString *concatCStr_Path(const iString *d, const char *path) {
+    iString p;
+    initCStr_String(&p, path);
+    iString *cat = concat_Path(d, &p);
+    deinit_String(&p);
+    return cat;
 }
 
 iBool mkdir_Path(const iString *path) {
