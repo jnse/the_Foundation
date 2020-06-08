@@ -81,6 +81,8 @@ iLocalDef int32_t       read32_File     (iFile *d) { return read32_Stream(&d->st
 
 iLocalDef size_t        write_File      (iFile *d, const iBlock *data) { return write_Stream(&d->stream, data); }
 iLocalDef size_t        writeData_File  (iFile *d, const void *data, size_t size) { return writeData_Stream(&d->stream, data, size); }
+iLocalDef void          write16_File    (iFile *d, int16_t value) { write16_Stream(&d->stream, value); }
 iLocalDef void          write32_File    (iFile *d, int32_t value) { write32_Stream(&d->stream, value); }
+iLocalDef void          writeU32_File   (iFile *d, uint32_t value) { writeU32_Stream(&d->stream, value); }
 
 iEndPublic
