@@ -45,6 +45,7 @@ const void **   constData_PtrArray  (const iPtrArray *);
 void *          at_PtrArray         (iPtrArray *, size_t pos);
 const void *    constAt_PtrArray    (const iPtrArray *, size_t pos);
 void            set_PtrArray        (iPtrArray *, size_t pos, const void *ptr);
+void            setCopy_PtrArray    (iPtrArray *, const iPtrArray *other);
 
 void        pushBack_PtrArray       (iPtrArray *, const void *ptr);
 void        pushFront_PtrArray      (iPtrArray *, const void *ptr);

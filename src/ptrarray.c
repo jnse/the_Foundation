@@ -61,6 +61,10 @@ void set_PtrArray(iPtrArray *d, size_t pos, const void *ptr) {
     set_Array(d, pos, &ptr);
 }
 
+void setCopy_PtrArray(iPtrArray *d, const iPtrArray *other) {
+    setCopy_Array(d, other);
+}
+
 void pushBack_PtrArray(iPtrArray *d, const void *ptr) {
     pushBack_Array(d, &ptr);
 }
