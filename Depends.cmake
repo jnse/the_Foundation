@@ -1,32 +1,42 @@
 # Dependencies for the_Foundation
-find_package (PkgConfig)
-
-# unistring
-set (UNISTRING_DIR /usr CACHE PATH "Location of libunistring")
-if (NOT EXISTS ${UNISTRING_DIR}/include/unistr.h)
-    message (FATAL_ERROR "Not found: ${UNISTRING_DIR}/include/unistr.h (set UNISTRING_DIR)")
-endif ()
-if (NOT UNISTRING_DIR STREQUAL "/usr")
-    set (UNISTRING_INCLUDE_DIRS ${UNISTRING_DIR}/include)
-    set (UNISTRING_LIBRARIES -L${UNISTRING_DIR}/lib unistring)
+if (NOT IOS)
+    find_package (PkgConfig)
+    pkg_check_modules (ZLIB zlib)
+    pkg_check_modules (PCRE libpcre)    # Regular expressions
+    pkg_check_modules (CURL libcurl)    
+    # Unicode text strings
+    set (UNISTRING_DIR /usr CACHE PATH "Location of libunistring")
+    if (NOT EXISTS ${UNISTRING_DIR}/include/unistr.h)
+        message (FATAL_ERROR "Not found: ${UNISTRING_DIR}/include/unistr.h (set UNISTRING_DIR)")
+    endif ()
+    if (NOT UNISTRING_DIR STREQUAL "/usr")
+        set (UNISTRING_INCLUDE_DIRS ${UNISTRING_DIR}/include)
+        set (UNISTRING_LIBRARIES -L${UNISTRING_DIR}/lib unistring)
+    else ()
+        set (UNISTRING_LIBRARIES unistring)
+    endif ()
 else ()
-    set (UNISTRING_LIBRARIES unistring)
+    if (IOS_DIR STREQUAL "")
+        message (FATAL_ERROR "iOS dependencies not found (set IOS_DIR)")
+    endif ()
+    set (ZLIB_FOUND YES)
+    set (ZLIB_LIBRARIES z)
+    set (PCRE_FOUND YES)
+    set (PCRE_LIBRARIES ${IOS_DIR}/lib/libpcre.a)
+    set (PCRE_INCLUDE_DIRS ${IOS_DIR}/include)
+    set (CURL_FOUND YES)
+    set (CURL_LIBRARIES ${IOS_DIR}/lib/libcurl.a "-framework CoreFoundation" "-framework Security")
+    set (CURL_INCLUDE_DIRS ${IOS_DIR}/include)
+    set (UNISTRING_INCLUDE_DIRS ${IOS_DIR}/include)
+    set (UNISTRING_LIBRARIES ${IOS_DIR}/lib/libunistring.a;${IOS_DIR}/lib/libiconv.a)
 endif ()
 
-# zlib
-pkg_check_modules (ZLIB zlib)
 if (ZLIB_FOUND)
     set (iHaveZlib YES)
 endif ()
-
-# Regular expressions
-pkg_check_modules (PCRE libpcre)
 if (PCRE_FOUND)
     set (iHavePcre YES)
 endif ()
-
-# CURL
-pkg_check_modules (CURL libcurl)
 if (CURL_FOUND)
     set (iHaveCurl YES)
 endif ()

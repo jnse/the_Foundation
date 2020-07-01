@@ -30,6 +30,7 @@ endmacro ()
 
 #----------------------------------------------------------------------------------------
 
+option (TFDN_ENABLE_TESTS "Enable test apps" ON)
 option (TFDN_ENABLE_SSE41 "Enable SSE 4.1 instructions" ON)
 option (TFDN_ENABLE_DEBUG_OUTPUT "Enable internal debug output to stdout/stderr" OFF)
 
@@ -257,6 +258,10 @@ if (CMAKE_COMPILER_IS_GNUCC)
     target_compile_options (${TARGETNAME} PRIVATE -fPIC)
 endif ()
 
+if (IOS)
+    set_target_properties (${TARGETNAME} PROPERTIES XCODE_ATTRIBUTE_ARCHS arm64)
+endif ()
+
 # Dependencies.
 tfdn_link_depends (${TARGETNAME} PUBLIC)
 
@@ -284,9 +289,11 @@ macro (tfdn_add_test target sources)
     tfdn_set_compile_options (${target})
 endmacro ()
 
-tfdn_add_test (test_Foundation      tests/t_test.c)
-tfdn_add_test (string_Foundation    tests/t_string.c)
-tfdn_add_test (threading_Foundation tests/t_threading.c)
-tfdn_add_test (math_Foundation      tests/t_math.c)
-tfdn_add_test (network_Foundation   tests/t_network.c)
-tfdn_add_test (udptest_Foundation   tests/t_udptest.c)
+if (TFDN_ENABLE_TESTS)
+    tfdn_add_test (test_Foundation      tests/t_test.c)
+    tfdn_add_test (string_Foundation    tests/t_string.c)
+    tfdn_add_test (threading_Foundation tests/t_threading.c)
+    tfdn_add_test (math_Foundation      tests/t_math.c)
+    tfdn_add_test (network_Foundation   tests/t_network.c)
+    tfdn_add_test (udptest_Foundation   tests/t_udptest.c)
+endif ()
