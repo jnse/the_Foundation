@@ -75,8 +75,8 @@ iBool match_RegExp(const iRegExp *d, const char *subject, size_t len, iRegExpMat
     }
     if (match->pos > len) return iFalse;
     int rc = pcre_exec(d->re, NULL,
-                       subject, len,
-                       match->pos, 0,
+                       subject, (int) len,
+                       (int) match->pos, 0,
                        &match->range.start,
                        iRegExpMaxSubstrings + 1);
     if (rc > 0) {

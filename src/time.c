@@ -138,7 +138,7 @@ void serialize_Date(const iDate *d, iStream *outs) {
     writeU8_Stream(outs, d->hour);
     writeU8_Stream(outs, d->minute);
     writeU8_Stream(outs, d->second);
-    writeU32_Stream(outs, d->nsecs);
+    writeU32_Stream(outs, (uint32_t) d->nsecs);
     write16_Stream(outs, d->gmtOffsetSeconds);
 }
 

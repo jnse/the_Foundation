@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #define element_Array_(d, index) (&(d)->data[(d)->elementSize * (index)])
 
-static void moveElements_Array_(iArray *d, const iRanges *moved, int delta) {
+static void moveElements_Array_(iArray *d, const iRanges *moved, long delta) {
     if (delta != 0) {
         char *ptr = element_Array_(d, moved->start);
         iAssert(moved->start + delta >= 0);
@@ -42,7 +42,7 @@ static void moveElements_Array_(iArray *d, const iRanges *moved, int delta) {
     }
 }
 
-static void shift_Array_(iArray *d, int delta) {
+static void shift_Array_(iArray *d, long delta) {
     if (delta != 0) {
         iAssert(d->range.start + delta >= 0);
         iAssert(d->range.end   + delta <= d->allocSize);
@@ -51,10 +51,10 @@ static void shift_Array_(iArray *d, int delta) {
     }
 }
 
-static int imbalance_Array_(const iArray *d) {
+static long imbalance_Array_(const iArray *d) {
     /* Calculates the shift required to balance the list elements. */
-    const int left  = d->range.start;
-    const int right = d->allocSize - d->range.end;
+    const long left  = d->range.start;
+    const long right = d->allocSize - d->range.end;
     if (left <= iArrayMinAlloc && right <= iArrayMinAlloc) {
         return 0; /* Too tight, shouldn't move just a little bit. */
     }
@@ -69,7 +69,7 @@ static void rebalance_Array_(iArray *d) {
     /* Rebalancing occurs if the elements are touching the start or end of the buffer,
        which means elements cannot be added without moving existing ones. */
     if (!isEmpty_Range(&d->range)) {
-        const int imbalance = imbalance_Array_(d);
+        const long imbalance = imbalance_Array_(d);
         if (d->range.end == d->allocSize || d->range.start == 0) {
             shift_Array_(d, imbalance);
         }
@@ -173,7 +173,7 @@ void resize_Array(iArray *d, size_t size) {
     reserve_Array(d, size);
     if (d->range.start + size > d->allocSize) {
         /* Rebalance according to the new size. */
-        const int leftSide = (d->allocSize - size) / 2;
+        const long leftSide = (d->allocSize - size) / 2;
         shift_Array_(d, leftSide - (int) d->range.start);
     }
     setSize_Range(&d->range, size);
@@ -274,14 +274,14 @@ void insertN_Array(iArray *d, size_t pos, const void *value, size_t count) {
         size_t needed = count;
         for (int i = 0; i < 2 && needed > 0; ++i) {
             if (part[i] == 0) { /* Moving the first half. */
-                int avail = iMin(needed, d->range.start);
+                long avail = iMin(needed, d->range.start);
                 moveElements_Array_(d, &(iRanges){ d->range.start, splitPos }, -avail);
                 d->range.start -= avail;
                 pos -= avail;
                 needed -= avail;
             }
             else if (part[i] == 1) { /* Moving the second half. */
-                int avail = iMin(needed, d->allocSize - d->range.end);
+                long avail = iMin(needed, d->allocSize - d->range.end);
                 moveElements_Array_(d, &(iRanges) { splitPos, d->range.end }, avail);
                 d->range.end += avail;
                 needed -= avail;
@@ -324,8 +324,8 @@ void move_Array(iArray *d, const iRanges *range, iArray *dest, size_t destPos) {
     iAssert(dest);
     iAssert(d != dest);
     iAssert(d->elementSize == dest->elementSize);
-    const int count = size_Range(range);
-    const int oldDestSize = size_Array(dest);
+    const long count = size_Range(range);
+    const long oldDestSize = size_Array(dest);
     resize_Array(dest, oldDestSize + count); // dest size increased
     /* Make room for the moved elements. */
     moveElements_Array_(dest, &(iRanges){ dest->range.start + destPos,
