@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #endif
 
 #if !defined (NDEBUG)
+
 static iAtomicInt totalCount_;
 
 int totalCount_Object(void) {
@@ -50,7 +51,20 @@ void checkSignature_Object(const iAnyObject *d) {
     iAssert(d != NULL);
     iAssert(((const iObject *) d)->__sig == iObjectSignature);
 }
-#endif
+
+#else /* defined (NDEBUG) */
+
+int totalCount_Object(void) {
+    /* Not counted in release build. */
+    return 0;
+}
+
+void checkSignature_Object(const iAnyObject *d) {
+    /* Checks disabled in release build. */
+    iUnused(d);
+}
+
+#endif /* defined (NDEBUG) */
 
 static void free_Object_(iObject *d) {
     deinit_Object(d);

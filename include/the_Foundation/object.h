@@ -113,9 +113,10 @@ void *          userData_Object     (const iAnyObject *);
 
 iAudienceMember * audienceMember_Object (const iAnyObject *);
 
-#if !defined (NDEBUG)
 int             totalCount_Object       (void);
 void            checkSignature_Object   (const iAnyObject *);
+
+#if !defined (NDEBUG)
 #define iAssertIsObject(d)  checkSignature_Object(d)
 #else
 #define iAssertIsObject(d)
