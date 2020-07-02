@@ -40,6 +40,7 @@ iBeginPublic
 
 iString *   cwd_Path        (void);
 iBool       setCwd_Path     (const iString *path);
+iString *   home_Path       (void);
 
 iBool       mkdir_Path      (const iString *path);
 void        makeDirs_Path   (const iString *path);
@@ -58,7 +59,8 @@ const char *baseName_Path   (const iString *); /* returns address of last compon
 iString *   dirName_Path    (const iString *);
 
 #if defined (iPlatformCygwin) || defined (iPlatformMsys)
-iString *   unixToWindows_Path  (const char *cstr);
+iString *   unixToWindows_Path         (const char *cstr);
+iString *   unixToWindowsRelative_Path (const char *cstr);
 #endif
 
 iEndPublic

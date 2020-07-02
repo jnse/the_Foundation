@@ -66,6 +66,16 @@ iBool setCwd_Path(const iString *path) {
     return !chdir(cstr_String(path));
 }
 
+iString *home_Path(void) {
+    iString *home = new_String();
+#if defined (iPlatformMsys) || defined (iPlatformWindows)
+    format_String(home, "%s%s", getenv("HOMEDRIVE"), getenv("HOMEPATH"));
+#else
+    setCStr_String(home, getenv("HOME"));
+#endif
+    return home;
+}
+
 iBool isAbsolute_Path(const iString *d) {
 #if !defined (iPlatformWindows)
     if (startsWith_String(d, "~")) {
@@ -135,11 +145,12 @@ static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments,
             *changed = iTrue;
             continue;
         }
-#if !defined (iPlatformWindows)
+#if defined (iPlatformMsys) || !defined (iPlatformWindows)
         if (*count == 0 && !iCmpStrRange(&seg, "~")) {
-            const char *home = getenv("HOME");
-            if (home && iCmpStrN(home, "~", 1)) {
-                if (!splitSegments_Path_(&(iRangecc){ home, home + strlen(home) },
+            const iString *home = collect_String(home_Path());
+            if (!isEmpty_String(home)) {
+                if (!splitSegments_Path_(&(iRangecc){ constBegin_String(home), 
+                                                      constEnd_String(home) },
                                          segments, count, changed)) {
                     return iFalse;
                 }
@@ -170,7 +181,13 @@ static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments,
 
 void clean_Path(iString *d) {
     if (isEmpty_String(d)) return;
-#if defined (iPlatformWindows) || defined (iHaveCygwinPathConversion)
+#if defined (iHaveCygwinPathConversion)
+    /* Convert to a Windows path, not forcing it to an absolute path. */ {
+        iString *winPath = unixToWindowsRelative_Path(cstr_String(d));
+        set_String(d, winPath);
+        delete_String(winPath);
+    }
+#elif defined (iPlatformWindows)
     /* Use the correct separators. */
     replace_Block(&d->chars, '/', '\\');
 #endif
@@ -262,13 +279,37 @@ void makeDirs_Path(const iString *path) {
 }
 
 #if defined (iHaveCygwinPathConversion)
-iString *unixToWindows_Path(const char *cstr) {
-    uint16_t *winPath = cygwin_create_path(CCP_POSIX_TO_WIN_W, cstr);
+static iString *unixToWindows_(const char *cstr, iBool makeAbsolute) {
+    if (!cstr) {
+        return new_String();
+    }
+    uint16_t *winPath = NULL;
+    if (!iCmpStrN(cstr, "~/", 2) || !iCmpStrN(cstr, "~\\", 2)) {
+        /* Expand the home directory. */
+        winPath = cygwin_create_path(CCP_POSIX_TO_WIN_W | CCP_RELATIVE, cstr + 2);
+        iString *conv = newUtf16_String(winPath);
+        iString *str = home_Path();
+        append_Path(str, conv);
+        free(winPath);
+        delete_String(conv);
+        return str;
+    }
+    winPath = cygwin_create_path(CCP_POSIX_TO_WIN_W | 
+                                 (makeAbsolute ? CCP_ABSOLUTE : CCP_RELATIVE), 
+                                 cstr);
     if (winPath) {
         iString *str = newUtf16_String(winPath);
         free(winPath);
         return str;
     }
     return new_String();
+}
+
+iString *unixToWindowsRelative_Path(const char *cstr) {
+    return unixToWindows_(cstr, iFalse);
+}
+
+iString *unixToWindows_Path(const char *cstr) {
+    return unixToWindows_(cstr, iTrue /* absolute */);
 }
 #endif
