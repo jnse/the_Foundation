@@ -56,7 +56,7 @@ int thrd_join(thrd_t thr, int *res) {
         return thrd_error;
     }
     if (res) {
-        *res = (int) retval;
+        *res = (intptr_t) retval;
     }
     return thrd_success;
 }
