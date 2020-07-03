@@ -253,14 +253,26 @@ void clear_String(iString *d) {
     clear_Block(&d->chars);
 }
 
-void truncate_String(iString *d, size_t len) {
+void truncate_String(iString *d, size_t charCount) {
     const char *start = constData_Block(&d->chars);
     const char *pos = start;
     iConstForEach(String, i, d) {
-        if (len-- == 0) break;
+        if (charCount-- == 0) break;
         pos = i.next;
     }
     truncate_Block(&d->chars, (size_t) (pos - start));
+}
+
+void removeEnd_String(iString *d, size_t charCount) {
+    if (charCount > 0) {
+        const size_t len = length_String(d);
+        if (charCount < len) {
+            truncate_String(d, len - charCount);
+        }
+        else {
+            clear_String(d);
+        }
+    }
 }
 
 void trimStart_String(iString *d) {
