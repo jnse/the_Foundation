@@ -30,10 +30,15 @@ endmacro ()
 
 #----------------------------------------------------------------------------------------
 
+option (TFDN_ENABLE_WEBREQUEST "Enable HTTP(S) web requests (w/curl)" ON)
 option (TFDN_ENABLE_TESTS "Enable test apps" ON)
 option (TFDN_ENABLE_SSE41 "Enable SSE 4.1 instructions" ON)
 option (TFDN_ENABLE_DEBUG_OUTPUT "Enable internal debug output to stdout/stderr" OFF)
 
+if (NOT TFDN_ENABLE_WEBREQUEST)
+    set (CURL_FOUND NO)
+    set (iHaveCurl NO)
+endif ()
 if (TFDN_ENABLE_DEBUG_OUTPUT)
     set (iHaveDebugOutput YES)
 endif ()

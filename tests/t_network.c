@@ -61,10 +61,12 @@ static void logError_(iAny *d, iSocket *sock, int code, const char *msg) {
     printf("Socket %p: error %i: %s\n", sock, code, msg);
 }
 
+#if defined (iHaveCurl)
 static void logWebRequestProgress_(iAny *d, iWebRequest *web, size_t currentSize, size_t totalSize) {
     iUnused(d);
     printf("WebRequest %p: downloaded %zu/%zu bytes\n", web, currentSize, totalSize);
 }
+#endif
 
 static void observeSocket_(iSocket *sock) {
     iConnect(Socket, sock, connected, sock, logConnected_);
