@@ -72,6 +72,9 @@ const void * constAt_Array   (const iArray *, size_t pos);
 const void * constEnd_Array  (const iArray *);
 size_t       indexOf_Array   (const iArray *, const void *element);
 
+#define value_Array(d, index, type)         (*(type *) at_Array((d), (index)))
+#define constValue_Array(d, index, type)    (*(const type *) constAt_Array((d), (index)))
+
 size_t       size_Array      (const iArray *);
 iBool        equal_Array     (const iArray *, const iArray *other);
 
