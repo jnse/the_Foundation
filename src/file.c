@@ -41,6 +41,7 @@ iFile *new_File(const iString *path) {
 iFile *newCStr_File(const char *path) {
     iString str;
     initCStr_String(&str, path);
+    clean_Path(&str);
     iFile *d = new_File(&str);
     deinit_String(&str);
     return d;

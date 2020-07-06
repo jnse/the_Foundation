@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
         iRelease(sar);
     }
     /* Test a list of strings. */ {
-        iFile *file = newCStr_File("/Users/jaakko/src/the_Foundation/CMakeLists.txt");
+        iFile *file = newCStr_File("~/src/the_Foundation/CMakeLists.txt");
         printf("Contents of %s:\n", cstr_String(path_File(file)));
         if (open_File(file, text_FileMode)) {
             iStringList *list = readLines_File(file);
