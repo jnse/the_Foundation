@@ -37,6 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #cmakedefine iHavePThread
 #cmakedefine iHavePThreadTimedMutex
 #cmakedefine iHaveCurl
+#cmakedefine iHaveOpenSSL
 #cmakedefine iHavePcre
 #cmakedefine iHaveZlib
 #cmakedefine iPlatformApple

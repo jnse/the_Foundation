@@ -4,6 +4,7 @@ if (NOT IOS)
     pkg_check_modules (ZLIB zlib)
     pkg_check_modules (PCRE libpcre)    # Regular expressions
     pkg_check_modules (CURL libcurl)    
+    pkg_check_modules (OPENSSL openssl)
     # Unicode text strings
     set (UNISTRING_DIR /usr CACHE PATH "Location of libunistring")
     if (NOT EXISTS ${UNISTRING_DIR}/include/unistr.h)
@@ -40,6 +41,9 @@ endif ()
 if (CURL_FOUND)
     set (iHaveCurl YES)
 endif ()
+if (OPENSSL_FOUND)
+    set (iHaveOpenSSL YES)
+endif ()
 
 macro (tfdn_link_depends target mode)
     target_include_directories (${target} ${mode}
@@ -47,6 +51,7 @@ macro (tfdn_link_depends target mode)
         ${ZLIB_INCLUDE_DIRS}
         ${PCRE_INCLUDE_DIRS}
         ${CURL_INCLUDE_DIRS}
+        ${OPENSSL_INCLUDE_DIRS}
     )
     target_link_libraries (${target} ${mode} ${UNISTRING_LIBRARIES} pthread m)
     if (ZLIB_FOUND)
@@ -57,5 +62,8 @@ macro (tfdn_link_depends target mode)
     endif ()
     if (CURL_FOUND)
         target_link_libraries (${target} ${mode} ${CURL_LIBRARIES})
+    endif ()
+    if (OPENSSL_FOUND)
+        target_link_libraries (${target} ${mode} ${OPENSSL_LIBRARIES})
     endif ()
 endmacro ()
