@@ -35,6 +35,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #if defined (iHaveCurl)
 #  include <the_Foundation/webrequest.h>
 #endif
+#if defined (iHaveOpenSSL)
+#  include <the_Foundation/tlsrequest.h>
+#endif
 
 static void logConnected_(iAny *d, iSocket *sock) {
     iUnused(d);
@@ -139,6 +142,22 @@ static bool connectTo_(const char *address) {
     return true;
 }
 
+#if defined (iHaveOpenSSL)
+void printTlsRequestProgress_(iAnyObject *obj) {
+    iTlsRequest *d = obj;
+    printf("TlsRequest progress: %zu bytes received so far\n", receivedBytes_TlsRequest(d));
+}
+
+void printTlsRequestResult_(iAnyObject *obj) {
+    iTlsRequest *d = obj;
+    iBlock *result = collect_Block(readAll_TlsRequest(d));
+    printf("Request %s\n", status_TlsRequest(d) == finished_TlsRequestStatus ?
+           "succeeded." : "failed!");
+    printf("--------TlsRequest-Result--------\n%s\n--------End-of-Result--------\n",
+           cstr_Block(result));
+}
+#endif
+
 int main(int argc, char *argv[]) {
     init_Foundation();
     /* List network interface addresses. */ {
@@ -182,6 +201,28 @@ int main(int argc, char *argv[]) {
         }
 #endif
     }
+#if defined (iHaveOpenSSL)
+    /* Perform a TLS request. */ {
+        iCommandLineArg *tlsArgs = iClob(checkArgumentValues_CommandLine(cmdline, "t;tls", 2));
+        if (tlsArgs) {
+            iTlsRequest *tls = iClob(new_TlsRequest());
+            setUrl_TlsRequest(tls,
+                              value_CommandLineArg(tlsArgs, 0),
+                              toInt_String(value_CommandLineArg(tlsArgs, 1)));
+            iConnect(TlsRequest, tls, readyRead, tls, printTlsRequestProgress_);
+            iConnect(TlsRequest, tls, finished, tls, printTlsRequestResult_);
+            iBlock content;
+            init_Block(&content, 0);
+            printf_Block(&content, "gemini://%s/\r\n", cstr_String(value_CommandLineArg(tlsArgs, 0)));
+            setContent_TlsRequest(tls, &content);
+            deinit_Block(&content);
+            submit_TlsRequest(tls);
+            waitForFinished_TlsRequest(tls);
+            printf("We are done.\n");
+            return 0;
+        }
+    }
+#endif
     if (contains_CommandLine(cmdline, "s;server")) {
         iService *sv = iClob(new_Service(14666));
         iConnect(Service, sv, incomingAccepted, sv, communicate_);
