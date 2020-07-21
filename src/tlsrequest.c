@@ -289,7 +289,9 @@ static iThreadResult run_TlsRequest_(iThread *thread) {
             sleep_Thread(0.050); /* waiting on handshake to be completed */
         }
     }
+    ref_Object(d);
     iNotifyAudience(d, finished, TlsRequestFinished);
+    deref_Object(d);
     return 0;
 }
 

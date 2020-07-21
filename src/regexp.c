@@ -89,7 +89,7 @@ iBool match_RegExp(const iRegExp *d, const char *subject, size_t len, iRegExpMat
 iString *captured_RegExpMatch(const iRegExpMatch *d, int index) {
     iRangecc range;
     capturedRange_RegExpMatch(d, index, &range);
-    return newRange_String(&range);
+    return newRange_String(range);
 }
 
 void capturedRange_RegExpMatch(const iRegExpMatch *d, int index, iRangecc *out) {

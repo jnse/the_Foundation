@@ -211,7 +211,7 @@ void clean_Path(iString *d) {
                     )) {
                 appendCStr_String(&cleaned, iPathSeparator);
             }
-            appendRange_String(&cleaned, segments + i);
+            appendRange_String(&cleaned, segments[i]);
         }
         set_String(d, &cleaned);
         deinit_String(&cleaned);

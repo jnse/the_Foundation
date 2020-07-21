@@ -593,8 +593,8 @@ void appendChar_String(iString *d, iChar ch) {
     appendCStr_String(d, mb.bytes);
 }
 
-void appendRange_String(iString *d, const iRangecc *range) {
-    appendData_Block(&d->chars, range->start, size_Range(range));
+void appendRange_String(iString *d, const iRangecc range) {
+    appendData_Block(&d->chars, range.start, size_Range(&range));
 }
 
 void prepend_String(iString *d, const iString *other) {

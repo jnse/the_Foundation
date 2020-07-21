@@ -176,8 +176,7 @@ iThreadResult result_Thread(const iThread *d) {
 }
 
 void join_Thread(iThread *d) {
-    if (!d) return;
-    iAssert(d->id != thrd_current()); // can't join the running thread!
+    if (!d || d->id == thrd_current()) return;
     iGuardMutex(&d->mutex,
         if (d->state == running_ThreadState) {
             wait_Condition(&d->finishedCond, &d->mutex);

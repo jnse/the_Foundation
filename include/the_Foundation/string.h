@@ -84,7 +84,7 @@ iString *           collectNewFormat_String (const char *format, ...);
 const char *        cstrFormat_String       (const char *format, ...);
 iLocalDef iString * collectNewCStr_String   (const char *cstr) { return collect_String(newCStr_String(cstr)); }
 
-iLocalDef iString *newRange_String  (const iRangecc *range) { return newCStrN_String(range->start, size_Range(range)); }
+iLocalDef iString *newRange_String  (const iRangecc range) { return newCStrN_String(range.start, size_Range(&range)); }
 iLocalDef iString *newLocal_String  (const iBlock *localChars) { return newLocalCStrN_String(cstr_Block(localChars), size_Block(localChars)); }
 
 void            init_String             (iString *);
@@ -99,7 +99,7 @@ void            initLocalCStrN_String   (iString *, const char *localCStr, size_
 void            initBlock_String        (iString *, const iBlock *chars);
 void            initCopy_String         (iString *, const iString *other);
 
-iLocalDef void initRange_String (iString *d, const iRangecc *range) { initCStrN_String(d, range->start, size_Range(range)); }
+iLocalDef void initRange_String (iString *d, const iRangecc range) { initCStrN_String(d, range.start, size_Range(&range)); }
 
 const char *    cstr_String     (const iString *);
 size_t          length_String   (const iString *);
@@ -177,7 +177,7 @@ void            append_String       (iString *, const iString *other);
 void            appendCStr_String   (iString *, const char *cstr);
 void            appendCStrN_String  (iString *, const char *cstr, size_t size);
 void            appendChar_String   (iString *, iChar ch);
-void            appendRange_String  (iString *, const iRangecc *range);
+void            appendRange_String  (iString *, const iRangecc range);
 void            appendFormat_String (iString *, const char *format, ...);
 void            prepend_String      (iString *, const iString *other);
 void            prependChar_String  (iString *, iChar ch);

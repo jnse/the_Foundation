@@ -217,7 +217,7 @@ int main(int argc, char *argv[]) {
         }
         puts("Iterated:");
         iConstForEach(CommandLine, j, cmdline) {
-            iString *e = newRange_String(&j.entry);
+            iString *e = newRange_String(j.entry);
             printf("[%2zu] %5s vc:%zu \"%s\"\n",
                    j.value,
                    ( j.argType == value_CommandLineArgType? "value"
