@@ -48,12 +48,12 @@ enum iTlsRequestStatus {
     error_TlsRequestStatus
 };
 
-void    setUrl_TlsRequest       (iTlsRequest *, const iString *hostName, uint16_t port);
-void    setContent_TlsRequest   (iTlsRequest *, const iBlock *content);
+void    setUrl_TlsRequest           (iTlsRequest *, const iString *hostName, uint16_t port);
+void    setContent_TlsRequest       (iTlsRequest *, const iBlock *content);
 
 void    submit_TlsRequest           (iTlsRequest *);
 void    waitForFinished_TlsRequest  (iTlsRequest *);
+iBlock *readAll_TlsRequest          (iTlsRequest *);
 
-enum iTlsRequestStatus  status_TlsRequest       (const iTlsRequest *);
-const iBlock *          result_TlsRequest       (const iTlsRequest *);
-size_t                  receivedBytes_TlsRequest(const iTlsRequest *);
+size_t                  receivedBytes_TlsRequest    (const iTlsRequest *);
+enum iTlsRequestStatus  status_TlsRequest           (const iTlsRequest *);

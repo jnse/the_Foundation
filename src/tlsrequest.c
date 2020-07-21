@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "the_Foundation/tlsrequest.h"
+#include "the_Foundation/buffer.h"
 #include "the_Foundation/socket.h"
 #include "the_Foundation/thread.h"
 
@@ -76,7 +77,7 @@ struct Impl_TlsRequest {
     iSocket *              socket;
     iMutex                 mtx;
     iBlock                 content;
-    iBlock                 result;
+    iBuffer *              result;
     iAudience *            readyRead;
     iAudience *            finished;
     iCondition             requestDone;
@@ -181,7 +182,8 @@ void init_TlsRequest(iTlsRequest *d) {
     d->socket = NULL;
     init_Mutex(&d->mtx);
     init_Block(&d->content, 0);
-    init_Block(&d->result, 0);
+    d->result = new_Buffer();
+    openEmpty_Buffer(d->result);
     d->readyRead = NULL;
     d->finished = NULL;
     init_Condition(&d->requestDone);
@@ -204,7 +206,7 @@ void deinit_TlsRequest(iTlsRequest *d) {
     deinit_Condition(&d->requestDone);
     delete_Audience(d->finished);
     delete_Audience(d->readyRead);
-    deinit_Block(&d->result);
+    iRelease(d->result);
     deinit_Block(&d->content);
     deinit_Mutex(&d->mtx);
     iRelease(d->socket);
@@ -226,7 +228,7 @@ static void disconnected_TlsRequest_(iAnyObject *obj) {
 }
 
 static void appendReceived_TlsRequest_(iTlsRequest *d, const char *buf, size_t len) {
-    iGuardMutex(&d->mtx, appendData_Block(&d->result, buf, len));
+    iGuardMutex(&d->mtx, writeData_Buffer(d->result, buf, len));
     iNotifyAudience(d, readyRead, TlsRequestReadyRead);
 }
 
@@ -313,6 +315,7 @@ void submit_TlsRequest(iTlsRequest *d) {
         iDebug("[TlsRequest] request already ongoing\n");
         return;
     }
+    clear_Buffer(d->result);
     set_Block(&d->sending, &d->content);
     iChangeRef(d->socket, new_Socket(cstr_String(d->hostName), d->port));
     iConnect(Socket, d->socket, connected, d, connected_TlsRequest_);
@@ -335,19 +338,15 @@ enum iTlsRequestStatus status_TlsRequest(const iTlsRequest *d) {
     return d->status;
 }
 
-static iBlock emptyResult_ = iBlockLiteral("", 0, 1);
-
-const iBlock *result_TlsRequest(const iTlsRequest *d) {
-    /* TODO: replace with readAll_TlsRequest, consumes the content buffer! */
-    if (d->status != submitted_TlsRequestStatus) {
-        return &d->result;
-    }
-    return &emptyResult_;
+iBlock *readAll_TlsRequest(iTlsRequest *d) {
+    iBlock *rd;
+    iGuardMutex(&d->mtx, rd = consumeAll_Buffer(d->result));
+    return rd;
 }
 
 size_t receivedBytes_TlsRequest(const iTlsRequest *d) {
     size_t len;
-    iGuardMutex(&d->mtx, len = size_Block(&d->result));
+    iGuardMutex(&d->mtx, len = size_Buffer(d->result));
     return len;
 }
 
