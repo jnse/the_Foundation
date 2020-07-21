@@ -32,10 +32,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <the_Foundation/service.h>
 #include <the_Foundation/socket.h>
 #include <the_Foundation/thread.h>
-#if defined (iHaveCurl)
+#if defined (iHaveWebRequest)
 #  include <the_Foundation/webrequest.h>
 #endif
-#if defined (iHaveOpenSSL)
+#if defined (iHaveTlsRequest)
 #  include <the_Foundation/tlsrequest.h>
 #endif
 
@@ -64,7 +64,7 @@ static void logError_(iAny *d, iSocket *sock, int code, const char *msg) {
     printf("Socket %p: error %i: %s\n", sock, code, msg);
 }
 
-#if defined (iHaveCurl)
+#if defined (iHaveWebRequest)
 static void logWebRequestProgress_(iAny *d, iWebRequest *web, size_t currentSize, size_t totalSize) {
     iUnused(d);
     printf("WebRequest %p: downloaded %zu/%zu bytes\n", web, currentSize, totalSize);
@@ -142,7 +142,7 @@ static bool connectTo_(const char *address) {
     return true;
 }
 
-#if defined (iHaveOpenSSL)
+#if defined (iHaveTlsRequest)
 void printTlsRequestProgress_(iAnyObject *obj) {
     iTlsRequest *d = obj;
     printf("TlsRequest progress: %zu bytes received so far\n", receivedBytes_TlsRequest(d));
@@ -172,7 +172,7 @@ int main(int argc, char *argv[]) {
     }
     /* Check the arguments. */
     iCommandLine *cmdline = iClob(new_CommandLine(argc, argv)); {
-#if defined (iHaveCurl)
+#if defined (iHaveWebRequest)
         iCommandLineArg *getUrl = iClob(checkArgumentValues_CommandLine(cmdline, "g", 1));
         if (getUrl) {
             iWebRequest *web = iClob(new_WebRequest());
@@ -201,7 +201,7 @@ int main(int argc, char *argv[]) {
         }
 #endif
     }
-#if defined (iHaveOpenSSL)
+#if defined (iHaveTlsRequest)
     /* Perform a TLS request. */ {
         iCommandLineArg *tlsArgs = iClob(checkArgumentValues_CommandLine(cmdline, "t;tls", 2));
         if (tlsArgs) {
@@ -211,11 +211,9 @@ int main(int argc, char *argv[]) {
                               toInt_String(value_CommandLineArg(tlsArgs, 1)));
             iConnect(TlsRequest, tls, readyRead, tls, printTlsRequestProgress_);
             iConnect(TlsRequest, tls, finished, tls, printTlsRequestResult_);
-            iBlock content;
-            init_Block(&content, 0);
-            printf_Block(&content, "gemini://%s/\r\n", cstr_String(value_CommandLineArg(tlsArgs, 0)));
-            setContent_TlsRequest(tls, &content);
-            deinit_Block(&content);
+            iString *content = collectNew_String();
+            format_String(content, "gemini://%s/\r\n", cstr_String(value_CommandLineArg(tlsArgs, 0)));
+            setContent_TlsRequest(tls, utf8_String(content));
             submit_TlsRequest(tls);
             waitForFinished_TlsRequest(tls);
             printf("We are done.\n");

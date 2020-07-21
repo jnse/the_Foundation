@@ -29,23 +29,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #define iFoundationLibraryVersion { ${the_Foundation_VERSION_MAJOR}, ${the_Foundation_VERSION_MINOR}, ${the_Foundation_VERSION_PATCH} }
 
-#cmakedefine iHaveDebugOutput
-#cmakedefine iHaveStrnstr
-#cmakedefine iHaveSSE4_1
-#cmakedefine iHaveBigEndian
-#cmakedefine iHaveC11Threads
-#cmakedefine iHavePThread
-#cmakedefine iHavePThreadTimedMutex
-#cmakedefine iHaveCurl
-#cmakedefine iHaveOpenSSL
-#cmakedefine iHavePcre
-#cmakedefine iHaveZlib
 #cmakedefine iPlatformApple
 #cmakedefine iPlatformCygwin
 #cmakedefine iPlatformLinux
 #cmakedefine iPlatformWindows
 #cmakedefine iPlatformMsys
 #cmakedefine iPlatformOther
+
+#cmakedefine iHaveDebugOutput
+#cmakedefine iHaveBigEndian
+#cmakedefine iHaveSSE4_1
+
+#cmakedefine iHaveC11Threads
+#cmakedefine iHaveCurl
+#cmakedefine iHaveOpenSSL
+#cmakedefine iHavePcre
+#cmakedefine iHavePThread
+#cmakedefine iHavePThreadTimedMutex
+#cmakedefine iHaveRegExp
+#cmakedefine iHaveStrnstr
+#cmakedefine iHaveTlsRequest
+#cmakedefine iHaveWebRequest
+#cmakedefine iHaveZlib
 
 #if !defined (iHavePThreadTimedMutex) && !defined (C11THREADS_NO_TIMED_MUTEX)
 #   define C11THREADS_NO_TIMED_MUTEX
