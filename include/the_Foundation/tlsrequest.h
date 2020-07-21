@@ -51,7 +51,8 @@ enum iTlsRequestStatus {
 void    setUrl_TlsRequest       (iTlsRequest *, const iString *hostName, uint16_t port);
 void    setContent_TlsRequest   (iTlsRequest *, const iBlock *content);
 
-void    submit_TlsRequest       (iTlsRequest *);
+void    submit_TlsRequest           (iTlsRequest *);
+void    waitForFinished_TlsRequest  (iTlsRequest *);
 
 enum iTlsRequestStatus  status_TlsRequest       (const iTlsRequest *);
 const iBlock *          result_TlsRequest       (const iTlsRequest *);

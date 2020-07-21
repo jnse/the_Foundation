@@ -79,13 +79,13 @@ struct Impl_TlsRequest {
     iBlock                 result;
     iAudience *            readyRead;
     iAudience *            finished;
+    iCondition             requestDone;
     iThread *              thread;
     /* OpenSSL state. */
     SSL *  ssl;
     BIO *  rbio; /* we insert incoming encrypted bytes here for SSL to read */
     BIO *  wbio; /* SSL sends encrypted bytes to socket */
-    char * encrypt_buf;
-    size_t encrypt_len;
+    iBlock sending;
 };
 
 iDefineObjectConstruction(TlsRequest)
@@ -114,59 +114,50 @@ static enum iSSLResult sslResult_TlsRequest_(iTlsRequest *d, int code) {
     }
 }
 
-static void sendUnencryptedBytes_TlsRequest_(iTlsRequest *d, const char *buf, size_t len) {
-    d->encrypt_buf = (char *) realloc(d->encrypt_buf, d->encrypt_len + len);
-    memcpy(d->encrypt_buf + d->encrypt_len, buf, len);
-    d->encrypt_len += len;
+static void setStatus_TlsRequest_(iTlsRequest *d, enum iTlsRequestStatus st) {
+    iGuardMutex(&d->mtx, if (d->status != st) {
+        d->status = st;
+        if (st == finished_TlsRequestStatus || st == error_TlsRequestStatus) {
+            signalAll_Condition(&d->requestDone);
+        }
+    });
+}
+
+static void flushToSocket_TlsRequest_(iTlsRequest *d) {
+    char buf[DEFAULT_BUF_SIZE];
+    int n;
+    do {
+        n = BIO_read(d->wbio, buf, sizeof(buf));
+        if (n > 0) {
+            writeData_Socket(d->socket, buf, n);
+        }
+        else if (!BIO_should_retry(d->wbio)) {
+            iDebug("[TlsRequest] output error (BIO_read)\n");
+            setStatus_TlsRequest_(d, error_TlsRequestStatus);
+            return;
+        }
+    } while (n > 0);
 }
 
 static enum iSSLResult doHandshake_TlsRequest_(iTlsRequest *d) {
-    char buf[DEFAULT_BUF_SIZE];
-    int rc = SSL_do_handshake(d->ssl);
-    enum iSSLResult result = sslResult_TlsRequest_(d, rc);
+    int n = SSL_do_handshake(d->ssl);
+    enum iSSLResult result = sslResult_TlsRequest_(d, n);
     if (result == wantIO_SSLResult) {
-        do {
-            rc = BIO_read(d->wbio, buf, sizeof(buf));
-            if (rc > 0) {
-                //queueEncryptedBytes_TlsRequest_(d, buf, rc);
-                writeData_Socket(d->socket, buf, rc);
-            }
-            else if (!BIO_should_retry(d->wbio)) {
-                return fail_SSLResult;
-            }
-        } while (rc > 0);
+        flushToSocket_TlsRequest_(d);
     }
     return result;
 }
 
-static iBool doEncrypt_TlsRequest_(iTlsRequest *d) {
-    char buf[DEFAULT_BUF_SIZE];
-    enum iSSLResult status;
+static iBool encrypt_TlsRequest_(iTlsRequest *d) {
     if (!SSL_is_init_finished(d->ssl)) {
         return iFalse;
     }
-    while (d->encrypt_len > 0) {
-        int n = SSL_write(d->ssl, d->encrypt_buf, d->encrypt_len);
-        status = sslResult_TlsRequest_(d, n);
+    while (!isEmpty_Block(&d->sending)) {
+        int n = SSL_write(d->ssl, constData_Block(&d->sending), size_Block(&d->sending));
+        enum iSSLResult status = sslResult_TlsRequest_(d, n);
         if (n > 0) {
-            /* consume the waiting bytes that have been used by SSL */
-            if ((size_t) n < d->encrypt_len) {
-                memmove(d->encrypt_buf, d->encrypt_buf + n, d->encrypt_len - n);
-            }
-            d->encrypt_len -= n;
-            d->encrypt_buf = (char *) realloc(d->encrypt_buf, d->encrypt_len);
-            /* take the output of the SSL object and queue it for socket write */
-            do {
-                n = BIO_read(d->wbio, buf, sizeof(buf));
-                if (n > 0) {
-                    //queueEncryptedBytes_TlsRequest_(d, buf, n);
-                    writeData_Socket(d->socket, buf, n);
-                }
-                else if (!BIO_should_retry(d->wbio)) {
-                    iDebug("[TlsRequest] failed to encrypt (BIO_read)\n");
-                    return iTrue;
-                }
-            } while (n > 0);
+            remove_Block(&d->sending, 0, n);
+            flushToSocket_TlsRequest_(d);
         }
         if (status == fail_SSLResult) {
             iDebug("[TlsRequest] failure to encrypt (SSL_write)\n");
@@ -185,22 +176,20 @@ void init_TlsRequest(iTlsRequest *d) {
         atexit(globalCleanup_TlsRequest_);
     }
     d->status = initialized_TlsRequestStatus;
-    d->socket = NULL;
     d->hostName = new_String();
     d->port = 0;
+    d->socket = NULL;
+    init_Mutex(&d->mtx);
     init_Block(&d->content, 0);
     init_Block(&d->result, 0);
-    init_Mutex(&d->mtx);
-    d->thread = NULL;
     d->readyRead = NULL;
     d->finished = NULL;
+    init_Condition(&d->requestDone);
+    d->thread = NULL;
+    d->ssl = SSL_new(context_->ctx);
     d->rbio = BIO_new(BIO_s_mem());
     d->wbio = BIO_new(BIO_s_mem());
-    d->ssl = SSL_new(context_->ctx);
-//    d->write_buf = NULL;
-//    d->write_len = 0;
-    d->encrypt_buf = NULL;
-    d->encrypt_len = 0;
+    init_Block(&d->sending, 0);
     SSL_set_connect_state(d->ssl);
     SSL_set_bio(d->ssl, d->rbio, d->wbio);
 }
@@ -210,16 +199,16 @@ void deinit_TlsRequest(iTlsRequest *d) {
         join_Thread(d->thread);
         iRelease(d->thread);
     }
-    delete_Audience(d->readyRead);
-    delete_Audience(d->finished);
-    delete_String(d->hostName);
+    deinit_Block(&d->sending);
     SSL_free(d->ssl);
-//    free(d->write_buf);
-//    free(d->encrypt_buf);
-    iRelease(d->socket);
-    deinit_Mutex(&d->mtx);
+    deinit_Condition(&d->requestDone);
+    delete_Audience(d->finished);
+    delete_Audience(d->readyRead);
     deinit_Block(&d->result);
     deinit_Block(&d->content);
+    deinit_Mutex(&d->mtx);
+    iRelease(d->socket);
+    delete_String(d->hostName);
 }
 
 void setUrl_TlsRequest(iTlsRequest *d, const iString *hostName, uint16_t port) {
@@ -233,7 +222,7 @@ void setContent_TlsRequest(iTlsRequest *d, const iBlock *content) {
 
 static void disconnected_TlsRequest_(iAnyObject *obj) {
     iTlsRequest *d = obj;
-    d->status = finished_TlsRequestStatus;
+    setStatus_TlsRequest_(d, finished_TlsRequestStatus);
 }
 
 static void appendReceived_TlsRequest_(iTlsRequest *d, const char *buf, size_t len) {
@@ -241,7 +230,7 @@ static void appendReceived_TlsRequest_(iTlsRequest *d, const char *buf, size_t l
     iNotifyAudience(d, readyRead, TlsRequestReadyRead);
 }
 
-static int processIncoming_TlsRequest_(iTlsRequest *d, char *src, size_t len) {
+static int processIncoming_TlsRequest_(iTlsRequest *d, const char *src, size_t len) {
     char buf[DEFAULT_BUF_SIZE];
     enum iSSLResult status;
     int n;
@@ -271,20 +260,10 @@ static int processIncoming_TlsRequest_(iTlsRequest *d, char *src, size_t len) {
         } while (n > 0);
 
         status = sslResult_TlsRequest_(d, n);
-
         /* Did SSL request to write bytes? This can happen if peer has requested SSL
            renegotiation. */
         if (status == wantIO_SSLResult) {
-            do {
-                n = BIO_read(d->wbio, buf, sizeof(buf));
-                if (n > 0) {
-                    //queueEncryptedBytes_TlsRequest_(d, buf, n);
-                    writeData_Socket(d->socket, buf, n);
-                }
-                else if (!BIO_should_retry(d->wbio)) {
-                    return -1;
-                }
-            } while (n > 0);
+            flushToSocket_TlsRequest_(d);
         }
         if (status == fail_SSLResult) {
             return -1;
@@ -304,8 +283,8 @@ static iThreadResult run_TlsRequest_(iThread *thread) {
     iTlsRequest *d = userData_Thread(thread);
     doHandshake_TlsRequest_(d);
     while (d->status == submitted_TlsRequestStatus) {
-        if (!doEncrypt_TlsRequest_(d)) {
-            sleep_Thread(0.50); /* waiting on handshake to be completed */
+        if (!encrypt_TlsRequest_(d)) {
+            sleep_Thread(0.050); /* waiting on handshake to be completed */
         }
     }
     iNotifyAudience(d, finished, TlsRequestFinished);
@@ -318,18 +297,23 @@ static void connected_TlsRequest_(iAnyObject *obj) {
     iTlsRequest *d = obj;
     iAssert(!d->thread);
     d->thread = new_Thread(run_TlsRequest_);
+    setName_Thread(d->thread, "TlsRequest");
     setUserData_Thread(d->thread, d);
     start_Thread(d->thread);
 }
 
 static void handleError_TlsRequest_(iAnyObject *obj, int error, const char *msg) {
     iTlsRequest *d = obj;
-    d->status = error_TlsRequestStatus;
+    setStatus_TlsRequest_(d, error_TlsRequestStatus);
     close_Socket(d->socket);
 }
 
 void submit_TlsRequest(iTlsRequest *d) {
-    sendUnencryptedBytes_TlsRequest_(d, constData_Block(&d->content), size_Block(&d->content));
+    if (d->status == submitted_TlsRequestStatus) {
+        iDebug("[TlsRequest] request already ongoing\n");
+        return;
+    }
+    set_Block(&d->sending, &d->content);
     iChangeRef(d->socket, new_Socket(cstr_String(d->hostName), d->port));
     iConnect(Socket, d->socket, connected, d, connected_TlsRequest_);
     iConnect(Socket, d->socket, disconnected, d, disconnected_TlsRequest_);
@@ -337,6 +321,14 @@ void submit_TlsRequest(iTlsRequest *d) {
     iConnect(Socket, d->socket, error, d, handleError_TlsRequest_);
     open_Socket(d->socket);
     d->status = submitted_TlsRequestStatus;
+}
+
+void waitForFinished_TlsRequest(iTlsRequest *d) {
+    lock_Mutex(&d->mtx);
+    if (d->status == submitted_TlsRequestStatus) {
+        wait_Condition(&d->requestDone, &d->mtx);
+    }
+    unlock_Mutex(&d->mtx);
 }
 
 enum iTlsRequestStatus status_TlsRequest(const iTlsRequest *d) {
