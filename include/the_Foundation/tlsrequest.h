@@ -36,19 +36,23 @@ iDeclareClass(TlsRequest)
 iDeclareObjectConstruction(TlsRequest)
 
 iDeclareNotifyFunc    (TlsRequest, ReadyRead)
+iDeclareNotifyFunc    (TlsRequest, Finished)
+
 iDeclareAudienceGetter(TlsRequest, readyRead)
+iDeclareAudienceGetter(TlsRequest, finished)
 
 enum iTlsRequestStatus {
     initialized_TlsRequestStatus,
     submitted_TlsRequestStatus,
-    succeeded_TlsRequestStatus,
-    failed_TlsRequestStatus
+    finished_TlsRequestStatus,
+    error_TlsRequestStatus
 };
 
-void    setUrl_TlsRequest       (iTlsRequest *, const char *hostName, uint16_t port);
+void    setUrl_TlsRequest       (iTlsRequest *, const iString *hostName, uint16_t port);
 void    setContent_TlsRequest   (iTlsRequest *, const iBlock *content);
 
 void    submit_TlsRequest       (iTlsRequest *);
 
-enum iTlsRequestStatus  status_TlsRequest   (const iTlsRequest *);
-const iBlock *          result_TlsRequest   (const iTlsRequest *);
+enum iTlsRequestStatus  status_TlsRequest       (const iTlsRequest *);
+const iBlock *          result_TlsRequest       (const iTlsRequest *);
+size_t                  receivedBytes_TlsRequest(const iTlsRequest *);
