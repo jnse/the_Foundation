@@ -506,6 +506,10 @@ void setCStr_String(iString *d, const char *cstr) {
     setCStr_Block(&d->chars, cstr);
 }
 
+void setCStrN_String(iString *d, const char *cstr, size_t n) {
+    setData_Block(&d->chars, cstr, n);
+}
+
 void setBlock_String(iString *d, const iBlock *block) {
     set_Block(&d->chars, block);
 }

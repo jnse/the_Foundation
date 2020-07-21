@@ -126,7 +126,7 @@ iLocalDef const char *cstrLocal_String(const iString *str) {
     return cstr_Block(collect_Block(toLocal_String(str)));
 }
 
-#define         range_String(d) (iRangecc){ constBegin_Block(&d->chars), constEnd_Block(&d->chars) }
+#define         range_String(d) (iRangecc){ constBegin_Block(&(d)->chars), constEnd_Block(&(d)->chars) }
 
 iLocalDef const iBlock *utf8_String(const iString *d) {
     return &d->chars; /* unmodified internal representation (UTF-8) */
@@ -170,6 +170,7 @@ iLocalDef iBool contains_String(const iString *d, iChar ch) {
 
 void            set_String      (iString *, const iString *other);
 void            setCStr_String  (iString *, const char *cstr);
+void            setCStrN_String (iString *, const char *cstr, size_t n);
 void            setBlock_String (iString *, const iBlock *block);
 void            format_String   (iString *, const char *format, ...);
 
