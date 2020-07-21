@@ -128,6 +128,10 @@ iLocalDef const char *cstrLocal_String(const iString *str) {
 
 #define         range_String(d) (iRangecc){ constBegin_Block(&d->chars), constEnd_Block(&d->chars) }
 
+iLocalDef const iBlock *utf8_String(const iString *d) {
+    return &d->chars; /* unmodified internal representation (UTF-8) */
+}
+
 iLocalDef iBool         isEmpty_String   (const iString *d) { return size_String(d) == 0; }
 iLocalDef const char *  constBegin_String(const iString *d) { return cstr_String(d); }
 iLocalDef const char *  constEnd_String  (const iString *d) { return cstr_String(d) + size_String(d); }
