@@ -568,15 +568,19 @@ size_t lastIndexOf_String(const iString *d, iChar ch) {
     return lastIndexOfCStr_String(d, mb.bytes);
 }
 
-size_t lastIndexOfCStr_String(const iString *d, const char *cstr) {
+size_t lastIndexOfCStr_Rangecc(const iRangecc *d, const char *cstr) {
     const size_t len = strlen(cstr);
-    if (len > size_String(d)) return iInvalidPos;
-    for (const char *i = constEnd_String(d) - len; i >= constBegin_String(d); --i) {
+    if (len > size_Range(d)) return iInvalidPos;
+    for (const char *i = d->end - len; i >= d->start; --i) {
         if (iCmpStrN(i, cstr, len) == 0) {
-            return i - constBegin_String(d);
+            return i - d->start;
         }
     }
     return iInvalidPos;
+}
+
+size_t lastIndexOfCStr_String(const iString *d, const char *cstr) {
+    return lastIndexOfCStr_Rangecc(&(iRangecc){ constBegin_String(d), constEnd_String(d) }, cstr);
 }
 
 void append_String(iString *d, const iString *other) {

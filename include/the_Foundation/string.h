@@ -56,8 +56,16 @@ iDeclareType(String)
 iDeclareType(StringList)
 iDeclareType(StringComparison)
 iDeclareType(MultibyteChar)
-
 iDeclareType(Stream)
+
+struct Impl_StringComparison {
+    int     (*cmp)      (const char *, const char *);
+    int     (*cmpN)     (const char *, const char *, size_t);
+    char *  (*locate)   (const char *, const char *);
+};
+
+iFoundationAPIData iStringComparison iCaseSensitive;
+iFoundationAPIData iStringComparison iCaseInsensitive;
 
 struct Impl_String {
     iBlock chars;
@@ -174,6 +182,10 @@ void            setCStrN_String (iString *, const char *cstr, size_t n);
 void            setBlock_String (iString *, const iBlock *block);
 void            format_String   (iString *, const char *format, ...);
 
+iLocalDef void setRange_String(iString *d, iRangecc range) {
+    setCStrN_String(d, range.start, size_Range(&range));
+}
+
 void            append_String       (iString *, const iString *other);
 void            appendCStr_String   (iString *, const char *cstr);
 void            appendCStrN_String  (iString *, const char *cstr, size_t size);
@@ -211,10 +223,23 @@ iLocalDef iRangecc range_CStr   (const char *cstr) { return rangeN_CStr(cstr, st
 int             cmpCStrSc_Rangecc   (const iRangecc *, const char *cstr, const iStringComparison *);
 int             cmpCStrNSc_Rangecc  (const iRangecc *, const char *cstr, size_t n, const iStringComparison *);
 iBool           startsWithSc_Rangecc(const iRangecc *, const char *cstr, const iStringComparison *);
+
+iLocalDef iBool equal_Rangecc(const iRangecc *d, const char *cstr) {
+    return cmp_Rangecc(d, cstr) == 0;
+}
+iLocalDef iBool startsWith_Rangecc(const iRangecc *d, const char *cstr) {
+    return startsWithSc_Rangecc(d, cstr, &iCaseSensitive);
+}
+iLocalDef iBool startsWithCase_Rangecc(const iRangecc *d, const char *cstr) {
+    return startsWithSc_Rangecc(d, cstr, &iCaseInsensitive);
+}
+
 iStringList *   split_Rangecc       (const iRangecc *, const char *separator);
 void            trimStart_Rangecc   (iRangecc *);
 void            trimEnd_Rangecc     (iRangecc *);
 void            trim_Rangecc        (iRangecc *);
+
+size_t          lastIndexOfCStr_Rangecc     (const iRangecc *, const char *cstr);
 
 /**
  * Finds the next range between separators. Empty ranges at the beginning and end of
@@ -280,15 +305,6 @@ iLocalDef iBool beginsWith_CStr(const char *str, const char *pfx) {
 iLocalDef iBool beginsWithCase_CStr(const char *str, const char *pfx) {
     return iCmpStrNCase(str, pfx, strlen(pfx)) == 0;
 }
-
-struct Impl_StringComparison {
-    int     (*cmp)      (const char *, const char *);
-    int     (*cmpN)     (const char *, const char *, size_t);
-    char *  (*locate)   (const char *, const char *);
-};
-
-iFoundationAPIData iStringComparison iCaseSensitive;
-iFoundationAPIData iStringComparison iCaseInsensitive;
 
 char *          iDupStr     (const char *);
 char *          iStrStrN    (const char *, const char *, size_t);

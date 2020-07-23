@@ -69,6 +69,9 @@ iBool       match_RegExp(const iRegExp *, const char *subject, size_t len, iRegE
 iLocalDef iBool matchString_RegExp(const iRegExp *d, const iString *str, iRegExpMatch *match) {
     return match_RegExp(d, cstr_String(str), size_String(str), match);
 }
+iLocalDef iBool matchRange_RegExp(const iRegExp *d, iRangecc subject, iRegExpMatch *match) {
+    return match_RegExp(d, subject.start, size_Range(&subject), match);
+}
 
 struct Impl_RegExpMatch {
     const char *subject;
@@ -79,7 +82,7 @@ struct Impl_RegExpMatch {
 };
 
 iString *   captured_RegExpMatch        (const iRegExpMatch *, int index);
-void        capturedRange_RegExpMatch   (const iRegExpMatch *, int index, iRangecc *out);
+iRangecc    capturedRange_RegExpMatch   (const iRegExpMatch *, int index);
 
 iLocalDef const char *  begin_RegExpMatch   (const iRegExpMatch *d) { return d->subject + d->range.start; }
 iLocalDef const char *  end_RegExpMatch     (const iRegExpMatch *d) { return d->subject + d->range.end; }
