@@ -273,7 +273,7 @@ void truncate_Block(iBlock *d, size_t size) {
 void remove_Block(iBlock *d, size_t start, size_t count) {
     detach_Block_(d, 0);
     iAssert(start <= d->i->size);
-    if (start + count > d->i->size) {
+    if (count == iInvalidSize || start + count > d->i->size) {
         count = d->i->size - start;
     }
     const size_t remainder = d->i->size - start - count;
