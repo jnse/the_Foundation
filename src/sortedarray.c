@@ -80,7 +80,7 @@ iBool locate_SortedArray(const iSortedArray *d, const void *value, size_t *pos_o
 
 iRanges locateRange_SortedArray(const iSortedArray *d, const void *value,
                                 iSortedArrayCompareElemFunc relaxed) {
-    const iSortedArrayCompareElemFunc cmpFunc = (relaxed? relaxed : d->cmp);
+    const iSortedArrayCompareElemFunc cmpFunc = (relaxed ? relaxed : d->cmp);
     if (isEmpty_SortedArray(d) ||
         cmpFunc(value, constFront_SortedArray(d)) < 0) {
         return (iRanges){ 0, 0 };
