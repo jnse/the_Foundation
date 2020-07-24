@@ -75,8 +75,8 @@ iBool insert_Audience(iAudience *d, iAnyObject *object, iObserverFunc func) {
 static iBool removeObject_Audience_(iAudience *d, const iAnyObject *object) {
     iBool removed;
     iGuardMutex(&d->mutex, {
-        const iRanges range = locateRange_SortedArray(&d->observers, object,
-                                                      cmpObject_Observer_);
+        const iRanges range = locateRange_SortedArray(
+            &d->observers, &(iObserver){ iConstCast(void *, object), NULL }, cmpObject_Observer_);
         removeRange_SortedArray(&d->observers, &range);
         removed = !isEmpty_Range(&range);
     });
@@ -91,7 +91,9 @@ iBool remove_Audience(iAudience *d, iAnyObject *object, iObserverFunc func) {
         if (func) {
             removed = remove_SortedArray(&d->observers, &(iObserver){ object, func });
         }
-        removed = removeObject_Audience_(d, object);
+        else {
+            removed = removeObject_Audience_(d, object);
+        }
     });
     return removed;
 }
