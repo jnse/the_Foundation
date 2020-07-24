@@ -225,11 +225,6 @@ void setContent_TlsRequest(iTlsRequest *d, const iBlock *content) {
     set_Block(&d->content, content);
 }
 
-static void disconnected_TlsRequest_(iAnyObject *obj) {
-    iTlsRequest *d = obj;
-    setStatus_TlsRequest_(d, finished_TlsRequestStatus);
-}
-
 static void appendReceived_TlsRequest_(iTlsRequest *d, const char *buf, size_t len) {
     iGuardMutex(&d->mtx, writeData_Buffer(d->result, buf, len));
     set_Atomic(&d->notifyReady, iTrue);
@@ -321,6 +316,11 @@ static void connected_TlsRequest_(iAnyObject *obj) {
     start_Thread(d->thread);
 }
 
+static void disconnected_TlsRequest_(iAnyObject *obj) {
+    iTlsRequest *d = obj;
+    setStatus_TlsRequest_(d, finished_TlsRequestStatus);
+}
+
 static void handleError_TlsRequest_(iAnyObject *obj, int error, const char *msg) {
     iTlsRequest *d = obj;
     setStatus_TlsRequest_(d, error_TlsRequestStatus);
@@ -347,15 +347,17 @@ void submit_TlsRequest(iTlsRequest *d) {
 void cancel_TlsRequest(iTlsRequest *d) {
     lock_Mutex(&d->mtx);
     if (d->status == submitted_TlsRequestStatus) {
-        d->status = error_TlsRequestStatus;
-        iDisconnectObject(Socket, d->socket, connected, d);
-        iDisconnectObject(Socket, d->socket, disconnected, d);
-        iDisconnectObject(Socket, d->socket, readyRead, d);
-        iDisconnectObject(Socket, d->socket, error, d);
+//        d->status = error_TlsRequestStatus;
+//        iDisconnectObject(Socket, d->socket, connected, d);
+//        iDisconnectObject(Socket, d->socket, disconnected, d);
+//        iDisconnectObject(Socket, d->socket, readyRead, d);
+//        iDisconnectObject(Socket, d->socket, error, d);
         close_Socket(d->socket);
-        signalAll_Condition(&d->requestDone);
+//        signalAll_Condition(&d->requestDone);
+//        wait_Condition(&d->requestDone, &d->mtx);
     }
     unlock_Mutex(&d->mtx);
+    join_Thread(d->thread);
 }
 
 void waitForFinished_TlsRequest(iTlsRequest *d) {
