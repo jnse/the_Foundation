@@ -71,13 +71,14 @@ iDefineTypeConstruction(Context)
 
 struct Impl_TlsRequest {
     iObject                object;
-    enum iTlsRequestStatus status;
+    volatile enum iTlsRequestStatus status;
     iString *              hostName;
     uint16_t               port;
     iSocket *              socket;
     iMutex                 mtx;
     iBlock                 content;
     iBuffer *              result;
+    iAtomicInt             notifyReady;
     iAudience *            readyRead;
     iAudience *            finished;
     iCondition             requestDone;
@@ -184,6 +185,7 @@ void init_TlsRequest(iTlsRequest *d) {
     init_Block(&d->content, 0);
     d->result = new_Buffer();
     openEmpty_Buffer(d->result);
+    set_Atomic(&d->notifyReady, iFalse);
     d->readyRead = NULL;
     d->finished = NULL;
     init_Condition(&d->requestDone);
@@ -197,6 +199,7 @@ void init_TlsRequest(iTlsRequest *d) {
 }
 
 void deinit_TlsRequest(iTlsRequest *d) {
+    d->status = finished_TlsRequestStatus;
     if (d->thread) {
         join_Thread(d->thread);
         iRelease(d->thread);
@@ -229,10 +232,11 @@ static void disconnected_TlsRequest_(iAnyObject *obj) {
 
 static void appendReceived_TlsRequest_(iTlsRequest *d, const char *buf, size_t len) {
     iGuardMutex(&d->mtx, writeData_Buffer(d->result, buf, len));
-    iNotifyAudience(d, readyRead, TlsRequestReadyRead);
+    set_Atomic(&d->notifyReady, iTrue);
 }
 
 static int processIncoming_TlsRequest_(iTlsRequest *d, const char *src, size_t len) {
+    /* Note: Runs in the socket thread. */
     char buf[DEFAULT_BUF_SIZE];
     enum iSSLResult status;
     int n;
@@ -281,17 +285,28 @@ static void readIncoming_TlsRequest_(iAnyObject *obj) {
     delete_Block(data);
 }
 
+static void checkReadyRead_TlsRequest_(iTlsRequest *d) {
+    /* All notifications are done from the TlsRequest thread. */
+    const int isReady = exchange_Atomic(&d->notifyReady, iFalse);
+    if (isReady) {
+        iNotifyAudience(d, readyRead, TlsRequestReadyRead);
+    }
+}
+
 static iThreadResult run_TlsRequest_(iThread *thread) {
     iTlsRequest *d = userData_Thread(thread);
     doHandshake_TlsRequest_(d);
     while (d->status == submitted_TlsRequestStatus) {
-        if (!encrypt_TlsRequest_(d)) {
-            sleep_Thread(0.050); /* waiting on handshake to be completed */
-        }
+        encrypt_TlsRequest_(d);
+        checkReadyRead_TlsRequest_(d);
+        sleep_Thread(0.050); /* TODO: use a condition */
     }
-    ref_Object(d);
+    checkReadyRead_TlsRequest_(d);
+    lock_Mutex(&d->mtx); /* maybe we are in the midst of cancelling */
+//    ref_Object(d);
+    unlock_Mutex(&d->mtx);
     iNotifyAudience(d, finished, TlsRequestFinished);
-    deref_Object(d);
+//    deref_Object(d);
     return 0;
 }
 
@@ -319,13 +334,28 @@ void submit_TlsRequest(iTlsRequest *d) {
     }
     clear_Buffer(d->result);
     set_Block(&d->sending, &d->content);
-    iChangeRef(d->socket, new_Socket(cstr_String(d->hostName), d->port));
+    iRelease(d->socket);
+    d->socket = new_Socket(cstr_String(d->hostName), d->port);
     iConnect(Socket, d->socket, connected, d, connected_TlsRequest_);
     iConnect(Socket, d->socket, disconnected, d, disconnected_TlsRequest_);
     iConnect(Socket, d->socket, readyRead, d, readIncoming_TlsRequest_);
     iConnect(Socket, d->socket, error, d, handleError_TlsRequest_);
     open_Socket(d->socket);
     d->status = submitted_TlsRequestStatus;
+}
+
+void cancel_TlsRequest(iTlsRequest *d) {
+    lock_Mutex(&d->mtx);
+    if (d->status == submitted_TlsRequestStatus) {
+        d->status = error_TlsRequestStatus;
+        iDisconnectObject(Socket, d->socket, connected, d);
+        iDisconnectObject(Socket, d->socket, disconnected, d);
+        iDisconnectObject(Socket, d->socket, readyRead, d);
+        iDisconnectObject(Socket, d->socket, error, d);
+        close_Socket(d->socket);
+        signalAll_Condition(&d->requestDone);
+    }
+    unlock_Mutex(&d->mtx);
 }
 
 void waitForFinished_TlsRequest(iTlsRequest *d) {

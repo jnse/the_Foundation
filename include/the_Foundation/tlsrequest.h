@@ -52,6 +52,7 @@ void    setUrl_TlsRequest           (iTlsRequest *, const iString *hostName, uin
 void    setContent_TlsRequest       (iTlsRequest *, const iBlock *content);
 
 void    submit_TlsRequest           (iTlsRequest *);
+void    cancel_TlsRequest           (iTlsRequest *);
 void    waitForFinished_TlsRequest  (iTlsRequest *);
 iBlock *readAll_TlsRequest          (iTlsRequest *);
 
