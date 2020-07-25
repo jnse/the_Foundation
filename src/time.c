@@ -34,7 +34,7 @@ static time_t initStdTime_(const iDate *date, struct tm *tm) {
     tm->tm_mon = date->month - 1;
     tm->tm_mday = date->day;
     tm->tm_hour = date->hour;
-    tm->tm_hour = date->minute;
+    tm->tm_min = date->minute;
     tm->tm_sec = date->second;
 #if !defined (iPlatformWindows) // we only know about daylight savings time 
     tm->tm_gmtoff = date->gmtOffsetSeconds;
