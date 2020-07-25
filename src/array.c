@@ -295,6 +295,9 @@ void insertN_Array(iArray *d, size_t pos, const void *value, size_t count) {
 
 void removeN_Array(iArray *d, size_t pos, size_t count) {
     if (count == 0) return;
+    if (count == iInvalidSize) {
+        count = size_Array(d) - pos;
+    }
     iAssert(pos < size_Array(d));
     iAssert(pos + count <= size_Array(d));
     pos += d->range.start;
