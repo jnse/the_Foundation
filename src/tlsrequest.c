@@ -347,16 +347,9 @@ void submit_TlsRequest(iTlsRequest *d) {
 void cancel_TlsRequest(iTlsRequest *d) {
     lock_Mutex(&d->mtx);
     if (d->status == submitted_TlsRequestStatus) {
-//        d->status = error_TlsRequestStatus;
-//        iDisconnectObject(Socket, d->socket, connected, d);
-//        iDisconnectObject(Socket, d->socket, disconnected, d);
-//        iDisconnectObject(Socket, d->socket, readyRead, d);
-//        iDisconnectObject(Socket, d->socket, error, d);
+        unlock_Mutex(&d->mtx);
         close_Socket(d->socket);
-//        signalAll_Condition(&d->requestDone);
-//        wait_Condition(&d->requestDone, &d->mtx);
     }
-    unlock_Mutex(&d->mtx);
     join_Thread(d->thread);
 }
 
