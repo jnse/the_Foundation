@@ -397,16 +397,15 @@ iStringList *split_String(const iString *d, const char *separator) {
     return split_Rangecc(&range, separator);
 }
 
-iString *urlEncode_String(const iString *d) {
+iString *urlEncodeExclude_String(const iString *d, const char *exclude) {
     iString *encoded = new_String();
     for (const char *i = constBegin_String(d), *end = constEnd_String(d); i != end; ++i) {
         char ch = *i;
         if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') ||
-                ch == '-' || ch == '_' || ch == '.' || ch == '~') {
+             ch == '-' || ch == '_' || ch == '.' || ch == '~' || strchr(exclude, ch)) {
             appendData_Block(&encoded->chars, i, 1);
         }
-        else
-        {
+        else {
             static const char hex[16] = {
                 '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
             char escaped[3] = {'%', hex[(ch >> 4) & 0xf], hex[ch & 0xf]};
@@ -414,6 +413,10 @@ iString *urlEncode_String(const iString *d) {
         }
     }
     return encoded;
+}
+
+iString *urlEncode_String(const iString *d) {
+    return urlEncodeExclude_String(d, "");
 }
 
 static int fromHex_(char ch) {
@@ -430,7 +433,7 @@ iString *urlDecode_String(const iString *d) {
             if (i + 3 <= end) {
                 const char ch = (char) ((fromHex_(i[1]) << 4) | fromHex_(i[2]));
                 appendData_Block(&decoded->chars, &ch, 1);
-                i += 3;
+                i += 2;
             }
             else break;
         }
