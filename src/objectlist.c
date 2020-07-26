@@ -40,6 +40,14 @@ void deinit_ObjectList(iObjectList *d) {
     clear_ObjectList(d);
 }
 
+iObjectList *copy_ObjectList(const iObjectList *d) {
+    iObjectList *copy = new_ObjectList();
+    iConstForEach(ObjectList, i, d) {
+        pushBack_ObjectList(copy, iConstCast(iObject *, i.object));
+    }
+    return copy;
+}
+
 iObject *front_ObjectList(const iObjectList *d) {
     if (isEmpty_ObjectList(d)) return NULL;
     return ((const iObjectListNode *) front_List(&d->list))->object;

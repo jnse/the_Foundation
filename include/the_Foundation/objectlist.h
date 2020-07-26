@@ -57,9 +57,11 @@ struct Impl_ObjectListNode {
 
 iDeclareObjectConstruction(ObjectList)
 
+iObjectList *       copy_ObjectList     (const iObjectList *);
+
 iLocalDef iBool     isEmpty_ObjectList  (const iObjectList *d) { return isEmpty_List(&d->list); }
 iLocalDef size_t    size_ObjectList     (const iObjectList *d) { return size_List(&d->list); }
-#define         list_ObjectList(d)      (&(d)->list)
+#define             list_ObjectList(d)  (&(d)->list)
 
 iObject *       front_ObjectList        (const iObjectList *);
 iObject *       back_ObjectList         (const iObjectList *);
