@@ -560,7 +560,7 @@ size_t indexOfCStrFromSc_String(const iString *d, const char *cstr, size_t from,
     const char *chars = cstr_String(d) + from;
     const char *found = sc->locate(chars, cstr);
     if (found) {
-        return found - chars;
+        return found - chars + from;
     }
     return iInvalidPos;
 }

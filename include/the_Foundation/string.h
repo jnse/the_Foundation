@@ -170,8 +170,9 @@ size_t          indexOfCStrFromSc_String    (const iString *, const char *cstr, 
 size_t          lastIndexOf_String          (const iString *, iChar ch);
 size_t          lastIndexOfCStr_String      (const iString *, const char *cstr);
 
-#define         indexOfString_String(d, s)      indexOfCStr_String(d, cstr_String(s))
-#define         lastIndexOfString_String(d, s)  lastIndexOfCStr_String(d, cstr_String(s))
+#define         indexOfString_String(d, s)          indexOfCStr_String(d, cstr_String(s))
+#define         indexOfStringFrom_String(d, s, pos) indexOfCStrFrom_String(d, cstr_String(s), pos)
+#define         lastIndexOfString_String(d, s)      lastIndexOfCStr_String(d, cstr_String(s))
 
 iLocalDef iBool contains_String(const iString *d, iChar ch) {
     return indexOf_String(d, ch) != iInvalidPos;
