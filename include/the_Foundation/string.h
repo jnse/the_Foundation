@@ -229,6 +229,9 @@ iBool           startsWithSc_Rangecc(const iRangecc *, const char *cstr, const i
 iLocalDef iBool equal_Rangecc(const iRangecc *d, const char *cstr) {
     return cmp_Rangecc(d, cstr) == 0;
 }
+iLocalDef iBool equalCase_Rangecc(const iRangecc *d, const char *cstr) {
+    return cmpCStrSc_Rangecc(d, cstr, &iCaseInsensitive) == 0;
+}
 iLocalDef iBool startsWith_Rangecc(const iRangecc *d, const char *cstr) {
     return startsWithSc_Rangecc(d, cstr, &iCaseSensitive);
 }
