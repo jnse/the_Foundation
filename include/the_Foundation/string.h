@@ -89,7 +89,6 @@ iString *       newFormat_String    (const char *format, ...);
 iString *       copy_String         (const iString *);
 
 iString *           collectNewFormat_String (const char *format, ...);
-const char *        cstrFormat_String       (const char *format, ...);
 iLocalDef iString * collectNewCStr_String   (const char *cstr) { return collect_String(newCStr_String(cstr)); }
 
 iLocalDef iString *newRange_String  (const iRangecc range) { return newCStrN_String(range.start, size_Range(&range)); }
@@ -209,6 +208,7 @@ int             toInt_String    (const iString *);
 float           toFloat_String  (const iString *);
 double          toDouble_String (const iString *);
 
+const char *    format_CStr     (const char *format, ...);
 const char *    skipSpace_CStr  (const char *);
 
 iLocalDef iRangecc rangeN_CStr  (const char *cstr, size_t size) {

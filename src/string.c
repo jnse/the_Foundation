@@ -149,7 +149,7 @@ iString *collectNewFormat_String(const char *format, ...) {
     return d;
 }
 
-const char *cstrFormat_String(const char *format, ...) {
+const char *format_CStr(const char *format, ...) {
     iString *d = collectNew_String();
     va_list args;
     va_start(args, format);
