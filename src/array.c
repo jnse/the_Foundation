@@ -207,6 +207,7 @@ size_t popFrontN_Array(iArray *d, size_t count) {
 }
 
 size_t takeN_Array(iArray *d, size_t pos, void *value_out, size_t count) {
+    if (pos == iInvalidPos) return 0;
     count = iMin(count, size_Array(d) - pos);
     memcpy(value_out, at_Array(d, pos), count * d->elementSize);
     removeN_Array(d, pos, count);
