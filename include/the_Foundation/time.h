@@ -88,5 +88,10 @@ iLocalDef double elapsedSeconds_Time(const iTime *d) {
     sub_Time(&elapsed, d);
     return seconds_Time(&elapsed);
 }
+iLocalDef double secondsSince_Time(const iTime *d, const iTime *olderTime) {
+    iTime dt = *d;
+    sub_Time(&dt, olderTime);
+    return seconds_Time(&dt);
+}
 
 iEndPublic

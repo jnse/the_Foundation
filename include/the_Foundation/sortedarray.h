@@ -84,8 +84,19 @@ iLocalDef const void * constFront_SortedArray   (const iSortedArray *d) { return
 iLocalDef const void * constBack_SortedArray    (const iSortedArray *d) { return constBack_Array(&d->values); }
 
 void        clear_SortedArray   (iSortedArray *);
-iBool       insert_SortedArray  (iSortedArray *, const void *value);
+iBool       insert_SortedArray  (iSortedArray *, const void *value); /* returns true if inserted/replaced */
 iBool       remove_SortedArray  (iSortedArray *, const void *value);
+
+/**
+ * Inserts a new element, or replaces an existing one if the provided predicate is true.
+ *
+ * @param value  Value to be inserted.
+ * @param pred   Predicate callback that returns non-zero if the @a value should be inserted.
+ *               Called to compare an existing value and the new value. Called as: `pred(new, old)`
+ *
+ * @return True if @a value was inserted to the array.
+ */
+iBool       insertIf_SortedArray(iSortedArray *, const void *value, iSortedArrayCompareElemFunc pred);
 
 iLocalDef void removeRange_SortedArray(iSortedArray *d, const iRanges *range) {
     removeRange_Array(&d->values, range);

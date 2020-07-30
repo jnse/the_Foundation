@@ -245,6 +245,14 @@ iString *concatCStr_Path(const iString *d, const char *path) {
     return cat;
 }
 
+const iString *concatPath_CStr(const char *dir, const char *path) {
+    iString d;
+    initCStr_String(&d, dir);
+    iString *cat = concatCStr_Path(&d, path);
+    deinit_String(&d);
+    return collect_String(cat);
+}
+
 iBool mkdir_Path(const iString *path) {
     return mkdir(cstr_String(path), 0755) == 0;
 }
@@ -253,23 +261,25 @@ iBool rmdir_Path(const iString *path) {
     return rmdir(cstr_String(path)) == 0;
 }
 
-const char *baseName_Path(const iString *d) {
+iRangecc baseName_Path(const iString *d) {
     const size_t sep = lastIndexOfCStr_String(d, iPathSeparator);
-    return cstr_String(d) + (sep == iInvalidSize ? 0 : (sep + 1));
+    return (iRangecc){ cstr_String(d) + (sep == iInvalidSize ? 0 : (sep + 1)),
+                       constEnd_String(d) };
 }
 
-iString *dirName_Path(const iString *d) {
+iRangecc dirName_Path(const iString *d) {
     const size_t sep = lastIndexOfCStr_String(d, iPathSeparator);
     if (sep == iInvalidSize) {
-        return newCStr_String(".");
+        static const char *dot = ".";
+        return (iRangecc){ dot, dot + 1 };
     }
-    return newCStrN_String(cstr_String(d), sep);
+    return (iRangecc){ cstr_String(d), cstr_String(d) + sep };
 }
 
 void makeDirs_Path(const iString *path) {
     iString *clean = copy_String(path);
     clean_Path(clean);
-    iString *dir = dirName_Path(clean);
+    iString *dir = newRange_String(dirName_Path(clean));
     if (!fileExists_FileInfo(dir)) {
         makeDirs_Path(dir);
     }

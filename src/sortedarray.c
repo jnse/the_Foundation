@@ -123,15 +123,21 @@ void clear_SortedArray(iSortedArray *d) {
 }
 
 iBool insert_SortedArray(iSortedArray *d, const void *value) {
+    return insertIf_SortedArray(d, value, NULL);
+}
+
+iBool insertIf_SortedArray(iSortedArray *d, const void *value, iSortedArrayCompareElemFunc pred) {
     size_t pos;
     if (locate_SortedArray(d, value, &pos)) {
-        /* The value already exists in the set. It is written anyway, since some
-         * contents of the element may have changed. */
-        set_Array(&d->values, pos, value);
-        return iFalse; // No new elements.
+        if (!pred || pred(value, at_SortedArray(d, pos))) {
+            set_Array(&d->values, pos, value);
+            return iTrue;
+        }
+        return iFalse;
     }
     insert_Array(&d->values, pos, value);
     return iTrue;
+
 }
 
 iBool remove_SortedArray(iSortedArray *d, const void *value) {

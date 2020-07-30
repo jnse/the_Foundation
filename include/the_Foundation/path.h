@@ -52,11 +52,13 @@ iString *   makeRelative_Path   (const iString *);
 iString *   concat_Path         (const iString *, const iString *path);
 iString *   concatCStr_Path     (const iString *, const char *path);
 
+const iString *concatPath_CStr  (const char *, const char *);
+
 void        clean_Path      (iString *);
 void        append_Path     (iString *, const iString *path);
 
-const char *baseName_Path   (const iString *); /* returns address of last component */
-iString *   dirName_Path    (const iString *);
+iRangecc    baseName_Path   (const iString *); /* returns address of last component */
+iRangecc    dirName_Path    (const iString *);
 
 #if defined (iPlatformCygwin) || defined (iPlatformMsys)
 iString *   unixToWindows_Path         (const char *cstr);
