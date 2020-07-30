@@ -27,8 +27,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
 #include "stream.h"
+#include "string.h"
 #include <time.h>
 
 iBeginPublic
@@ -69,8 +69,9 @@ void    initCurrent_Time    (iTime *);
 void    initSeconds_Time    (iTime *, double seconds);
 void    initTimeout_Time    (iTime *, double seconds);
 
-iTime   now_Time            (void);
-double  seconds_Time        (const iTime *);
+iTime       now_Time        (void);
+double      seconds_Time    (const iTime *);
+iString *   format_Time     (const iTime *, const char *format);
 
 #define isValid_Time(d)         ((d)->ts.tv_sec > 0)
 #define integralSeconds_Time(d) ((d)->ts.tv_sec)
@@ -93,5 +94,7 @@ iLocalDef double secondsSince_Time(const iTime *d, const iTime *olderTime) {
     sub_Time(&dt, olderTime);
     return seconds_Time(&dt);
 }
+
+iString *   format_Date     (const iDate *, const char *format);
 
 iEndPublic

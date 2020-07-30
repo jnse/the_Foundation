@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "the_Foundation/time.h"
 
+#include <stdlib.h>
 #include <math.h>
 
 static time_t initStdTime_(const iDate *date, struct tm *tm) {
@@ -92,6 +93,12 @@ void sub_Time(iTime *d, const iTime *time) {
     }
 }
 
+iString *format_Time(const iTime *d, const char *format) {
+    iDate date;
+    init_Date(&date, d);
+    return format_Date(&date, format);
+}
+
 /*-------------------------------------------------------------------------------------*/
 
 #if defined (iPlatformWindows)
@@ -153,4 +160,17 @@ void deserialize_Date(iDate *d, iStream *ins) {
     d->second = readU8_Stream(ins);
     d->nsecs = readU32_Stream(ins);
     d->gmtOffsetSeconds = read16_Stream(ins);
+}
+
+iString *format_Date(const iDate *d, const char *format) {
+    struct tm time;
+    initStdTime_(d, &time);
+    iString *str = new_String();
+    resize_Block(&str->chars, 63);
+    size_t len;
+    while ((len = strftime(data_Block(&str->chars), size_Block(&str->chars), format, &time)) == 0) {
+        resize_Block(&str->chars, size_Block(&str->chars) * 2);
+    }
+    truncate_Block(&str->chars, len);
+    return str;
 }
