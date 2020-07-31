@@ -69,20 +69,118 @@ iBool isValid_Context(iContext *d) {
 
 iDefineTypeConstruction(Context)
 
+static iBool readAllFromBIO_(BIO *bio, iBlock *out) {
+    char buf[DEFAULT_BUF_SIZE];
+    int n;
+    do {
+        n = BIO_read(bio, buf, sizeof(buf));
+        if (n > 0) {
+            appendData_Block(out, buf, n);
+        }
+        else if (!BIO_should_retry(bio)) {
+            return iFalse;
+        }
+    } while (n > 0);
+    return iTrue;
+}
+
+/*----------------------------------------------------------------------------------------------*/
+
+struct Impl_TlsCertificate {
+    X509 *cert;
+};
+
+iDefineTypeConstruction(TlsCertificate)
+
+void init_TlsCertificate(iTlsCertificate *d) {
+    d->cert = NULL;
+}
+
+void deinit_TlsCertificate(iTlsCertificate *d) {
+    if (d->cert) {
+        X509_free(d->cert);
+    }
+}
+
+static iTlsCertificate *newX509_TlsCertificate_(X509 *cert) {
+    iTlsCertificate *d = new_TlsCertificate();
+    d->cert = cert;
+    return d;
+}
+
+iTlsCertificate *newPem_TlsCertificate(const iString *pem) {
+    iTlsCertificate *d = new_TlsCertificate();
+    BIO *buf = BIO_new_mem_buf(cstr_String(pem), size_String(pem));
+    PEM_read_bio_X509(buf, &d->cert, NULL /* no passphrase callback */, "" /* empty passphrase */);
+    BIO_free(buf);
+    return d;
+}
+
+iString *subject_TlsCertificate(const iTlsCertificate *d) {
+    iString *sub = new_String();
+    if (d->cert) {
+        BIO *buf = BIO_new(BIO_s_mem());
+        X509_NAME_print_ex(buf, X509_get_subject_name(d->cert), 0, XN_FLAG_ONELINE);
+        readAllFromBIO_(buf, &sub->chars);
+        BIO_free(buf);
+    }
+    return sub;
+}
+
+iDate validUntil_TlsCertificate(const iTlsCertificate *d) {
+    iDate expiry;
+    iZap(expiry);
+    if (d->cert) {
+        struct tm time;
+        ASN1_TIME_to_tm(X509_get0_notAfter(d->cert), &time);
+        initStdTime_Date(&expiry, &time);
+    }
+    return expiry;
+}
+
+iBool isExpired_TlsCertificate(const iTlsCertificate *d) {
+    if (!d->cert) return iTrue;
+    return X509_cmp_current_time(X509_get0_notAfter(d->cert)) > 0;
+}
+
+iBool equal_TlsCertificate(const iTlsCertificate *d, const iTlsCertificate *other) {
+    if (d->cert == NULL && other->cert == NULL) {
+        return iTrue;
+    }
+    if (d->cert == NULL || other->cert == NULL) {
+        return iFalse;
+    }
+    return X509_cmp(d->cert, other->cert) == 0;
+}
+
+iString *pem_TlsCertificate(const iTlsCertificate *d) {
+    iString *pem = new_String();
+    if (d->cert) {
+        BIO *buf = BIO_new(BIO_s_mem());
+        PEM_write_bio_X509(buf, d->cert);
+        readAllFromBIO_(buf, &pem->chars);
+        BIO_free(buf);
+    }
+    return pem;
+}
+
+/*----------------------------------------------------------------------------------------------*/
+
 struct Impl_TlsRequest {
-    iObject                object;
+    iObject object;
     volatile enum iTlsRequestStatus status;
-    iString *              hostName;
-    uint16_t               port;
-    iSocket *              socket;
-    iMutex                 mtx;
-    iBlock                 content;
-    iBuffer *              result;
-    iAtomicInt             notifyReady;
-    iAudience *            readyRead;
-    iAudience *            finished;
-    iCondition             requestDone;
-    iThread *              thread;
+    iString *  hostName;
+    uint16_t   port;
+    iSocket *  socket;
+    iMutex     mtx;
+    iBlock     content;
+    iBuffer *  result;
+    iAtomicInt notifyReady;
+    iAudience *readyRead;
+    iAudience *finished;
+    iCondition requestDone;
+    iThread *  thread;
+    iTlsCertificate *cert; /* server certificate */
     /* OpenSSL state. */
     SSL *  ssl;
     BIO *  rbio; /* we insert incoming encrypted bytes here for SSL to read */
@@ -191,6 +289,9 @@ void init_TlsRequest(iTlsRequest *d) {
     init_Condition(&d->requestDone);
     d->thread = NULL;
     d->ssl = SSL_new(context_->ctx);
+    d->cert = NULL;
+    /* We could also try BIO_s_socket() but all BSD socket related code should be encapsulated
+       into the Socket class. */
     d->rbio = BIO_new(BIO_s_mem());
     d->wbio = BIO_new(BIO_s_mem());
     init_Block(&d->sending, 0);
@@ -205,6 +306,7 @@ void deinit_TlsRequest(iTlsRequest *d) {
         iRelease(d->thread);
     }
     deinit_Block(&d->sending);
+    delete_TlsCertificate(d->cert);
     SSL_free(d->ssl);
     deinit_Condition(&d->requestDone);
     delete_Audience(d->finished);
@@ -250,6 +352,9 @@ static int processIncoming_TlsRequest_(iTlsRequest *d, const char *src, size_t l
             if (!SSL_is_init_finished(d->ssl)) {
                 return 0; /* continue later */
             }
+        }
+        if (!d->cert) {
+            d->cert = newX509_TlsCertificate_(SSL_get_peer_certificate(d->ssl));
         }
         /* The encrypted data is now in the input bio so now we can perform actual
            read of unencrypted data. */
@@ -363,6 +468,10 @@ void waitForFinished_TlsRequest(iTlsRequest *d) {
 
 enum iTlsRequestStatus status_TlsRequest(const iTlsRequest *d) {
     return d->status;
+}
+
+const iTlsCertificate *serverCertificate_TlsRequest(const iTlsRequest *d) {
+    return d->cert;
 }
 
 iBlock *readAll_TlsRequest(iTlsRequest *d) {

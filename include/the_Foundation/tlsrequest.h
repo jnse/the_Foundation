@@ -31,6 +31,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "object.h"
 #include "string.h"
 
+iBeginPublic
+
+iDeclareType(TlsCertificate)
+iDeclareTypeConstruction(TlsCertificate)
+
+iTlsCertificate *   newPem_TlsCertificate       (const iString *pem);
+
+iString *           subject_TlsCertificate      (const iTlsCertificate *);
+iDate               validUntil_TlsCertificate   (const iTlsCertificate *);
+iBool               isExpired_TlsCertificate    (const iTlsCertificate *);
+iBool               equal_TlsCertificate        (const iTlsCertificate *, const iTlsCertificate *);
+iString *           pem_TlsCertificate          (const iTlsCertificate *);
+
 iDeclareType(TlsRequest)
 iDeclareClass(TlsRequest)
 iDeclareObjectConstruction(TlsRequest)
@@ -48,13 +61,16 @@ enum iTlsRequestStatus {
     error_TlsRequestStatus
 };
 
-void    setUrl_TlsRequest           (iTlsRequest *, const iString *hostName, uint16_t port);
-void    setContent_TlsRequest       (iTlsRequest *, const iBlock *content);
+void        setUrl_TlsRequest           (iTlsRequest *, const iString *hostName, uint16_t port);
+void        setContent_TlsRequest       (iTlsRequest *, const iBlock *content);
 
-void    submit_TlsRequest           (iTlsRequest *);
-void    cancel_TlsRequest           (iTlsRequest *);
-void    waitForFinished_TlsRequest  (iTlsRequest *);
-iBlock *readAll_TlsRequest          (iTlsRequest *);
+void        submit_TlsRequest           (iTlsRequest *);
+void        cancel_TlsRequest           (iTlsRequest *);
+void        waitForFinished_TlsRequest  (iTlsRequest *);
+iBlock *    readAll_TlsRequest          (iTlsRequest *);
 
 size_t                  receivedBytes_TlsRequest    (const iTlsRequest *);
 enum iTlsRequestStatus  status_TlsRequest           (const iTlsRequest *);
+const iTlsCertificate * serverCertificate_TlsRequest(const iTlsRequest *);
+
+iEndPublic
