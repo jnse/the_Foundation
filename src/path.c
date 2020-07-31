@@ -245,12 +245,12 @@ iString *concatCStr_Path(const iString *d, const char *path) {
     return cat;
 }
 
-const iString *concatPath_CStr(const char *dir, const char *path) {
+const char *concatPath_CStr(const char *dir, const char *path) {
     iString d;
     initCStr_String(&d, dir);
     iString *cat = concatCStr_Path(&d, path);
     deinit_String(&d);
-    return collect_String(cat);
+    return cstr_String(collect_String(cat));
 }
 
 iBool mkdir_Path(const iString *path) {

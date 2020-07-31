@@ -52,7 +52,7 @@ iString *   makeRelative_Path   (const iString *);
 iString *   concat_Path         (const iString *, const iString *path);
 iString *   concatCStr_Path     (const iString *, const char *path);
 
-const iString *concatPath_CStr  (const char *, const char *);
+const char *concatPath_CStr  (const char *, const char *);
 
 void        clean_Path      (iString *);
 void        append_Path     (iString *, const iString *path);
