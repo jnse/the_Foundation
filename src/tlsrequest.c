@@ -127,15 +127,14 @@ iString *subject_TlsCertificate(const iTlsCertificate *d) {
     return sub;
 }
 
-iDate validUntil_TlsCertificate(const iTlsCertificate *d) {
-    iDate expiry;
-    iZap(expiry);
+void validUntil_TlsCertificate(const iTlsCertificate *d, iDate *untilDate_out) {
+    iAssert(untilDate_out);
+    iZap(*untilDate_out);
     if (d->cert) {
         struct tm time;
         ASN1_TIME_to_tm(X509_get0_notAfter(d->cert), &time);
-        initStdTime_Date(&expiry, &time);
+        initStdTime_Date(untilDate_out, &time);
     }
-    return expiry;
 }
 
 iBool isExpired_TlsCertificate(const iTlsCertificate *d) {

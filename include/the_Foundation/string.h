@@ -134,6 +134,10 @@ iLocalDef const char *cstrLocal_String(const iString *str) {
     return cstr_Block(collect_Block(toLocal_String(str)));
 }
 
+iLocalDef const char *cstrCollect_String(iString *d) {
+    return cstr_String(collect_String(d));
+}
+
 #define         range_String(d) (iRangecc){ constBegin_Block(&(d)->chars), constEnd_Block(&(d)->chars) }
 
 iLocalDef const iBlock *utf8_String(const iString *d) {

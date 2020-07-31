@@ -39,7 +39,7 @@ iDeclareTypeConstruction(TlsCertificate)
 iTlsCertificate *   newPem_TlsCertificate       (const iString *pem);
 
 iString *           subject_TlsCertificate      (const iTlsCertificate *);
-iDate               validUntil_TlsCertificate   (const iTlsCertificate *);
+void                validUntil_TlsCertificate   (const iTlsCertificate *, iDate *untilDate_out);
 iBool               isExpired_TlsCertificate    (const iTlsCertificate *);
 iBool               equal_TlsCertificate        (const iTlsCertificate *, const iTlsCertificate *);
 iString *           pem_TlsCertificate          (const iTlsCertificate *);
