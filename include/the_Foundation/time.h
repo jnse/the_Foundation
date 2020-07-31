@@ -83,6 +83,7 @@ void    sub_Time            (iTime *, const iTime *time);
 void    init_Date           (iDate *, const iTime *);
 void    initCurrent_Date    (iDate *);
 void    initSinceEpoch_Date (iDate *, time_t seconds);
+void    initStdTime_Date    (iDate *, const struct tm *);
 
 iLocalDef double elapsedSeconds_Time(const iTime *d) {
     iTime elapsed = now_Time();

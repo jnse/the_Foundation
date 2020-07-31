@@ -107,23 +107,27 @@ iLocalDef void localtime_r(const time_t *sec, struct tm *t) {
 }
 #endif
 
-void initSinceEpoch_Date(iDate *d, time_t seconds) {
-    struct tm t;
-    localtime_r(&seconds, &t);
-    d->year             = t.tm_year + 1900;
-    d->month            = t.tm_mon + 1;
-    d->day              = t.tm_mday;
-    d->dayOfWeek        = t.tm_wday;
-    d->dayOfYear        = t.tm_yday + 1;
-    d->hour             = t.tm_hour;
-    d->minute           = t.tm_min;
-    d->second           = t.tm_sec;
+void initStdTime_Date(iDate *d, const struct tm *t) {
+    d->year             = t->tm_year + 1900;
+    d->month            = t->tm_mon + 1;
+    d->day              = t->tm_mday;
+    d->dayOfWeek        = t->tm_wday;
+    d->dayOfYear        = t->tm_yday + 1;
+    d->hour             = t->tm_hour;
+    d->minute           = t->tm_min;
+    d->second           = t->tm_sec;
     d->nsecs            = 0;
 #if !defined (iPlatformWindows)
-    d->gmtOffsetSeconds = t.tm_gmtoff;
+    d->gmtOffsetSeconds = t->tm_gmtoff;
 #else
     d->gmtOffsetSeconds = 0;
 #endif
+}
+
+void initSinceEpoch_Date(iDate *d, time_t seconds) {
+    struct tm t;
+    localtime_r(&seconds, &t);
+    initStdTime_Date(d, &t);
 }
 
 void init_Date(iDate *d, const iTime *time) {
