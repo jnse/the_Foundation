@@ -229,6 +229,7 @@ iLocalDef iRangecc range_CStr   (const char *cstr) { return rangeN_CStr(cstr, st
 int             cmpCStrSc_Rangecc   (const iRangecc *, const char *cstr, const iStringComparison *);
 int             cmpCStrNSc_Rangecc  (const iRangecc *, const char *cstr, size_t n, const iStringComparison *);
 iBool           startsWithSc_Rangecc(const iRangecc *, const char *cstr, const iStringComparison *);
+iBool           endsWithSc_Rangecc  (const iRangecc *, const char *cstr, const iStringComparison *);
 
 iLocalDef iBool equal_Rangecc(const iRangecc *d, const char *cstr) {
     return cmp_Rangecc(d, cstr) == 0;
@@ -241,6 +242,12 @@ iLocalDef iBool startsWith_Rangecc(const iRangecc *d, const char *cstr) {
 }
 iLocalDef iBool startsWithCase_Rangecc(const iRangecc *d, const char *cstr) {
     return startsWithSc_Rangecc(d, cstr, &iCaseInsensitive);
+}
+iLocalDef iBool endsWith_Rangecc(const iRangecc *d, const char *cstr) {
+    return endsWithSc_Rangecc(d, cstr, &iCaseSensitive);
+}
+iLocalDef iBool endsWithCase_Rangecc(const iRangecc *d, const char *cstr) {
+    return endsWithSc_Rangecc(d, cstr, &iCaseInsensitive);
 }
 
 iStringList *   split_Rangecc       (const iRangecc *, const char *separator);

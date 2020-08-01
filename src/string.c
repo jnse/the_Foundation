@@ -495,6 +495,12 @@ iBool startsWithSc_Rangecc(const iRangecc *d, const char *cstr, const iStringCom
     return !sc->cmpN(d->start, cstr, len);
 }
 
+iBool endsWithSc_Rangecc(const iRangecc *d, const char *cstr, const iStringComparison *sc) {
+    const size_t len = strlen(cstr);
+    if (size_Range(d) < len) return iFalse;
+    return !sc->cmpN(d->end - len, cstr, len);
+}
+
 iBool endsWithSc_String(const iString *d, const char *cstr, const iStringComparison *sc) {
     const size_t len = strlen(cstr);
     if (size_String(d) < len) return iFalse;
