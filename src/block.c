@@ -436,25 +436,27 @@ iLocalDef uint8_t base64Index_(char ch) {
 }
 
 iBlock *base64Decode_Block(const iBlock *d) {
-    iBlock *decoded = new_Block(0); /* TODO: calculate based on input: size*6/8, round up */
-    uint16_t comp = 0;
-    int inPos = 10;
+    const size_t outSize = 6 * size_Block(d) / 8;
+    iBlock *     decoded = new_Block(outSize);
+    uint16_t     comp    = 0;
+    int          shift   = 10;
     // |-------|-------| comp
     //  7654321076543210
-    //       ^10
+    //       ^10         shift
     //  aaaaaa
-    //             ^4
+    //             ^4    shift
     //  aaaaaabbbbbb
-    for (const char *pos = constBegin_Block(d); *pos; pos++) {
-        comp |= base64Index_(*pos) << inPos;
-        if (inPos <= 8) {
-            const uint8_t value = comp >> 8;
-            appendData_Block(decoded, &value, 1); /* TODO: set it directly in the buffer */
+    uint8_t *out = data_Block(decoded);
+    for (const char *pos = constBegin_Block(d), *end = constEnd_Block(d); pos != end; pos++) {
+        comp |= base64Index_(*pos) << shift;
+        if (shift <= 8) {
+            *out++ = comp >> 8;
             comp <<= 8;
-            inPos += 8;
+            shift += 8;
         }
-        inPos -= 6;
+        shift -= 6;
     }
+    iAssert((size_t) (out - (uint8_t *) data_Block(decoded)) == outSize); /* all written */
     return decoded;
 }
 
