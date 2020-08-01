@@ -321,9 +321,11 @@ void popBack_Block(iBlock *d) {
 }
 
 void set_Block(iBlock *d, const iBlock *other) {
-    deref_BlockData_(d->i);
-    d->i = other->i;
-    addRelaxed_Atomic(&d->i->refCount, 1);
+    if (d != other) {
+        deref_BlockData_(d->i);
+        d->i = other->i;
+        addRelaxed_Atomic(&d->i->refCount, 1);
+    }
 }
 
 void setByte_Block(iBlock *d, size_t pos, char value) {
@@ -421,6 +423,39 @@ uint32_t crc32_Block(const iBlock *d) {
 
 void md5_Block(const iBlock *d, uint8_t md5_out[16]) {
     iMd5Hash(d->i->data, d->i->size, md5_out);
+}
+
+iLocalDef uint8_t base64Index_(char ch) {
+    /* TODO: Replace this with a lookup table. */
+    if (ch == '=') return 0; /* padding */
+    if (ch == '/') return 63;
+    if (ch == '+') return 62;
+    if (ch >= 'a') return ch - 'a' + 26;
+    if (ch >= 'A') return ch - 'A';
+    return ch - '0' + 52;
+}
+
+iBlock *base64Decode_Block(const iBlock *d) {
+    iBlock *decoded = new_Block(0); /* TODO: calculate based on input: size*6/8, round up */
+    uint16_t comp = 0;
+    int inPos = 10;
+    // |-------|-------| comp
+    //  7654321076543210
+    //       ^10
+    //  aaaaaa
+    //             ^4
+    //  aaaaaabbbbbb
+    for (const char *pos = constBegin_Block(d); *pos; pos++) {
+        comp |= base64Index_(*pos) << inPos;
+        if (inPos <= 8) {
+            const uint8_t value = comp >> 8;
+            appendData_Block(decoded, &value, 1); /* TODO: set it directly in the buffer */
+            comp <<= 8;
+            inPos += 8;
+        }
+        inPos -= 6;
+    }
+    return decoded;
 }
 
 size_t replace_Block(iBlock *d, char oldValue, char newValue) {

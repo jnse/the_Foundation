@@ -123,6 +123,8 @@ void            insertData_Block    (iBlock *, size_t insertAt, const void *data
 uint32_t        crc32_Block         (const iBlock *);
 void            md5_Block           (const iBlock *, uint8_t md5_out[16]);
 
+iBlock *        base64Decode_Block  (const iBlock *);
+
 #define iBlockDefaultCompressionLevel   6
 
 iBlock *        compressLevel_Block (const iBlock *, int level);
