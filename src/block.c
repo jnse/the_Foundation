@@ -425,6 +425,18 @@ void md5_Block(const iBlock *d, uint8_t md5_out[16]) {
     iMd5Hash(d->i->data, d->i->size, md5_out);
 }
 
+iString *hexEncode_Block(const iBlock *d) {
+    static const char hexValues[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
+                                        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+    iString *hex = new_String();
+    for (const char *i = constBegin_Block(d), *end = constEnd_Block(d); i != end; i++) {
+        const uint8_t val = *i;
+        appendChar_String(hex, hexValues[val >> 4]);
+        appendChar_String(hex, hexValues[val & 15]);
+    }
+    return hex;
+}
+
 iLocalDef uint8_t base64Index_(char ch) {
     /* TODO: Replace this with a lookup table. */
     if (ch == '=') return 0; /* padding */
