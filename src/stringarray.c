@@ -115,6 +115,12 @@ void pushBackCStr_StringArray(iStringArray *d, const char *cstr) {
     deinit_String(&str);
 }
 
+void pushBackCStrN_StringArray(iStringArray *d, const char *cstr, size_t n) {
+    iString str; initCStrN_String(&str, cstr, n);
+    pushBack_StringArray(d, &str);
+    deinit_String(&str);
+}
+
 void pushFrontCStr_StringArray(iStringArray *d, const char *cstr) {
     iString str; initCStr_String(&str, cstr);
     pushFront_StringArray(d, &str);

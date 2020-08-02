@@ -688,7 +688,7 @@ iStringList *split_Rangecc(const iRangecc *d, const char *separator) {
     iStringList *parts = new_StringList();
     iRangecc range = iNullRange;
     while (nextSplit_Rangecc(d, separator, &range)) {
-        pushBackRange_StringList(parts, &range);
+        pushBackRange_StringList(parts, range);
     }
     return parts;
 }

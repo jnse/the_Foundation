@@ -74,9 +74,14 @@ void            insert_StringArray      (iStringArray *, size_t pos, const iStri
 
 void            setCStr_StringArray         (iStringArray *, size_t pos, const char *cstr);
 void            pushBackCStr_StringArray    (iStringArray *, const char *cstr);
+void            pushBackCStrN_StringArray   (iStringArray *, const char *cstr, size_t n);
 void            pushFrontCStr_StringArray   (iStringArray *, const char *cstr);
 void            insertCStr_StringArray      (iStringArray *, size_t pos, const char *cstr);
 void            insertN_StringArray         (iStringArray *, size_t pos, const iString * const *strings, size_t count);
+
+iLocalDef void pushBackRange_StringArray    (iStringArray *d, iRangecc range) {
+    pushBackCStrN_StringArray(d, range.start, size_Range(&range));
+}
 
 iString *       take_StringArray            (iStringArray *, size_t pos);
 size_t          takeN_StringArray           (iStringArray *, size_t pos, iString **strings, size_t count);

@@ -73,7 +73,9 @@ void            pushBack_StringList     (iStringList *, const iString *str);
 void            pushBackCStr_StringList (iStringList *, const char *cstr);
 void            pushBackCStrN_StringList(iStringList *, const char *cstr, size_t size);
 
-iLocalDef void pushBackRange_StringList(iStringList *d, const iRangecc *range) { pushBackCStrN_StringList(d, range->start, size_Range(range)); }
+iLocalDef void pushBackRange_StringList(iStringList *d, iRangecc range) {
+    pushBackCStrN_StringList(d, range.start, size_Range(&range));
+}
 
 void            pushFront_StringList    (iStringList *, const iString *str);
 void            pushFrontCStr_StringList(iStringList *, const char *cstr);
@@ -88,6 +90,8 @@ iString *       take_StringList     (iStringList *, size_t pos);
 
 #define         takeFirst_StringList(d)     take_StringList(d, 0)
 #define         takeLast_StringList(d)      take_StringList(d, size_StringList(d) - 1)
+
+iString *       joinCStr_StringList (const iStringList *, const char *delim);
 
 /** @name Iterators */
 ///@{
