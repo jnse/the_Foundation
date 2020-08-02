@@ -41,8 +41,10 @@ iTlsCertificate *   newPem_TlsCertificate       (const iString *pem);
 iString *           subject_TlsCertificate      (const iTlsCertificate *);
 void                validUntil_TlsCertificate   (const iTlsCertificate *, iDate *untilDate_out);
 iBool               isExpired_TlsCertificate    (const iTlsCertificate *);
+iBool               verifyDomain_TlsCertificate (const iTlsCertificate *, iRangecc domain); /* supports wildcards */
 iBool               equal_TlsCertificate        (const iTlsCertificate *, const iTlsCertificate *);
 iString *           pem_TlsCertificate          (const iTlsCertificate *);
+iBlock *            fingerprint_TlsCertificate  (const iTlsCertificate *);
 
 iDeclareType(TlsRequest)
 iDeclareClass(TlsRequest)

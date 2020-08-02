@@ -33,7 +33,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <openssl/bio.h>
 #include <openssl/err.h>
 #include <openssl/pem.h>
+#include <openssl/sha.h>
 #include <openssl/ssl.h>
+#include <openssl/x509v3.h>
 
 iDeclareType(Context)
 
@@ -139,7 +141,12 @@ void validUntil_TlsCertificate(const iTlsCertificate *d, iDate *untilDate_out) {
 
 iBool isExpired_TlsCertificate(const iTlsCertificate *d) {
     if (!d->cert) return iTrue;
-    return X509_cmp_current_time(X509_get0_notAfter(d->cert)) > 0;
+    return X509_cmp_current_time(X509_get0_notAfter(d->cert)) < 0;
+}
+
+iBool verifyDomain_TlsCertificate(const iTlsCertificate *d, iRangecc domain) {
+    if (!d->cert) return iFalse;
+    return X509_check_host(d->cert, domain.start, size_Range(&domain), 0, NULL) > 0;
 }
 
 iBool equal_TlsCertificate(const iTlsCertificate *d, const iTlsCertificate *other) {
@@ -150,6 +157,23 @@ iBool equal_TlsCertificate(const iTlsCertificate *d, const iTlsCertificate *othe
         return iFalse;
     }
     return X509_cmp(d->cert, other->cert) == 0;
+}
+
+iBlock *fingerprint_TlsCertificate(const iTlsCertificate *d) {
+    iBlock *sha = new_Block(SHA256_DIGEST_LENGTH);
+    if (d->cert) {
+        iBlock der;
+        init_Block(&der, 0);
+        /* Get the DER serialization of the certificate. */ {
+            BIO *buf = BIO_new(BIO_s_mem());
+            i2d_X509_bio(buf, d->cert);
+            readAllFromBIO_(buf, &der);
+            BIO_free(buf);
+        }
+        SHA256(constData_Block(&der), size_Block(&der), data_Block(sha));
+        deinit_Block(&der);
+    }
+    return sha;
 }
 
 iString *pem_TlsCertificate(const iTlsCertificate *d) {
