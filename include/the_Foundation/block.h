@@ -63,6 +63,10 @@ iBlock *        newData_Block       (const void *data, size_t size);
 iBlock *        newPrealloc_Block   (void *data, size_t size, size_t allocSize);
 iBlock *        copy_Block          (const iBlock *);
 
+iLocalDef iBlock *newRange_Block(iRangecc range) {
+    return newData_Block(range.start, size_Range(&range));
+}
+
 void            initCStr_Block      (iBlock *, const char *cstr);
 void            initData_Block      (iBlock *, const void *data, size_t size);
 void            initPrealloc_Block  (iBlock *, void *data, size_t size, size_t allocSize);
@@ -125,6 +129,7 @@ uint32_t        crc32_Block         (const iBlock *);
 void            md5_Block           (const iBlock *, uint8_t md5_out[16]);
 
 iString *       hexEncode_Block     (const iBlock *);
+iBlock *        hexDecode_Rangecc   (iRangecc);
 iBlock *        base64Decode_Block  (const iBlock *);
 
 #define iBlockDefaultCompressionLevel   6

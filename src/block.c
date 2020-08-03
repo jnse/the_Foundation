@@ -437,6 +437,22 @@ iString *hexEncode_Block(const iBlock *d) {
     return hex;
 }
 
+static int fromHex_(char ch) {
+    if (ch >= 'a') return ch - 'a' + 10;
+    if (ch >= 'A') return ch - 'A' + 10;
+    return ch - '0';
+}
+
+iBlock *hexDecode_Rangecc(iRangecc range) {
+    iBlock *d = new_Block(size_Range(&range) / 2);
+    size_t pos = 0;
+    for (const char *i = range.start; i < range.end; i += 2) {
+        const uint8_t val = (fromHex_(i[0]) << 4) | fromHex_(i[1]);
+        setByte_Block(d, pos++, val);
+    }
+    return d;
+}
+
 iLocalDef uint8_t base64Index_(char ch) {
     /* TODO: Replace this with a lookup table. */
     if (ch == '=') return 0; /* padding */
