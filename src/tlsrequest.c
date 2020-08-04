@@ -29,19 +29,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/buffer.h"
 #include "the_Foundation/socket.h"
 #include "the_Foundation/thread.h"
+#include "the_Foundation/time.h"
 
+#include <openssl/bn.h>
 #include <openssl/bio.h>
 #include <openssl/err.h>
 #include <openssl/pem.h>
+#include <openssl/rand.h>
+#include <openssl/rsa.h>
 #include <openssl/sha.h>
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>
+#include <time.h>
 
 iDeclareType(Context)
 
 #define DEFAULT_BUF_SIZE 512
 
 static iContext *context_;
+static iBool isPrngSeeded_;
 
 struct Impl_Context {
     SSL_CTX *ctx;
@@ -118,6 +124,101 @@ iTlsCertificate *newPem_TlsCertificate(const iString *pem) {
     return d;
 }
 
+static const iString *findName_(const iTlsCertificateName *names, enum iTlsCertificateNameType type) {
+    for (; names->text && names->type; names++) {
+        if (names->type == type) {
+            return names->text;
+        }
+    }
+    return NULL;
+}
+
+static void add_X509Name_(X509_NAME *name, const char *id, enum iTlsCertificateNameType type,
+                          const iTlsCertificateName *names) {
+    const iString *str = findName_(names, type);
+    if (str) {
+        X509_NAME_add_entry_by_txt(
+            name, id, MBSTRING_UTF8, constData_Block(&str->chars), size_String(str), -1, 0);
+    }
+}
+
+static void addDomain_X509Name_(X509_NAME *name, enum iTlsCertificateNameType type,
+                                const iTlsCertificateName *names) {
+    const iString *domain = findName_(names, type);
+    if (domain) {
+        const iRangecc range = range_String(domain);
+        iRangecc comp = iNullRange;
+        while (nextSplit_Rangecc(&range, ".", &comp)) {
+            X509_NAME_add_entry_by_txt(
+                name, "DC", MBSTRING_UTF8, (const void *) comp.start, size_Range(&comp), -1, 0);
+        }
+    }
+}
+
+X509_NAME *makeX509Name_(int kindBit, const iTlsCertificateName *names) {
+    X509_NAME *name = X509_NAME_new();
+    add_X509Name_(name, "CN", kindBit | commonName_TlsCertificateNameItemType, names);
+    add_X509Name_(name, "UID", kindBit | userId_TlsCertificateNameItemType, names);
+    addDomain_X509Name_(name, kindBit | domain_TlsCertificateNameItemType, names);
+    add_X509Name_(name, "O", kindBit | organization_TlsCertificateNameItemType, names);
+    add_X509Name_(name, "C", kindBit | country_TlsCertificateNameItemType, names);
+    return name;
+}
+
+static void checkErrors_(void) {
+    for (unsigned long err = ERR_get_error(); err; err = ERR_get_error()) {
+        iDebug("[OpenSSL] %s: %s: %s\n",
+               ERR_lib_error_string(err),
+               ERR_func_error_string(err),
+               ERR_reason_error_string(err));
+    }
+}
+
+iTlsCertificate *newSelfSignedRSA_TlsCertificate(
+    int rsaBits, iDate validUntil, const iTlsCertificateName *names) {
+    /* Seed the random number generator. */
+    if (!isPrngSeeded_) {
+        iTime now;
+        initCurrent_Time(&now);
+        RAND_seed(&now.ts.tv_nsec, sizeof(now.ts.tv_nsec));
+        isPrngSeeded_ = iTrue;
+    }
+    RSA *rsa = RSA_new();
+    BIGNUM *exponent = NULL;
+    BN_asc2bn(&exponent, "65537");
+    RSA_generate_key_ex(rsa, rsaBits, exponent, NULL);
+    BN_free(exponent);
+    EVP_PKEY *pkey = EVP_PKEY_new();
+    EVP_PKEY_assign_RSA(pkey, rsa);
+    iTlsCertificate *d = new_TlsCertificate();
+    d->cert = X509_new();
+    X509_set_pubkey(d->cert, pkey);
+    /* Set names. */ {
+        X509_NAME *issuer = makeX509Name_(issuerBit_TlsCertificateNameItemType, names);
+        X509_set_issuer_name(d->cert, issuer);
+        X509_NAME_free(issuer);
+        X509_NAME *subject = makeX509Name_(subjectBit_TlsCertificateNameItemType, names);
+        X509_set_subject_name(d->cert, subject);
+        X509_NAME_free(subject);
+    }
+    /* Valid from. */ {
+        ASN1_TIME *notBefore = ASN1_TIME_new();
+        ASN1_TIME_set(notBefore, time(NULL));
+        X509_set1_notBefore(d->cert, notBefore);
+        ASN1_TIME_free(notBefore);
+    }
+    /* Valid until. */ {
+        ASN1_TIME *notAfter = ASN1_TIME_new();
+        ASN1_TIME_set(notAfter, sinceEpoch_Date(&validUntil));
+        X509_set1_notAfter(d->cert, notAfter);
+        ASN1_TIME_free(notAfter);
+    }
+    X509_sign(d->cert, pkey, EVP_sha256());
+    checkErrors_();
+    EVP_PKEY_free(pkey);
+    return d;
+}
+
 iString *subject_TlsCertificate(const iTlsCertificate *d) {
     iString *sub = new_String();
     if (d->cert) {
@@ -181,6 +282,17 @@ iString *pem_TlsCertificate(const iTlsCertificate *d) {
     if (d->cert) {
         BIO *buf = BIO_new(BIO_s_mem());
         PEM_write_bio_X509(buf, d->cert);
+        readAllFromBIO_(buf, &pem->chars);
+        BIO_free(buf);
+    }
+    return pem;
+}
+
+iString *privateKeyPem_TlsCertificate(const iTlsCertificate *d) {
+    iString *pem = new_String();
+    if (d->cert) {
+        BIO *buf = BIO_new(BIO_s_mem());
+        PEM_write_bio_PrivateKey(buf, X509_get0_pubkey(d->cert), NULL, NULL, 0, NULL, NULL);
         readAllFromBIO_(buf, &pem->chars);
         BIO_free(buf);
     }

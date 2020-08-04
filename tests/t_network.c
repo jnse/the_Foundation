@@ -203,6 +203,23 @@ int main(int argc, char *argv[]) {
     }
 #if defined (iHaveTlsRequest)
     /* Perform a TLS request. */ {
+        if (contains_CommandLine(cmdline, "cert")) {
+            iDate expiry;
+            initCurrent_Date(&expiry);
+            expiry.year++;
+            iTlsCertificateName names[] = {
+                { issuerCommonName_TlsCertificateNameItemType, collectNewCStr_String("t_network.c") },
+                { subjectCommonName_TlsCertificateNameItemType, collectNewCStr_String("jaakko.keranen@iki.fi") },
+                { subjectUserId_TlsCertificateNameItemType, collectNewCStr_String("skyjake") },
+                { subjectDomain_TlsCertificateNameItemType, collectNewCStr_String("skyjake.fi") },
+                { subjectCountry_TlsCertificateNameItemType, collectNewCStr_String("FI") },
+                { 0, NULL }
+            };
+            iTlsCertificate *cert = newSelfSignedRSA_TlsCertificate(2048, expiry, names);
+            printf("%s\n", cstrCollect_String(pem_TlsCertificate(cert)));
+            printf("%s\n", cstrCollect_String(privateKeyPem_TlsCertificate(cert)));
+            return 0;
+        }
         iCommandLineArg *tlsArgs = iClob(checkArgumentValues_CommandLine(cmdline, "t;tls", 2));
         if (tlsArgs) {
             iTlsRequest *tls = iClob(new_TlsRequest());

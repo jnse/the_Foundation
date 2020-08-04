@@ -33,10 +33,42 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iBeginPublic
 
+iDeclareType(TlsCertificateName)
+
+enum iTlsCertificateNameType {
+    none_TlsCertificateNameType,
+    commonName_TlsCertificateNameItemType,
+    userId_TlsCertificateNameItemType,
+    domain_TlsCertificateNameItemType,
+    organization_TlsCertificateNameItemType,
+    country_TlsCertificateNameItemType,
+    issuerBit_TlsCertificateNameItemType = 0x10,
+    subjectBit_TlsCertificateNameItemType = 0x20,
+    /* name component IDs */
+    issuerCommonName_TlsCertificateNameItemType = issuerBit_TlsCertificateNameItemType | commonName_TlsCertificateNameItemType,
+    issuerUserId_TlsCertificateNameItemType,
+    issuerDomain_TlsCertificateNameItemType,
+    issuerOrganization_TlsCertificateNameItemType,
+    issuerCountry_TlsCertificateNameItemType,
+    subjectCommonName_TlsCertificateNameItemType = subjectBit_TlsCertificateNameItemType | commonName_TlsCertificateNameItemType,
+    subjectUserId_TlsCertificateNameItemType,
+    subjectDomain_TlsCertificateNameItemType,
+    subjectOrganization_TlsCertificateNameItemType,
+    subjectCountry_TlsCertificateNameItemType,
+};
+
+struct Impl_TlsCertificateName {
+    enum iTlsCertificateNameType type;
+    const iString *text;
+};
+
 iDeclareType(TlsCertificate)
 iDeclareTypeConstruction(TlsCertificate)
 
 iTlsCertificate *   newPem_TlsCertificate       (const iString *pem);
+
+iTlsCertificate *   newSelfSignedRSA_TlsCertificate(int rsaBits, iDate validUntil,
+                                                    const iTlsCertificateName *namesNullTerminatedArray);
 
 iString *           subject_TlsCertificate      (const iTlsCertificate *);
 void                validUntil_TlsCertificate   (const iTlsCertificate *, iDate *untilDate_out);
@@ -44,9 +76,11 @@ iBool               isExpired_TlsCertificate    (const iTlsCertificate *);
 iBool               verifyDomain_TlsCertificate (const iTlsCertificate *, iRangecc domain); /* supports wildcards */
 iBool               equal_TlsCertificate        (const iTlsCertificate *, const iTlsCertificate *);
 iString *           pem_TlsCertificate          (const iTlsCertificate *);
+iString *           privateKeyPem_TlsCertificate(const iTlsCertificate *);
 iBlock *            fingerprint_TlsCertificate  (const iTlsCertificate *);
 
-iDeclareType(TlsRequest)
+/*----------------------------------------------------------------------------------------------*/
+
 iDeclareClass(TlsRequest)
 iDeclareObjectConstruction(TlsRequest)
 
