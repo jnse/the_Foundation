@@ -85,6 +85,8 @@ void    initCurrent_Date    (iDate *);
 void    initSinceEpoch_Date (iDate *, time_t seconds);
 void    initStdTime_Date    (iDate *, const struct tm *);
 
+time_t  sinceEpoch_Date     (const iDate *);
+
 iLocalDef double elapsedSeconds_Time(const iTime *d) {
     iTime elapsed = now_Time();
     sub_Time(&elapsed, d);

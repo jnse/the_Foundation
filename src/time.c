@@ -166,6 +166,12 @@ void deserialize_Date(iDate *d, iStream *ins) {
     d->gmtOffsetSeconds = read16_Stream(ins);
 }
 
+time_t sinceEpoch_Date(const iDate *d) {
+    struct tm time;
+    initStdTime_(d, &time);
+    return mktime(&time);
+}
+
 iString *format_Date(const iDate *d, const char *format) {
     struct tm time;
     initStdTime_(d, &time);
