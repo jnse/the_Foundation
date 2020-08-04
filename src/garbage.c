@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iDeclareType(GarbageNode)
 iDeclareType(CollectedPtr)
 
-#define iGarbageNodeMax   16
+#define iGarbageNodeMax   32
 
 struct Impl_CollectedPtr {
     void *ptr;
