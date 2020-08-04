@@ -36,25 +36,30 @@ iBeginPublic
 iDeclareType(TlsCertificateName)
 
 enum iTlsCertificateNameType {
-    none_TlsCertificateNameType,
-    commonName_TlsCertificateNameItemType,
-    userId_TlsCertificateNameItemType,
-    domain_TlsCertificateNameItemType,
-    organization_TlsCertificateNameItemType,
-    country_TlsCertificateNameItemType,
-    issuerBit_TlsCertificateNameItemType = 0x10,
-    subjectBit_TlsCertificateNameItemType = 0x20,
+    none_TlsCertificateNameType, /* array terminator */
+    commonName_TlsCertificateNameType,
+    userId_TlsCertificateNameType,
+    domain_TlsCertificateNameType,
+    organization_TlsCertificateNameType,
+    organizationalUnit_TlsCertificateNameType,
+    country_TlsCertificateNameType,
+    issuerBit_TlsCertificateNameType  = 0x10,
+    subjectBit_TlsCertificateNameType = 0x20,
     /* name component IDs */
-    issuerCommonName_TlsCertificateNameItemType = issuerBit_TlsCertificateNameItemType | commonName_TlsCertificateNameItemType,
-    issuerUserId_TlsCertificateNameItemType,
-    issuerDomain_TlsCertificateNameItemType,
-    issuerOrganization_TlsCertificateNameItemType,
-    issuerCountry_TlsCertificateNameItemType,
-    subjectCommonName_TlsCertificateNameItemType = subjectBit_TlsCertificateNameItemType | commonName_TlsCertificateNameItemType,
-    subjectUserId_TlsCertificateNameItemType,
-    subjectDomain_TlsCertificateNameItemType,
-    subjectOrganization_TlsCertificateNameItemType,
-    subjectCountry_TlsCertificateNameItemType,
+    issuerCommonName_TlsCertificateNameType = issuerBit_TlsCertificateNameType |
+                                              commonName_TlsCertificateNameType,
+    issuerUserId_TlsCertificateNameType,
+    issuerDomain_TlsCertificateNameType,
+    issuerOrganization_TlsCertificateNameType,
+    issuerOrganizationalUnit_TlsCertificateNameType,
+    issuerCountry_TlsCertificateNameType,
+    subjectCommonName_TlsCertificateNameType = subjectBit_TlsCertificateNameType |
+                                               commonName_TlsCertificateNameType,
+    subjectUserId_TlsCertificateNameType,
+    subjectDomain_TlsCertificateNameType,
+    subjectOrganization_TlsCertificateNameType,
+    subjectOrganizationalUnit_TlsCertificateNameType,
+    subjectCountry_TlsCertificateNameType,
 };
 
 struct Impl_TlsCertificateName {
@@ -71,6 +76,7 @@ iTlsCertificate *   newSelfSignedRSA_TlsCertificate(int rsaBits, iDate validUnti
                                                     const iTlsCertificateName *namesNullTerminatedArray);
 
 iString *           subject_TlsCertificate      (const iTlsCertificate *);
+iString *           issuer_TlsCertificate       (const iTlsCertificate *);
 void                validUntil_TlsCertificate   (const iTlsCertificate *, iDate *untilDate_out);
 iBool               isExpired_TlsCertificate    (const iTlsCertificate *);
 iBool               verifyDomain_TlsCertificate (const iTlsCertificate *, iRangecc domain); /* supports wildcards */

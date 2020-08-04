@@ -155,13 +155,14 @@ static void addDomain_X509Name_(X509_NAME *name, enum iTlsCertificateNameType ty
     }
 }
 
-X509_NAME *makeX509Name_(int kindBit, const iTlsCertificateName *names) {
+static X509_NAME *makeX509Name_(int kindBit, const iTlsCertificateName *names) {
     X509_NAME *name = X509_NAME_new();
-    add_X509Name_(name, "CN", kindBit | commonName_TlsCertificateNameItemType, names);
-    add_X509Name_(name, "UID", kindBit | userId_TlsCertificateNameItemType, names);
-    addDomain_X509Name_(name, kindBit | domain_TlsCertificateNameItemType, names);
-    add_X509Name_(name, "O", kindBit | organization_TlsCertificateNameItemType, names);
-    add_X509Name_(name, "C", kindBit | country_TlsCertificateNameItemType, names);
+    add_X509Name_(name, "CN",  kindBit | commonName_TlsCertificateNameType, names);
+    add_X509Name_(name, "UID", kindBit | userId_TlsCertificateNameType, names);
+    addDomain_X509Name_(name,  kindBit | domain_TlsCertificateNameType, names);
+    add_X509Name_(name, "OU",  kindBit | organizationalUnit_TlsCertificateNameType, names);
+    add_X509Name_(name, "O",   kindBit | organization_TlsCertificateNameType, names);
+    add_X509Name_(name, "C",   kindBit | country_TlsCertificateNameType, names);
     return name;
 }
 
@@ -194,10 +195,10 @@ iTlsCertificate *newSelfSignedRSA_TlsCertificate(
     d->cert = X509_new();
     X509_set_pubkey(d->cert, pkey);
     /* Set names. */ {
-        X509_NAME *issuer = makeX509Name_(issuerBit_TlsCertificateNameItemType, names);
+        X509_NAME *issuer = makeX509Name_(issuerBit_TlsCertificateNameType, names);
         X509_set_issuer_name(d->cert, issuer);
         X509_NAME_free(issuer);
-        X509_NAME *subject = makeX509Name_(subjectBit_TlsCertificateNameItemType, names);
+        X509_NAME *subject = makeX509Name_(subjectBit_TlsCertificateNameType, names);
         X509_set_subject_name(d->cert, subject);
         X509_NAME_free(subject);
     }
@@ -224,6 +225,17 @@ iString *subject_TlsCertificate(const iTlsCertificate *d) {
     if (d->cert) {
         BIO *buf = BIO_new(BIO_s_mem());
         X509_NAME_print_ex(buf, X509_get_subject_name(d->cert), 0, XN_FLAG_ONELINE);
+        readAllFromBIO_(buf, &sub->chars);
+        BIO_free(buf);
+    }
+    return sub;
+}
+
+iString *issuer_TlsCertificate(const iTlsCertificate *d) {
+    iString *sub = new_String();
+    if (d->cert) {
+        BIO *buf = BIO_new(BIO_s_mem());
+        X509_NAME_print_ex(buf, X509_get_issuer_name(d->cert), 0, XN_FLAG_ONELINE);
         readAllFromBIO_(buf, &sub->chars);
         BIO_free(buf);
     }

@@ -208,16 +208,22 @@ int main(int argc, char *argv[]) {
             initCurrent_Date(&expiry);
             expiry.year++;
             iTlsCertificateName names[] = {
-                { issuerCommonName_TlsCertificateNameItemType, collectNewCStr_String("t_network.c") },
-                { subjectCommonName_TlsCertificateNameItemType, collectNewCStr_String("jaakko.keranen@iki.fi") },
-                { subjectUserId_TlsCertificateNameItemType, collectNewCStr_String("skyjake") },
-                { subjectDomain_TlsCertificateNameItemType, collectNewCStr_String("skyjake.fi") },
-                { subjectCountry_TlsCertificateNameItemType, collectNewCStr_String("FI") },
+                { issuerCommonName_TlsCertificateNameType, collectNewCStr_String("t_network.c") },
+                { subjectCommonName_TlsCertificateNameType, collectNewCStr_String("jaakko.keranen@iki.fi") },
+                { subjectUserId_TlsCertificateNameType, collectNewCStr_String("skyjake") },
+                { subjectDomain_TlsCertificateNameType, collectNewCStr_String("skyjake.fi") },
+                { subjectCountry_TlsCertificateNameType, collectNewCStr_String("FI") },
                 { 0, NULL }
             };
             iTlsCertificate *cert = newSelfSignedRSA_TlsCertificate(2048, expiry, names);
             printf("%s\n", cstrCollect_String(pem_TlsCertificate(cert)));
+            printf("Issuer: %s\n", cstrLocal_String(issuer_TlsCertificate(cert)));
+            printf("Subject: %s\n", cstrLocal_String(subject_TlsCertificate(cert)));
+            iDate until;
+            validUntil_TlsCertificate(cert, &until);
+            printf("Expires on: %s\n", cstrCollect_String(format_Date(&until, "%Y-%m-%d %H:%M:%S")));
             printf("%s\n", cstrCollect_String(privateKeyPem_TlsCertificate(cert)));
+            delete_TlsCertificate(cert);
             return 0;
         }
         iCommandLineArg *tlsArgs = iClob(checkArgumentValues_CommandLine(cmdline, "t;tls", 2));
