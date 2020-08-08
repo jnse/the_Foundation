@@ -54,8 +54,20 @@ iString *   concatCStr_Path     (const iString *, const char *path);
 
 const char *concatPath_CStr  (const char *, const char *);
 
-void        clean_Path      (iString *);
 void        append_Path     (iString *, const iString *path);
+void        clean_Path      (iString *);
+
+iLocalDef iString *cleaned_Path(const iString *d) {
+    iString *clean = copy_String(d);
+    clean_Path(clean);
+    return clean;
+}
+iLocalDef iString *cleanedCStr_Path(const char *cstr) {
+    return cleaned_Path(collectNewCStr_String(cstr));
+}
+iLocalDef const char *cleanedPath_CStr(const char *cstr) {
+    return cstrCollect_String(cleanedCStr_Path(cstr));
+}
 
 iRangecc    baseName_Path   (const iString *); /* returns address of last component */
 iRangecc    dirName_Path    (const iString *);
