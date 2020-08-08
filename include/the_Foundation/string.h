@@ -314,11 +314,11 @@ iLocalDef iBool equalCase_CStr(const char *a, const char *b) {
     return iCmpStrCase(a, b) == 0;
 }
 
-iLocalDef iBool beginsWith_CStr(const char *str, const char *pfx) {
+iLocalDef iBool startsWith_CStr(const char *str, const char *pfx) {
     return iCmpStrN(str, pfx, strlen(pfx)) == 0;
 }
 
-iLocalDef iBool beginsWithCase_CStr(const char *str, const char *pfx) {
+iLocalDef iBool startsWithCase_CStr(const char *str, const char *pfx) {
     return iCmpStrNCase(str, pfx, strlen(pfx)) == 0;
 }
 
