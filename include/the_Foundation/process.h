@@ -38,7 +38,6 @@ typedef pid_t iProcessId;
 
 iBeginPublic
 
-iDeclareType(Process)
 iDeclareType(String)
 iDeclareType(StringList)
 

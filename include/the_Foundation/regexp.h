@@ -36,7 +36,6 @@ iBeginPublic
 
 iDeclareClass(RegExp)
 
-iDeclareType(RegExp)
 iDeclareType(RegExpMatch)
 
 #define iRegExpMaxSubstrings  32

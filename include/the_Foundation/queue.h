@@ -39,7 +39,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iBeginPublic
 
 iDeclareClass(Queue)
-iDeclareType(Queue)
 
 iDeclareObjectConstruction(Queue)
 

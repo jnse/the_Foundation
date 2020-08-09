@@ -40,8 +40,6 @@ iBeginPublic
 
 iDeclareClass(Thread)
 
-iDeclareType(Thread)
-
 typedef thrd_t          iThreadId;
 typedef intptr_t        iThreadResult;
 typedef iThreadResult (*iThreadRunFunc)(iThread *);

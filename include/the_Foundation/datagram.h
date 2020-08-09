@@ -34,7 +34,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iBeginPublic
 
-iDeclareType (Datagram)
 iDeclareClass(Datagram)
 
 iDeclareObjectConstruction(Datagram)

@@ -43,7 +43,6 @@ void getSockAddr_Address(const iAddress *  d,
                          socklen_t *       addrSize_out,
                          int               family);
 
-iDeclareType(Message)
 iDeclareClass(Message)
 
 struct Impl_Message {
@@ -84,7 +83,6 @@ struct Impl_Datagram {
     iAudience *writeFinished;
 };
 
-iDeclareType(DatagramThread)
 iDeclareClass(DatagramThread)
 
 enum iDatagramThreadMode {

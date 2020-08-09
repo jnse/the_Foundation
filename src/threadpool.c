@@ -30,7 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 void finish_Thread_(iThread *); // thread.c
 
 iDeclareClass(PooledThread)
-iDeclareType(PooledThread)
 
 struct Impl_PooledThread {
     iThread thread;

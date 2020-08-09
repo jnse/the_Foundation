@@ -34,8 +34,6 @@ iBeginPublic
 
 iDeclareClass(ThreadPool)
 
-iDeclareType(ThreadPool)
-
 struct Impl_ThreadPool {
     iQueue queue;
     iObjectList *threads;

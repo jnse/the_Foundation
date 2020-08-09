@@ -34,7 +34,6 @@ iBeginPublic
 
 iDeclareClass(Future)
 
-iDeclareType(Future)
 iDeclareType(ThreadPool)
 
 typedef void (*iFutureResultAvailable)(iFuture *, iThread *);

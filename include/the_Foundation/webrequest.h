@@ -33,11 +33,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iBeginPublic
 
-iDeclareType(WebRequest)
 iDeclareType(StringArray)
 
 iDeclareClass(WebRequest)
-
 iDeclareObjectConstruction(WebRequest)
 
 iDeclareNotifyFuncArgs(WebRequest, Progress, size_t currentBytes, size_t totalBytes)

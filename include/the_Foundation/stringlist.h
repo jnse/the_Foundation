@@ -46,8 +46,6 @@ iBeginPublic
 
 iDeclareClass(StringList)
 
-iDeclareType(StringList)
-
 struct Impl_StringList {
     iObject object;
     iList list;

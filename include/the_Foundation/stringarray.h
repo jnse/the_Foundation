@@ -35,8 +35,6 @@ iBeginPublic
 
 iDeclareClass(StringArray)
 
-iDeclareType(StringArray)
-
 struct Impl_StringArray {
     iObject object;
     iPtrArray strings;

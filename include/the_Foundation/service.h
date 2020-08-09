@@ -34,7 +34,6 @@ iBeginPublic
 
 iDeclareClass(Service)
 
-iDeclareType(Service)
 iDeclareType(Socket)
 
 iDeclareObjectConstructionArgs(Service, uint16_t port)
