@@ -52,6 +52,11 @@ struct Impl_BlockData {
     size_t allocSize;
 };
 
+/**
+ * @warning When used outside the global scope (i.e., inside a function), note that BlockData
+ * gets deallocated when the scope is exited, because it is stored on the stack. In this case,
+ * make sure that the BlockData is only read and not copy-referenced.
+ */
 #define iBlockLiteral(ptr, sz, allocSz) \
     (iBlock){ &(iBlockData){ .refCount = 2, .data = iConstCast(char *, ptr), .size = (sz), .allocSize = (allocSz) } }
 
@@ -128,6 +133,7 @@ void            insertData_Block    (iBlock *, size_t insertAt, const void *data
 uint32_t        crc32_Block         (const iBlock *);
 void            md5_Block           (const iBlock *, uint8_t md5_out[16]);
 
+iString *       decode_Block        (const iBlock *, const char *textEncoding);
 iString *       hexEncode_Block     (const iBlock *);
 iBlock *        hexDecode_Rangecc   (iRangecc);
 iBlock *        base64Decode_Block  (const iBlock *);

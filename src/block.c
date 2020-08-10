@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <strings.h>
+#include <uniconv.h>
 #if defined (iHaveZlib)
 #   include <zlib.h>
 #endif
@@ -48,7 +49,7 @@ static iBlockData emptyBlockData = {
 };
 
 static iBlockData *new_BlockData_(size_t size, size_t allocSize) {
-    iBlockData *d = malloc(sizeof(iBlockData));
+    iBlockData *d = iMalloc(BlockData);
     set_Atomic(&d->refCount, 1);
     d->size = size;
     d->allocSize = iMax(size + 1, allocSize);
@@ -57,7 +58,7 @@ static iBlockData *new_BlockData_(size_t size, size_t allocSize) {
 }
 
 static iBlockData *newPrealloc_BlockData_(void *data, size_t size, size_t allocSize) {
-    iBlockData *d = malloc(sizeof(iBlockData));
+    iBlockData *d = iMalloc(BlockData);
     set_Atomic(&d->refCount, 1);
     d->size = size;
     d->allocSize = allocSize;
@@ -423,6 +424,22 @@ uint32_t crc32_Block(const iBlock *d) {
 
 void md5_Block(const iBlock *d, uint8_t md5_out[16]) {
     iMd5Hash(d->i->data, d->i->size, md5_out);
+}
+
+iString *decode_Block(const iBlock *d, const char *textEncoding) {
+    size_t len = 0;
+    uint8_t *data = u8_conv_from_encoding(textEncoding,
+                                          iconveh_question_mark,
+                                          constData_Block(d),
+                                          size_Block(d),
+                                          NULL,
+                                          NULL,
+                                          &len);
+    data = realloc(data, len + 1);
+    data[len] = 0;
+    iString *str = iMalloc(String);
+    initPrealloc_Block(&str->chars, data, len, len + 1);
+    return str;
 }
 
 iString *hexEncode_Block(const iBlock *d) {

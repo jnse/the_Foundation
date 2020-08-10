@@ -116,9 +116,9 @@ iString *newLocalCStr_String(const char *localCStr) {
 }
 
 iString *newLocalCStrN_String(const char *localCStr, size_t n) {
-    iString *str = iMalloc(String);
-    initLocalCStrN_String(str, localCStr, n);
-    return str;
+    iString *d = iMalloc(String);
+    initLocalCStrN_String(d, localCStr, n);
+    return d;
 }
 
 iString *newUnicode_String(const iChar *ucs) {
@@ -210,9 +210,18 @@ void initLocalCStr_String(iString *d, const char *localCStr) {
 }
 
 void initLocalCStrN_String(iString *d, const char *localCStr, size_t size) {
+    initBlockEncoding_String(d, &iBlockLiteral(localCStr, size, size), localeCharSet_);
+}
+
+void initBlockEncoding_String(iString *d, const iBlock *chars, const char *encoding) {
     size_t len = 0;
-    uint8_t *data = u8_conv_from_encoding(
-        localeCharSet_, iconveh_question_mark, localCStr, size, NULL, NULL, &len);
+    uint8_t *data = u8_conv_from_encoding(encoding,
+                                          iconveh_question_mark,
+                                          constData_Block(chars),
+                                          size_Block(chars),
+                                          NULL,
+                                          NULL,
+                                          &len);
     data = realloc(data, len + 1);
     data[len] = 0;
     initPrealloc_Block(&d->chars, data, len, len + 1);
@@ -667,6 +676,14 @@ iBool nextSplit_Rangecc(const iRangecc *str, const char *separator, iRangecc *ra
     range->end = (found && found < str->end? found : str->end);
     iAssert(range->start <= range->end);
     return iTrue;
+}
+
+const char *cstr_Rangecc(iRangecc range) {
+    const size_t len  = size_Range(&range);
+    char *       copy = malloc(len + 1);
+    memcpy(copy, range.start, len);
+    copy[len] = 0;
+    return iCollectMem(copy);
 }
 
 int cmpCStrSc_Rangecc(const iRangecc *d, const char *cstr, const iStringComparison *sc) {

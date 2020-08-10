@@ -104,6 +104,7 @@ void            initUnicodeN_String     (iString *, const iChar *ucs, size_t n);
 void            initLocalCStr_String    (iString *, const char *localCStr);
 void            initLocalCStrN_String   (iString *, const char *localCStr, size_t n);
 void            initBlock_String        (iString *, const iBlock *chars);
+void            initBlockEncoding_String(iString *, const iBlock *chars, const char *encoding);
 void            initCopy_String         (iString *, const iString *other);
 
 iLocalDef void initRange_String (iString *d, const iRangecc range) { initCStrN_String(d, range.start, size_Range(&range)); }
@@ -224,6 +225,8 @@ iLocalDef iRangecc rangeN_CStr  (const char *cstr, size_t size) {
 #endif
 }
 iLocalDef iRangecc range_CStr   (const char *cstr) { return rangeN_CStr(cstr, strlen(cstr)); }
+
+const char *    cstr_Rangecc        (iRangecc range); /* returns NULL-terminated collected copy */
 
 #define         cmp_Rangecc(d, cstr) cmpCStrSc_Rangecc((d), (cstr), &iCaseSensitive)
 int             cmpCStrSc_Rangecc   (const iRangecc *, const char *cstr, const iStringComparison *);
