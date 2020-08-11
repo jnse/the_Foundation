@@ -141,7 +141,7 @@ iLocalDef int   sum_I2      (const iInt2 a)                 { return a.x + a.y; 
 iLocalDef int   prod_I2     (const iInt2 a)                 { return a.x * a.y; }
 iLocalDef int   dot_I2      (const iInt2 a, const iInt2 b)  { return sum_I2(mul_I2(a, b)); }
 iLocalDef float lengthSq_I2 (const iInt2 a)                 { return dot_I2(a, a); }
-iLocalDef float length_I2   (const iInt2 a)                 { return sqrtf(lengthSq_I2(a)); }
+iLocalDef float length_I2   (const iInt2 a)                 { return hypotf(a.x, a.y); }
 iLocalDef float dist_I2     (const iInt2 a, const iInt2 b)  { return length_I2(sub_I2(b, a)); }
 iLocalDef int   idist_I2    (const iInt2 a, const iInt2 b)  { return (int) (length_I2(sub_I2(b, a)) + .5f); }
 iLocalDef int   manhattan_I2(const iInt2 a, const iInt2 b)  { return sum_I2(abs_I2(sub_I2(b, a))); }

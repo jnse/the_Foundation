@@ -38,6 +38,10 @@ static void printNum(float n) {
     }
 }
 
+static void printi2(const char *msg, const iInt2 v) {
+    printf("%16s: (%d, %d)\n", msg, v.x, v.y);
+}
+
 static void printFixed(const iFixed x) {
     uint32_t frac = x.comp.sign ? iFixedUnit - x.comp.frac : x.comp.frac;
     uint64_t wnum = x.comp.sign ? iFixedMaxWNum - x.comp.wnum : x.comp.wnum;
@@ -106,6 +110,7 @@ static void printMat(const char *msg, const iMat4 *m) {
     iFloat3:       printv3, \
     iFixed:        printx, \
     iFixed2:       printx2, \
+    iInt2:         printi2, \
     iMat3 *:       printMat3, \
     const iMat3 *: printMat3, \
     iMat4 *:       printMat, \
@@ -171,6 +176,12 @@ int main(int argc, char **argv) {
         print_("mul 0.25 * -4", muli_Fixed(initd_Fixed(0.25), -4));
         print_("div -5 / -0.5", div_Fixed(initi_Fixed(-5), neg_Fixed(half_Fixed())));
         print_("random -10...10", mix_Fixed(initi_Fixed(-10), initi_Fixed(10), random_Fixed()));
+    }
+    /* Integer 2D vectors. */ {
+        puts("Int2 vectors:");
+        iInt2 v = init_I2(7, 19);
+        print_("v", v);
+        printf("%16s: %f\n", "length_I2", length_I2(v));
     }
     /* Fixed-point 2D vectors. */ {
         puts("Fixed-point vectors:");
