@@ -68,9 +68,11 @@ void        init_Stream         (iStream *);
 void        deinit_Stream       (iStream *);
 
 void        setByteOrder_Stream (iStream *, enum iStreamByteOrder byteOrder);
+void        setVersion_Stream   (iStream *, int version); /* metadata for user, not included in stream */
 void        setSize_Stream      (iStream *, long size);
 
 enum iStreamByteOrder byteOrder_Stream(const iStream *);
+int         version_Stream      (const iStream *);
 
 void        seek_Stream         (iStream *, long offset);
 iBlock *    read_Stream         (iStream *, size_t size);

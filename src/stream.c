@@ -77,6 +77,8 @@ static const iByteOrder byteOrder_[2] = {
 
 enum iStreamFlags {
     bigEndianByteOrder_StreamFlag = 1,
+    versionMask_StreamFlag        = 0xfff00,
+    versionShift_StreamFlag       = 8,
 };
 
 void init_Stream(iStream *d) {
@@ -93,9 +95,23 @@ void setByteOrder_Stream(iStream *d, enum iStreamByteOrder byteOrder) {
     iChangeFlags(d->flags, bigEndianByteOrder_StreamFlag, byteOrder == bigEndian_StreamByteOrder);
 }
 
+void setVersion_Stream(iStream *d, int version) {
+    d->flags &= ~versionMask_StreamFlag;
+    d->flags |= (version << versionShift_StreamFlag) & versionMask_StreamFlag;
+}
+
 void setSize_Stream(iStream *d, long size) {
     d->size = size;
     d->pos = iMin(d->pos, size);
+}
+
+enum iStreamByteOrder byteOrder_Stream(const iStream *d) {
+    return d->flags & bigEndianByteOrder_StreamFlag ? bigEndian_StreamByteOrder
+                                                    : littleEndian_StreamByteOrder;
+}
+
+int version_Stream(const iStream *d) {
+    return (d->flags & versionMask_StreamFlag) >> versionShift_StreamFlag;
 }
 
 void seek_Stream(iStream *d, long offset) {
