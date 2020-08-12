@@ -395,6 +395,26 @@ size_t index_ArrayConstIterator(const iArrayConstIterator *d) {
             d->array->elementSize;
 }
 
+void init_ArrayReverseIterator(iArrayIterator *d, iArray *array) {
+    d->array = array;
+    d->pos   = array ? size_Array(array) - 1 : iInvalidPos;
+    d->value = (array && !isEmpty_Array(array) ? at_Array(array, d->pos) : NULL);
+}
+
+void next_ArrayReverseIterator(iArrayIterator *d) {
+    if (d->pos > 0) {
+        d->value = at_Array(d->array, --d->pos);
+    }
+    else {
+        d->pos = iInvalidPos;
+        d->value = NULL;
+    }
+}
+
+size_t index_ArrayReverseIterator(const iArrayIterator *d) {
+    return d->pos;
+}
+
 void init_ArrayReverseConstIterator(iArrayConstIterator *d, const iArray *array) {
     if (array) {
         d->array = array;
@@ -413,8 +433,6 @@ void next_ArrayReverseConstIterator(iArrayConstIterator *d) {
         d->value = NULL;
     }
 }
-
-//size_t index_ArrayReverseIterator(const iArrayIterator *);
 
 size_t index_ArrayReverseConstIterator(const iArrayReverseConstIterator *d) {
     return index_ArrayConstIterator(d);

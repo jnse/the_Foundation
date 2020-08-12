@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
         iObjectList *ifs = networkInterfaces_Address();
         printf("%zu network interfaces:\n", size_ObjectList(ifs));
         iConstForEach(ObjectList, i, ifs) {
-            iString *str = toString_Address((const iAddress *) i.object);
+            iString *str = toString_Address(i.object);
             printf("- %s\n", cstr_String(str));
             delete_String(str);
         }

@@ -77,12 +77,20 @@ iLocalDef size_t        readData_File   (iFile *d, size_t size, void *data_out) 
 iLocalDef iBlock *      readAll_File    (iFile *d) { return readAll_Stream(&d->stream); }
 iLocalDef iString *     readString_File (iFile *d) { return readString_Stream(&d->stream); }
 iLocalDef iStringList * readLines_File  (iFile *d) { return readLines_Stream(&d->stream); }
+iLocalDef int8_t        read8_File      (iFile *d) { return read8_Stream(&d->stream); }
+iLocalDef int16_t       read16_File     (iFile *d) { return read16_Stream(&d->stream); }
 iLocalDef int32_t       read32_File     (iFile *d) { return read32_Stream(&d->stream); }
+iLocalDef uint8_t       readU8_File     (iFile *d) { return readU8_Stream(&d->stream); }
+iLocalDef uint16_t      readU16_File    (iFile *d) { return readU16_Stream(&d->stream); }
+iLocalDef uint32_t      readU32_File    (iFile *d) { return readU32_Stream(&d->stream); }
 
 iLocalDef size_t        write_File      (iFile *d, const iBlock *data) { return write_Stream(&d->stream, data); }
 iLocalDef size_t        writeData_File  (iFile *d, const void *data, size_t size) { return writeData_Stream(&d->stream, data, size); }
+iLocalDef void          write8_File     (iFile *d, int8_t value) { write8_Stream(&d->stream, value); }
 iLocalDef void          write16_File    (iFile *d, int16_t value) { write16_Stream(&d->stream, value); }
 iLocalDef void          write32_File    (iFile *d, int32_t value) { write32_Stream(&d->stream, value); }
+iLocalDef void          writeU8_File    (iFile *d, uint8_t value) { writeU8_Stream(&d->stream, value); }
+iLocalDef void          writeU16_File   (iFile *d, uint16_t value) { writeU16_Stream(&d->stream, value); }
 iLocalDef void          writeU32_File   (iFile *d, uint32_t value) { writeU32_Stream(&d->stream, value); }
 
 iEndPublic

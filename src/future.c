@@ -59,7 +59,7 @@ void deinit_Future(iFuture *d) {
     wait_Future(d);
     /* Stop observing the remaining threads. */
     iForEach(ObjectList, i, &d->threads) {
-        iDisconnect(Thread, (iThread *) i.object, finished, d, threadFinished_Future_);
+        iDisconnect(Thread, i.object, finished, d, threadFinished_Future_);
     }
     deinit_ObjectList(&d->threads);
     deinit_Condition(&d->ready);
@@ -107,7 +107,7 @@ iThread *nextResult_Future(iFuture *d) {
         while (!isEmpty_ObjectList(&d->threads)) {
             /* Check for a finished thread. */
             iForEach(ObjectList, i, &d->threads) {
-                iThread *thread = (iThread *) i.object;
+                iThread *thread = i.object;
                 if (isFinished_Thread(thread)) {
                     result = ref_Object(thread);
                     remove_ObjectListIterator(&i);
