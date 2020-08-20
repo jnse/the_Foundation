@@ -93,6 +93,13 @@ void sub_Time(iTime *d, const iTime *time) {
     }
 }
 
+int cmp_Time(const iTime *d, const iTime *other) {
+    if (integralSeconds_Time(d) == integralSeconds_Time(other)) {
+        return iCmp(nanoSeconds_Time(d), nanoSeconds_Time(other));
+    }
+    return iCmp(integralSeconds_Time(d), integralSeconds_Time(other));
+}
+
 iString *format_Time(const iTime *d, const char *format) {
     iDate date;
     init_Date(&date, d);
