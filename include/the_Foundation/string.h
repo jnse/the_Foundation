@@ -139,7 +139,10 @@ iLocalDef const char *cstrCollect_String(iString *d) {
     return cstr_String(collect_String(d));
 }
 
-#define         range_String(d) (iRangecc){ constBegin_Block(&(d)->chars), constEnd_Block(&(d)->chars) }
+iLocalDef iRangecc range_String(const iString *d) {
+    const iRangecc r = { constBegin_Block(&(d)->chars), constEnd_Block(&(d)->chars) };
+    return r;
+}
 
 iLocalDef const iBlock *utf8_String(const iString *d) {
     return &d->chars; /* unmodified internal representation (UTF-8) */
@@ -208,6 +211,7 @@ void            removeEnd_String(iString *, size_t charCount);
 void            trimStart_String(iString *);
 void            trimEnd_String  (iString *);
 void            trim_String     (iString *);
+iString *       trimmed_String  (const iString *);
 
 int             toInt_String    (const iString *);
 float           toFloat_String  (const iString *);

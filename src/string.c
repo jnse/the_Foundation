@@ -294,8 +294,12 @@ void trimStart_String(iString *d) {
 }
 
 void trimStart_Rangecc(iRangecc *d) {
-    while (d->start != d->end && isspace((int) *d->start)) {
-        d->start++;
+    const uint8_t *pos = (const uint8_t *) d->start;
+    while (pos != (const uint8_t *) d->end) {
+        iChar ch;
+        pos = u8_next(&ch, pos);
+        if (!isSpace_Char(ch)) break;
+        d->start = (const char *) pos;
     }
 }
 
@@ -308,8 +312,18 @@ void trimEnd_String(iString *d) {
 }
 
 void trimEnd_Rangecc(iRangecc *d) {
-    while (d->end != d->start && (d->end[-1] == 0 || isspace((int) d->end[-1]))) {
-        d->end--;
+    while (d->end != d->start) {
+        if (d->end[-1] == 0) {
+            d->end--;
+        }
+        else {
+            iChar ch;
+            const uint8_t *pos = u8_prev(&ch, (const uint8_t *) d->end, (const uint8_t *) d->start);
+            if (isSpace_Char(ch)) {
+                d->end = (const char *) pos;
+            }
+            else break;
+        }
     }
 }
 
@@ -321,6 +335,12 @@ void trim_Rangecc(iRangecc *d) {
 void trim_String(iString *d) {
     trimStart_String(d);
     trimEnd_String(d);
+}
+
+iString *trimmed_String(const iString *d) {
+    iString *str = copy_String(d);
+    trim_String(str);
+    return str;
 }
 
 const char *cstr_String(const iString *d) {
@@ -495,7 +515,8 @@ int cmpNSc_String(const iString *d, const char *cstr, size_t n, const iStringCom
 }
 
 iBool startsWithSc_String(const iString *d, const char *cstr, const iStringComparison *sc) {
-    return startsWithSc_Rangecc(&range_String(d), cstr, sc);
+    const iRangecc rc = range_String(d);
+    return startsWithSc_Rangecc(&rc, cstr, sc);
 }
 
 iBool startsWithSc_Rangecc(const iRangecc *d, const char *cstr, const iStringComparison *sc) {

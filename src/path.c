@@ -136,10 +136,10 @@ iString *makeRelative_Path(const iString *d) {
 
 #define iPathMaxSegments 128
 
-static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments,
+static iBool splitSegments_Path_(const iRangecc path, iRangecc *segments,
                                  size_t *count, iBool *changed) {
     iRangecc seg = iNullRange;
-    while (nextSplit_Rangecc(path, iPathSeparator, &seg)) {
+    while (nextSplit_Rangecc(&path, iPathSeparator, &seg)) {
         if (*count > 0 && size_Range(&seg) == 0) {
             /* Skip repeated slashes. */
             *changed = iTrue;
@@ -149,9 +149,7 @@ static iBool splitSegments_Path_(const iRangecc *path, iRangecc *segments,
         if (*count == 0 && !iCmpStrRange(&seg, "~")) {
             const iString *home = collect_String(home_Path());
             if (!isEmpty_String(home)) {
-                if (!splitSegments_Path_(&(iRangecc){ constBegin_String(home), 
-                                                      constEnd_String(home) },
-                                         segments, count, changed)) {
+                if (!splitSegments_Path_(range_String(home), segments, count, changed)) {
                     return iFalse;
                 }
                 *changed = iTrue;
@@ -194,7 +192,7 @@ void clean_Path(iString *d) {
     iRangecc segments[iPathMaxSegments];
     size_t count = 0;
     iBool changed = iFalse;
-    splitSegments_Path_(&range_String(d), segments, &count, &changed);
+    splitSegments_Path_(range_String(d), segments, &count, &changed);
     /* Recompose the remaining segments. */
     if (changed) {
         if (count == 0) {
