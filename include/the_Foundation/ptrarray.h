@@ -73,6 +73,8 @@ iLocalDef iBool takeBack_PtrArray(iPtrArray *d, void **ptr_out) {
 #define     clear_PtrArray(d)       clear_Array(d)
 
 size_t      indexOf_PtrArray        (const iPtrArray *, const void *ptr); /* O(n) */
+iBool       removeOne_PtrArray      (iPtrArray *, const void *ptr); /* O(n) */
+size_t      removeAll_PtrArray      (iPtrArray *, const void *ptr); /* O(n) */
 
 /** @name Iterators */
 ///@{
@@ -95,6 +97,20 @@ struct ConstIteratorImpl_PtrArray {
     union {
         const void * const *value; // pointer to array element
         iArrayConstIterator iter;
+    };
+    const void *ptr; // array element
+};
+struct ReverseIteratorImpl_PtrArray {
+    union {
+        void **value; // pointer to array element
+        iArrayReverseIterator iter;
+    };
+    void *ptr; // array element
+};
+struct ReverseConstIteratorImpl_PtrArray {
+    union {
+        const void * const *value; // pointer to array element
+        iArrayReverseConstIterator iter;
     };
     const void *ptr; // array element
 };

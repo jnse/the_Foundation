@@ -98,10 +98,31 @@ size_t indexOf_PtrArray(const iPtrArray *d, const void *ptr) {
     return iInvalidPos;
 }
 
+iBool removeOne_PtrArray(iPtrArray *d, const void *ptr) {
+    iForEach(PtrArray, i, d) {
+        if (i.ptr == ptr) {
+            remove_PtrArrayIterator(&i);
+            return iTrue;
+        }
+    }
+    return iFalse;
+}
+
+size_t removeAll_PtrArray(iPtrArray *d, const void *ptr) {
+    size_t count = 0;
+    iForEach(PtrArray, i, d) {
+        if (i.ptr == ptr) {
+            remove_PtrArrayIterator(&i);
+            count++;
+        }
+    }
+    return count;
+}
+
 /*-------------------------------------------------------------------------------------*/
 
-#define value_PtrArrayIterator_(d)      (((d)->iter.value? *(void **) (d)->iter.value : NULL));
-#define value_PtrArrayConstIterator_(d) (((d)->iter.value? *(void * const *) (d)->iter.value : NULL));
+#define value_PtrArrayIterator_(d)      (((d)->iter.value ? *(void **) (d)->iter.value : NULL));
+#define value_PtrArrayConstIterator_(d) (((d)->iter.value ? *(void * const *) (d)->iter.value : NULL));
 
 void init_PtrArrayIterator(iPtrArrayIterator *d, iPtrArray *array) {
     init_ArrayIterator(&d->iter, array);
@@ -120,5 +141,25 @@ void init_PtrArrayConstIterator(iPtrArrayConstIterator *d, const iPtrArray *arra
 
 void next_PtrArrayConstIterator(iPtrArrayConstIterator *d) {
     next_ArrayConstIterator(&d->iter);
+    d->ptr = value_PtrArrayConstIterator_(d);
+}
+
+void init_PtrArrayReverseIterator(iPtrArrayReverseIterator *d, iPtrArray *array) {
+    init_ArrayReverseIterator(&d->iter, array);
+    d->ptr = value_PtrArrayIterator_(d);
+}
+
+void next_PtrArrayReverseIterator(iPtrArrayReverseIterator *d) {
+    next_ArrayReverseIterator(&d->iter);
+    d->ptr = value_PtrArrayIterator_(d);
+}
+
+void init_PtrArrayReverseConstIterator(iPtrArrayReverseConstIterator *d, const iPtrArray *array) {
+    init_ArrayReverseConstIterator(&d->iter, array);
+    d->ptr = value_PtrArrayConstIterator_(d);
+}
+
+void next_PtrArrayReverseConstIterator(iPtrArrayReverseConstIterator *d) {
+    next_ArrayReverseConstIterator(&d->iter);
     d->ptr = value_PtrArrayConstIterator_(d);
 }
