@@ -137,7 +137,8 @@ static void push_Collected_(iCollected *d, iCollectedPtr colptr) {
     if (!node || isFull_GarbageNode_(node)) {
         pushBack_List(&d->collected, node = new_GarbageNode_());
     }
-    /* In debug builds, try to catch recent duplicate collections. */ {
+    /* In debug builds, try to catch recent duplicate collections. */
+    if (colptr.ptr) { /* NULL would be a scope marker */
         iAssert(previous_Collected_(d, 1) != colptr.ptr);
         iAssert(previous_Collected_(d, 2) != colptr.ptr);
         iAssert(previous_Collected_(d, 3) != colptr.ptr);
