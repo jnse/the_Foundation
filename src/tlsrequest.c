@@ -124,6 +124,17 @@ iTlsCertificate *newPem_TlsCertificate(const iString *pem) {
     return d;
 }
 
+iTlsCertificate *newPemKey_TlsCertificate(const iString *certPem, const iString *keyPem) {
+    iTlsCertificate *d = newPem_TlsCertificate(certPem);
+    BIO *buf = BIO_new_mem_buf(cstr_String(keyPem), size_String(keyPem));
+    EVP_PKEY *pkey = NULL;
+    PEM_read_bio_PrivateKey(buf, &pkey, NULL, "");
+    X509_set_pubkey(d->cert, pkey);
+    EVP_PKEY_free(pkey);
+    BIO_free(buf);
+    return d;
+}
+
 static const iString *findName_(const iTlsCertificateName *names, enum iTlsCertificateNameType type) {
     for (; names->text && names->type; names++) {
         if (names->type == type) {
@@ -218,6 +229,10 @@ iTlsCertificate *newSelfSignedRSA_TlsCertificate(
     checkErrors_();
     EVP_PKEY_free(pkey);
     return d;
+}
+
+iBool isEmpty_TlsCertificate(const iTlsCertificate *d) {
+    return d->cert == NULL;
 }
 
 iString *subject_TlsCertificate(const iTlsCertificate *d) {

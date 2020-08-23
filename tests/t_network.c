@@ -216,13 +216,25 @@ int main(int argc, char *argv[]) {
                 { 0, NULL }
             };
             iTlsCertificate *cert = newSelfSignedRSA_TlsCertificate(2048, expiry, names);
-            printf("%s\n", cstrCollect_String(pem_TlsCertificate(cert)));
+            iString *crt = collect_String(pem_TlsCertificate(cert));
+            iString *key = collect_String(privateKeyPem_TlsCertificate(cert));
+            printf("%s\n", cstr_String(crt));
             printf("Issuer: %s\n", cstrLocal_String(issuer_TlsCertificate(cert)));
             printf("Subject: %s\n", cstrLocal_String(subject_TlsCertificate(cert)));
             iDate until;
             validUntil_TlsCertificate(cert, &until);
             printf("Expires on: %s\n", cstrCollect_String(format_Date(&until, "%Y-%m-%d %H:%M:%S")));
-            printf("%s\n", cstrCollect_String(privateKeyPem_TlsCertificate(cert)));
+            printf("%s\n", cstr_String(key));
+            printf("Fingerprint 1: %s\n",
+                   cstrCollect_String(
+                       hexEncode_Block(collect_Block(fingerprint_TlsCertificate(cert)))));
+            delete_TlsCertificate(cert);
+            /* Try to recreate it. */
+            cert = newPemKey_TlsCertificate(crt, key);
+            printf("Fingerprint 2: %s\n",
+                   cstrCollect_String(
+                       hexEncode_Block(collect_Block(fingerprint_TlsCertificate(cert)))));
+            printf("Recreated private key:\n%s", cstrCollect_String(privateKeyPem_TlsCertificate(cert)));
             delete_TlsCertificate(cert);
             return 0;
         }
