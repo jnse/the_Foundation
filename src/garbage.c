@@ -117,10 +117,35 @@ static iBool pop_Collected_(iCollected *d) {
     return popBack_GarbageNode_(back_List(&d->collected));
 }
 
+#if !defined (NDEBUG)
+static void *previous_Collected_(const iCollected *d, size_t offset) {
+    const iGarbageNode *node = back_List(&d->collected);
+    if (!node) return NULL;
+    if (offset > (size_t) node->count) {
+        offset -= node->count;
+        node = (const iGarbageNode *) node->node.prev;
+    }
+    if (offset <= (size_t) node->count) {
+        return node->allocs[node->count - offset].ptr;
+    }
+    return NULL;
+}
+#endif
+
 static void push_Collected_(iCollected *d, iCollectedPtr colptr) {
     iGarbageNode *node = back_List(&d->collected);
     if (!node || isFull_GarbageNode_(node)) {
         pushBack_List(&d->collected, node = new_GarbageNode_());
+    }
+    /* In debug builds, try to catch recent duplicate collections. */ {
+        iAssert(previous_Collected_(d, 1) != colptr.ptr);
+        iAssert(previous_Collected_(d, 2) != colptr.ptr);
+        iAssert(previous_Collected_(d, 3) != colptr.ptr);
+        iAssert(previous_Collected_(d, 4) != colptr.ptr);
+        iAssert(previous_Collected_(d, 5) != colptr.ptr);
+        iAssert(previous_Collected_(d, 6) != colptr.ptr);
+        iAssert(previous_Collected_(d, 7) != colptr.ptr);
+        iAssert(previous_Collected_(d, 8) != colptr.ptr);
     }
     node->allocs[node->count++] = colptr;
 }
