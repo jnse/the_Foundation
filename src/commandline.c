@@ -111,35 +111,35 @@ static void loadArgumentsFile_CommandLine_(iCommandLine *d, const char *path) {
     iEndCollect();
 }
 
-static int cmpArg_(const iRangecc *entry, const iRangecc *arg) {
-    iAssert(*arg->start != '-');
-    iAssert(*entry->start != '-');
-    if (size_Range(arg) == 1) {
+static int cmpArg_(const iRangecc entry, const iRangecc arg) {
+    iAssert(*arg.start != '-');
+    iAssert(*entry.start != '-');
+    if (size_Range(&arg) == 1) {
         /* Single-letter arguments can be joined in a longer entry. */
-        return findAscii_Rangecc(entry, *arg->start)? 0 : 1;
+        return findAscii_Rangecc(entry, *arg.start)? 0 : 1;
     }
     const char *eql = findAscii_Rangecc(entry, '=');
-    const size_t entryLen = (eql? eql - entry->start : size_Range(entry));
-    if (size_Range(arg) != entryLen) {
-        return iCmp(size_Range(arg), entryLen);
+    const size_t entryLen = (eql ? eql - entry.start : size_Range(&entry));
+    if (size_Range(&arg) != entryLen) {
+        return iCmp(size_Range(&arg), entryLen);
     }
-    return iCmpStrN(entry->start, arg->start, size_Range(arg));
+    return iCmpStrN(entry.start, arg.start, size_Range(&arg));
 }
 
-static size_t findArg_CommandLine_(const iCommandLine *d, const iRangecc *arg) {
-    iAssert(*arg->start != '-');
+static size_t findArg_CommandLine_(const iCommandLine *d, const iRangecc arg) {
+    iAssert(*arg.start != '-');
     iConstForEach(StringList, i, &d->args) {
         iRangecc entry = range_String(i.value);
         if (*entry.start != '-') continue;
         entry.start++;
-        if (size_Range(arg) > 1) { // Long args must have two dashes.
+        if (size_Range(&arg) > 1) { // Long args must have two dashes.
             if (*entry.start != '-') continue;
             entry.start++;
         }
         else if (*entry.start == '-') {
             continue; // Want short, got long.
         }
-        if (!cmpArg_(&entry, arg)) {
+        if (!cmpArg_(entry, arg)) {
             return i.pos;
         }
     }
@@ -188,7 +188,7 @@ void defineValuesN_CommandLine(iCommandLine *d, const char *arg, int minCount, i
     iDefinedArg *def = new_DefinedArg(minCount, maxCount);
     const iRangecc args = range_CStr(arg);
     iRangecc range = iNullRange;
-    while (nextSplit_Rangecc(&args, ";", &range)) {
+    while (nextSplit_Rangecc(args, ";", &range)) {
         insertCStrN_StringHash(d->defined, range.start, size_Range(&range), def);
     }
     iRelease(def);
@@ -197,8 +197,8 @@ void defineValuesN_CommandLine(iCommandLine *d, const char *arg, int minCount, i
 iBool contains_CommandLine(const iCommandLine *d, const char *arg) {
     const iRangecc args = range_CStr(arg);
     iRangecc range = iNullRange;
-    while (nextSplit_Rangecc(&args, ";", &range)) {
-        if (findArg_CommandLine_(d, &range) != iInvalidPos)
+    while (nextSplit_Rangecc(args, ";", &range)) {
+        if (findArg_CommandLine_(d, range) != iInvalidPos)
             return iTrue;
     }
     return iFalse;
@@ -240,19 +240,20 @@ static iCommandLineArg *checkArgumentPosValuesN_CommandLine_
     return clArg;
 }
 
-static iCommandLineArg *checkArgumentValuesN_CommandLine_
-(const iCommandLine *d, const iRangecc *arg, size_t minCount, size_t maxCount) {
+static iCommandLineArg *checkArgumentValuesN_CommandLine_(const iCommandLine *d,
+                                                          const iRangecc arg, size_t minCount,
+                                                          size_t maxCount) {
     const size_t pos = findArg_CommandLine_(d, arg);
     if (pos == iInvalidPos) return NULL;
     return checkArgumentPosValuesN_CommandLine_(d, pos, minCount, maxCount);
 }
 
-iCommandLineArg *checkArgumentValuesN_CommandLine
-    (const iCommandLine *d, const char *arg, int minCount, int maxCount) {
+iCommandLineArg *checkArgumentValuesN_CommandLine(const iCommandLine *d, const char *arg,
+                                                  int minCount, int maxCount) {
     const iRangecc args = range_CStr(arg);
     iRangecc range = iNullRange;
-    while (nextSplit_Rangecc(&args, ";", &range)) {
-        iCommandLineArg *clArg = checkArgumentValuesN_CommandLine_(d, &range, minCount, maxCount);
+    while (nextSplit_Rangecc(args, ";", &range)) {
+        iCommandLineArg *clArg = checkArgumentValuesN_CommandLine_(d, range, minCount, maxCount);
         if (clArg) return clArg;
     }
     return NULL;
@@ -269,8 +270,8 @@ static enum iCommandLineArgType argumentType_CommandLine_(const iCommandLine *d,
     return value_CommandLineArgType;
 }
 
-static size_t valueCountForArgument_CommandLine_
-(const iCommandLine *d, const iRangecc *arg, size_t pos) {
+static size_t valueCountForArgument_CommandLine_(const iCommandLine *d, const iRangecc arg,
+                                                 size_t pos) {
     if (!d->defined) return 0;
     const iDefinedArg *def = constValueRange_StringHash(d->defined, arg);
     if (def) {
@@ -292,8 +293,8 @@ iCommandLineArg *checkArgument_CommandLine(const iCommandLine *d, const char *ar
     int minCount = 0, maxCount = 0; // By default, no values expected.
     iRangecc key = iNullRange;
     const iRangecc args = range_CStr(arg);
-    while (d->defined && nextSplit_Rangecc(&args, ";", &key)) {
-        const iDefinedArg *defined = constValueRange_StringHash(d->defined, &key);
+    while (d->defined && nextSplit_Rangecc(args, ";", &key)) {
+        const iDefinedArg *defined = constValueRange_StringHash(d->defined, key);
         if (defined) {
             minCount = defined->minCount;
             maxCount = defined->maxCount;
@@ -318,7 +319,7 @@ void init_CommandLineConstIterator(iCommandLineConstIterator *d, const iCommandL
 static void updateShortArgumentValueCount_CommandLineConstIterator_
 (iCommandLineConstIterator *d) {
     if (!*d->entry.end) {
-        d->valueCount = valueCountForArgument_CommandLine_(d->cmdLine, &d->entry, d->value + 1);
+        d->valueCount = valueCountForArgument_CommandLine_(d->cmdLine, d->entry, d->value + 1);
     }
     else {
         d->isAssignedValue = (*d->entry.end == '=');
@@ -357,14 +358,14 @@ void next_CommandLineConstIterator(iCommandLineConstIterator *d) {
             break;
         case longArgument_CommandLineArgType: {
             d->entry.start += 2;
-            const char *eql = findAscii_Rangecc(&d->entry, '=');
+            const char *eql = findAscii_Rangecc(d->entry, '=');
             if (eql) {
                 d->isAssignedValue = iTrue;
                 d->entry.end = eql;
                 d->valueCount = 1;
             }
             else {
-                d->valueCount = valueCountForArgument_CommandLine_(d->cmdLine, &d->entry, d->value + 1);
+                d->valueCount = valueCountForArgument_CommandLine_(d->cmdLine, d->entry, d->value + 1);
             }
             break;
         }

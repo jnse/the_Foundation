@@ -423,7 +423,7 @@ iString *lower_String(const iString *d) {
 
 iStringList *split_String(const iString *d, const char *separator) {
     const iRangecc range = range_String(d);
-    return split_Rangecc(&range, separator);
+    return split_Rangecc(range, separator);
 }
 
 iString *urlEncodeExclude_String(const iString *d, const char *exclude) {
@@ -516,19 +516,19 @@ int cmpNSc_String(const iString *d, const char *cstr, size_t n, const iStringCom
 
 iBool startsWithSc_String(const iString *d, const char *cstr, const iStringComparison *sc) {
     const iRangecc rc = range_String(d);
-    return startsWithSc_Rangecc(&rc, cstr, sc);
+    return startsWithSc_Rangecc(rc, cstr, sc);
 }
 
-iBool startsWithSc_Rangecc(const iRangecc *d, const char *cstr, const iStringComparison *sc) {
+iBool startsWithSc_Rangecc(const iRangecc d, const char *cstr, const iStringComparison *sc) {
     const size_t len = strlen(cstr);
-    if (size_Range(d) < len) return iFalse;
-    return !sc->cmpN(d->start, cstr, len);
+    if (size_Range(&d) < len) return iFalse;
+    return !sc->cmpN(d.start, cstr, len);
 }
 
-iBool endsWithSc_Rangecc(const iRangecc *d, const char *cstr, const iStringComparison *sc) {
+iBool endsWithSc_Rangecc(const iRangecc d, const char *cstr, const iStringComparison *sc) {
     const size_t len = strlen(cstr);
-    if (size_Range(d) < len) return iFalse;
-    return !sc->cmpN(d->end - len, cstr, len);
+    if (size_Range(&d) < len) return iFalse;
+    return !sc->cmpN(d.end - len, cstr, len);
 }
 
 iBool endsWithSc_String(const iString *d, const char *cstr, const iStringComparison *sc) {
@@ -607,19 +607,19 @@ size_t lastIndexOf_String(const iString *d, iChar ch) {
     return lastIndexOfCStr_String(d, mb.bytes);
 }
 
-size_t lastIndexOfCStr_Rangecc(const iRangecc *d, const char *cstr) {
+size_t lastIndexOfCStr_Rangecc(const iRangecc d, const char *cstr) {
     const size_t len = strlen(cstr);
-    if (len > size_Range(d)) return iInvalidPos;
-    for (const char *i = d->end - len; i >= d->start; --i) {
+    if (len > size_Range(&d)) return iInvalidPos;
+    for (const char *i = d.end - len; i >= d.start; --i) {
         if (iCmpStrN(i, cstr, len) == 0) {
-            return i - d->start;
+            return i - d.start;
         }
     }
     return iInvalidPos;
 }
 
 size_t lastIndexOfCStr_String(const iString *d, const char *cstr) {
-    return lastIndexOfCStr_Rangecc(&(iRangecc){ constBegin_String(d), constEnd_String(d) }, cstr);
+    return lastIndexOfCStr_Rangecc((iRangecc){ constBegin_String(d), constEnd_String(d) }, cstr);
 }
 
 void append_String(iString *d, const iString *other) {
@@ -666,35 +666,35 @@ void prependCStr_String(iString *d, const char *cstr) {
     deinit_String(&pre);
 }
 
-iBool nextSplit_Rangecc(const iRangecc *str, const char *separator, iRangecc *range) {
-    iAssert(range->start == NULL || contains_Range(str, range->start));
+iBool nextSplit_Rangecc(const iRangecc str, const char *separator, iRangecc *range) {
+    iAssert(range->start == NULL || contains_Range(&str, range->start));
     const size_t separatorSize = strlen(separator);
     iAssert(separatorSize > 0);
     if (range->start == NULL) {
-        if (separatorSize > size_Range(str)) {
+        if (separatorSize > size_Range(&str)) {
             /* Doesn't fit in the string. */
             return iFalse;
         }
         if (!cmpCStrSc_Rangecc(str, separator, &iCaseSensitive)) {
             return iFalse;
         }
-        range->start = range->end = str->start;
+        range->start = range->end = str.start;
         if (!iCmpStrN(range->start, separator, separatorSize)) {
             /* Skip the first separator. */
             range->start += separatorSize;
         }
     }
-    else if (range->start == str->end) {
+    else if (range->start == str.end) {
         return iFalse;
     }
     else {
         range->start = range->end + separatorSize;
-        if (range->start >= str->end) {
+        if (range->start >= str.end) {
             return iFalse;
         }
     }
     const char *found = strstr(range->start, separator);
-    range->end = (found && found < str->end? found : str->end);
+    range->end = (found && found < str.end? found : str.end);
     iAssert(range->start <= range->end);
     return iTrue;
 }
@@ -707,22 +707,23 @@ const char *cstr_Rangecc(iRangecc range) {
     return iCollectMem(copy);
 }
 
-int cmpCStrSc_Rangecc(const iRangecc *d, const char *cstr, const iStringComparison *sc) {
+int cmpCStrSc_Rangecc(const iRangecc d, const char *cstr, const iStringComparison *sc) {
     return cmpCStrNSc_Rangecc(d, cstr, strlen(cstr), sc);
 }
 
-int cmpCStrNSc_Rangecc(const iRangecc *d, const char *cstr, size_t n, const iStringComparison *sc) {
-    int cmp = sc->cmpN(d->start, cstr, iMin(n, size_Range(d)));
+int cmpCStrNSc_Rangecc(const iRangecc d, const char *cstr, size_t n, const iStringComparison *sc) {
+    const size_t size = size_Range(&d);
+    int cmp = sc->cmpN(d.start, cstr, iMin(n, size));
     if (cmp == 0) {
-        if (n == size_Range(d)) {
+        if (n == size) {
             return 0;
         }
-        return size_Range(d) < n? -1 : 1;
+        return size < n ? -1 : 1;
     }
     return cmp;
 }
 
-iStringList *split_Rangecc(const iRangecc *d, const char *separator) {
+iStringList *split_Rangecc(const iRangecc d, const char *separator) {
     iStringList *parts = new_StringList();
     iRangecc range = iNullRange;
     while (nextSplit_Rangecc(d, separator, &range)) {
@@ -750,14 +751,14 @@ const char *skipSpace_CStr(const char *cstr) {
     return cstr;
 }
 
-const char *findAscii_Rangecc(const iRangecc *str, char ch) {
-    const char *pos = strchr(str->start, ch);
-    if (!pos || pos >= str->end) return NULL;
+const char *findAscii_Rangecc(const iRangecc str, char ch) {
+    const char *pos = strchr(str.start, ch);
+    if (!pos || pos >= str.end) return NULL;
     return pos;
 }
 
 iStringList *split_CStr(const char *cstr, const char *separator) {
-    return split_Rangecc(&(iRangecc){ cstr, cstr + strlen(cstr) }, separator);
+    return split_Rangecc((iRangecc){ cstr, cstr + strlen(cstr) }, separator);
 }
 
 /*-------------------------------------------------------------------------------------*/
@@ -836,13 +837,13 @@ const char *cstrLocal_Char(iChar ch) {
     return chBuf;
 }
 
-int iCmpStrRange(const iRangecc *range, const char *cstr) {
+int iCmpStrRange(const iRangecc range, const char *cstr) {
     const size_t clen = strlen(cstr);
-    const int cmp = iCmpStrN(range->start, cstr, size_Range(range));
-    if (clen == size_Range(range)) {
+    const int cmp = iCmpStrN(range.start, cstr, size_Range(&range));
+    if (clen == size_Range(&range)) {
         return cmp;
     }
-    if (cmp == 0) return (size_Range(range) < clen? -1 : 1);
+    if (cmp == 0) return (size_Range(&range) < clen? -1 : 1);
     return cmp;
 }
 

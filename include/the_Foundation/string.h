@@ -233,36 +233,36 @@ iLocalDef iRangecc range_CStr   (const char *cstr) { return rangeN_CStr(cstr, st
 const char *    cstr_Rangecc        (iRangecc range); /* returns NULL-terminated collected copy */
 
 #define         cmp_Rangecc(d, cstr) cmpCStrSc_Rangecc((d), (cstr), &iCaseSensitive)
-int             cmpCStrSc_Rangecc   (const iRangecc *, const char *cstr, const iStringComparison *);
-int             cmpCStrNSc_Rangecc  (const iRangecc *, const char *cstr, size_t n, const iStringComparison *);
-iBool           startsWithSc_Rangecc(const iRangecc *, const char *cstr, const iStringComparison *);
-iBool           endsWithSc_Rangecc  (const iRangecc *, const char *cstr, const iStringComparison *);
+int             cmpCStrSc_Rangecc   (iRangecc, const char *cstr, const iStringComparison *);
+int             cmpCStrNSc_Rangecc  (iRangecc, const char *cstr, size_t n, const iStringComparison *);
+iBool           startsWithSc_Rangecc(iRangecc, const char *cstr, const iStringComparison *);
+iBool           endsWithSc_Rangecc  (iRangecc, const char *cstr, const iStringComparison *);
 
-iLocalDef iBool equal_Rangecc(const iRangecc *d, const char *cstr) {
+iLocalDef iBool equal_Rangecc(const iRangecc d, const char *cstr) {
     return cmp_Rangecc(d, cstr) == 0;
 }
-iLocalDef iBool equalCase_Rangecc(const iRangecc *d, const char *cstr) {
+iLocalDef iBool equalCase_Rangecc(const iRangecc d, const char *cstr) {
     return cmpCStrSc_Rangecc(d, cstr, &iCaseInsensitive) == 0;
 }
-iLocalDef iBool startsWith_Rangecc(const iRangecc *d, const char *cstr) {
+iLocalDef iBool startsWith_Rangecc(const iRangecc d, const char *cstr) {
     return startsWithSc_Rangecc(d, cstr, &iCaseSensitive);
 }
-iLocalDef iBool startsWithCase_Rangecc(const iRangecc *d, const char *cstr) {
+iLocalDef iBool startsWithCase_Rangecc(const iRangecc d, const char *cstr) {
     return startsWithSc_Rangecc(d, cstr, &iCaseInsensitive);
 }
-iLocalDef iBool endsWith_Rangecc(const iRangecc *d, const char *cstr) {
+iLocalDef iBool endsWith_Rangecc(const iRangecc d, const char *cstr) {
     return endsWithSc_Rangecc(d, cstr, &iCaseSensitive);
 }
-iLocalDef iBool endsWithCase_Rangecc(const iRangecc *d, const char *cstr) {
+iLocalDef iBool endsWithCase_Rangecc(const iRangecc d, const char *cstr) {
     return endsWithSc_Rangecc(d, cstr, &iCaseInsensitive);
 }
 
-iStringList *   split_Rangecc       (const iRangecc *, const char *separator);
+iStringList *   split_Rangecc       (iRangecc, const char *separator);
 void            trimStart_Rangecc   (iRangecc *);
 void            trimEnd_Rangecc     (iRangecc *);
 void            trim_Rangecc        (iRangecc *);
 
-size_t          lastIndexOfCStr_Rangecc     (const iRangecc *, const char *cstr);
+size_t          lastIndexOfCStr_Rangecc     (iRangecc, const char *cstr);
 
 /**
  * Finds the next range between separators. Empty ranges at the beginning and end of
@@ -277,9 +277,9 @@ size_t          lastIndexOfCStr_Rangecc     (const iRangecc *, const char *cstr)
  *
  * @return @c iTrue, if a next range was found (@a range was updated).
  */
-iBool           nextSplit_Rangecc   (const iRangecc *, const char *separator, iRangecc *range);
+iBool           nextSplit_Rangecc   (iRangecc, const char *separator, iRangecc *range);
 
-const char *    findAscii_Rangecc   (const iRangecc *, char ch);
+const char *    findAscii_Rangecc   (iRangecc, char ch);
 
 iStringList *   split_CStr  (const char *cstr, const char *separator);
 
@@ -309,7 +309,7 @@ const char *    cstrLocal_Char  (iChar ch); // locale-encoding
 
 int             iCmpStr     (const char *a, const char *b);
 int             iCmpStrN    (const char *a, const char *b, size_t n);
-int             iCmpStrRange(const iRangecc *range, const char *cstr);
+int             iCmpStrRange(iRangecc, const char *cstr);
 int             iCmpStrCase (const char *a, const char *b);
 int             iCmpStrNCase(const char *a, const char *b, size_t len);
 

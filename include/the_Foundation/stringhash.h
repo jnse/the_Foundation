@@ -34,7 +34,7 @@ iBeginPublic
 
 iDeclareBlockHash(StringHash, String, AnyObject)
 
-const iAnyObject *constValueRange_StringHash    (const iStringHash *, const iRangecc *key);
+const iAnyObject *constValueRange_StringHash    (const iStringHash *, iRangecc key);
 
 iBool       insertCStr_StringHash       (iStringHash *, const char *key, iAnyObject *value);
 iBool       insertCStrN_StringHash      (iStringHash *, const char *key, size_t size, iAnyObject *value);

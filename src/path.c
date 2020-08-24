@@ -139,14 +139,14 @@ iString *makeRelative_Path(const iString *d) {
 static iBool splitSegments_Path_(const iRangecc path, iRangecc *segments,
                                  size_t *count, iBool *changed) {
     iRangecc seg = iNullRange;
-    while (nextSplit_Rangecc(&path, iPathSeparator, &seg)) {
+    while (nextSplit_Rangecc(path, iPathSeparator, &seg)) {
         if (*count > 0 && size_Range(&seg) == 0) {
             /* Skip repeated slashes. */
             *changed = iTrue;
             continue;
         }
 #if defined (iPlatformMsys) || !defined (iPlatformWindows)
-        if (*count == 0 && !iCmpStrRange(&seg, "~")) {
+        if (*count == 0 && !iCmpStrRange(seg, "~")) {
             const iString *home = collect_String(home_Path());
             if (!isEmpty_String(home)) {
                 if (!splitSegments_Path_(range_String(home), segments, count, changed)) {
@@ -157,12 +157,12 @@ static iBool splitSegments_Path_(const iRangecc path, iRangecc *segments,
             }
         }
 #endif
-        if (!iCmpStrRange(&seg, ".")) {
+        if (!iCmpStrRange(seg, ".")) {
             *changed = iTrue;
             continue; // No change in directory.
         }
-        if (!iCmpStrRange(&seg, "..")) {
-            if (*count > 0 && iCmpStrRange(&segments[*count - 1], "..")) {
+        if (!iCmpStrRange(seg, "..")) {
+            if (*count > 0 && iCmpStrRange(segments[*count - 1], "..")) {
                 (*count)--; // Go up a directory.
                 *changed = iTrue;
                 continue;

@@ -159,7 +159,7 @@ static void addDomain_X509Name_(X509_NAME *name, enum iTlsCertificateNameType ty
     if (domain) {
         const iRangecc range = range_String(domain);
         iRangecc comp = iNullRange;
-        while (nextSplit_Rangecc(&range, ".", &comp)) {
+        while (nextSplit_Rangecc(range, ".", &comp)) {
             X509_NAME_add_entry_by_txt(
                 name, "DC", MBSTRING_UTF8, (const void *) comp.start, size_Range(&comp), -1, 0);
         }

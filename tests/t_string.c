@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
         const iRangecc rng = range_String(str);
         iRangecc seg = {NULL, NULL};
         printf("\"%s\" splits to:\n", cstr_String(str));
-        while (nextSplit_Rangecc(&rng, "/", &seg)) {
+        while (nextSplit_Rangecc(rng, "/", &seg)) {
             iString *s = newRange_String(seg);
             printf("[%s]\n", cstr_String(s));
             delete_String(s);
