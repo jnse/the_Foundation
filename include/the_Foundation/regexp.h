@@ -80,6 +80,8 @@ struct Impl_RegExpMatch {
     int         data_[iRegExpMaxSubstrings + 1];
 };
 
+void        init_RegExpMatch            (iRegExpMatch *);
+
 iString *   captured_RegExpMatch        (const iRegExpMatch *, int index);
 iRangecc    capturedRange_RegExpMatch   (const iRegExpMatch *, int index);
 

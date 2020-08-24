@@ -68,11 +68,11 @@ void deinit_RegExp(iRegExp *d) {
 
 iBool match_RegExp(const iRegExp *d, const char *subject, size_t len, iRegExpMatch *match) {
     if (!d->re || !subject) return iFalse;
-    if (match->subject != subject) {
+    if (!match->subject) {
         /* The match object is uninitialized, so initialize it now. */
-        iZap(*match);
-        match->subject = subject;
+        match->subject = subject;        
     }
+    iAssert(match->subject == subject); /* first or subsequent match */
     if (match->pos > len) return iFalse;
     int rc = pcre_exec(d->re, NULL,
                        subject, (int) len,
@@ -84,6 +84,10 @@ iBool match_RegExp(const iRegExp *d, const char *subject, size_t len, iRegExpMat
         return iTrue;
     }
     return iFalse;
+}
+
+void init_RegExpMatch(iRegExpMatch *d) {
+    iZap(*d);
 }
 
 iString *captured_RegExpMatch(const iRegExpMatch *d, int index) {

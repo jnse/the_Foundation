@@ -524,6 +524,7 @@ int main(int argc, char *argv[]) {
         iString *s = newCStr_String("Hello world Äöäö, there is a \U0001f698 out there.");
         iRegExp *rx = new_RegExp("\\b(THERE|WORLD|äöäö)\\b", caseInsensitive_RegExpOption);
         iRegExpMatch match;
+        init_RegExpMatch(&match);
         while (matchString_RegExp(rx, s, &match)) {
             iString *cap = captured_RegExpMatch(&match, 1);
             printf("match: %i -> %i [%s]\n", match.range.start, match.range.end, cstrLocal_String(cap));
