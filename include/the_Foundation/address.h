@@ -66,9 +66,13 @@ struct Impl_SocketParameters {
     int protocol;
 };
 
+enum iSocketStringFlags {
+    noPort_SocketStringFlag = 0x1,
+};
+
 iSocketParameters   socketParameters_Address(const iAddress *, int family);
 iString *           toString_Address        (const iAddress *);
-iString *           toStringFamily_Address  (const iAddress *, int family);
+iString *           toStringFlags_Address   (const iAddress *, int flags, int family); /* `family`==0: unspecified */
 const iString *     hostName_Address        (const iAddress *);
 uint16_t            port_Address            (const iAddress *);
 iBool               isPending_Address       (const iAddress *);

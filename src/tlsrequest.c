@@ -277,6 +277,13 @@ iBool verifyDomain_TlsCertificate(const iTlsCertificate *d, iRangecc domain) {
     return X509_check_host(d->cert, domain.start, size_Range(&domain), 0, NULL) > 0;
 }
 
+iBool verifyIp_TlsCertificate(const iTlsCertificate *d, const iString *ipAddress) {
+    if (!d->cert || isEmpty_String(ipAddress)) return iFalse;
+    int rc = X509_check_ip_asc(d->cert, cstr_String(ipAddress), 0);
+    iAssert(rc != -2 /* bad input */);
+    return rc > 0;
+}
+
 iBool equal_TlsCertificate(const iTlsCertificate *d, const iTlsCertificate *other) {
     if (d->cert == NULL && other->cert == NULL) {
         return iTrue;
@@ -626,6 +633,10 @@ void waitForFinished_TlsRequest(iTlsRequest *d) {
         wait_Condition(&d->requestDone, &d->mtx);
     }
     unlock_Mutex(&d->mtx);
+}
+
+const iAddress *address_TlsRequest(const iTlsRequest *d) {
+    return d->socket ? address_Socket(d->socket) : NULL;
 }
 
 enum iTlsRequestStatus status_TlsRequest(const iTlsRequest *d) {

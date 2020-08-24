@@ -272,10 +272,10 @@ void getSockAddr_Address(const iAddress *  d,
 }
 
 iString *toString_Address(const iAddress *d) {
-    return toStringFamily_Address(d, AF_UNSPEC);
+    return toStringFlags_Address(d, 0, AF_UNSPEC);
 }
 
-iString *toStringFamily_Address(const iAddress *d, int family) {
+iString *toStringFlags_Address(const iAddress *d, int flags, int family) {
     waitForFinished_Address(d);
     iString *str = new_String();
     if (!d) return str;
@@ -289,7 +289,7 @@ iString *toStringFamily_Address(const iAddress *d, int family) {
                                  hbuf, sizeof(hbuf),
                                  sbuf, sizeof(sbuf),
                                  NI_NUMERICHOST | NI_NUMERICSERV)) {
-                    if (iCmpStr(sbuf, "0")) {
+                    if (iCmpStr(sbuf, "0") && ~flags & noPort_SocketStringFlag) {
                         format_String(str, i->ai_family == AF_INET6? "[%s]:%s" : "%s:%s", hbuf, sbuf);
                     }
                     else {

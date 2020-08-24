@@ -27,6 +27,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
+#include "address.h"
 #include "audience.h"
 #include "object.h"
 #include "string.h"
@@ -82,6 +83,7 @@ iString *           issuer_TlsCertificate       (const iTlsCertificate *);
 void                validUntil_TlsCertificate   (const iTlsCertificate *, iDate *untilDate_out);
 iBool               isExpired_TlsCertificate    (const iTlsCertificate *);
 iBool               verifyDomain_TlsCertificate (const iTlsCertificate *, iRangecc domain); /* supports wildcards */
+iBool               verifyIp_TlsCertificate     (const iTlsCertificate *, const iString *ipAddress);
 iBool               equal_TlsCertificate        (const iTlsCertificate *, const iTlsCertificate *);
 iString *           pem_TlsCertificate          (const iTlsCertificate *);
 iString *           privateKeyPem_TlsCertificate(const iTlsCertificate *);
@@ -113,6 +115,7 @@ void        cancel_TlsRequest           (iTlsRequest *);
 void        waitForFinished_TlsRequest  (iTlsRequest *);
 iBlock *    readAll_TlsRequest          (iTlsRequest *);
 
+const iAddress *        address_TlsRequest          (const iTlsRequest *);
 size_t                  receivedBytes_TlsRequest    (const iTlsRequest *);
 enum iTlsRequestStatus  status_TlsRequest           (const iTlsRequest *);
 const iTlsCertificate * serverCertificate_TlsRequest(const iTlsRequest *);
