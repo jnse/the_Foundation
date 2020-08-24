@@ -239,7 +239,8 @@ iString *subject_TlsCertificate(const iTlsCertificate *d) {
     iString *sub = new_String();
     if (d->cert) {
         BIO *buf = BIO_new(BIO_s_mem());
-        X509_NAME_print_ex(buf, X509_get_subject_name(d->cert), 0, XN_FLAG_ONELINE);
+        X509_NAME_print_ex(
+            buf, X509_get_subject_name(d->cert), 0, XN_FLAG_ONELINE & ~ASN1_STRFLGS_ESC_MSB);
         readAllFromBIO_(buf, &sub->chars);
         BIO_free(buf);
     }
@@ -250,7 +251,8 @@ iString *issuer_TlsCertificate(const iTlsCertificate *d) {
     iString *sub = new_String();
     if (d->cert) {
         BIO *buf = BIO_new(BIO_s_mem());
-        X509_NAME_print_ex(buf, X509_get_issuer_name(d->cert), 0, XN_FLAG_ONELINE);
+        X509_NAME_print_ex(
+            buf, X509_get_issuer_name(d->cert), 0, XN_FLAG_ONELINE & ~ASN1_STRFLGS_ESC_MSB);
         readAllFromBIO_(buf, &sub->chars);
         BIO_free(buf);
     }
