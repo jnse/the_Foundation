@@ -694,7 +694,7 @@ iBool nextSplit_Rangecc(const iRangecc str, const char *separator, iRangecc *ran
         }
     }
     const char *found = strstr(range->start, separator);
-    range->end = (found && found < str.end? found : str.end);
+    range->end = (found && found < str.end ? found : str.end);
     iAssert(range->start <= range->end);
     return iTrue;
 }
