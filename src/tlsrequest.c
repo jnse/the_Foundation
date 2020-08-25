@@ -611,12 +611,8 @@ void submit_TlsRequest(iTlsRequest *d) {
     clear_Buffer(d->result);
     set_Block(&d->sending, &d->content);
     iRelease(d->socket);
-    /* Server Name Indication for the handshake. */ {
-        SSL_SESSION *session = SSL_SESSION_new();
-        SSL_SESSION_set1_hostname(session, cstr_String(d->hostName));
-        SSL_set_session(d->ssl, session);
-        SSL_SESSION_free(session);
-    }
+    /* Server Name Indication for the handshake. */
+    SSL_set_tlsext_host_name(d->ssl, cstr_String(d->hostName));
     d->socket = new_Socket(cstr_String(d->hostName), d->port);
     iConnect(Socket, d->socket, connected, d, connected_TlsRequest_);
     iConnect(Socket, d->socket, disconnected, d, disconnected_TlsRequest_);
