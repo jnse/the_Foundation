@@ -39,7 +39,8 @@ iDeclareType(ThreadPool)
 typedef void (*iFutureResultAvailable)(iFuture *, iThread *);
 
 struct Impl_Future {
-    iObjectList threads;
+    iObject object;
+    iObjectList *threads;
     iMutex mutex;
     iCondition ready;
     iAtomicInt pendingCount;
@@ -83,7 +84,7 @@ iThread *   nextResult_Future (iFuture *);
 iBool       isEmpty_Future  (const iFuture *d);
 
 iLocalDef const iObjectList *threads_Future(const iFuture *d) {
-    return &d->threads;
+    return d->threads;
 }
 
 iEndPublic

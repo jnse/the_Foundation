@@ -50,7 +50,7 @@ void init_Future(iFuture *d) {
 void initHandler_Future(iFuture *d, iFutureResultAvailable resultAvailable) {
     init_Mutex(&d->mutex);
     init_Condition(&d->ready);
-    init_ObjectList(&d->threads);
+    d->threads = new_ObjectList();
     set_Atomic(&d->pendingCount, 0);
     d->resultAvailable = resultAvailable;
 }
@@ -58,10 +58,10 @@ void initHandler_Future(iFuture *d, iFutureResultAvailable resultAvailable) {
 void deinit_Future(iFuture *d) {
     wait_Future(d);
     /* Stop observing the remaining threads. */
-    iForEach(ObjectList, i, &d->threads) {
+    iForEach(ObjectList, i, d->threads) {
         iDisconnect(Thread, i.object, finished, d, threadFinished_Future_);
     }
-    deinit_ObjectList(&d->threads);
+    iRelease(d->threads);
     deinit_Condition(&d->ready);
     deinit_Mutex(&d->mutex);
 }
@@ -71,7 +71,7 @@ void add_Future(iFuture *d, iThread *thread) {
     iGuardMutex(&d->mutex, {
         addRelaxed_Atomic(&d->pendingCount, 1);
         iConnect(Thread, thread, finished, d, threadFinished_Future_);
-        pushBack_ObjectList(&d->threads, thread);
+        pushBack_ObjectList(d->threads, thread);
     });
 }
 
@@ -97,16 +97,16 @@ void wait_Future(iFuture *d) {
 
 iBool isEmpty_Future(const iFuture *d) {
     iBool empty;
-    iGuardMutex(&d->mutex, empty = isEmpty_ObjectList(&d->threads));
+    iGuardMutex(&d->mutex, empty = isEmpty_ObjectList(d->threads));
     return empty;
 }
 
 iThread *nextResult_Future(iFuture *d) {
     iThread *result = NULL;
     iGuardMutex(&d->mutex, {
-        while (!isEmpty_ObjectList(&d->threads)) {
+        while (!isEmpty_ObjectList(d->threads)) {
             /* Check for a finished thread. */
-            iForEach(ObjectList, i, &d->threads) {
+            iForEach(ObjectList, i, d->threads) {
                 iThread *thread = i.object;
                 if (isFinished_Thread(thread)) {
                     result = ref_Object(thread);
