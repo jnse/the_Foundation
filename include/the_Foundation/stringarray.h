@@ -27,7 +27,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "ptrarray.h"
+#include "array.h"
 #include "object.h"
 #include "string.h"
 
@@ -37,7 +37,7 @@ iDeclareClass(StringArray)
 
 struct Impl_StringArray {
     iObject object;
-    iPtrArray strings;
+    iArray strings;
 };
 
 iDeclareObjectConstruction(StringArray)
@@ -47,8 +47,6 @@ iStringArray *  newStringsCStr_StringArray  (const char *, ...);
 
 #define         isEmpty_StringArray(d)      isEmpty_Array(&(d)->strings)
 #define         size_StringArray(d)         size_Array(&(d)->strings)
-#define         data_StringArray(d)         ((iString **) data_PtrArray(&(d)->strings))
-#define         constData_StringArray(d)    ((const iString **) constData_PtrArray(&(d)->strings))
 
 void            clear_StringArray   (iStringArray *);
 
@@ -94,20 +92,20 @@ iString *       joinCStr_StringArray        (const iStringArray *, const char *d
 iDeclareIterator(StringArray, iStringArray *)
 iDeclareConstIterator(StringArray, const iStringArray *)
 
-#define index_StringArrayIterator(d)        index_ArrayIterator(&(d)->iter.iter)
-#define index_StringArrayConstIterator(d)   index_ArrayConstIterator(&(d)->iter.iter)
+#define index_StringArrayIterator(d)        index_ArrayIterator(&(d)->iter)
+#define index_StringArrayConstIterator(d)   index_ArrayConstIterator(&(d)->iter)
 
 struct IteratorImpl_StringArray {
     union {
-        iString **value;
-        iPtrArrayIterator iter;
+        iString *value;
+        iArrayIterator iter;
     };
 };
 
 struct ConstIteratorImpl_StringArray {
     union {
-        const iString * const *value;
-        iPtrArrayConstIterator iter;
+        const iString *value;
+        iArrayConstIterator iter;
     };
 };
 ///@}

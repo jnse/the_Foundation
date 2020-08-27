@@ -55,12 +55,13 @@ struct Impl_SortedArray {
 
 iDeclareTypeConstructionArgs(SortedArray, size_t elementSize, iSortedArrayCompareElemFunc cmp)
 
-iSortedArray *          copy_SortedArray    (const iSortedArray *);
+iSortedArray *  copy_SortedArray    (const iSortedArray *);
+iBool           contains_SortedArray(const iSortedArray *, const void *value);
+iBool           locate_SortedArray  (const iSortedArray *, const void *value, size_t *pos_out);
 
-iLocalDef size_t    size_SortedArray    (const iSortedArray *d) { return size_Array(&d->values); }
-
-iBool       contains_SortedArray(const iSortedArray *, const void *value);
-iBool       locate_SortedArray  (const iSortedArray *, const void *value, size_t *pos_out);
+iLocalDef size_t size_SortedArray(const iSortedArray *d) {
+    return size_Array(&d->values);
+}
 
 /**
  * Locates a range of elements in the array.

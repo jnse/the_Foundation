@@ -371,7 +371,7 @@ iString *mid_String(const iString *d, size_t charStartPos, size_t charCount) {
         }
         pos++;
     }
-    iBlock *midChars = midRange_Block(&d->chars, &range);
+    iBlock *midChars = midRange_Block(&d->chars, range);
     iString *mid = newBlock_String(midChars);
     delete_Block(midChars);
     return mid;

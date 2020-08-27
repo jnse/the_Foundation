@@ -91,8 +91,7 @@ const char *    constEnd_Block      (const iBlock *);
 iLocalDef const char *cstr_Block(const iBlock *d) { return constBegin_Block(d); }
 iLocalDef iRangecc range_Block  (const iBlock *d) { iRangecc r = { constBegin_Block(d), constEnd_Block(d) }; return r; }
 iLocalDef iBool isEmpty_Block   (const iBlock *d) { return size_Block(d) == 0; }
-
-#define         midRange_Block(d, rng)  mid_Block(d, (rng)->start, size_Range(rng))
+iLocalDef iBlock *midRange_Block(const iBlock *d, iRanges range) { return mid_Block(d, range.start, size_Range(&range)); }
 
 int             cmp_Block           (const iBlock *, const iBlock *other);
 int             cmpData_Block       (const iBlock *, const char *data, size_t size);

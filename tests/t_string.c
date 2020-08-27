@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
         iStringArray *sar = newStringsCStr_StringArray("Hello World", "Another string", "3rd text", NULL);
         puts("StringArray contents:");
         iConstForEach(StringArray, i, sar) {
-            printf("%4zu: \"%s\"\n", index_StringArrayConstIterator(&i), cstr_String(*i.value));
+            printf("%4zu: \"%s\"\n", index_StringArrayConstIterator(&i), cstr_String(i.value));
         }
         iRelease(sar);
     }

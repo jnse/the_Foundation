@@ -189,7 +189,7 @@ const iString *errorMessage_WebRequest(const iWebRequest *d) {
 iBool headerValue_WebRequest(const iWebRequest *d, const char *header, iString *value_out) {
     iBool found = iFalse;
     iConstForEach(StringArray, i, d->headers) {
-        const iString *j = *i.value;
+        const iString *j = i.value;
         if (startsWith_String(j, header)) {
             found = iTrue;
             if (value_out) {
