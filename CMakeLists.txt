@@ -131,6 +131,7 @@ set (HEADERS
     include/the_Foundation/stringarray.h
     include/the_Foundation/stringhash.h
     include/the_Foundation/stringlist.h
+    include/the_Foundation/stringset.h
     include/the_Foundation/thread.h
     include/the_Foundation/threadpool.h
     include/the_Foundation/time.h
@@ -176,6 +177,7 @@ set (SOURCES
     src/stringarray.c
     src/stringhash.c
     src/stringlist.c
+    src/stringset.c
     src/thread.c
     src/threadpool.c
     src/time.c

@@ -278,7 +278,7 @@ iString *take_StringList(iStringList *d, size_t pos) {
 iString *joinCStr_StringList(const iStringList *d, const char *delim) {
     iString *joined = new_String();
     iConstForEach(StringList, i, d) {
-        if (!isEmpty_String(joined)) {
+        if (delim && i.pos > 0) {
             appendCStr_String(joined, delim);
         }
         append_String(joined, i.value);

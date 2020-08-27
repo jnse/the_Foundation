@@ -56,15 +56,15 @@ void            clear_StringArray   (iStringArray *);
  *
  * @param size  New size of the array.
  */
-void            resize_StringArray      (iStringArray *, size_t size);
+void            resize_StringArray          (iStringArray *, size_t size);
 
-iString *       at_StringArray          (iStringArray *, size_t pos);
-const iString * constAt_StringArray     (const iStringArray *, size_t pos);
+iString *       at_StringArray              (iStringArray *, size_t pos);
+const iString * constAt_StringArray         (const iStringArray *, size_t pos);
 
-void            set_StringArray         (iStringArray *, size_t pos, const iString *str);
-void            pushBack_StringArray    (iStringArray *, const iString *str);
-void            pushFront_StringArray   (iStringArray *, const iString *str);
-void            insert_StringArray      (iStringArray *, size_t pos, const iString *str);
+void            set_StringArray             (iStringArray *, size_t pos, const iString *str);
+void            pushBack_StringArray        (iStringArray *, const iString *str);
+void            pushFront_StringArray       (iStringArray *, const iString *str);
+void            insert_StringArray          (iStringArray *, size_t pos, const iString *str);
 
 #define         cstrAt_StringArray(d, pos)  cstr_String(at_StringArray(d, pos))
 

@@ -34,9 +34,9 @@ static int cmp_IntSet_(const void *a, const void *b) {
 
 iDefineTypeConstruction(IntSet)
 
-iIntSet *newCmp_IntSet(iSortedArrayCompareElemFunc cmp) {
+iIntSet *newCmp_IntSet(iIntSetCompareFunc cmp) {
     iIntSet *d = new_IntSet();
-    if (cmp) d->cmp = cmp;
+    if (cmp) d->cmp = (iSortedArrayCompareElemFunc) cmp;
     return d;
 }
 
@@ -44,8 +44,8 @@ void init_IntSet(iIntSet *d) {
     init_SortedArray(d, sizeof(int), cmp_IntSet_);
 }
 
-void initCmp_IntSet(iIntSet *d, iSortedArrayCompareElemFunc cmp) {
-    init_SortedArray(d, sizeof(int), cmp ? cmp : cmp_IntSet_);
+void initCmp_IntSet(iIntSet *d, iIntSetCompareFunc cmp) {
+    init_SortedArray(d, sizeof(int), cmp ? (iSortedArrayCompareElemFunc) cmp : cmp_IntSet_);
 }
 
 void deinit_IntSet(iIntSet *d) {

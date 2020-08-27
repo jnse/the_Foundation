@@ -70,7 +70,7 @@ iLocalDef size_t size_SortedArray(const iSortedArray *d) {
  * @param relaxed   Optional comparison function that is more relaxed than the array's
  *                  own element comparison function. This allows locating a range of
  *                  elements that match partially. The relaxed comparison must be
- *                  compatible with the array's comparison function.. Set to NULL to use
+ *                  compatible with the array's comparison function. Set to NULL to use
  *                  the array's comparison function.
  *
  * @return Located range of elements. This is an empty range if nothing was found to match.

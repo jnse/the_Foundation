@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 iBeginPublic
 
 typedef iSortedArray iIntSet;
+typedef int (*iIntSetCompareFunc)(const int *, const int *);
 
 iDeclareType(Stream)
 
@@ -42,9 +43,9 @@ iIntSet *   copy_IntSet     (const iIntSet *);
 
 /** Constructs an IntSet with a custom comparison function. The default comparison
     function is used if @a cmp is NULL. */
-iIntSet *   newCmp_IntSet   (iSortedArrayCompareElemFunc cmp);
+iIntSet *   newCmp_IntSet   (iIntSetCompareFunc cmp);
 
-void        initCmp_IntSet  (iIntSet *, iSortedArrayCompareElemFunc cmp);
+void        initCmp_IntSet  (iIntSet *, iIntSetCompareFunc cmp);
 
 iBool       contains_IntSet (const iIntSet *, int value);
 iBool       locate_IntSet   (const iIntSet *, int value, size_t *pos_out);
