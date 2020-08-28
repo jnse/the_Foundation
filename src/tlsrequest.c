@@ -338,25 +338,29 @@ iString *privateKeyPem_TlsCertificate(const iTlsCertificate *d) {
 /*----------------------------------------------------------------------------------------------*/
 
 struct Impl_TlsRequest {
-    iObject object;
-    volatile enum iTlsRequestStatus status;
-    iString *  hostName;
-    uint16_t   port;
-    iSocket *  socket;
-    iMutex     mtx;
-    iBlock     content;
-    iBuffer *  result;
-    iAtomicInt notifyReady;
-    iAudience *readyRead;
-    iAudience *finished;
-    iCondition requestDone;
-    iThread *  thread;
+    iObject          object;
+    iMutex           mtx;
+    /* Connection. */
+    iString *        hostName;
+    uint16_t         port;
+    iSocket *        socket;
+    const iTlsCertificate *clientCert;
+    /* Payload and result. */
+    iBlock           content;
+    iBuffer *        result;
     iTlsCertificate *cert; /* server certificate */
+    /* Internal state. */
+    volatile enum iTlsRequestStatus status;
+    iThread *        thread;
+    iAtomicInt       notifyReady;
+    iCondition       requestDone;
+    iAudience *      readyRead;
+    iAudience *      finished;
     /* OpenSSL state. */
-    SSL *  ssl;
-    BIO *  rbio; /* we insert incoming encrypted bytes here for SSL to read */
-    BIO *  wbio; /* SSL sends encrypted bytes to socket */
-    iBlock sending;
+    SSL *            ssl;
+    BIO *            rbio; /* we insert incoming encrypted bytes here for SSL to read */
+    BIO *            wbio; /* SSL sends encrypted bytes to socket */
+    iBlock           sending;
 };
 
 iDefineObjectConstruction(TlsRequest)
@@ -446,28 +450,29 @@ void init_TlsRequest(iTlsRequest *d) {
         context_ = new_Context();
         atexit(globalCleanup_TlsRequest_);
     }
-    d->status = initialized_TlsRequestStatus;
+    init_Mutex(&d->mtx);
     d->hostName = new_String();
     d->port = 0;
     d->socket = NULL;
-    init_Mutex(&d->mtx);
+    d->clientCert = NULL;
     init_Block(&d->content, 0);
     d->result = new_Buffer();
     openEmpty_Buffer(d->result);
+    d->cert = NULL;
+    d->status = initialized_TlsRequestStatus;
+    d->thread = NULL;
     set_Atomic(&d->notifyReady, iFalse);
+    init_Condition(&d->requestDone);
     d->readyRead = NULL;
     d->finished = NULL;
-    init_Condition(&d->requestDone);
-    d->thread = NULL;
     d->ssl = SSL_new(context_->ctx);
-    d->cert = NULL;
     /* We could also try BIO_s_socket() but all BSD socket related code should be encapsulated
        into the Socket class. */
     d->rbio = BIO_new(BIO_s_mem());
     d->wbio = BIO_new(BIO_s_mem());
-    init_Block(&d->sending, 0);
     SSL_set_connect_state(d->ssl);
     SSL_set_bio(d->ssl, d->rbio, d->wbio);
+    init_Block(&d->sending, 0);
 }
 
 void deinit_TlsRequest(iTlsRequest *d) {
@@ -477,16 +482,16 @@ void deinit_TlsRequest(iTlsRequest *d) {
         iRelease(d->thread);
     }
     deinit_Block(&d->sending);
-    delete_TlsCertificate(d->cert);
     SSL_free(d->ssl);
     deinit_Condition(&d->requestDone);
     delete_Audience(d->finished);
     delete_Audience(d->readyRead);
+    delete_TlsCertificate(d->cert);
     iRelease(d->result);
     deinit_Block(&d->content);
-    deinit_Mutex(&d->mtx);
     iRelease(d->socket);
     delete_String(d->hostName);
+    deinit_Mutex(&d->mtx);
 }
 
 void setUrl_TlsRequest(iTlsRequest *d, const iString *hostName, uint16_t port) {
@@ -496,6 +501,10 @@ void setUrl_TlsRequest(iTlsRequest *d, const iString *hostName, uint16_t port) {
 
 void setContent_TlsRequest(iTlsRequest *d, const iBlock *content) {
     set_Block(&d->content, content);
+}
+
+void setCertificate_TlsRequest(iTlsRequest *d, const iTlsCertificate *cert) {
+    d->clientCert = cert;
 }
 
 static void appendReceived_TlsRequest_(iTlsRequest *d, const char *buf, size_t len) {
@@ -613,6 +622,11 @@ void submit_TlsRequest(iTlsRequest *d) {
     iRelease(d->socket);
     /* Server Name Indication for the handshake. */
     SSL_set_tlsext_host_name(d->ssl, cstr_String(d->hostName));
+    /* The client certificate. */
+    if (d->clientCert) {
+        SSL_use_certificate(d->ssl, d->clientCert->cert);
+        SSL_use_PrivateKey(d->ssl, X509_get0_pubkey(d->clientCert->cert));
+    }
     d->socket = new_Socket(cstr_String(d->hostName), d->port);
     iConnect(Socket, d->socket, connected, d, connected_TlsRequest_);
     iConnect(Socket, d->socket, disconnected, d, disconnected_TlsRequest_);

@@ -109,6 +109,7 @@ enum iTlsRequestStatus {
 
 void        setUrl_TlsRequest           (iTlsRequest *, const iString *hostName, uint16_t port);
 void        setContent_TlsRequest       (iTlsRequest *, const iBlock *content);
+void        setCertificate_TlsRequest   (iTlsRequest *, const iTlsCertificate *cert);
 
 void        submit_TlsRequest           (iTlsRequest *);
 void        cancel_TlsRequest           (iTlsRequest *);
