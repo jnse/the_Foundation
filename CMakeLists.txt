@@ -135,7 +135,6 @@ set (HEADERS
     include/the_Foundation/thread.h
     include/the_Foundation/threadpool.h
     include/the_Foundation/time.h
-    include/the_Foundation/treenode.h
     include/the_Foundation/vec2.h
     include/the_Foundation/version.h
 )
@@ -181,7 +180,6 @@ set (SOURCES
     src/thread.c
     src/threadpool.c
     src/time.c
-    src/treenode.c
     src/version.c
 )
 if (NOT iHaveC11Threads)

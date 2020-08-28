@@ -49,64 +49,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <the_Foundation/stringhash.h>
 #include <the_Foundation/time.h>
 #include <the_Foundation/thread.h>
-#include <the_Foundation/treenode.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
 #include <time.h>
-
-/*-------------------------------------------------------------------------------------*/
-
-iDeclareStaticClass(TestNode)
-
-struct Impl_TestNode {
-    iTreeNode node;
-    int value;
-};
-
-void init_TestNode(iTestNode *d, int value) {
-    d->value = value;
-}
-
-void deinit_TestNode(iAny *any) {
-    iDebug("deinit TestNode: %i\n", ((iTestNode *) any)->value);
-}
-
-static iDefineClass(TestNode)
-
-iTestNode *new_TestNode(int value) {
-    iTestNode *d = new_TreeNode(&Class_TestNode);
-    init_TestNode(d, value);
-    return d;
-}
-
-/*-------------------------------------------------------------------------------------*/
-
-iDeclareStaticClass(SuperNode)
-iDeclareType(SuperNode)
-
-struct Impl_SuperNode {
-    iTestNode testNode;
-    int member;
-};
-
-void init_SuperNode(iSuperNode *d, int member) {
-    d->member = member;
-}
-
-void deinit_SuperNode(iAny *any) {
-    iDebug("deinit SuperNode: %i\n", ((iSuperNode *) any)->member);
-}
-
-static iDefineSubclass(SuperNode, TestNode)
-
-iSuperNode *new_SuperNode(int value, int member) {
-    iSuperNode *d = new_TreeNode(&Class_SuperNode);
-    init_TestNode(&d->testNode, value);
-    init_SuperNode(d, member);
-    return d;
-}
 
 /*-------------------------------------------------------------------------------------*/
 
@@ -120,6 +67,7 @@ struct Impl_TestObject {
 
 static void deinit_TestObject(iAnyObject *any) {
     iDebug("deinit TestObject: %i\n", ((iTestObject *) any)->value);
+    iUnused(any);
 }
 
 static iDefineClass(TestObject)
@@ -444,23 +392,10 @@ int main(int argc, char *argv[]) {
                 iAssert(rem->key == key);
             }
         }
-        iAssert(fullSize - remCount == size_Map(map));
+        iAssert((size_t) (fullSize - remCount) == size_Map(map));
         printf("Size after removals: %zu\n", size_Map(map));
         delete_Map(map);
         iEndCollect();
-    }
-    /* Test tree nodes. */ {
-        iTestNode *a = new_TestNode(1);
-        iTestNode *b = new_TestNode(2);
-        iSuperNode *c = new_SuperNode(3, 100);
-        setParent_TreeNode(b, a);
-        setParent_TreeNode(c, a);
-        puts("Children:");
-        iConstForEach(List, i, a->node.children) {
-            printf("- %p\n", i.value);
-        }
-        delete_TreeNode(b);
-        delete_TreeNode(a);
     }
     /* Test reference counting. */ {
         iTestObject *a = new_TestObject(123);
