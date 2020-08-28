@@ -60,8 +60,8 @@ void delete_TreeNode(iAnyTreeNode *any) {
     }
     delete_List(d->children);
     deinit_Class(d->class, d);
+//    printf("deleted Object %p\n", d);
     free(d);
-    printf("deleted Object %p\n", d);
 }
 
 void setParent_TreeNode(iAnyTreeNode *any, iAnyTreeNode *parent) {
