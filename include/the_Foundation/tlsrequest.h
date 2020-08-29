@@ -39,6 +39,7 @@ iDeclareType(TlsCertificateName)
 enum iTlsCertificateNameType {
     none_TlsCertificateNameType, /* array terminator */
     commonName_TlsCertificateNameType,
+    emailAddress_TlsCertificateNameType,
     userId_TlsCertificateNameType,
     domain_TlsCertificateNameType,
     organization_TlsCertificateNameType,
@@ -49,6 +50,7 @@ enum iTlsCertificateNameType {
     /* name component IDs */
     issuerCommonName_TlsCertificateNameType = issuerBit_TlsCertificateNameType |
                                               commonName_TlsCertificateNameType,
+    issuerEmailAddress_TlsCertificateNameType,
     issuerUserId_TlsCertificateNameType,
     issuerDomain_TlsCertificateNameType,
     issuerOrganization_TlsCertificateNameType,
@@ -56,6 +58,7 @@ enum iTlsCertificateNameType {
     issuerCountry_TlsCertificateNameType,
     subjectCommonName_TlsCertificateNameType = subjectBit_TlsCertificateNameType |
                                                commonName_TlsCertificateNameType,
+    subjectEmailAddress_TlsCertificateNameType,
     subjectUserId_TlsCertificateNameType,
     subjectDomain_TlsCertificateNameType,
     subjectOrganization_TlsCertificateNameType,

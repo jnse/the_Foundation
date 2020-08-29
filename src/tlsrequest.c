@@ -168,12 +168,13 @@ static void addDomain_X509Name_(X509_NAME *name, enum iTlsCertificateNameType ty
 
 static X509_NAME *makeX509Name_(int kindBit, const iTlsCertificateName *names) {
     X509_NAME *name = X509_NAME_new();
-    add_X509Name_(name, "CN",  kindBit | commonName_TlsCertificateNameType, names);
-    add_X509Name_(name, "UID", kindBit | userId_TlsCertificateNameType, names);
-    addDomain_X509Name_(name,  kindBit | domain_TlsCertificateNameType, names);
-    add_X509Name_(name, "OU",  kindBit | organizationalUnit_TlsCertificateNameType, names);
-    add_X509Name_(name, "O",   kindBit | organization_TlsCertificateNameType, names);
-    add_X509Name_(name, "C",   kindBit | country_TlsCertificateNameType, names);
+    add_X509Name_(name, "CN",           kindBit | commonName_TlsCertificateNameType, names);
+    add_X509Name_(name, "emailAddress", kindBit | emailAddress_TlsCertificateNameType, names);
+    add_X509Name_(name, "UID",          kindBit | userId_TlsCertificateNameType, names);
+    addDomain_X509Name_(name,           kindBit | domain_TlsCertificateNameType, names);
+    add_X509Name_(name, "OU",           kindBit | organizationalUnit_TlsCertificateNameType, names);
+    add_X509Name_(name, "O",            kindBit | organization_TlsCertificateNameType, names);
+    add_X509Name_(name, "C",            kindBit | country_TlsCertificateNameType, names);
     return name;
 }
 
