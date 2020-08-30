@@ -77,7 +77,7 @@ static iBool removeObject_Audience_(iAudience *d, const iAnyObject *object) {
     iGuardMutex(&d->mutex, {
         const iRanges range = locateRange_SortedArray(
             &d->observers, &(iObserver){ iConstCast(void *, object), NULL }, cmpObject_Observer_);
-        removeRange_SortedArray(&d->observers, &range);
+        removeRange_SortedArray(&d->observers, range);
         removed = !isEmpty_Range(&range);
     });
     return removed;

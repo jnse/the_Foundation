@@ -149,7 +149,7 @@ void remove_StringArray(iStringArray *d, size_t pos) {
     delete_String(take_StringArray(d, pos));
 }
 
-void move_StringArray(iStringArray *d, const iRanges *range, iStringArray *dest, size_t destPos) {
+void move_StringArray(iStringArray *d, iRanges range, iStringArray *dest, size_t destPos) {
     move_Array(&d->strings, range, &dest->strings, destPos);
 }
 

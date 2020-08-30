@@ -164,7 +164,7 @@ static void splitNode_StringList_(iStringList *d, iStringListNode *node) {
     const size_t count = size_StringListNode_(node);
     if (count > iStringListMaxStringsPerNode) {
         iStringListNode *half = new_StringListNode_();
-        move_StringArray(&node->strings, &(iRanges){ count/2, count }, &half->strings, 0);
+        move_StringArray(&node->strings, (iRanges){ count / 2, count }, &half->strings, 0);
         insertAfter_List(&d->list, node, half);
         debug_StringList_(d);
     }
@@ -174,7 +174,7 @@ static void mergeIntoAndRemoveNode_StringList_(iStringList *d, iStringListNode *
                                                iStringListNode *to) {
     /* Move all the strings to the previous node. */
     move_StringArray(&from->strings,
-                     &(iRanges){ 0, size_StringListNode_(from) },
+                     (iRanges){ 0, size_StringListNode_(from) },
                      &to->strings,
                      to == prev_StringListNode_(from)? size_StringListNode_(to) : 0);
     remove_List(&d->list, from);

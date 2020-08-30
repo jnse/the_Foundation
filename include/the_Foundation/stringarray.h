@@ -83,7 +83,7 @@ iString *       take_StringArray            (iStringArray *, size_t pos);
 size_t          takeN_StringArray           (iStringArray *, size_t pos, iString **strings, size_t count);
 void            remove_StringArray          (iStringArray *, size_t pos);
 
-void            move_StringArray            (iStringArray *, const iRanges *range, iStringArray *dest, size_t destPos);
+void            move_StringArray            (iStringArray *, iRanges range, iStringArray *dest, size_t destPos);
 
 iString *       joinCStr_StringArray        (const iStringArray *, const char *delim);
 

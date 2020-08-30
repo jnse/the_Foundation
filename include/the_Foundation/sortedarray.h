@@ -99,7 +99,7 @@ iBool       remove_SortedArray  (iSortedArray *, const void *value);
  */
 iBool       insertIf_SortedArray(iSortedArray *, const void *value, iSortedArrayCompareElemFunc pred);
 
-iLocalDef void removeRange_SortedArray(iSortedArray *d, const iRanges *range) {
+iLocalDef void removeRange_SortedArray(iSortedArray *d, iRanges range) {
     removeRange_Array(&d->values, range);
 }
 

@@ -97,7 +97,7 @@ iBool       remove_StringSet  (iStringSet *, const iString *value);
  */
 iBool       insertIf_StringSet  (iStringSet *, const iString *value, iStringSetCompareFunc pred);
 
-iLocalDef void removeRange_StringSet(iStringSet *d, const iRanges *range) {
+iLocalDef void removeRange_StringSet(iStringSet *d, iRanges range) {
     removeRange_SortedArray(&d->strings, range);
 }
 

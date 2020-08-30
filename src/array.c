@@ -322,20 +322,19 @@ void fill_Array(iArray *d, char value) {
     memset(front_Array(d), value, d->elementSize * size_Array(d));
 }
 
-void move_Array(iArray *d, const iRanges *range, iArray *dest, size_t destPos) {
+void move_Array(iArray *d, iRanges range, iArray *dest, size_t destPos) {
     iAssert(d);
-    iAssert(range);
     iAssert(dest);
     iAssert(d != dest);
     iAssert(d->elementSize == dest->elementSize);
-    const long count = size_Range(range);
+    const long count = size_Range(&range);
     const long oldDestSize = size_Array(dest);
     resize_Array(dest, oldDestSize + count); // dest size increased
     /* Make room for the moved elements. */
     moveElements_Array_(dest, &(iRanges){ dest->range.start + destPos,
                                           dest->range.start + oldDestSize }, count);
     memcpy(element_Array_(dest, dest->range.start + destPos),
-           element_Array_(   d,    d->range.start + range->start),
+           element_Array_(   d,    d->range.start + range.start),
            d->elementSize * count);
     removeRange_Array(d, range);
 }

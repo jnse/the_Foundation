@@ -98,7 +98,7 @@ size_t      popFrontN_Array (iArray *, size_t count);
 size_t      takeN_Array     (iArray *, size_t pos, void *value_out, size_t count);
 void        insertN_Array   (iArray *, size_t pos, const void *value, size_t count);
 void        removeN_Array   (iArray *, size_t pos, size_t count);
-void        move_Array      (iArray *, const iRanges *range, iArray *dest, size_t destPos);
+void        move_Array      (iArray *, iRanges range, iArray *dest, size_t destPos);
 
 iLocalDef void  set_Array           (iArray *d, size_t pos, const void *value)  { setN_Array(d, pos, value, 1); }
 iLocalDef void  setCopy_Array       (iArray *d, const iArray *other)            { deinit_Array(d); initCopy_Array(d, other); }
@@ -108,7 +108,7 @@ iLocalDef iBool popBack_Array       (iArray *d)                                 
 iLocalDef iBool popFront_Array      (iArray *d)                                 { return popFrontN_Array(d, 1); }
 iLocalDef void  insert_Array        (iArray *d, size_t pos, const void *value)  { insertN_Array(d, pos, value, 1); }
 iLocalDef void  remove_Array        (iArray *d, size_t pos)                     { removeN_Array(d, pos, 1); }
-iLocalDef void  removeRange_Array   (iArray *d, const iRanges *range)           { removeN_Array(d, range->start, size_Range(range)); }
+iLocalDef void  removeRange_Array   (iArray *d, iRanges range)                  { removeN_Array(d, range.start, size_Range(&range)); }
 iLocalDef iBool take_Array          (iArray *d, size_t pos, void *value_out)    { return takeN_Array(d, pos, value_out, 1) > 0; }
 
 /** @name Iterators */
