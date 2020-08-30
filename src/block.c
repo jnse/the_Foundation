@@ -336,8 +336,13 @@ void setByte_Block(iBlock *d, size_t pos, char value) {
 }
 
 void setData_Block(iBlock *d, const void *data, size_t size) {
-    reserve_Block(d, size);
-    memcpyFrom_Block_(d, data, size);
+    if (size) {
+        reserve_Block(d, size);
+        memcpyFrom_Block_(d, data, size);
+    }
+    else {
+        clear_Block(d);
+    }
 }
 
 void setSubData_Block(iBlock *d, size_t pos, const void *data, size_t size) {
