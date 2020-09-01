@@ -228,7 +228,9 @@ iLocalDef iRangecc rangeN_CStr  (const char *cstr, size_t size) {
     return range;
 #endif
 }
-iLocalDef iRangecc range_CStr   (const char *cstr) { return rangeN_CStr(cstr, strlen(cstr)); }
+iLocalDef iRangecc range_CStr(const char *cstr) {
+    return rangeN_CStr(cstr, strlen(cstr));
+}
 
 const char *    cstr_Rangecc        (iRangecc range); /* returns NULL-terminated collected copy */
 

@@ -775,12 +775,17 @@ static void decodePrecedingMultibyte_StringConstIterator_(iStringConstIterator *
         &d->value, (const uint8_t *) d->next, constData_Block(&d->str->chars));
 }
 
-void init_StringConstIterator(iStringConstIterator *d, const iString *str) {
+void init_StringConstIterator(iStringConstIterator *d, const iString *str) {    
     d->str = str;
     d->value = 0;
-    d->pos = d->next = constData_Block(&str->chars);
-    /* Decode the first character. */
-    decodeNextMultibyte_StringConstIterator_(d);
+    if (str) {
+        d->pos = d->next = constData_Block(&str->chars);
+        /* Decode the first character. */
+        decodeNextMultibyte_StringConstIterator_(d);
+    }
+    else {
+        d->pos = d->next = NULL;
+    }
 }
 
 void next_StringConstIterator(iStringConstIterator *d) {
