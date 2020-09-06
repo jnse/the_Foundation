@@ -46,6 +46,8 @@ enum iRegExpOption {
     multiLine_RegExpOption          = 0x2,
 };
 
+iBool   isSyntaxChar_RegExp (iChar);
+
 /**
  * Compiles a regular expression.
  *
@@ -71,6 +73,8 @@ iLocalDef iBool matchString_RegExp(const iRegExp *d, const iString *str, iRegExp
 iLocalDef iBool matchRange_RegExp(const iRegExp *d, iRangecc subject, iRegExpMatch *match) {
     return match_RegExp(d, subject.start, size_Range(&subject), match);
 }
+
+/*----------------------------------------------------------------------------------------------*/
 
 struct Impl_RegExpMatch {
     const char *subject;

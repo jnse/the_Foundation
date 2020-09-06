@@ -37,6 +37,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <stdio.h>
 #include <pcre.h>
 
+iBool isSyntaxChar_RegExp(iChar ch) {
+    return strchr("|()[]{}.\\", ch) != NULL;
+}
+
 struct Impl_RegExp {
     iObject object;
     pcre *re;
