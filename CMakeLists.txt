@@ -30,11 +30,13 @@ endmacro ()
 
 #----------------------------------------------------------------------------------------
 
-option (TFDN_ENABLE_WEBREQUEST "Enable HTTP(S) web requests (w/curl)" ON)
-option (TFDN_ENABLE_TLSREQUEST "Enable TLS requests (w/OpenSSL)" ON)
-option (TFDN_ENABLE_TESTS "Enable test apps" ON)
-option (TFDN_ENABLE_SSE41 "Enable SSE 4.1 instructions" ON)
 option (TFDN_ENABLE_DEBUG_OUTPUT "Enable internal debug output to stdout/stderr" OFF)
+option (TFDN_ENABLE_INSTALL "Enable installation" ON)
+option (TFDN_ENABLE_SSE41 "Enable SSE 4.1 instructions" ON)
+option (TFDN_ENABLE_TESTS "Enable test apps" ON)
+option (TFDN_ENABLE_TLSREQUEST "Enable TLS requests (w/OpenSSL)" ON)
+option (TFDN_ENABLE_WEBREQUEST "Enable HTTP(S) web requests (w/curl)" ON)
+option (TFDN_STATIC_LIBRARY "Build a static library instead of a shared library" OFF)
 
 if (NOT TFDN_ENABLE_WEBREQUEST)
     set (CURL_FOUND NO)
@@ -246,63 +248,71 @@ if (OPENSSL_FOUND)
 endif ()
 configure_file (config.h.in config.h)
 
-set (TARGETNAME the_Foundation)
-add_library (${TARGETNAME} SHARED ${SOURCES} ${HEADERS})
+set (TFDN_LIB the_Foundation)
+if (TFDN_STATIC_LIBRARY)
+    set (TFDN_LIBTYPE STATIC)
+else ()
+    set (TFDN_LIBTYPE SHARED)    
+endif ()
+
+add_library (${TFDN_LIB} ${TFDN_LIBTYPE} ${SOURCES} ${HEADERS})
 if (iPlatformMsys)
-    set_target_properties (${TARGETNAME} PROPERTIES
+    set_target_properties (${TFDN_LIB} PROPERTIES
         OUTPUT_NAME       Foundation
         OUTPUT_NAME_DEBUG Foundationd
     )
 else ()
-    set_target_properties (${TARGETNAME} PROPERTIES
+    set_target_properties (${TFDN_LIB} PROPERTIES
         OUTPUT_NAME       _Foundation
         OUTPUT_NAME_DEBUG _Foundationd
     )
 endif ()
 
-target_compile_definitions (${TARGETNAME} PRIVATE iIsLibraryBuild)
-target_include_directories (${TARGETNAME} PUBLIC
+target_compile_definitions (${TFDN_LIB} PRIVATE iIsLibraryBuild)
+target_include_directories (${TFDN_LIB} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<INSTALL_INTERFACE:include>
 )
-tfdn_set_compile_options (${TARGETNAME})
+tfdn_set_compile_options (${TFDN_LIB})
 if (iPlatformLinux OR iPlatformMsys)
-    target_compile_definitions (${TARGETNAME} PRIVATE -D_GNU_SOURCE=1)
+    target_compile_definitions (${TFDN_LIB} PRIVATE -D_GNU_SOURCE=1)
 endif ()
 
 if (CMAKE_COMPILER_IS_GNUCC)
-    target_compile_options (${TARGETNAME} PRIVATE -fPIC)
+    target_compile_options (${TFDN_LIB} PRIVATE -fPIC)
 endif ()
 
 if (IOS)
-    set_target_properties (${TARGETNAME} PROPERTIES XCODE_ATTRIBUTE_ARCHS arm64)
+    set_target_properties (${TFDN_LIB} PROPERTIES XCODE_ATTRIBUTE_ARCHS arm64)
 endif ()
 
 # Dependencies.
-tfdn_link_depends (${TARGETNAME} PUBLIC)
+tfdn_link_depends (${TFDN_LIB} PUBLIC)
 
 # Installation.
-install (TARGETS ${TARGETNAME}
-    EXPORT ${TARGETNAME}
-    DESTINATION lib
-)
-install (EXPORT ${TARGETNAME}
-    DESTINATION lib/cmake/${TARGETNAME}
-    NAMESPACE the_Foundation::
-    FILE ${TARGETNAME}Config.cmake
-)
-install (DIRECTORY include/the_Foundation
-    DESTINATION include
-    FILES_MATCHING PATTERN "*.h"
-)
-install (FILES ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION include/the_Foundation)
+if (TFDN_ENABLE_INSTALL)
+    install (TARGETS ${TFDN_LIB}
+        EXPORT ${TFDN_LIB}
+        DESTINATION lib
+    )
+    install (EXPORT ${TFDN_LIB}
+        DESTINATION lib/cmake/${TFDN_LIB}
+        NAMESPACE the_Foundation::
+        FILE ${TFDN_LIB}Config.cmake
+    )
+    install (DIRECTORY include/the_Foundation
+        DESTINATION include
+        FILES_MATCHING PATTERN "*.h"
+    )
+    install (FILES ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION include/the_Foundation)
+endif ()
 
 #----------------------------------------------------------------------------------------
 
 macro (tfdn_add_test target sources)
     add_executable (${target} ${sources})
-    target_link_libraries (${target} PRIVATE ${TARGETNAME})
+    target_link_libraries (${target} PRIVATE ${TFDN_LIB})
     tfdn_set_compile_options (${target})
 endmacro ()
 
