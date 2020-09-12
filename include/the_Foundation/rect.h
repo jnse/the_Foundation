@@ -27,6 +27,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
+#include "range.h"
 #include "vec2.h"
 
 iDeclareType(Rect)
@@ -92,6 +93,14 @@ iLocalDef iInt2 bottomMid_Rect(const iRect d) {
 
 iLocalDef iInt2 bottomRight_Rect(const iRect d) {
     return add_I2(d.pos, d.size);
+}
+
+iLocalDef iRangei xSpan_Rect(const iRect d) {
+    return (iRangei){ left_Rect(d), right_Rect(d) };
+}
+
+iLocalDef iRangei ySpan_Rect(const iRect d) {
+    return (iRangei){ top_Rect(d), bottom_Rect(d) };
 }
 
 iLocalDef iBool contains_Rect(const iRect d, const iInt2 pos) {
