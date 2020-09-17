@@ -707,6 +707,10 @@ const char *cstr_Rangecc(iRangecc range) {
     return iCollectMem(copy);
 }
 
+const iString *string_Rangecc(iRangecc range) {
+    return collect_String(newRange_String(range));
+}
+
 int cmpCStrSc_Rangecc(const iRangecc d, const char *cstr, const iStringComparison *sc) {
     return cmpCStrNSc_Rangecc(d, cstr, strlen(cstr), sc);
 }
