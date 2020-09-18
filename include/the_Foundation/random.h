@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iBeginPublic
 
+/* Note: As with Range, `start` is inclusive and `end` is exclusive. */
+
 int         iRandom (int start, int end);
 unsigned    iRandomu(unsigned start, unsigned end);
 size_t      iRandoms(size_t start, size_t end);
