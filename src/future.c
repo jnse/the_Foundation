@@ -83,7 +83,7 @@ iThread *runPool_Future(iFuture *d, iThread *thread, iThreadPool *pool) {
 
 iBool isReady_Future(const iFuture *d) {
     iBool ready = iFalse;
-    iGuardMutex(&d->mutex, ready = (value_Atomic(&d->pendingCount) == 0));
+    iGuardMutex(&d->mutex, ready = (value_Atomic(&iConstCast(iFuture *, d)->pendingCount) == 0));
     return ready;
 }
 
