@@ -40,6 +40,7 @@ int idealConcurrentCount_Thread(void) {
             iString *cpuinfo = newBlock_String(collect_Block(readAll_File(f)));
             const iRegExp *processorN = iClob(new_RegExp("processor\\s+:\\s+([0-9]+)", 0));
             iRegExpMatch match;
+            init_RegExpMatch(&match);
             while (matchString_RegExp(processorN, cpuinfo, &match)) {
                 iString *cap = captured_RegExpMatch(&match, 1);
                 const int cpuNumber = toInt_String(cap) + 1;
