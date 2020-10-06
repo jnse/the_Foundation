@@ -161,6 +161,13 @@ int             cmpNSc_String       (const iString *, const char *cstr, size_t n
 #define         cmpStringCase_String(d, s)      cmpSc_String(d, cstr_String(s), &iCaseInsensitive)
 #define         cmpStringSc_String(d, s, sc)    cmpSc_String(d, cstr_String(s), sc)
 
+iLocalDef iBool equal_String(const iString *d, const iString *other) {
+    return cmpString_String(d, other) == 0;
+}
+iLocalDef iBool equalCase_String(const iString *d, const iString *other) {
+    return cmpStringCase_String(d, other) == 0;
+}
+
 iBool           startsWithSc_String (const iString *, const char *cstr, const iStringComparison *);
 iBool           endsWithSc_String   (const iString *, const char *cstr, const iStringComparison *);
 
