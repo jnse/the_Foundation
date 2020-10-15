@@ -167,6 +167,9 @@ void init_CommandLine(iCommandLine *d, int argc, char **argv) {
         appendCStr_String(d->execPath, ".exe");
     }
 #else
+    /* TODO: This does not work if the executable was started via PATH. It
+       would be more reliable to use platform-specific means to determine the 
+       path. See: https://stackoverflow.com/a/1024937 */
     d->execPath = makeAbsolute_Path(constFront_StringList(&d->args));
 #endif
 }
