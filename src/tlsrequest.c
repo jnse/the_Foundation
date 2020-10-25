@@ -59,11 +59,12 @@ void init_Context(iContext *d) {
     SSL_load_error_strings();
     ERR_load_BIO_strings();
     ERR_load_crypto_strings();
-    d->ctx = SSL_CTX_new(SSLv23_method());
+    d->ctx = SSL_CTX_new(TLS_client_method());
     if (!d->ctx) {
         iDebug("[TlsRequest] Failed to initialize OpenSSL\n");
         iAssert(d->ctx);
     }
+    SSL_CTX_set_verify(d->ctx, SSL_VERIFY_NONE, NULL); /* allow manual verification */
     /* Bug workarounds: https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_options.html */
     SSL_CTX_set_options(d->ctx, SSL_OP_ALL);
 }
