@@ -64,7 +64,8 @@ void init_Context(iContext *d) {
         iDebug("[TlsRequest] Failed to initialize OpenSSL\n");
         iAssert(d->ctx);
     }
-    SSL_CTX_set_options(d->ctx, SSL_OP_ALL | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
+    /* Bug workarounds: https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_options.html */
+    SSL_CTX_set_options(d->ctx, SSL_OP_ALL);
 }
 
 void deinit_Context(iContext *d) {
@@ -621,6 +622,7 @@ void submit_TlsRequest(iTlsRequest *d) {
     clear_Buffer(d->result);
     set_Block(&d->sending, &d->content);
     iRelease(d->socket);
+    SSL_set1_host(d->ssl, cstr_String(d->hostName));
     /* Server Name Indication for the handshake. */
     SSL_set_tlsext_host_name(d->ssl, cstr_String(d->hostName));
     /* The client certificate. */
