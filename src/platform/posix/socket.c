@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <errno.h>
 #include <unistd.h>
+#include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 

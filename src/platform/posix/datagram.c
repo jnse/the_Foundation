@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "pipe.h"
 
 #include <errno.h>
+#include <sys/select.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
