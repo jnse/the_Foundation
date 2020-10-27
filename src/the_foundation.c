@@ -47,7 +47,6 @@ void init_Threads(void);             /* thread.c */
 void init_Foundation(void) {
     init_Threads();
     init_Garbage();
-    init_DatagramThreads_();
     printf("[the_Foundation] version: %i.%i.%i cstd:%li\n",
            version_Foundation.major, version_Foundation.minor, version_Foundation.patch,
            __STDC_VERSION__);

@@ -234,7 +234,7 @@ static void exit_DatagramThread_(iDatagramThread *d) {
 
 static iDatagramThread *datagramIO_ = NULL;
 
-void init_DatagramThreads_(void) { /* called from init_Foundation */
+void init_DatagramThreads_(void) {
     iAssert(datagramIO_ == NULL);
     datagramIO_ = new_DatagramThread();
     start_DatagramThread_(datagramIO_);
@@ -315,7 +315,9 @@ iBool open_Datagram(iDatagram *d, uint16_t port) {
         }
     }
     /* All open datagrams share the I/O thread. */ {
-        iAssert(datagramIO_ != NULL);
+        if (!datagramIO_) {
+            init_DatagramThreads_();
+        }
         iGuardMutex(&datagramIO_->mutex, insert_PtrSet(&datagramIO_->datagrams, d));
         writeByte_Pipe(&datagramIO_->wakeup, 1); // update the set of waiting datagrams
     }
