@@ -354,6 +354,7 @@ struct Impl_TlsRequest {
     iTlsCertificate *cert; /* server certificate */
     /* Internal state. */
     volatile enum iTlsRequestStatus status;
+    iString *        errorMsg;
     iThread *        thread;
     iAtomicInt       notifyReady;
     iCondition       requestDone;
@@ -463,6 +464,7 @@ void init_TlsRequest(iTlsRequest *d) {
     d->result = new_Buffer();
     openEmpty_Buffer(d->result);
     d->cert = NULL;
+    d->errorMsg = new_String();
     d->status = initialized_TlsRequestStatus;
     d->thread = NULL;
     set_Atomic(&d->notifyReady, iFalse);
@@ -490,6 +492,7 @@ void deinit_TlsRequest(iTlsRequest *d) {
     deinit_Condition(&d->requestDone);
     delete_Audience(d->finished);
     delete_Audience(d->readyRead);
+    delete_String(d->errorMsg);
     delete_TlsCertificate(d->cert);
     iRelease(d->result);
     deinit_Block(&d->content);
@@ -562,8 +565,8 @@ static int processIncoming_TlsRequest_(iTlsRequest *d, const char *src, size_t l
     return 0;
 }
 
-static void readIncoming_TlsRequest_(iAnyObject *obj) {
-    iTlsRequest *d = obj;
+static void readIncoming_TlsRequest_(iTlsRequest *d, iSocket *sock) {
+    iAssert(sock == d->socket);
     iBlock *data = readAll_Socket(d->socket);
     processIncoming_TlsRequest_(d, data_Block(data), size_Block(data));
     delete_Block(data);
@@ -595,10 +598,11 @@ static iThreadResult run_TlsRequest_(iThread *thread) {
     return 0;
 }
 
-static void connected_TlsRequest_(iAnyObject *obj) {
+static void connected_TlsRequest_(iTlsRequest *d, iSocket *sock) {
     /* The socket has been connected. During this notification the socket remains locked
        so we must start a different thread for carrying out the I/O. */
-    iTlsRequest *d = obj;
+//    iTlsRequest *d = obj;
+    iUnused(sock);
     iAssert(!d->thread);
     d->thread = new_Thread(run_TlsRequest_);
     setName_Thread(d->thread, "TlsRequest");
@@ -606,15 +610,19 @@ static void connected_TlsRequest_(iAnyObject *obj) {
     start_Thread(d->thread);
 }
 
-static void disconnected_TlsRequest_(iAnyObject *obj) {
-    iTlsRequest *d = obj;
+static void disconnected_TlsRequest_(iTlsRequest *d, iSocket *sock) {
+    iUnused(sock);
     setStatus_TlsRequest_(d, finished_TlsRequestStatus);
 }
 
-static void handleError_TlsRequest_(iAnyObject *obj, int error, const char *msg) {
-    iTlsRequest *d = obj;
+static void handleError_TlsRequest_(iTlsRequest *d, iSocket *sock, int error, const char *msg) {
+    iUnused(sock, error);
+    setCStr_String(d->errorMsg, msg);
     setStatus_TlsRequest_(d, error_TlsRequestStatus);
     close_Socket(d->socket);
+    if (!d->thread) {
+        iNotifyAudience(d, finished, TlsRequestFinished);
+    }
 }
 
 void submit_TlsRequest(iTlsRequest *d) {
@@ -623,6 +631,7 @@ void submit_TlsRequest(iTlsRequest *d) {
         return;
     }
     clear_Buffer(d->result);
+    clear_String(d->errorMsg);
     set_Block(&d->sending, &d->content);
     iRelease(d->socket);
     SSL_set1_host(d->ssl, cstr_String(d->hostName));
@@ -638,8 +647,12 @@ void submit_TlsRequest(iTlsRequest *d) {
     iConnect(Socket, d->socket, disconnected, d, disconnected_TlsRequest_);
     iConnect(Socket, d->socket, readyRead, d, readIncoming_TlsRequest_);
     iConnect(Socket, d->socket, error, d, handleError_TlsRequest_);
-    open_Socket(d->socket);
-    d->status = submitted_TlsRequestStatus;
+    if (open_Socket(d->socket)) {
+        d->status = submitted_TlsRequestStatus;
+    }
+    else {
+        d->status = error_TlsRequestStatus;
+    }
 }
 
 void cancel_TlsRequest(iTlsRequest *d) {
@@ -665,6 +678,10 @@ const iAddress *address_TlsRequest(const iTlsRequest *d) {
 
 enum iTlsRequestStatus status_TlsRequest(const iTlsRequest *d) {
     return d->status;
+}
+
+const iString *errorMessage_TlsRequest(const iTlsRequest *d) {
+    return d->errorMsg;
 }
 
 const iTlsCertificate *serverCertificate_TlsRequest(const iTlsRequest *d) {

@@ -122,6 +122,7 @@ iBlock *    readAll_TlsRequest          (iTlsRequest *);
 const iAddress *        address_TlsRequest          (const iTlsRequest *);
 size_t                  receivedBytes_TlsRequest    (const iTlsRequest *);
 enum iTlsRequestStatus  status_TlsRequest           (const iTlsRequest *);
+const iString *         errorMessage_TlsRequest     (const iTlsRequest *);
 const iTlsCertificate * serverCertificate_TlsRequest(const iTlsRequest *);
 
 iEndPublic
