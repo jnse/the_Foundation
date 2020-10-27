@@ -41,7 +41,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 void getSockAddr_Address(const iAddress *  d,
                          struct sockaddr **addr_out,
                          socklen_t *       addrSize_out,
-                         int               family);
+                         int               family,
+                         int               index);
 
 iDeclareType(SocketThread)
 
@@ -304,38 +305,50 @@ static void shutdown_Socket_(iSocket *d) {
     }
 }
 
+iString *toString_SockAddr(const struct sockaddr *addr); /* address.c */
+
 static iThreadResult connectAsync_Socket_(iThread *thd) {
     iSocket *d = userData_Thread(thd);
     struct sockaddr *addr;
     socklen_t addrSize;
-    getSockAddr_Address(d->address, &addr, &addrSize, AF_UNSPEC);
-    iDebug("[Socket] connecting async to %s\n", cstr_String(hostName_Address(d->address)));
-    const int rc = connect(d->fd, addr, addrSize);
-    iGuardMutex(&d->mutex, {
-        if (d->status == connecting_SocketStatus) {
-            if (rc == 0) {
-                setStatus_Socket_(d, connected_SocketStatus);
-                startThread_Socket_(d);
-                if (d->connected) {
+    /* Try each known address until one works. */
+    int rc = -1;
+    for (int proto = 0; rc && proto < 2; proto++) {
+        for (int addrIndex = 0; rc && addrIndex < count_Address(d->address); addrIndex++) {
+            getSockAddr_Address(
+                d->address, &addr, &addrSize, proto == 0 ? AF_INET : AF_INET6, addrIndex);
+            if (!addrSize) break;
+            iDebug("[Socket] connecting async to %s (addrSize:%u index:%d)\n",
+                   cstrCollect_String(toString_SockAddr(addr)),
+                   addrSize, addrIndex);
+            rc = connect(d->fd, addr, addrSize);
+            lock_Mutex(&d->mutex);
+            if (d->status == connecting_SocketStatus) {
+                if (rc == 0) {
+                    setStatus_Socket_(d, connected_SocketStatus);
+                    startThread_Socket_(d);
                     unlock_Mutex(&d->mutex);
-                    iNotifyAudience(d, connected, SocketConnected);
-                    lock_Mutex(&d->mutex);
+                    if (d->connected) {
+                        iNotifyAudience(d, connected, SocketConnected);
+                    }
+                    break;
                 }
             }
-            else {
-                setStatus_Socket_(d, disconnected_SocketStatus);
-                const int errNum = errno;
-                const char *msg = strerror(errNum);
-                iWarning("[Socket] connection failed: %s\n", msg);
-                if (d->error) {
-                    unlock_Mutex(&d->mutex);
-                    iNotifyAudienceArgs(d, error, SocketError, errNum, msg);
-                    lock_Mutex(&d->mutex);
-                }
-            }
+            unlock_Mutex(&d->mutex);
         }
-        d->connecting = NULL;
-    });
+    }
+    if (rc) {
+        lock_Mutex(&d->mutex);
+        setStatus_Socket_(d, disconnected_SocketStatus);
+        unlock_Mutex(&d->mutex);
+        const int errNum = errno;
+        const char *msg = strerror(errNum);
+        iWarning("[Socket] connection failed: %s\n", msg);
+        if (d->error) {
+            iNotifyAudienceArgs(d, error, SocketError, errNum, msg);
+        }
+    }
+    iGuardMutex(&d->mutex, d->connecting = NULL);
     iRelease(thd);
     return rc;
 }

@@ -66,7 +66,7 @@ static iThreadResult runLookup_Address_(iThread *thd) {
     const int hintFlags = AI_V4MAPPED_CFG | AI_ADDRCONFIG | (isEmpty_String(&d->hostName) ? AI_PASSIVE : 0);
     const struct addrinfo hints = {
         .ai_socktype = d->socktype,
-        .ai_family   = (d->socktype == SOCK_DGRAM ? AF_INET     : AF_UNSPEC),
+        .ai_family   = (d->socktype == SOCK_DGRAM ? AF_INET     : AF_UNSPEC /* v4 or v6 */),
         .ai_protocol = (d->socktype == SOCK_DGRAM ? IPPROTO_UDP : IPPROTO_TCP),
         .ai_flags    = hintFlags,
     };
@@ -253,22 +253,50 @@ void waitForFinished_Address(const iAddress *d) {
     }
 }
 
+/* internal use only */
 void getSockAddr_Address(const iAddress *  d,
                          struct sockaddr **addr_out,
                          socklen_t *       addrSize_out,
-                         int               family) {
+                         int               family,
+                         int               index) {
+    const iBool byIndex = index >= 0;
     waitForFinished_Address(d);
     *addr_out = NULL;
     *addrSize_out = 0;
     iGuardMutex(&d->mutex, {
         for (const struct addrinfo *i = d->info; i; i = i->ai_next) {
             if (family == AF_UNSPEC || i->ai_family == family) {
-                *addr_out = i->ai_addr;
-                *addrSize_out = i->ai_addrlen;
-                break;
+                if (!byIndex || index-- == 0) {
+                    *addr_out = i->ai_addr;
+                    *addrSize_out = i->ai_addrlen;
+                    break;
+                }
             }
         }
     });
+}
+
+/* internal use only */
+iString *toString_SockAddr(const struct sockaddr *addr) {
+    char hbuf[NI_MAXHOST];
+    char sbuf[NI_MAXSERV];
+    iString *str = new_String();
+    if (!getnameinfo(addr,
+                     addr->sa_family == AF_INET6 ? sizeof(struct sockaddr_in6)
+                                                 : sizeof(struct sockaddr),
+                     hbuf,
+                     sizeof(hbuf),
+                     sbuf,
+                     sizeof(sbuf),
+                     NI_NUMERICHOST | NI_NUMERICSERV)) {
+        if (iCmpStr(sbuf, "0")) {
+            format_String(str, addr->sa_family == AF_INET6 ? "[%s]:%s" : "%s:%s", hbuf, sbuf);
+        }
+        else {
+            setCStr_String(str, hbuf);
+        }
+    }
+    return str;
 }
 
 iString *toString_Address(const iAddress *d) {

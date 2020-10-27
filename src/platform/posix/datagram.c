@@ -42,7 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 void getSockAddr_Address(const iAddress *  d,
                          struct sockaddr **addr_out,
                          socklen_t *       addrSize_out,
-                         int               family);
+                         int               family,
+                         int               index);
 
 iDeclareClass(Message)
 
@@ -172,7 +173,7 @@ static iThreadResult run_DatagramThread_(iThread *thread) {
                 while ((msg = tryTake_Queue(dgm->output)) != NULL) {
                     socklen_t destLen;
                     struct sockaddr *destAddr;
-                    getSockAddr_Address(msg->address, &destAddr, &destLen, AF_INET);
+                    getSockAddr_Address(msg->address, &destAddr, &destLen, AF_INET, 0);
                     ssize_t rc = sendto(dgm->fd,
                                         data_Block(&msg->data),
                                         size_Block(&msg->data),
@@ -304,7 +305,7 @@ iBool open_Datagram(iDatagram *d, uint16_t port) {
             const int broadcast = 1;
             setsockopt(d->fd, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof(broadcast));
         }
-        getSockAddr_Address(d->address, &sockAddr, &sockLen, AF_INET);
+        getSockAddr_Address(d->address, &sockAddr, &sockLen, AF_INET, 0 /* first one */);
         if (bind(d->fd, sockAddr, sockLen) == -1) {
             iReleasePtr(&d->address);
             close(d->fd);
