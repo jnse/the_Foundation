@@ -388,6 +388,7 @@ static enum iSSLResult sslResult_TlsRequest_(iTlsRequest *d, int code) {
         case SSL_ERROR_ZERO_RETURN:
         case SSL_ERROR_SYSCALL:
         default:
+            ERR_print_errors_fp(stdout);
             return fail_SSLResult;
     }
 }
@@ -590,6 +591,7 @@ static iThreadResult run_TlsRequest_(iThread *thread) {
     unlock_Mutex(&d->mtx);
     iNotifyAudience(d, finished, TlsRequestFinished);
 //    deref_Object(d);
+    iDebug("[TlsRequest] finished\n");
     return 0;
 }
 
