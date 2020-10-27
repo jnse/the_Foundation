@@ -341,8 +341,16 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
         lock_Mutex(&d->mutex);
         setStatus_Socket_(d, disconnected_SocketStatus);
         unlock_Mutex(&d->mutex);
-        const int errNum = errno;
-        const char *msg = strerror(errNum);
+        int errNum;
+        char *msg;
+        if (isHostFound_Address(d->address)) {
+            errNum = errno;
+            msg = strerror(errNum);
+        }
+        else {
+            errNum = -1;
+            msg = "failed to look up hostname";
+        }
         iWarning("[Socket] connection failed: %s\n", msg);
         if (d->error) {
             iNotifyAudienceArgs(d, error, SocketError, errNum, msg);

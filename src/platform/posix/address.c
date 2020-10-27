@@ -75,9 +75,9 @@ static iThreadResult runLookup_Address_(iThread *thd) {
                          &hints,
                          &d->info);
     iGuardMutex(&d->mutex,
+        d->count = 0;
         if (rc == 0) {
-            const struct addrinfo *at = d->info;
-            for (d->count = 0; at; at = at->ai_next, d->count++) {}
+            for (const struct addrinfo *at = d->info; at; at = at->ai_next, d->count++) {}
         }
         else {
             iWarning("[Address] host lookup failed with error: %s\n", gai_strerror(rc));
