@@ -371,6 +371,8 @@ iDefineObjectConstruction(TlsRequest)
 iDefineAudienceGetter(TlsRequest, readyRead)
 iDefineAudienceGetter(TlsRequest, finished)
 
+static void setError_TlsRequest_(iTlsRequest *d, const char *msg);
+
 static void globalCleanup_TlsRequest_(void) {
     if (context_) {
         delete_Context(context_);
@@ -441,6 +443,7 @@ static iBool encrypt_TlsRequest_(iTlsRequest *d) {
         }
         if (status == fail_SSLResult) {
             iDebug("[TlsRequest] failure to encrypt (SSL_write)\n");
+            setError_TlsRequest_(d, "failure to encrypt data");
             return iTrue;
         }
         if (n == 0) {
@@ -534,6 +537,7 @@ static int processIncoming_TlsRequest_(iTlsRequest *d, const char *src, size_t l
         if (!SSL_is_init_finished(d->ssl)) {
             if (doHandshake_TlsRequest_(d) == fail_SSLResult) {
                 iDebug("[TlsRequest] handshake failure\n");
+                setError_TlsRequest_(d, "TLS/SSL handshake failed");
                 return -1;
             }
             if (!SSL_is_init_finished(d->ssl)) {
@@ -559,6 +563,7 @@ static int processIncoming_TlsRequest_(iTlsRequest *d, const char *src, size_t l
             flushToSocket_TlsRequest_(d);
         }
         if (status == fail_SSLResult) {
+            setError_TlsRequest_(d, "error while decrypting incoming data");
             return -1;
         }
     }
@@ -615,10 +620,14 @@ static void disconnected_TlsRequest_(iTlsRequest *d, iSocket *sock) {
     setStatus_TlsRequest_(d, finished_TlsRequestStatus);
 }
 
-static void handleError_TlsRequest_(iTlsRequest *d, iSocket *sock, int error, const char *msg) {
-    iUnused(sock, error);
+static void setError_TlsRequest_(iTlsRequest *d, const char *msg) {
     setCStr_String(d->errorMsg, msg);
     setStatus_TlsRequest_(d, error_TlsRequestStatus);
+}
+
+static void handleError_TlsRequest_(iTlsRequest *d, iSocket *sock, int error, const char *msg) {
+    iUnused(sock, error);
+    setError_TlsRequest_(d, msg);
     close_Socket(d->socket);
     if (!d->thread) {
         iNotifyAudience(d, finished, TlsRequestFinished);
