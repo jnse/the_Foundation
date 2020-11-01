@@ -176,12 +176,15 @@ void join_Thread(iThread *d) {
     if (!d) return;
     iAssert(d->id != thrd_current());
     if (d->id == thrd_current()) return;
-    iGuardMutex(&d->mutex,
-        if (d->state == running_ThreadState) {
-            wait_Condition(&d->finishedCond, &d->mutex);
-        }
+    lock_Mutex(&d->mutex);
+    if (d->state == running_ThreadState) {
+        wait_Condition(&d->finishedCond, &d->mutex);
+        unlock_Mutex(&d->mutex);
         thrd_join(d->id, NULL);
-    );
+    }
+    else {
+        unlock_Mutex(&d->mutex);
+    }
 }
 
 void terminate_Thread(iThread *d) {
