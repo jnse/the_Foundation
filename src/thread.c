@@ -111,16 +111,13 @@ void init_Thread(iThread *d, iThreadRunFunc run) {
 }
 
 void deinit_Thread(iThread *d) {
+    iAssert(d->state != running_ThreadState);
     if (d->state == running_ThreadState) {
         iWarning("[Thread] thread %p is being destroyed while still running\n", d);
     }
     delete_Audience(d->finished);
     deinit_Condition(&d->finishedCond);
     deinit_Mutex(&d->mutex);
-    if (d->id) {
-        iDebug("[Thread] detaching thread ID %p (%s)\n", d->id, cstr_String(&d->name));
-        thrd_detach(d->id);
-    }
     deinit_String(&d->name);
 }
 
@@ -176,7 +173,9 @@ iThreadResult result_Thread(const iThread *d) {
 }
 
 void join_Thread(iThread *d) {
-    if (!d || d->id == thrd_current()) return;
+    if (!d) return;
+    iAssert(d->id != thrd_current());
+    if (d->id == thrd_current()) return;
     iGuardMutex(&d->mutex,
         if (d->state == running_ThreadState) {
             wait_Condition(&d->finishedCond, &d->mutex);
