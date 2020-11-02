@@ -267,7 +267,15 @@ void validUntil_TlsCertificate(const iTlsCertificate *d, iDate *untilDate_out) {
     iZap(*untilDate_out);
     if (d->cert) {
         struct tm time;
+#if defined (LIBRESSL_VERSION_NUMBER)
+        const ASN1_TIME *notAfter = X509_get0_notAfter(d->cert);
+        ASN1_time_parse((const char *) ASN1_STRING_get0_data(notAfter),
+                        ASN1_STRING_length(notAfter),
+                        &time,
+                        0);
+#else
         ASN1_TIME_to_tm(X509_get0_notAfter(d->cert), &time);
+#endif
         initStdTime_Date(untilDate_out, &time);
     }
 }
