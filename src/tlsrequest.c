@@ -44,7 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iDeclareType(Context)
 
-#define DEFAULT_BUF_SIZE 512
+#define DEFAULT_BUF_SIZE 1024
 
 static iContext *context_;
 static iBool isPrngSeeded_;
@@ -364,7 +364,8 @@ struct Impl_TlsRequest {
     volatile enum iTlsRequestStatus status;
     iString *        errorMsg;
     iThread *        thread;
-    iAtomicInt       notifyReady;
+    iBool            notifyReady;
+    iCondition       activity;
     iCondition       requestDone;
     iAudience *      readyRead;
     iAudience *      finished;
@@ -387,7 +388,7 @@ static void globalCleanup_TlsRequest_(void) {
     }
 }
 
-enum iSSLResult { ok_SSLResult, wantIO_SSLResult, fail_SSLResult };
+enum iSSLResult { ok_SSLResult, wantIO_SSLResult, closed_SSLResult, fail_SSLResult };
 
 static enum iSSLResult sslResult_TlsRequest_(iTlsRequest *d, int code) {
     switch (SSL_get_error(d->ssl, code)) {
@@ -397,6 +398,7 @@ static enum iSSLResult sslResult_TlsRequest_(iTlsRequest *d, int code) {
         case SSL_ERROR_WANT_READ:
             return wantIO_SSLResult;
         case SSL_ERROR_ZERO_RETURN:
+            return closed_SSLResult;
         case SSL_ERROR_SYSCALL:
         default:
             ERR_print_errors_fp(stdout);
@@ -407,6 +409,7 @@ static enum iSSLResult sslResult_TlsRequest_(iTlsRequest *d, int code) {
 static void setStatus_TlsRequest_(iTlsRequest *d, enum iTlsRequestStatus st) {
     iGuardMutex(&d->mtx, if (d->status != st) {
         d->status = st;
+        signal_Condition(&d->activity);
         if (st == finished_TlsRequestStatus || st == error_TlsRequestStatus) {
             signalAll_Condition(&d->requestDone);
         }
@@ -478,7 +481,8 @@ void init_TlsRequest(iTlsRequest *d) {
     d->errorMsg = new_String();
     d->status = initialized_TlsRequestStatus;
     d->thread = NULL;
-    set_Atomic(&d->notifyReady, iFalse);
+    d->notifyReady = iFalse;
+    init_Condition(&d->activity);
     init_Condition(&d->requestDone);
     d->readyRead = NULL;
     d->finished = NULL;
@@ -501,6 +505,7 @@ void deinit_TlsRequest(iTlsRequest *d) {
     deinit_Block(&d->sending);
     SSL_free(d->ssl);
     deinit_Condition(&d->requestDone);
+    deinit_Condition(&d->activity);
     delete_Audience(d->finished);
     delete_Audience(d->readyRead);
     delete_String(d->errorMsg);
@@ -526,8 +531,12 @@ void setCertificate_TlsRequest(iTlsRequest *d, const iTlsCertificate *cert) {
 }
 
 static void appendReceived_TlsRequest_(iTlsRequest *d, const char *buf, size_t len) {
-    iGuardMutex(&d->mtx, writeData_Buffer(d->result, buf, len));
-    set_Atomic(&d->notifyReady, iTrue);
+    if (len > 0) {
+        iGuardMutex(&d->mtx, {
+            writeData_Buffer(d->result, buf, len);
+        });
+        d->notifyReady = iTrue;
+    }
 }
 
 static int processIncoming_TlsRequest_(iTlsRequest *d, const char *src, size_t len) {
@@ -574,39 +583,54 @@ static int processIncoming_TlsRequest_(iTlsRequest *d, const char *src, size_t l
             setError_TlsRequest_(d, "error while decrypting incoming data");
             return -1;
         }
+        if (status == closed_SSLResult && len == 0) {
+            setStatus_TlsRequest_(d, finished_TlsRequestStatus); /* even if socket remains open */
+        }
     }
     return 0;
 }
 
-static void readIncoming_TlsRequest_(iTlsRequest *d, iSocket *sock) {
-    iAssert(sock == d->socket);
-    iBlock *data = readAll_Socket(d->socket);
-    processIncoming_TlsRequest_(d, data_Block(data), size_Block(data));
-    delete_Block(data);
-}
-
 static void checkReadyRead_TlsRequest_(iTlsRequest *d) {
     /* All notifications are done from the TlsRequest thread. */
-    const int isReady = exchange_Atomic(&d->notifyReady, iFalse);
-    if (isReady) {
+    if (d->notifyReady) {
+        d->notifyReady = iFalse;
         iNotifyAudience(d, readyRead, TlsRequestReadyRead);
     }
+}
+
+static void gotIncoming_TlsRequest_(iTlsRequest *d, iSocket *socket) {
+    iUnused(socket);
+    signal_Condition(&d->activity);
+}
+
+static iBool readIncoming_TlsRequest_(iTlsRequest *d) {
+    iBlock *data = readAll_Socket(d->socket);
+    const iBool didRead = !isEmpty_Block(data);
+    processIncoming_TlsRequest_(d, data_Block(data), size_Block(data));
+    delete_Block(data);
+    checkReadyRead_TlsRequest_(d);
+    return didRead;
 }
 
 static iThreadResult run_TlsRequest_(iThread *thread) {
     iTlsRequest *d = userData_Thread(thread);
     doHandshake_TlsRequest_(d);
-    while (d->status == submitted_TlsRequestStatus) {
+    for (;;) {
         encrypt_TlsRequest_(d);
-        checkReadyRead_TlsRequest_(d);
-        sleep_Thread(0.050); /* TODO: use a condition */
+        if (!readIncoming_TlsRequest_(d)) {
+            lock_Mutex(&d->mtx);
+            if (d->status == submitted_TlsRequestStatus) {
+                wait_Condition(&d->activity, &d->mtx);
+            }
+            else {
+                unlock_Mutex(&d->mtx);
+                break;
+            }
+            unlock_Mutex(&d->mtx);
+        }
     }
-    checkReadyRead_TlsRequest_(d);
-    lock_Mutex(&d->mtx); /* maybe we are in the midst of cancelling */
-//    ref_Object(d);
-    unlock_Mutex(&d->mtx);
+    readIncoming_TlsRequest_(d);
     iNotifyAudience(d, finished, TlsRequestFinished);
-//    deref_Object(d);
     iDebug("[TlsRequest] finished\n");
     return 0;
 }
@@ -662,7 +686,7 @@ void submit_TlsRequest(iTlsRequest *d) {
     d->socket = new_Socket(cstr_String(d->hostName), d->port);
     iConnect(Socket, d->socket, connected, d, connected_TlsRequest_);
     iConnect(Socket, d->socket, disconnected, d, disconnected_TlsRequest_);
-    iConnect(Socket, d->socket, readyRead, d, readIncoming_TlsRequest_);
+    iConnect(Socket, d->socket, readyRead, d, gotIncoming_TlsRequest_);
     iConnect(Socket, d->socket, error, d, handleError_TlsRequest_);
     if (open_Socket(d->socket)) {
         d->status = submitted_TlsRequestStatus;
