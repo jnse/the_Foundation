@@ -109,6 +109,7 @@ static iThreadResult run_SocketThread_(iThread *thread) {
             int maxfd = iMax(output_Pipe(&d->wakeup), d->socket->fd);
             int ready = select(maxfd + 1, &reads, NULL, &errors, NULL);
             if (ready == -1) {
+                iWarning("[Socket] error from select(): %s\n", strerror(errno));
                 return errno;
             }
         }
