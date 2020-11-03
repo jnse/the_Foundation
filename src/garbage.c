@@ -122,6 +122,9 @@ static void *previous_Collected_(const iCollected *d, size_t offset) {
     const iGarbageNode *node = back_List(&d->collected);
     if (!node) return NULL;
     if (offset > (size_t) node->count) {
+        if (node == front_List(&d->collected)) {
+            return NULL;
+        }
         offset -= node->count;
         node = (const iGarbageNode *) node->node.prev;
     }
