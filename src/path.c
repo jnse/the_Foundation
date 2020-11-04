@@ -86,6 +86,10 @@ iBool isAbsolute_Path(const iString *d) {
         return iTrue;
     }
 #if defined (iPlatformWindows) || defined (iHaveCygwinPathConversion)
+    /* Also accept Unix-style paths as absolute since we can convert them. */
+    if (startsWith_String(d, "/")) {
+        return iTrue;
+    }
     /* Check for drive letters. */
     if (size_String(d) >= 3) {
         iStringConstIterator i;
@@ -302,8 +306,8 @@ static iString *unixToWindows_(const char *cstr, iBool makeAbsolute) {
         delete_String(conv);
         return str;
     }
-    winPath = cygwin_create_path(CCP_POSIX_TO_WIN_W | 
-                                 (makeAbsolute ? CCP_ABSOLUTE : CCP_RELATIVE), 
+    winPath = cygwin_create_path(CCP_POSIX_TO_WIN_W |
+                                 (makeAbsolute ? CCP_ABSOLUTE : CCP_RELATIVE),
                                  cstr);
     if (winPath) {
         iString *str = newUtf16_String(winPath);
