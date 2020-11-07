@@ -352,7 +352,7 @@ size_t length_String(const iString *d) {
 }
 
 size_t size_String(const iString *d) {
-    return size_Block(&d->chars);
+    return d ? size_Block(&d->chars) : 0;
 }
 
 iString *mid_String(const iString *d, size_t charStartPos, size_t charCount) {
