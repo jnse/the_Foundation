@@ -129,12 +129,13 @@ void init_Address(iAddress *d) {
     d->pending = NULL;
     d->info = NULL;
     d->count = -1;
-    d->flags = 0;
+    d->flags = finished_AddressFlag;
     d->lookupFinished = NULL;
     d->socktype = SOCK_STREAM;
 }
 
 void deinit_Address(iAddress *d) {
+    iGuardMutex(&d->mutex, if (d->pending) { terminate_Thread(d->pending); });
     waitForFinished_Address(d);
     if (d->info) freeaddrinfo(d->info);
     deinit_String(&d->service);
@@ -243,6 +244,7 @@ void lookupCStr_Address(iAddress *d, const char *hostName, uint16_t port, enum i
             d->pending = new_Thread(runLookup_Address_);
             setName_Thread(d->pending, "runLookup_Address_");
             setUserData_Thread(d->pending, d);
+            setTerminationEnabled_Thread(d->pending, iTrue);
             start_Thread(d->pending);
         }
     });
