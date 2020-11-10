@@ -135,7 +135,6 @@ void init_Address(iAddress *d) {
 }
 
 void deinit_Address(iAddress *d) {
-    iGuardMutex(&d->mutex, if (d->pending) { terminate_Thread(d->pending); });
     waitForFinished_Address(d);
     if (d->info) freeaddrinfo(d->info);
     deinit_String(&d->service);
