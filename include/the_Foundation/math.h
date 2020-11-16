@@ -89,8 +89,13 @@ iLocalDef iFloat3 readFloat3_Stream(iStream *d) {
     return initv_F3(v);
 }
 
-iBool inverse_Mat3(const iMat3 *d, iMat3 *inversed_out);
-iBool inverse_Mat4(const iMat4 *d, iMat4 *inversed_out);
+iBool   inverse_Mat3    (const iMat3 *d, iMat3 *inversed_out);
+iBool   inverse_Mat4    (const iMat4 *d, iMat4 *inversed_out);
+
+void    ortho_Mat4      (iMat4 *, float left, float right, float top, float bottom, float znear, float zfar);
+void    perspective_Mat4(iMat4 *, float xFovDeg, float aspect, float znear, float zfar);
+void    frame_Mat4      (iMat4 *, iFloat3 front, iFloat3 up, iBool mirror);
+void    lookAt_Mat4     (iMat4 *, iFloat3 target, iFloat3 eyePos, iFloat3 up);
 
 #include "vec2.h"
 

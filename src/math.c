@@ -141,3 +141,58 @@ iBool inverse_Mat4(const iMat4 *d, iMat4 *inversed_out) {
     if (ok) load_Mat4(inversed_out, result);
     return ok;
 }
+
+void ortho_Mat4(iMat4 *d, float left, float right, float top, float bottom, float znear,
+                float zfar) {
+    float m[16] = { 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0 };
+    m[ 0] =  2.0f / (right - left);
+    m[ 5] =  2.0f / (top - bottom);
+    m[10] = -2.0f / (zfar - znear);
+    m[12] = -(right + left) / (right - left);
+    m[13] = -(top + bottom) / (top - bottom);
+    m[14] = -(zfar + znear) / (zfar - znear);
+    m[15] = 1.0f;
+    load_Mat4(d, m);
+}
+
+void perspective_Mat4(iMat4 *d, float xFovDeg, float aspect, float znear, float zfar) {
+    const float xFov = iMathDegreeToRadianf(xFovDeg);
+    const float f    = 1.0f / tanf(0.5f * xFov);
+    const float A    = zfar + znear;
+    const float B    = znear - zfar;
+    float m[16] = { 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0 };
+    m[ 0] = f;
+    m[ 5] = f * aspect;
+    m[10] = A / B;
+    m[11] = -1.0f;
+    m[14] =  2.0f * zfar * znear / B;
+    load_Mat4(d, m);
+}
+
+void frame_Mat4(iMat4 *d, iFloat3 front, iFloat3 up, iBool mirror) {
+    float m[16] = { 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0 };
+    iFloat3 f = normalize_F3(front);
+    iFloat3 s = normalize_F3(cross_F3(f, up));
+    iFloat3 u = normalize_F3(cross_F3(s, f));
+    if (mirror) {
+        s = neg_F3(s);
+    }
+    m[ 0] =  x_F3(s);
+    m[ 1] =  x_F3(u);
+    m[ 2] = -x_F3(f);
+    m[ 4] =  y_F3(s);
+    m[ 5] =  y_F3(u);
+    m[ 6] = -y_F3(f);
+    m[ 8] =  z_F3(s);
+    m[ 9] =  z_F3(u);
+    m[10] = -z_F3(f);
+    m[15] =  1.0f;
+    load_Mat4(d, m);
+}
+
+void lookAt_Mat4(iMat4 *d, iFloat3 target, iFloat3 eyePos, iFloat3 up) {
+    frame_Mat4(d, sub_F3(target, eyePos), normalize_F3(up), iTrue);
+    iMat4 orig;
+    initTranslate_Mat4(&orig, neg_F3(eyePos));
+    mul_Mat4(d, &orig);
+}
