@@ -367,7 +367,8 @@ iLocalDef void init_Mat4(iMat4 *d) {
     d->col[3] = init_F4(0, 0, 0, 1).m;
 }
 
-void store_Mat4 (const iMat4 *, float *v);
+void store_Mat4     (const iMat4 *, float *v);
+void transpose_Mat4 (iMat4 *);
 
 iLocalDef void load_Mat4(iMat4 *d, const float *v) {
     for (int i = 0; i < 4; ++i) {
@@ -383,12 +384,12 @@ iLocalDef void copy_Mat4(iMat4 *d, const iMat4 *other) {
     d->col[3] = other->col[3];
 }
 
-void mul_Mat4(iMat4 *, const iMat4 *b);
+void    mul_Mat4    (iMat4 *, const iMat4 *b);
+iFloat4 row_Mat4    (const iMat4 *, int row);
 
 iLocalDef void translate_Mat4(iMat4 *d, iFloat3 v) {
-    d->col[0] = _mm_add_ss(d->col[0], _mm_shuffle_ps(v.m, v.m, _MM_SHUFFLE(3, 2, 1, 1)));
-    d->col[1] = _mm_add_ss(d->col[1], _mm_shuffle_ps(v.m, v.m, _MM_SHUFFLE(3, 2, 1, 2)));
-    d->col[2] = _mm_add_ss(d->col[2], _mm_shuffle_ps(v.m, v.m, _MM_SHUFFLE(3, 2, 1, 3)));
+    d->col[3] = _mm_add_ps(d->col[3],
+                           /* Ensure w is really zero. */ _mm_move_ss(v.m, _mm_set_ss(0.0f)));
 }
 
 iLocalDef void initTranslate_Mat4(iMat4 *d, iFloat3 v) {
@@ -423,10 +424,10 @@ iLocalDef void rotate_Mat4(iMat4 *d, iFloat3 axis, float degrees) {
 }
 
 iLocalDef iFloat4 mulF4_Mat4(const iMat4 *d, iFloat4 v) {
-    return init_F4(dot_F4(initmm_F4(d->col[0]), v),
-                   dot_F4(initmm_F4(d->col[1]), v),
-                   dot_F4(initmm_F4(d->col[2]), v),
-                   dot_F4(initmm_F4(d->col[3]), v));
+    return init_F4(dot_F4(row_Mat4(d, 0), v),
+                   dot_F4(row_Mat4(d, 1), v),
+                   dot_F4(row_Mat4(d, 2), v),
+                   dot_F4(row_Mat4(d, 3), v));
 }
 
 iLocalDef iFloat3 mulF3_Mat4(const iMat4 *d, const iFloat3 v) {

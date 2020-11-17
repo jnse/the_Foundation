@@ -607,12 +607,15 @@ iLocalDef void copy_Mat4(iMat4 *d, const iMat4 *other) {
     d->col[3] = other->col[3];
 }
 
-void mul_Mat4(iMat4 *, const iMat4 *b); //, iMat4 *m_out);
+void mul_Mat4       (iMat4 *, const iMat4 *right);
+void transpose_Mat4 (iMat4 *);
+
+iLocalDef iFloat4 row_Mat4(const iMat4 *d, int row) {
+    return init_F4(d->col[0].v[row], d->col[1].v[row], d->col[2].v[row], d->col[3].v[row]);
+}
 
 iLocalDef void translate_Mat4(iMat4 *d, iFloat3 v) {
-    d->col[0].value.w += v.v[0];
-    d->col[1].value.w += v.v[1];
-    d->col[2].value.w += v.v[2];
+    addv_F4(&d->col[3], init_F4(x_F3(v), y_F3(v), z_F3(v), 0.0f));
 }
 
 iLocalDef void initTranslate_Mat4(iMat4 *d, iFloat3 v) {
@@ -647,10 +650,10 @@ iLocalDef void scalef_Mat4(iMat4 *d, float v) {
 }
 
 iLocalDef iFloat4 mulF4_Mat4(const iMat4 *d, const iFloat4 v) {
-    return init_F4(dot_F4(d->col[0], v),
-                   dot_F4(d->col[1], v),
-                   dot_F4(d->col[2], v),
-                   dot_F4(d->col[3], v));
+    return init_F4(dot_F4(row_Mat4(d, 0), v),
+                   dot_F4(row_Mat4(d, 1), v),
+                   dot_F4(row_Mat4(d, 2), v),
+                   dot_F4(row_Mat4(d, 3), v));
 }
 
 iLocalDef iFloat3 mulF3_Mat4(const iMat4 *d, const iFloat3 v) {

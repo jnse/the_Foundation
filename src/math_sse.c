@@ -34,34 +34,61 @@ void store_Mat4(const iMat4 *d, float *v) {
     _mm_storeu_ps(v + 12, _mm_shuffle_ps(d->col[3], d->col[3], _MM_SHUFFLE(0, 3, 2, 1)));
 }
 
-void mul_Mat4(iMat4 *d, const iMat4 *other) {
+iLocalDef float at128_(const __m128 d, int index) {
+    switch (index) {
+        case 0:  return _mm_cvtss_f32(_mm_shuffle_ps(d, d, _MM_SHUFFLE(1, 1, 1, 1)));
+        case 1:  return _mm_cvtss_f32(_mm_shuffle_ps(d, d, _MM_SHUFFLE(2, 2, 2, 2)));
+        case 2:  return _mm_cvtss_f32(_mm_shuffle_ps(d, d, _MM_SHUFFLE(3, 3, 3, 3)));
+        case 3:  return _mm_cvtss_f32(d);
+        default: return 0;
+    }
+}
+
+iFloat4 row_Mat4(const iMat4 *d, int row) {
+    return init_F4(at128_(d->col[0], row),
+                   at128_(d->col[1], row),
+                   at128_(d->col[2], row),
+                   at128_(d->col[3], row));
+}
+
+void transpose_Mat4(iMat4 *d) {
+    const iFloat4 rows[4] = {
+        row_Mat4(d, 0), row_Mat4(d, 1), row_Mat4(d, 2), row_Mat4(d, 3)
+    };
+    d->col[0] = rows[0].m;
+    d->col[1] = rows[1].m;
+    d->col[2] = rows[2].m;
+    d->col[3] = rows[3].m;
+}
+
+void mul_Mat4(iMat4 *d, const iMat4 *right) {
     iMat4 result;
-    _Alignas(16) float dCol[4];
+    _Alignas(16) float rCol[4];
     for (int i = 0; i < 4; ++i) {
-        _mm_store_ps(dCol, d->col[i]);
-        __m128 rl =         _mm_mul_ps(other->col[0], _mm_set1_ps(dCol[1]));
-        rl = _mm_add_ps(rl, _mm_mul_ps(other->col[1], _mm_set1_ps(dCol[2])));
-        rl = _mm_add_ps(rl, _mm_mul_ps(other->col[2], _mm_set1_ps(dCol[3])));
-        rl = _mm_add_ps(rl, _mm_mul_ps(other->col[3], _mm_set1_ps(dCol[0])));
+        _mm_store_ps(rCol, right->col[i]);
+        __m128 rl =         _mm_mul_ps(d->col[0], _mm_set1_ps(rCol[1]));
+        rl = _mm_add_ps(rl, _mm_mul_ps(d->col[1], _mm_set1_ps(rCol[2])));
+        rl = _mm_add_ps(rl, _mm_mul_ps(d->col[2], _mm_set1_ps(rCol[3])));
+        rl = _mm_add_ps(rl, _mm_mul_ps(d->col[3], _mm_set1_ps(rCol[0])));
         result.col[i] = rl;
     }
     copy_Mat4(d, &result);
 }
 
 void initRotate_Mat4(iMat4 *d, iFloat3 axis, float degrees) {
-    const float ang = iMathDegreeToRadianf(degrees);
-    const float c   = cosf(ang);
-    const float s   = sinf(ang);
+    const float   ang   = iMathDegreeToRadianf(degrees);
+    const float   c     = cosf(ang);
+    const float   s     = sinf(ang);
     const iFloat4 axis4 = { _mm_move_ss(normalize_F3(axis).m, _mm_setzero_ps()) };
-    _Alignas(16) float ax_[4];
-    _mm_store_ps(ax_, axis4.m);
-    const float *ax = ax_ + 1; // x is at 1
+    _Alignas(16) float av_[4];
+    _mm_store_ps(av_, axis4.m);
+    const float *av  = av_ + 1; /* x is at 1 */
     for (int i = 0; i < 3; ++i) {
-        d->col[i] = _mm_mul_ps(_mm_mul_ps(axis4.m, _mm_set1_ps(ax[i])), _mm_set1_ps(1 - c));
+        d->col[i] = _mm_mul_ps(_mm_mul_ps(axis4.m, _mm_set1_ps(av[i])), _mm_set1_ps(1 - c));
     }
-    d->col[0] = _mm_add_ps(d->col[0], init_F4(+c,       +ax[2]*s,   -ax[1]*s,   0).m);
-    d->col[1] = _mm_add_ps(d->col[1], init_F4(-ax[2]*s, +c,         +ax[0]*s,   0).m);
-    d->col[2] = _mm_add_ps(d->col[2], init_F4(+ax[1]*s, -ax[0]*s,   +c,         0).m);
+    d->col[0] = _mm_add_ps(d->col[0], init_F4(+c,       +av[2]*s,   -av[1]*s,   0).m);
+    d->col[1] = _mm_add_ps(d->col[1], init_F4(-av[2]*s, +c,         +av[0]*s,   0).m);
+    d->col[2] = _mm_add_ps(d->col[2], init_F4(+av[1]*s, -av[0]*s,   +c,         0).m);
     d->col[3] = init_F4(0, 0, 0, 1).m;
 }
 

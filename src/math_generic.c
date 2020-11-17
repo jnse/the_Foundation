@@ -48,32 +48,41 @@ void load_Mat4(iMat4 *d, const float *v) {
     d->col[3] = initv_F4(v + 12);
 }
 
-void mul_Mat4(iMat4 *d, const iMat4 *a) {
+void mul_Mat4(iMat4 *d, const iMat4 *right) {
     iMat4 result;
     for (int i = 0; i < 4; ++i) {
-        const iFloat4 dCol = d->col[i];
-        iFloat4 rl = mul_F4(a->col[0], init1_F4(x_F4(dCol)));
-        addv_F4(&rl, mul_F4(a->col[1], init1_F4(y_F4(dCol))));
-        addv_F4(&rl, mul_F4(a->col[2], init1_F4(z_F4(dCol))));
-        addv_F4(&rl, mul_F4(a->col[3], init1_F4(w_F4(dCol))));
-        result.col[i] = rl;
+        const iFloat4 rCol = right->col[i];
+        result.col[i]         = mul_F4(d->col[0], init1_F4(x_F4(rCol)));
+        addv_F4(&result.col[i], mul_F4(d->col[1], init1_F4(y_F4(rCol))));
+        addv_F4(&result.col[i], mul_F4(d->col[2], init1_F4(z_F4(rCol))));
+        addv_F4(&result.col[i], mul_F4(d->col[3], init1_F4(w_F4(rCol))));
     }
     copy_Mat4(d, &result);
 }
 
+void transpose_Mat4(iMat4 *d) {
+    const iFloat4 rows[4] = {
+        row_Mat4(d, 0), row_Mat4(d, 1), row_Mat4(d, 2), row_Mat4(d, 3)
+    };
+    d->col[0] = rows[0];
+    d->col[1] = rows[1];
+    d->col[2] = rows[2];
+    d->col[3] = rows[3];
+}
+
 void initRotate_Mat4(iMat4 *d, iFloat3 axis, float degrees) {
-    const float ang = iMathDegreeToRadianf(degrees);
-    const float c   = cosf(ang);
-    const float s   = sinf(ang);
+    const float   ang      = iMathDegreeToRadianf(degrees);
+    const float   c        = cosf(ang);
+    const float   s        = sinf(ang);
     const iFloat3 normAxis = normalize_F3(axis);
-    const float *ax = normAxis.v;
-    const iFloat4 axis4 = { .v = { normAxis.value.x, normAxis.value.y, normAxis.value.z, 0.f } };
-    for (int i = 0; i < 3; ++i) {
-        d->col[i] = mul_F4(mul_F4(axis4, init1_F4(ax[i])), init1_F4(1 - c));
-    }
-    addv_F4(&d->col[0], init_F4(+c,       +ax[2]*s,   -ax[1]*s,   0));
-    addv_F4(&d->col[1], init_F4(-ax[2]*s, +c,         +ax[0]*s,   0));
-    addv_F4(&d->col[2], init_F4(+ax[1]*s, -ax[0]*s,   +c,         0));
+    const float * av       = normAxis.v;
+    const iFloat4 omc      = init1_F4(1 - c);
+    d->col[0] = mul_F4(omc, init_F4(av[0] * av[0], av[0] * av[1], av[0] * av[2], 0.0f));
+    d->col[1] = mul_F4(omc, init_F4(av[1] * av[0], av[1] * av[1], av[1] * av[2], 0.0f));
+    d->col[2] = mul_F4(omc, init_F4(av[2] * av[0], av[2] * av[1], av[2] * av[2], 0.0f));
+    addv_F4(&d->col[0], init_F4(+c,       +av[2]*s,   -av[1]*s,   0));
+    addv_F4(&d->col[1], init_F4(-av[2]*s, +c,         +av[0]*s,   0));
+    addv_F4(&d->col[2], init_F4(+av[1]*s, -av[0]*s,   +c,         0));
     d->col[3] = init_F4(0, 0, 0, 1);
 }
 

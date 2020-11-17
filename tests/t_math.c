@@ -98,9 +98,9 @@ static void printMat(const char *msg, const iMat4 *m) {
     float vals[16];
     store_Mat4(m, vals);
     printf("%s: [", msg);
-    for (int i = 0; i < 16; i += 4) {
+    for (int row = 0; row < 4; ++row) {
         printf("\n    ");
-        for (int j = 0; j < 4; ++j) printNum(vals[i+j]);
+        for (int col = 0; col < 4; ++col) printNum(vals[col * 4 + row]);
     }
     puts(" ]");
 }
@@ -194,6 +194,7 @@ int main(int argc, char **argv) {
         print_("random", mix_X2(initi_X2(-1, 100), initi_X2(1, -100), random_Fixed()));
     }
     /* Matrices. */ {
+        printf("--------------------------------------------------------\n");
         printf("dot3: %f\n", dot_F3(init_F3(1, 2, 3), init_F3(3, 4, 2)));
 
         iMat4 mat, b, c;
@@ -215,25 +216,32 @@ int main(int argc, char **argv) {
         inverse_Mat4(&s, &inverseScale);
         print_("inv scale", &inverseScale);
 
-        printv("vec mul", mulF4_Mat4(&s, init1_F4(1)));
+        printv("vec mul", mulF4_Mat4(&s, init_F4(10, 20, 30, 1)));
 
-        iMat4 t, u;
+        iMat4 t;
         initTranslate_Mat4(&t, init_F3(1, 2, 3));
         print_("xlat", &t);
         //printv3("vec trl", mulF3_Mat4(&t, init_F3(14, 13, 12)));
         print_("vec trl", mulF3_Mat4(&t, init_F3(iRandomf(), iRandomf(), iRandomf())));
 
-        copy_Mat4(&u, &t);
-        mul_Mat4(&u, &s);
-        mul_Mat4(&s, &t);
-        print_("s*t", &s);
-        print_("t*s", &u);
+        iMat4 s_t = s;
+        iMat4 t_s = t;
+        mul_Mat4(&s_t, &t);
+        mul_Mat4(&t_s, &s);
+        print_("s*t", &s_t);
+        print_("t*s", &t_s);
 
-        iMat4 s_t; copy_Mat4(&s_t, &s);
-        iMat4 t_s; copy_Mat4(&t_s, &u);
+        print_("s*t * (10,20,30)", mulF3_Mat4(&s_t, init_F3(10, 20, 30)));
+        print_("t*s * (10,20,30)", mulF3_Mat4(&t_s, init_F3(10, 20, 30)));
 
-        print_("s_t * (1,1,1)", mulF3_Mat4(&s_t, init_F3(1, 1, 1)));
-        print_("t_s * (1,1,1)", mulF3_Mat4(&t_s, init_F3(1, 1, 1)));
+        /* Rotations. */
+        for (int ang = 0; ang <= 360; ang += 45) {
+            iMat4 rot;
+            initRotate_Mat4(&rot, init_F3(0, 1, 0), ang);
+            iFloat3 rp = mulF3_Mat4(&rot, init_F3(2, 0, 0));
+            print_("rotated", rp);
+            printf("len: %f\n", length_F3(rp));
+        }
 
 #define REPS 3000000
         iFloat3 *res = malloc(sizeof(iFloat3) * REPS);
@@ -251,13 +259,14 @@ int main(int argc, char **argv) {
     }
     /* Inversion. */ {
         iMat4 matrix;
-        float values[16] = {
+        const float rowMajorValues[16] = {
              0.257f,  0.504f,  0.098f, 16,
              0.439f, -0.368f, -0.071f, 128,
             -0.148f, -0.291f,  0.439f, 128,
             0, 0, 0, 1
         };
-        load_Mat4(&matrix, values);
+        load_Mat4(&matrix, rowMajorValues);
+        transpose_Mat4(&matrix);
         print_("RGB-to-YUV", &matrix);
         iMat4 inverse;
         inverse_Mat4(&matrix, &inverse);
