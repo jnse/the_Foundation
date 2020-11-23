@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #else
 #   include <sys/stat.h>
 #   include <sys/types.h>
-#   include <sys/dir.h>
+#   include <sys/dirent.h>
 #   include <unistd.h>
 #   include <dirent.h>
 #endif
