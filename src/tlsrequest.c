@@ -365,7 +365,9 @@ struct Impl_TlsRequest {
     iString *        errorMsg;
     iThread *        thread;
     iBool            notifyReady;
-    iCondition       activity;
+    iBlock  *        incoming;
+    iCondition       gotIncoming;
+    iMutex           incomingMtx;
     iCondition       requestDone;
     iAudience *      readyRead;
     iAudience *      finished;
@@ -401,7 +403,9 @@ static enum iSSLResult sslResult_TlsRequest_(iTlsRequest *d, int code) {
             return closed_SSLResult;
         case SSL_ERROR_SYSCALL:
         default:
-            ERR_print_errors_fp(stdout);
+//            fprintf(stderr, "[TlsRequest] SSL_get_error returns %d (code:%d)\n",
+//                    SSL_get_error(d->ssl, code), code);
+            ERR_print_errors_fp(stderr);
             return fail_SSLResult;
     }
 }
@@ -409,7 +413,7 @@ static enum iSSLResult sslResult_TlsRequest_(iTlsRequest *d, int code) {
 static void setStatus_TlsRequest_(iTlsRequest *d, enum iTlsRequestStatus st) {
     iGuardMutex(&d->mtx, if (d->status != st) {
         d->status = st;
-        signal_Condition(&d->activity);
+        signal_Condition(&d->gotIncoming); /* wake up if sleeping */
         if (st == finished_TlsRequestStatus || st == error_TlsRequestStatus) {
             signalAll_Condition(&d->requestDone);
         }
@@ -482,7 +486,9 @@ void init_TlsRequest(iTlsRequest *d) {
     d->status = initialized_TlsRequestStatus;
     d->thread = NULL;
     d->notifyReady = iFalse;
-    init_Condition(&d->activity);
+    d->incoming = new_Block(0);
+    init_Mutex(&d->incomingMtx);
+    init_Condition(&d->gotIncoming);
     init_Condition(&d->requestDone);
     d->readyRead = NULL;
     d->finished = NULL;
@@ -497,6 +503,7 @@ void init_TlsRequest(iTlsRequest *d) {
 }
 
 void deinit_TlsRequest(iTlsRequest *d) {
+    signal_Condition(&d->gotIncoming);
     d->status = finished_TlsRequestStatus;
     if (d->thread) {
         join_Thread(d->thread);
@@ -505,7 +512,9 @@ void deinit_TlsRequest(iTlsRequest *d) {
     deinit_Block(&d->sending);
     SSL_free(d->ssl);
     deinit_Condition(&d->requestDone);
-    deinit_Condition(&d->activity);
+    deinit_Condition(&d->gotIncoming);
+    deinit_Mutex(&d->incomingMtx);
+    delete_Block(d->incoming);
     delete_Audience(d->finished);
     delete_Audience(d->readyRead);
     delete_String(d->errorMsg);
@@ -544,13 +553,15 @@ static int processIncoming_TlsRequest_(iTlsRequest *d, const char *src, size_t l
     char buf[DEFAULT_BUF_SIZE];
     enum iSSLResult status;
     int n;
-    while (len > 0) {
-        n = BIO_write(d->rbio, src, len);
-        if (n <= 0) {
-            return -1; /* assume bio write failure is unrecoverable */
+    do {
+        if (len > 0) {
+            n = BIO_write(d->rbio, src, len);
+            if (n <= 0) {
+                return -1; /* assume bio write failure is unrecoverable */
+            }
+            src += n;
+            len -= n;
         }
-        src += n;
-        len -= n;
         if (!SSL_is_init_finished(d->ssl)) {
             if (doHandshake_TlsRequest_(d) == fail_SSLResult) {
                 iDebug("[TlsRequest] handshake failure\n");
@@ -586,7 +597,7 @@ static int processIncoming_TlsRequest_(iTlsRequest *d, const char *src, size_t l
         if (status == closed_SSLResult && len == 0) {
             setStatus_TlsRequest_(d, finished_TlsRequestStatus); /* even if socket remains open */
         }
-    }
+    } while (len > 0);
     return 0;
 }
 
@@ -600,14 +611,20 @@ static void checkReadyRead_TlsRequest_(iTlsRequest *d) {
 
 static void gotIncoming_TlsRequest_(iTlsRequest *d, iSocket *socket) {
     iUnused(socket);
-    signal_Condition(&d->activity);
+    iBlock *data = readAll_Socket(socket);
+    lock_Mutex(&d->incomingMtx);
+    appendData_Block(d->incoming, constData_Block(data), size_Block(data));
+    signal_Condition(&d->gotIncoming);
+    unlock_Mutex(&d->incomingMtx);
+    delete_Block(data);
 }
 
 static iBool readIncoming_TlsRequest_(iTlsRequest *d) {
-    iBlock *data = readAll_Socket(d->socket);
-    const iBool didRead = !isEmpty_Block(data);
-    processIncoming_TlsRequest_(d, data_Block(data), size_Block(data));
-    delete_Block(data);
+    lock_Mutex(&d->incomingMtx);
+    const iBool didRead = !isEmpty_Block(d->incoming);
+    processIncoming_TlsRequest_(d, data_Block(d->incoming), size_Block(d->incoming));
+    clear_Block(d->incoming);
+    unlock_Mutex(&d->incomingMtx);
     checkReadyRead_TlsRequest_(d);
     return didRead;
 }
@@ -620,9 +637,10 @@ static iThreadResult run_TlsRequest_(iThread *thread) {
         if (!readIncoming_TlsRequest_(d)) {
             lock_Mutex(&d->mtx);
             if (d->status == submitted_TlsRequestStatus) {
-                wait_Condition(&d->activity, &d->mtx);
+                wait_Condition(&d->gotIncoming, &d->mtx);
             }
             else {
+                fprintf(stderr, "[TlsRequest] run loop exiting, status %d\n", d->status);
                 unlock_Mutex(&d->mtx);
                 break;
             }
@@ -638,7 +656,6 @@ static iThreadResult run_TlsRequest_(iThread *thread) {
 static void connected_TlsRequest_(iTlsRequest *d, iSocket *sock) {
     /* The socket has been connected. During this notification the socket remains locked
        so we must start a different thread for carrying out the I/O. */
-//    iTlsRequest *d = obj;
     iUnused(sock);
     iAssert(!d->thread);
     d->thread = new_Thread(run_TlsRequest_);
@@ -688,10 +705,8 @@ void submit_TlsRequest(iTlsRequest *d) {
     iConnect(Socket, d->socket, disconnected, d, disconnected_TlsRequest_);
     iConnect(Socket, d->socket, readyRead, d, gotIncoming_TlsRequest_);
     iConnect(Socket, d->socket, error, d, handleError_TlsRequest_);
-    if (open_Socket(d->socket)) {
-        d->status = submitted_TlsRequestStatus;
-    }
-    else {
+    d->status = submitted_TlsRequestStatus;
+    if (!open_Socket(d->socket)) {
         d->status = error_TlsRequestStatus;
     }
 }
