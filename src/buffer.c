@@ -36,14 +36,12 @@ void init_Buffer(iBuffer *d) {
     iAssertIsObject(d);
     init_Stream(&d->stream);
     init_Block(&d->block, 0);
-    init_Condition(&d->dataAvailable);
     d->data = NULL;
     d->mode = readWrite_BufferMode;
 }
 
 void deinit_Buffer(iBuffer *d) {
     deinit_Block(&d->block);
-    deinit_Condition(&d->dataAvailable);
 }
 
 iBool open_Buffer(iBuffer *d, const iBlock *data) {

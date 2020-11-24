@@ -50,7 +50,6 @@ struct Impl_Buffer {
     iStream stream;
     iBlock block;
     iBlock *data;
-    iCondition dataAvailable;
     enum iBufferMode mode;
 };
 

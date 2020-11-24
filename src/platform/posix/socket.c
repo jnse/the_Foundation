@@ -182,7 +182,6 @@ static iThreadResult run_SocketThread_(iThread *thread) {
             }
             iGuardMutex(smx, {
                 writeData_Buffer(d->socket->input, constData_Block(inbuf), readSize);
-                signal_Condition(&d->socket->input->dataAvailable);
             });
             iNotifyAudience(d->socket, readyRead, SocketReadyRead);
         }
