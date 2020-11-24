@@ -640,7 +640,7 @@ static iThreadResult run_TlsRequest_(iThread *thread) {
                 wait_Condition(&d->gotIncoming, &d->mtx);
             }
             else {
-                fprintf(stderr, "[TlsRequest] run loop exiting, status %d\n", d->status);
+//                fprintf(stderr, "[TlsRequest] run loop exiting, status %d\n", d->status);
                 unlock_Mutex(&d->mtx);
                 break;
             }
