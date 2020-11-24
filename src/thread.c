@@ -179,12 +179,9 @@ void join_Thread(iThread *d) {
     lock_Mutex(&d->mutex);
     if (d->state == running_ThreadState) {
         wait_Condition(&d->finishedCond, &d->mutex);
-        unlock_Mutex(&d->mutex);
-        thrd_join(d->id, NULL);
     }
-    else {
-        unlock_Mutex(&d->mutex);
-    }
+    unlock_Mutex(&d->mutex);
+    thrd_join(d->id, NULL);
 }
 
 void terminate_Thread(iThread *d) {

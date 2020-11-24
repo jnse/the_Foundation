@@ -169,8 +169,8 @@ void initPrealloc_Block(iBlock *d, void *data, size_t size, size_t allocSize) {
 
 void initCopy_Block(iBlock *d, const iBlock *other) {
     if (other) {
+        addRelaxed_Atomic(&other->i->refCount, 1);
         d->i = other->i;
-        addRelaxed_Atomic(&d->i->refCount, 1);
     }
     else {
         init_Block(d, 0);

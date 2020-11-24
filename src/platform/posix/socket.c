@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/buffer.h"
 #include "the_Foundation/mutex.h"
 #include "the_Foundation/thread.h"
+#include "the_Foundation/atomic.h"
 #include "pipe.h"
 
 #include <errno.h>
@@ -87,14 +88,14 @@ struct Impl_SocketThread {
     iThread thread;
     iSocket *socket;
     iPipe wakeup;
-    volatile enum iSocketThreadMode mode;
+    iAtomicInt mode; /* enum iSocketThreadMode */
 };
 
 static iThreadResult run_SocketThread_(iThread *thread) {
     iSocketThread *d = (iAny *) thread;
     iMutex *smx = &d->socket->mutex;
     iBlock *inbuf = collect_Block(new_Block(0x20000));
-    while (d->mode == run_SocketThreadMode) {
+    while (value_Atomic(&d->mode) == run_SocketThreadMode) {
         if (bytesToSend_Socket(d->socket) > 0) {
             /* Make sure we won't block on select() when there's still data to send. */
             writeByte_Pipe(&d->wakeup, 0);
@@ -200,7 +201,7 @@ static void init_SocketThread(iSocketThread *d, iSocket *socket,
     }
     init_Pipe(&d->wakeup);
     d->socket = socket;
-    d->mode = mode;
+    set_Atomic(&d->mode, mode);
 }
 
 static void deinit_SocketThread(iSocketThread *d) {
@@ -208,7 +209,7 @@ static void deinit_SocketThread(iSocketThread *d) {
 }
 
 static void exit_SocketThread_(iSocketThread *d) {
-    d->mode = stop_SocketThreadMode;
+    set_Atomic(&d->mode, stop_SocketThreadMode);
     writeByte_Pipe(&d->wakeup, 1); // select() will exit
     join_Thread(&d->thread);
 }
@@ -299,7 +300,6 @@ static void shutdown_Socket_(iSocket *d) {
         }
         notify = setStatus_Socket_(d, disconnected_SocketStatus);
         iAssert(d->fd < 0);
-        iAssert(!d->connecting);
     });
     if (notify) {
         iNotifyAudience(d, disconnected, SocketDisconnected);
@@ -357,14 +357,13 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
             iNotifyAudienceArgs(d, error, SocketError, errNum, msg);
         }
     }
-    iGuardMutex(&d->mutex, d->connecting = NULL);
-    iRelease(thd);
     return rc;
 }
 
 static iBool open_Socket_(iSocket *d) {
     /* The socket is assumed to be locked already. */
     if (isPending_Address(d->address)) {
+        /* TODO: Race -- what if Address finishes on this line? */
         setStatus_Socket_(d, connecting_SocketStatus);
         return iTrue; // when address is resolved, the socket will be opened.
     }
@@ -444,6 +443,8 @@ void close_Socket(iSocket *d) {
         if (d->status == disconnected_SocketStatus ||
             d->status == disconnecting_SocketStatus) {
             unlock_Mutex(&d->mutex);
+            join_Thread(d->connecting);
+            iReleasePtr(&d->connecting);
             return;
         }
         if (d->status == connecting_SocketStatus) {
@@ -454,7 +455,7 @@ void close_Socket(iSocket *d) {
         }
         setStatus_Socket_(d, disconnecting_SocketStatus);
     });
-    guardJoin_Thread(d->connecting, &d->mutex);
+    join_Thread(d->connecting);
     iReleasePtr(&d->connecting);
     shutdown_Socket_(d);
 }

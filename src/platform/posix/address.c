@@ -86,7 +86,6 @@ static iThreadResult runLookup_Address_(iThread *thd) {
         else {
             iWarning("[Address] host lookup failed with error: %s\n", gai_strerror(rc));
         }
-        iReleasePtr(&d->pending); // get rid of this thread
         d->flags |= finished_AddressFlag;
     );
     iNotifyAudience(d, lookupFinished, AddressLookupFinished);
@@ -143,6 +142,7 @@ void deinit_Address(iAddress *d) {
     deinit_String(&d->hostName);
     deinit_Mutex(&d->mutex);
     delete_Audience(d->lookupFinished);
+    iRelease(d->pending);
 }
 
 const iString *hostName_Address(const iAddress *d) {
@@ -202,7 +202,9 @@ iBool isHostFound_Address(const iAddress *d) {
 }
 
 iBool isPending_Address(const iAddress *d) {
-    return d->pending != NULL;
+    iBool isFinished;
+    iGuardMutex(&d->mutex, isFinished = (d->flags & finished_AddressFlag) != 0);
+    return !isFinished;
 }
 
 iBool equal_Address(const iAddress *d, const iAddress *other) {
@@ -221,41 +223,41 @@ iBool equal_Address(const iAddress *d, const iAddress *other) {
 }
 
 void lookupCStr_Address(iAddress *d, const char *hostName, uint16_t port, enum iSocketType socketType) {
-    iGuardMutex(&d->mutex, {
-        if (!d->pending) {
-            if (d->info) {
-                freeaddrinfo(d->info);
-                d->info = NULL;
-            }
-            d->flags &= ~finished_AddressFlag;
-            d->count = -1;
-            d->socktype = (socketType == udp_SocketType ? SOCK_DGRAM : SOCK_STREAM);
-            if (hostName) {
-                setCStr_String(&d->hostName, hostName);
-            }
-            else {
-                clear_String(&d->hostName);
-            }
-            if (port) {
-                format_String(&d->service, "%i", port);
-            }
-            else {
-                clear_String(&d->service);
-            }
-            d->pending = new_Thread(runLookup_Address_);
-            setName_Thread(d->pending, "runLookup_Address_");
-            setUserData_Thread(d->pending, d);
-            setTerminationEnabled_Thread(d->pending, iTrue);
-            start_Thread(d->pending);
-        }
-    });
+    waitForFinished_Address(d);
+    iReleasePtr(&d->pending);
+    if (d->info) {
+        freeaddrinfo(d->info);
+        d->info = NULL;
+    }
+    d->flags &= ~finished_AddressFlag;
+    d->count = -1;
+    d->socktype = (socketType == udp_SocketType ? SOCK_DGRAM : SOCK_STREAM);
+    if (hostName) {
+        setCStr_String(&d->hostName, hostName);
+    }
+    else {
+        clear_String(&d->hostName);
+    }
+    if (port) {
+        format_String(&d->service, "%i", port);
+    }
+    else {
+        clear_String(&d->service);
+    }
+    d->pending = new_Thread(runLookup_Address_);
+    setName_Thread(d->pending, "runLookup_Address_");
+    setUserData_Thread(d->pending, d);
+    start_Thread(d->pending);
 }
 
 void waitForFinished_Address(const iAddress *d) {
+#if 0
     if (~d->flags & finished_AddressFlag) {
         /* Prevent the thread from being deleted while we're checking. */
         guardJoin_Thread(d->pending, &d->mutex);
     }
+#endif
+    join_Thread(d->pending);
 }
 
 /* internal use only */
