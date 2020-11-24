@@ -41,6 +41,7 @@ iBeginPublic
 
 iDeclareType(Block)
 iDeclareType(Buffer)
+iDeclareType(Mutex)
 iDeclareType(Stream)
 iDeclareType(String)
 iDeclareType(StringList)
@@ -59,6 +60,7 @@ enum iStreamByteOrder {
 
 struct Impl_Stream {
     iObject object;
+    iMutex *mtx; /* for size, pos */
     long size;
     long pos;
     int flags;

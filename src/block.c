@@ -323,9 +323,9 @@ void popBack_Block(iBlock *d) {
 
 void set_Block(iBlock *d, const iBlock *other) {
     if (d != other) {
+        addRelaxed_Atomic(&other->i->refCount, 1);
         deref_BlockData_(d->i);
         d->i = other->i;
-        addRelaxed_Atomic(&d->i->refCount, 1);
     }
 }
 

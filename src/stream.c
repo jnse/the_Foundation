@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include "the_Foundation/stream.h"
 #include "the_Foundation/block.h"
+#include "the_Foundation/mutex.h"
 #include "the_Foundation/stringlist.h"
 #include "the_Foundation/buffer.h"
 
@@ -85,10 +86,11 @@ void init_Stream(iStream *d) {
     d->size = 0;
     d->pos = 0;
     d->flags = 0; // little-endian
+    d->mtx = new_Mutex();
 }
 
 void deinit_Stream(iStream *d) {
-    iUnused(d);
+    delete_Mutex(d->mtx);
 }
 
 void setByteOrder_Stream(iStream *d, enum iStreamByteOrder byteOrder) {
@@ -101,8 +103,10 @@ void setVersion_Stream(iStream *d, int version) {
 }
 
 void setSize_Stream(iStream *d, long size) {
-    d->size = size;
-    d->pos = iMin(d->pos, size);
+    iGuardMutex(d->mtx, {
+        d->size = size;
+        d->pos = iMin(d->pos, size);
+    });
 }
 
 enum iStreamByteOrder byteOrder_Stream(const iStream *d) {
@@ -115,7 +119,7 @@ int version_Stream(const iStream *d) {
 }
 
 void seek_Stream(iStream *d, long offset) {
-    d->pos = class_Stream(d)->seek(d, offset);
+    iGuardMutex(d->mtx, d->pos = class_Stream(d)->seek(d, offset));
 }
 
 iBlock *read_Stream(iStream *d, size_t size) {
@@ -125,9 +129,12 @@ iBlock *read_Stream(iStream *d, size_t size) {
 }
 
 size_t readData_Stream(iStream *d, size_t size, void *data_out) {
-    const size_t readSize = class_Stream(d)->read(d, size, data_out);
-    d->pos += readSize;
-    d->size = iMax(d->size, d->pos); // update successfully read size
+    size_t readSize = 0;
+    iGuardMutex(d->mtx, {
+        readSize = class_Stream(d)->read(d, size, data_out);
+        d->pos += readSize;
+        d->size = iMax(d->size, d->pos); // update successfully read size
+    });
     return readSize;
 }
 
@@ -155,9 +162,12 @@ size_t write_Stream(iStream *d, const iBlock *data) {
 }
 
 size_t writeData_Stream(iStream *d, const void *data, size_t size) {
-    const size_t n = class_Stream(d)->write(d, data, size);
-    d->pos += n;
-    d->size = iMax(d->pos, d->size);
+    size_t n = 0;
+    iGuardMutex(d->mtx, {
+        n = class_Stream(d)->write(d, data, size);
+        d->pos += n;
+        d->size = iMax(d->pos, d->size);
+    });
     return n;
 }
 
