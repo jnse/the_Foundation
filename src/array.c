@@ -38,7 +38,7 @@ static void moveElements_Array_(iArray *d, const iRanges *moved, long delta) {
         char *ptr = element_Array_(d, moved->start);
         iAssert(moved->start + delta >= 0);
         iAssert(moved->end   + delta <= d->allocSize);
-        memmove(ptr + delta * d->elementSize, ptr, d->elementSize * size_Range(moved));
+        memmove(ptr + (long) (delta * d->elementSize), ptr, d->elementSize * size_Range(moved));
     }
 }
 

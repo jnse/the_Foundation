@@ -114,7 +114,7 @@ iPtrSet *newStreamObjects_PtrSet(iStream *ins, const iAnyClass *class) {
 /*-------------------------------------------------------------------------------------*/
 
 void init_PtrSetIterator(iPtrSetIterator *d, iPtrSet *set) {
-    init_ArrayIterator(&d->iter, &set->values);
+    init_ArrayIterator(&d->iter, set ? &set->values : NULL);
 }
 
 void next_PtrSetIterator(iPtrSetIterator *d) {
