@@ -46,6 +46,9 @@ endif ()
 # strnstr
 check_function_exists (strnstr iHaveStrnstr)
 
+# sys/dirent.h
+check_include_file (sys/dirent.h iHaveSysDirent)
+
 # C11 threads
 check_include_file (pthread.h iHavePThread)
 check_include_file (threads.h iHaveC11Threads)
