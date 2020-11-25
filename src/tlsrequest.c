@@ -677,7 +677,6 @@ static void setError_TlsRequest_(iTlsRequest *d, const char *msg) {
 static void handleError_TlsRequest_(iTlsRequest *d, iSocket *sock, int error, const char *msg) {
     iUnused(sock, error);
     setError_TlsRequest_(d, msg);
-    close_Socket(d->socket);
     if (!d->thread) {
         iNotifyAudience(d, finished, TlsRequestFinished);
     }
