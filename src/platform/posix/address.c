@@ -176,13 +176,15 @@ void init_Address(iAddress *d) {
 }
 
 void deinit_Address(iAddress *d) {
-    waitForFinished_Address(d);
+    /* Note: This is never called when lookup is pending because `lookupQueue_` holds a ref. */
+    lock_Mutex(d->mutex);
     delete_Condition(d->lookupDidFinish);
     if (d->info) freeaddrinfo(d->info);
     deinit_String(&d->service);
     deinit_String(&d->hostName);
-    delete_Mutex(d->mutex);
     delete_Audience(d->lookupFinished);
+    unlock_Mutex(d->mutex);
+    delete_Mutex(d->mutex);
 }
 
 const iString *hostName_Address(const iAddress *d) {

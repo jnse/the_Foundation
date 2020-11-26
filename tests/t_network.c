@@ -285,6 +285,7 @@ int main(int argc, char *argv[]) {
                 iAddress *addr = new_Address();
                 iConnect(Address, addr, lookupFinished, addr, hostLookedUp);
                 lookupTcp_Address(addr, value_CommandLineConstIterator(&i), 0);
+                waitForFinished_Address(addr);
                 iRelease(addr);
             }
         }
