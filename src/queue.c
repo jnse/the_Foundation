@@ -77,6 +77,14 @@ iQueueItem *takeTimeout_Queue(iQueue *d, double timeoutSeconds) {
     return item;
 }
 
+void waitForItems_Queue(iQueue *d) {
+    lock_Mutex(&d->mutex);
+    if (isEmpty_ObjectList(&d->items)) {
+        wait_Condition(&d->cond, &d->mutex);
+    }
+    unlock_Mutex(&d->mutex);
+}
+
 iQueueItem *tryTake_Queue(iQueue *d) {
     iQueueItem *item;
     iGuardMutex(&d->mutex, item = takeFront_ObjectList(&d->items));

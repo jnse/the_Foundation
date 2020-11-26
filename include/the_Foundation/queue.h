@@ -58,6 +58,7 @@ void        put_Queue           (iQueue *, iQueueItem *item);
 iQueueItem *take_Queue          (iQueue *);
 iQueueItem *takeTimeout_Queue   (iQueue *, double timeoutSeconds);
 iQueueItem *tryTake_Queue       (iQueue *);
+void        waitForItems_Queue  (iQueue *);
 
 size_t      size_Queue          (const iQueue *d);
 
