@@ -39,6 +39,7 @@ static iBool hasBeenInitialized_ = iFalse;
 
 void deinitForThread_Garbage_(void); /* garbage.c */
 void deinit_DatagramThreads_(void);  /* datagram.c */
+void deinit_Address_(void);          /* address.c */
 void deinit_Threads_(void);          /* thread.c */
 void init_DatagramThreads_(void);    /* datagram.c */
 void init_Locale(void);              /* locale */
@@ -61,6 +62,7 @@ void deinit_Foundation(void) {
     if (isInitialized_Foundation()) {
         hasBeenInitialized_ = iFalse;
         deinit_DatagramThreads_();
+        deinit_Address_();
         deinitForThread_Garbage_();
         deinit_Threads_();
     }

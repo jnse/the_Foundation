@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/mutex.h"
 #include "the_Foundation/string.h"
 #include "the_Foundation/objectlist.h"
+#include "the_Foundation/queue.h"
 #include "the_Foundation/thread.h"
 
 #include <sys/types.h>
@@ -44,15 +45,15 @@ enum iAddressFlag {
 
 struct Impl_Address {
     iObject object;
-    iMutex mutex;
+    iMutex *mutex;
     iString hostName;
     iString service;
     int socktype;
-    iThread *pending;
     int flags;
     int count;
     struct addrinfo *info;
     iAudience *lookupFinished;
+    iCondition *lookupDidFinish;
 };
 
 iDefineAudienceGetter(Address, lookupFinished)
@@ -66,31 +67,69 @@ iDefineAudienceGetter(Address, lookupFinished)
 #   define AI_V4MAPPED_CFG  AI_V4MAPPED
 #endif
 
-static iThreadResult runLookup_Address_(iThread *thd) {
-    iAddress *d = userData_Thread(thd);
-    const int hintFlags = AI_V4MAPPED_CFG | AI_ADDRCONFIG | (isEmpty_String(&d->hostName) ? AI_PASSIVE : 0);
-    const struct addrinfo hints = {
-        .ai_socktype = d->socktype,
-        .ai_family   = (d->socktype == SOCK_DGRAM ? AF_INET     : AF_UNSPEC /* v4 or v6 */),
-        .ai_protocol = (d->socktype == SOCK_DGRAM ? IPPROTO_UDP : IPPROTO_TCP),
-        .ai_flags    = hintFlags,
-    };
-    int rc = getaddrinfo(!isEmpty_String(&d->hostName) ? cstr_String(&d->hostName) : NULL,
-                         !isEmpty_String(&d->service)  ? cstr_String(&d->service)  : NULL,
-                         &hints,
-                         &d->info);
-    iGuardMutex(&d->mutex,
-        d->count = 0;
-        if (rc == 0) {
-            for (const struct addrinfo *at = d->info; at; at = at->ai_next, d->count++) {}
+static iThread *lookupThread_;
+static iQueue * lookupQueue_;
+
+static iThreadResult runAddressLookup_(iThread *thd) {
+    iUnused(thd);
+    iDebug("[Address] lookup thread started\n");
+    while (lookupThread_) {
+        waitForItems_Queue(lookupQueue_);
+        iAddress *d = tryTake_Queue(lookupQueue_);
+        if (!lookupThread_ || !d) {
+            break;
         }
-        else {
-            iWarning("[Address] host lookup failed with error: %s\n", gai_strerror(rc));
-        }
-        d->flags |= finished_AddressFlag;
-    );
-    iNotifyAudience(d, lookupFinished, AddressLookupFinished);
+        /* Perform the lookup. */
+        /* TODO: hostName/service accessed without locking... */
+        const int hintFlags = AI_V4MAPPED_CFG | AI_ADDRCONFIG | (isEmpty_String(&d->hostName) ? AI_PASSIVE : 0);
+        const struct addrinfo hints = {
+            .ai_socktype = d->socktype,
+            .ai_family   = (d->socktype == SOCK_DGRAM ? AF_INET     : AF_UNSPEC /* v4 or v6 */),
+            .ai_protocol = (d->socktype == SOCK_DGRAM ? IPPROTO_UDP : IPPROTO_TCP),
+            .ai_flags    = hintFlags,
+        };
+        int rc = getaddrinfo(!isEmpty_String(&d->hostName) ? cstr_String(&d->hostName) : NULL,
+                             !isEmpty_String(&d->service)  ? cstr_String(&d->service)  : NULL,
+                             &hints,
+                             &d->info);
+        iGuardMutex(d->mutex,
+            d->count = 0;
+            if (rc == 0) {
+                for (const struct addrinfo *at = d->info; at; at = at->ai_next, d->count++) {}
+            }
+            else {
+                iWarning("[Address] host lookup failed with error: %s\n", gai_strerror(rc));
+            }
+            d->flags |= finished_AddressFlag;
+        );
+        iNotifyAudience(d, lookupFinished, AddressLookupFinished);
+        signalAll_Condition(d->lookupDidFinish);
+        iRelease(d); /* ref was added by Queue */
+    }
+    iDebug("[Address] lookup thread exited\n");
     return 0;
+}
+
+static void startLookupThread_Address_(void) {
+    /* Address lookup is done asynchronously because it may involve blocking for unknown
+       periods of time. */
+    if (!lookupThread_) {
+        lookupQueue_  = new_Queue();
+        lookupThread_ = new_Thread(runAddressLookup_);
+        setName_Thread(lookupThread_, "runAddressLookup_");
+        start_Thread(lookupThread_);
+    }
+}
+
+void deinit_Address_(void) {
+    if (lookupThread_) {
+        iThread *thd = lookupThread_;
+        lookupThread_ = NULL;
+        signal_Condition(&lookupQueue_->cond);
+        join_Thread(thd);
+        iRelease(thd);
+        iReleasePtr(&lookupQueue_);
+    }
 }
 
 iLocalDef socklen_t sockAddrSize_addrinfo_(const struct addrinfo *d) {
@@ -125,25 +164,25 @@ iAddress *newSockAddr_Address(const void *     sockAddr,
 }
 
 void init_Address(iAddress *d) {
-    init_Mutex(&d->mutex);
+    d->mutex = new_Mutex();
     init_String(&d->hostName);
     init_String(&d->service);
-    d->pending = NULL;
+    d->socktype = SOCK_STREAM;
     d->info = NULL;
     d->count = -1;
     d->flags = finished_AddressFlag;
     d->lookupFinished = NULL;
-    d->socktype = SOCK_STREAM;
+    d->lookupDidFinish = new_Condition();
 }
 
 void deinit_Address(iAddress *d) {
     waitForFinished_Address(d);
+    delete_Condition(d->lookupDidFinish);
     if (d->info) freeaddrinfo(d->info);
     deinit_String(&d->service);
     deinit_String(&d->hostName);
-    deinit_Mutex(&d->mutex);
+    delete_Mutex(d->mutex);
     delete_Audience(d->lookupFinished);
-    iRelease(d->pending);
 }
 
 const iString *hostName_Address(const iAddress *d) {
@@ -225,7 +264,6 @@ iBool equal_Address(const iAddress *d, const iAddress *other) {
 
 void lookupCStr_Address(iAddress *d, const char *hostName, uint16_t port, enum iSocketType socketType) {
     waitForFinished_Address(d);
-    iReleasePtr(&d->pending);
     if (d->info) {
         freeaddrinfo(d->info);
         d->info = NULL;
@@ -245,20 +283,16 @@ void lookupCStr_Address(iAddress *d, const char *hostName, uint16_t port, enum i
     else {
         clear_String(&d->service);
     }
-    d->pending = new_Thread(runLookup_Address_);
-    setName_Thread(d->pending, "runLookup_Address_");
-    setUserData_Thread(d->pending, d);
-    start_Thread(d->pending);
+    startLookupThread_Address_();
+    put_Queue(lookupQueue_, d);
 }
 
 void waitForFinished_Address(const iAddress *d) {
-#if 0
+    lock_Mutex(d->mutex);
     if (~d->flags & finished_AddressFlag) {
-        /* Prevent the thread from being deleted while we're checking. */
-        guardJoin_Thread(d->pending, &d->mutex);
+        wait_Condition(d->lookupDidFinish, d->mutex);
     }
-#endif
-    join_Thread(d->pending);
+    unlock_Mutex(d->mutex);
 }
 
 /* internal use only */
