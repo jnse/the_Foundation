@@ -216,13 +216,13 @@ uint16_t port_Address(const iAddress *d) {
 
 int count_Address(const iAddress *d) {
     int count;
-    iGuardMutex(&d->mutex, count = d->count);
+    iGuardMutex(d->mutex, count = d->count);
     return count;
 }
 
 iSocketParameters socketParameters_Address(const iAddress *d, int family) {
     iSocketParameters sp = { .family = 0 };
-    iGuardMutex(&d->mutex, {
+    iGuardMutex(d->mutex, {
         for (const struct addrinfo *i = d->info; i; i = i->ai_next) {
             if (family == AF_UNSPEC || i->ai_family == family) {
                 sp.family   = i->ai_family;
@@ -245,7 +245,7 @@ iBool isHostFound_Address(const iAddress *d) {
 
 iBool isPending_Address(const iAddress *d) {
     iBool isFinished;
-    iGuardMutex(&d->mutex, isFinished = (d->flags & finished_AddressFlag) != 0);
+    iGuardMutex(d->mutex, isFinished = (d->flags & finished_AddressFlag) != 0);
     return !isFinished;
 }
 
@@ -307,7 +307,7 @@ void getSockAddr_Address(const iAddress *  d,
     waitForFinished_Address(d);
     *addr_out = NULL;
     *addrSize_out = 0;
-    iGuardMutex(&d->mutex, {
+    iGuardMutex(d->mutex, {
         for (const struct addrinfo *i = d->info; i; i = i->ai_next) {
             if (family == AF_UNSPEC || i->ai_family == family) {
                 if (!byIndex || index-- == 0) {
@@ -351,7 +351,7 @@ iString *toStringFlags_Address(const iAddress *d, int flags, int family) {
     waitForFinished_Address(d);
     iString *str = new_String();
     if (!d) return str;
-    iGuardMutex(&d->mutex, {
+    iGuardMutex(d->mutex, {
         for (const struct addrinfo *i = d->info; i; i = i->ai_next) {
             if (family == AF_UNSPEC || i->ai_family == family) {
                 char hbuf[NI_MAXHOST];
