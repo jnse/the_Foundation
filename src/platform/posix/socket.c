@@ -34,9 +34,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <errno.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+
+static const int connectionTimeoutSeconds_Socket_ = 6;
 
 /* address.c */
 void getSockAddr_Address(const iAddress *  d,
@@ -54,6 +57,7 @@ struct Impl_Socket {
     enum iSocketStatus status;
     iAddress *address;
     int fd;
+    iPipe *stopConnect;
     iThread *connecting;
     iSocketThread *thread;
     iCondition allSent;
@@ -244,6 +248,7 @@ static void init_Socket_(iSocket *d) {
     openEmpty_Buffer(d->input);
     d->fd = -1;
     d->address = NULL;
+    d->stopConnect = NULL;
     d->connecting = NULL;
     d->thread = NULL;
     init_Condition(&d->allSent);
@@ -263,6 +268,7 @@ void deinit_Socket(iSocket *d) {
         iReleasePtr(&d->address);
     });
     deinit_Mutex(&d->mutex);
+    delete_Pipe(d->stopConnect);
     deinit_Condition(&d->allSent);
     delete_Audience(d->connected);
     delete_Audience(d->disconnected);
@@ -282,6 +288,18 @@ static void stopThread_Socket_(iSocket *d) {
         exit_SocketThread_(d->thread);
         iReleasePtr(&d->thread);
     }
+}
+
+static iBool setNonBlocking_Socket_(iSocket *d, iBool set) {
+    long flags = fcntl(d->fd, F_GETFL, 0);
+    if (flags < 0) {
+        return iFalse;
+    }
+    iChangeFlags(flags, O_NONBLOCK, set);
+    if (fcntl(d->fd, F_SETFL, flags) < 0) {
+        return iFalse;
+    }
+    return iTrue;
 }
 
 static void shutdown_Socket_(iSocket *d) {
@@ -307,6 +325,16 @@ static void shutdown_Socket_(iSocket *d) {
 
 iString *toString_SockAddr(const struct sockaddr *addr); /* address.c */
 
+static void setError_Socket_(iSocket *d, int number, const char *message) {
+    lock_Mutex(&d->mutex);
+    setStatus_Socket_(d, disconnected_SocketStatus);
+    unlock_Mutex(&d->mutex);
+    iWarning("[Socket] connection failed: %s\n", message);
+    if (d->error) {
+        iNotifyAudienceArgs(d, error, SocketError, number, message);
+    }
+}
+
 static iThreadResult connectAsync_Socket_(iThread *thd) {
     iSocket *d = userData_Thread(thd);
     struct sockaddr *addr;
@@ -321,8 +349,51 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
             iDebug("[Socket] connecting async to %s (addrSize:%u index:%d)\n",
                    cstrCollect_String(toString_SockAddr(addr)),
                    addrSize, addrIndex);
-            rc = connect(d->fd, addr, addrSize);
+            if (!setNonBlocking_Socket_(d, iTrue)) {
+                /* Wait indefinitely. */
+                rc = connect(d->fd, addr, addrSize);
+            }
+            else {
+                /* Give up after a timeout. */
+                rc = connect(d->fd, addr, addrSize);
+                if (rc && errno != EINPROGRESS) {
+                    continue;
+                }
+                const int stopFd = output_Pipe(d->stopConnect);
+                fd_set stopSet;
+                fd_set connSet;
+                fd_set errSet;
+                FD_ZERO(&stopSet);
+                FD_ZERO(&connSet);
+                FD_ZERO(&errSet);
+                FD_SET(stopFd, &stopSet);
+                FD_SET(d->fd, &connSet);
+                FD_SET(d->fd, &errSet);
+                struct timeval timeout = { .tv_sec = connectionTimeoutSeconds_Socket_ };
+                rc = select(iMax(stopFd, d->fd) + 1, &stopSet, &connSet, &errSet, &timeout);
+                if (rc > 0) {
+                    if (FD_ISSET(stopFd, &stopSet) || FD_ISSET(d->fd, &errSet)) {
+                        setError_Socket_(d, ECONNABORTED, "Connection aborted");
+                        return ECONNABORTED;
+                    }
+                    unsigned int argLen = sizeof(int);
+                    int sockError = 0;
+                    getsockopt(d->fd, SOL_SOCKET, SO_ERROR, &sockError, &argLen);
+                    if (sockError) {
+                        setError_Socket_(d, sockError, strerror(sockError));
+                        return sockError; /* problem with the socket */
+                    }
+                    rc = 0; /* Success. */
+                    setNonBlocking_Socket_(d, iFalse);
+                }
+                else {
+                    rc = -1;
+                    errno = ETIMEDOUT;
+                }
+            }
             lock_Mutex(&d->mutex);
+            delete_Pipe(d->stopConnect);
+            d->stopConnect = NULL;
             if (d->status == connecting_SocketStatus) {
                 if (rc == 0) {
                     setStatus_Socket_(d, connected_SocketStatus);
@@ -338,9 +409,6 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
         }
     }
     if (rc) {
-        lock_Mutex(&d->mutex);
-        setStatus_Socket_(d, disconnected_SocketStatus);
-        unlock_Mutex(&d->mutex);
         int errNum;
         char *msg;
         if (isHostFound_Address(d->address)) {
@@ -349,12 +417,9 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
         }
         else {
             errNum = -1;
-            msg = "failed to look up hostname";
+            msg = "Failed to look up hostname";
         }
-        iWarning("[Socket] connection failed: %s\n", msg);
-        if (d->error) {
-            iNotifyAudienceArgs(d, error, SocketError, errNum, msg);
-        }
+        setError_Socket_(d, errNum, msg);
     }
     return rc;
 }
@@ -371,11 +436,11 @@ static iBool open_Socket_(iSocket *d) {
     }
     else {
         const iSocketParameters sp = socketParameters_Address(d->address, AF_UNSPEC);
-        d->fd = socket(sp.family, sp.type, sp.protocol);
-        /// @todo On Linux, set the O_NONBLOCK flag on the socket.
+        d->fd = socket(sp.family, sp.type, sp.protocol);        
         d->connecting = new_Thread(connectAsync_Socket_);
         setStatus_Socket_(d, connecting_SocketStatus);
         setUserData_Thread(d->connecting, d);
+        d->stopConnect = new_Pipe(); /* used for aborting select() on user action */
         start_Thread(d->connecting);
         return iTrue;
     }
@@ -447,6 +512,9 @@ void close_Socket(iSocket *d) {
             return;
         }
         if (d->status == connecting_SocketStatus) {
+            if (d->stopConnect) {
+                write_Pipe(d->stopConnect, "0", 1);
+            }
             shutdown(d->fd, SHUT_WR);
         }
         else if (d->status == connected_SocketStatus) {

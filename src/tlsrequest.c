@@ -713,9 +713,11 @@ void submit_TlsRequest(iTlsRequest *d) {
 void cancel_TlsRequest(iTlsRequest *d) {
     lock_Mutex(&d->mtx);
     if (d->status == submitted_TlsRequestStatus) {
+        d->status = error_TlsRequestStatus;
         unlock_Mutex(&d->mtx);
         close_Socket(d->socket);
     }
+    signal_Condition(&d->gotIncoming);
     join_Thread(d->thread);
 }
 
