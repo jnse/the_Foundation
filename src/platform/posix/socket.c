@@ -376,7 +376,7 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
                         setError_Socket_(d, ECONNABORTED, "Connection aborted");
                         return ECONNABORTED;
                     }
-                    unsigned int argLen = sizeof(int);
+                    socklen_t argLen = sizeof(int);
                     int sockError = 0;
                     getsockopt(d->fd, SOL_SOCKET, SO_ERROR, &sockError, &argLen);
                     if (sockError) {
