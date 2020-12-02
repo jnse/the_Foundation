@@ -40,6 +40,7 @@ iBeginPublic
 
 iDeclareType(String)
 iDeclareType(StringList)
+iDeclareType(Block)
 
 iDeclareClass(Process)
 iDeclareObjectConstruction(Process)
@@ -53,7 +54,8 @@ void        kill_Process    (iProcess *);
 iProcessId  pid_Process             (const iProcess *);
 iBool       isRunning_Process       (const iProcess *);
 void        waitForFinished_Process (iProcess *);
-iString *   readOutput_Process      (iProcess *);
-iString *   readError_Process       (iProcess *);
+size_t      writeInput_Process      (iProcess *, const iBlock *data);
+iBlock *    readOutput_Process      (iProcess *);
+iBlock *    readError_Process       (iProcess *);
 
 iEndPublic

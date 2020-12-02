@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "the_Foundation/process.h"
+#include "the_Foundation/block.h"
 #include "the_Foundation/stringlist.h"
 #include "the_Foundation/path.h"
 #include "pipe.h"
@@ -41,6 +42,7 @@ struct Impl_Process {
     pid_t pid;
     iStringList *args;
     iString workDir;
+    iPipe pin;
     iPipe pout;
     iPipe perr;
 };
@@ -54,6 +56,7 @@ void init_Process(iProcess *d) {
     d->pid  = 0;
     d->args = new_StringList();
     init_String(&d->workDir);
+    init_Pipe(&d->pin);
     init_Pipe(&d->pout);
     init_Pipe(&d->perr);
 }
@@ -61,6 +64,7 @@ void init_Process(iProcess *d) {
 void deinit_Process(iProcess *d) {
     iRelease(d->args);
     deinit_String(&d->workDir);
+    deinit_Pipe(&d->pin);
     deinit_Pipe(&d->pout);
     deinit_Pipe(&d->perr);
 }
@@ -89,11 +93,14 @@ iBool start_Process(iProcess *d) {
     argv[size_StringList(d->args)] = NULL;
     /* Use pipes to redirect the child's stdout/stderr to us. */
     posix_spawn_file_actions_init(&facts);
+    posix_spawn_file_actions_addclose(&facts, input_Pipe(&d->pin)); /* these are used by parent */
     posix_spawn_file_actions_addclose(&facts, output_Pipe(&d->pout));
     posix_spawn_file_actions_addclose(&facts, output_Pipe(&d->perr));
-    posix_spawn_file_actions_adddup2 (&facts, input_Pipe(&d->pout), 1); // stdout
-    posix_spawn_file_actions_adddup2 (&facts, input_Pipe(&d->perr), 2); // stderr
+    posix_spawn_file_actions_adddup2 (&facts, output_Pipe(&d->pin), 0); /* child's stdin */
+    posix_spawn_file_actions_addclose(&facts, output_Pipe(&d->pin));
+    posix_spawn_file_actions_adddup2 (&facts, input_Pipe(&d->pout), 1); /* child's stdout */
     posix_spawn_file_actions_addclose(&facts, input_Pipe(&d->pout));
+    posix_spawn_file_actions_adddup2 (&facts, input_Pipe(&d->perr), 2); /* child's stderr */
     posix_spawn_file_actions_addclose(&facts, input_Pipe(&d->perr));
     /* Start the child process. */
     rc = posix_spawn(&d->pid, argv[0], &facts, NULL, iConstCast(char **, argv), environ);
@@ -128,14 +135,29 @@ void waitForFinished_Process(iProcess *d) {
     d->pid = 0;
 }
 
-static iString *readFromPipe_(int fd, iString *readChars) {
+size_t writeInput_Process(iProcess *d, const iBlock *data) {
+    const char *ptr = constBegin_Block(data);
+    size_t remain = size_Block(data);
+    while (remain) {
+        ssize_t num = write(input_Pipe(&d->pin), ptr, remain);
+        if (num > 0) {
+            ptr += num;
+            remain -= num;
+        }
+        else break;
+    }
+    close(input_Pipe(&d->pin));
+    return size_Block(data) - remain;
+}
+
+static iBlock *readFromPipe_(int fd, iBlock *readChars) {
     char buf[4096];
     struct pollfd pfd = {.fd = fd, .events = POLLIN};
     while (poll(&pfd, 1, 0) == 1) { // non-blocking
         if (pfd.revents & POLLIN) {
             ssize_t num = read(fd, buf, sizeof(buf));
             if (num > 0) {
-                appendData_Block(&readChars->chars, buf, num);
+                appendData_Block(readChars, buf, num);
             }
             else break;
         }
@@ -144,12 +166,12 @@ static iString *readFromPipe_(int fd, iString *readChars) {
     return readChars;
 }
 
-iString *readOutput_Process(iProcess *d) {
-    return readFromPipe_(output_Pipe(&d->pout), new_String());
+iBlock *readOutput_Process(iProcess *d) {
+    return readFromPipe_(output_Pipe(&d->pout), new_Block(0));
 }
 
-iString *readError_Process(iProcess *d) {
-    return readFromPipe_(output_Pipe(&d->perr), new_String());
+iBlock *readError_Process(iProcess *d) {
+    return readFromPipe_(output_Pipe(&d->perr), new_Block(0));
 }
 
 void kill_Process(iProcess *d) {
