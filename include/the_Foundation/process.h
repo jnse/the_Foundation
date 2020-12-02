@@ -58,4 +58,6 @@ size_t      writeInput_Process      (iProcess *, const iBlock *data);
 iBlock *    readOutput_Process      (iProcess *);
 iBlock *    readError_Process       (iProcess *);
 
+iBlock *    readOutputUntilClosed_Process   (iProcess *); /* blocking */
+
 iEndPublic

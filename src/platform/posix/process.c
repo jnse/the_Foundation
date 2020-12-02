@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/path.h"
 #include "pipe.h"
 
+#include <fcntl.h>
 #include <spawn.h>
 #include <poll.h>
 #include <unistd.h>
@@ -108,6 +109,9 @@ iBool start_Process(iProcess *d) {
     setCwd_Path(oldCwd);
     delete_String(oldCwd);
     posix_spawn_file_actions_destroy(&facts);
+    close(output_Pipe(&d->pin));
+    close(input_Pipe(&d->pout));
+    close(input_Pipe(&d->perr));
     return rc == 0;
 }
 
@@ -178,4 +182,39 @@ void kill_Process(iProcess *d) {
     if (d->pid) {
         kill(d->pid, SIGTERM);
     }
+}
+
+iBlock *readOutputUntilClosed_Process(iProcess *d) {
+    iBlock *output = new_Block(0);
+    const int fd = output_Pipe(&d->pout);
+    int flags = fcntl(fd, F_GETFL, 0);
+    fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+    for (;;) {
+        fd_set reads, errs;
+        FD_ZERO(&reads);
+        FD_ZERO(&errs);
+        FD_SET(fd, &reads);
+        FD_SET(fd, &errs);
+        const int rc = select(fd + 1, &reads, NULL, &errs, NULL);
+        if (rc > 0) {
+            if (FD_ISSET(fd, &errs)) {
+                break;
+            }
+            if (FD_ISSET(fd, &reads)) {
+                char buf[0x20000];
+                ssize_t len = 0;
+                do {
+                    len = read(fd, buf, sizeof(buf));
+                    if (len > 0) {
+                        appendData_Block(output, buf, len);
+                    }
+                    else if (len == 0) {
+                        return output;
+                    }
+                } while (len > 0);
+            }
+        }
+        else break;
+    }
+    return output;
 }
