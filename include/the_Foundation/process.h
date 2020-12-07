@@ -46,6 +46,7 @@ iDeclareClass(Process)
 iDeclareObjectConstruction(Process)
 
 void        setArguments_Process        (iProcess *, const iStringList *args);
+void        setEnvironment_Process      (iProcess *, const iStringList *env); /* additions to environ; "name=value" */
 void        setWorkingDirectory_Process (iProcess *, const iString *cwd);
 
 iBool       start_Process   (iProcess *);

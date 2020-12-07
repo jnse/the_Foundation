@@ -26,6 +26,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
 #include "the_Foundation/process.h"
+
+#include "the_Foundation/array.h"
 #include "the_Foundation/block.h"
 #include "the_Foundation/stringlist.h"
 #include "the_Foundation/path.h"
@@ -42,6 +44,7 @@ struct Impl_Process {
     iObject object;
     pid_t pid;
     iStringList *args;
+    iStringList *envMods;
     iString workDir;
     iPipe pin;
     iPipe pout;
@@ -51,11 +54,12 @@ struct Impl_Process {
 iDefineObjectConstruction(Process)
 iDefineClass(Process)
 
-extern char **environ; // The environment variables.
+extern char **environ; /* The environment variables. */
 
 void init_Process(iProcess *d) {
-    d->pid  = 0;
-    d->args = new_StringList();
+    d->pid     = 0;
+    d->args    = new_StringList();
+    d->envMods = new_StringList();
     init_String(&d->workDir);
     init_Pipe(&d->pin);
     init_Pipe(&d->pout);
@@ -64,6 +68,7 @@ void init_Process(iProcess *d) {
 
 void deinit_Process(iProcess *d) {
     iRelease(d->args);
+    iRelease(d->envMods);
     deinit_String(&d->workDir);
     deinit_Pipe(&d->pin);
     deinit_Pipe(&d->pout);
@@ -74,6 +79,13 @@ void setArguments_Process(iProcess *d, const iStringList *args) {
     clear_StringList(d->args);
     iConstForEach(StringList, i, args) {
         pushBack_StringList(d->args, i.value);
+    }
+}
+
+void setEnvironment_Process(iProcess *d, const iStringList *env) {
+    clear_StringList(d->envMods);
+    iConstForEach(StringList, i, env) {
+        pushBack_StringList(d->envMods, i.value);
     }
 }
 
@@ -103,8 +115,22 @@ iBool start_Process(iProcess *d) {
     posix_spawn_file_actions_addclose(&facts, input_Pipe(&d->pout));
     posix_spawn_file_actions_adddup2 (&facts, input_Pipe(&d->perr), 2); /* child's stderr */
     posix_spawn_file_actions_addclose(&facts, input_Pipe(&d->perr));
+    char **envs = environ;
+    /* The environment. */
+    if (!isEmpty_StringList(d->envMods)) {
+        /* TODO: This doesn't handle changes to previously set variables. */
+        iArray *env = collectNew_Array(sizeof(char *));
+        for (char **e = environ; *e; e++) {
+            pushBack_Array(env, e);
+        }
+        iConstForEach(StringList, e, d->envMods) {
+            pushBack_Array(env, &(const char *){ cstr_String(e.value) });
+        }
+        pushBack_Array(env, &(const char *){ NULL });
+        envs = data_Array(env);
+    }
     /* Start the child process. */
-    rc = posix_spawn(&d->pid, argv[0], &facts, NULL, iConstCast(char **, argv), environ);
+    rc = posix_spawn(&d->pid, argv[0], &facts, NULL, iConstCast(char **, argv), envs);
     free(argv);
     setCwd_Path(oldCwd);
     delete_String(oldCwd);
