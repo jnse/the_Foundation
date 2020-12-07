@@ -11,7 +11,7 @@ macro (tfdn_set_compile_options target)
     set_property (TARGET ${target} PROPERTY C_STANDARD 11)
     target_compile_options (${target} PRIVATE -Wall -Wpedantic -Werror)
     if (CMAKE_COMPILER_IS_GNUCC)
-        target_compile_options (${target} PRIVATE -Wno-format)
+        target_compile_options (${target} PRIVATE -Wno-format -Wno-address)
         if (iPlatformWindows)
             target_compile_options (${target} PRIVATE
                 -Wno-int-conversion

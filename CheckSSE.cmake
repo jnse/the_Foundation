@@ -6,7 +6,7 @@ try_run (
     ${CMAKE_CURRENT_LIST_DIR}/ssecheck.c
     RUN_OUTPUT_VARIABLE sseOutput
 )
-string (STRIP ${sseOutput} sseOutput)
+string (STRIP "${sseOutput}" sseOutput)
 # message (STATUS "sseCompiled: ${sseCompiled}")
 # message (STATUS "sseRunCode: ${sseRunCode}")
 # message (STATUS "sseOutput: ${sseOutput}")

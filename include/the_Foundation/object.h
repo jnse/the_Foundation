@@ -136,7 +136,7 @@ iLocalDef void iRelease(const iAnyObject *d) {
 
 #define iChangeRef(d, ptr)   { iRelease(d); (d) = ref_Object(ptr); }
 
-#define iReleasePtr(d) { iAssert((d) != NULL); deref_Object(*(d)); *(d) = NULL; }
+#define iReleasePtr(d)       { iAssert((d) != NULL); if (d) { deref_Object(*(d)); *(d) = NULL; } } 
 
 iLocalDef iAnyObject *iReleaseLater(const iAnyObject *d) {
     return collect_Object(d);
