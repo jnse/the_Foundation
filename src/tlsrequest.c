@@ -98,17 +98,22 @@ static iBool readAllFromBIO_(BIO *bio, iBlock *out) {
 
 struct Impl_TlsCertificate {
     X509 *cert;
+    EVP_PKEY *pkey;
 };
 
 iDefineTypeConstruction(TlsCertificate)
 
 void init_TlsCertificate(iTlsCertificate *d) {
     d->cert = NULL;
+    d->pkey = NULL;
 }
 
 void deinit_TlsCertificate(iTlsCertificate *d) {
     if (d->cert) {
         X509_free(d->cert);
+    }
+    if (d->pkey) {
+        EVP_PKEY_free(d->pkey);
     }
 }
 
@@ -129,10 +134,7 @@ iTlsCertificate *newPem_TlsCertificate(const iString *pem) {
 iTlsCertificate *newPemKey_TlsCertificate(const iString *certPem, const iString *keyPem) {
     iTlsCertificate *d = newPem_TlsCertificate(certPem);
     BIO *buf = BIO_new_mem_buf(cstr_String(keyPem), size_String(keyPem));
-    EVP_PKEY *pkey = NULL;
-    PEM_read_bio_PrivateKey(buf, &pkey, NULL, "");
-    X509_set_pubkey(d->cert, pkey);
-    EVP_PKEY_free(pkey);
+    PEM_read_bio_PrivateKey(buf, &d->pkey, NULL, "");
     BIO_free(buf);
     return d;
 }
@@ -203,11 +205,11 @@ iTlsCertificate *newSelfSignedRSA_TlsCertificate(
     BN_asc2bn(&exponent, "65537");
     RSA_generate_key_ex(rsa, rsaBits, exponent, NULL);
     BN_free(exponent);
-    EVP_PKEY *pkey = EVP_PKEY_new();
-    EVP_PKEY_assign_RSA(pkey, rsa);
     iTlsCertificate *d = new_TlsCertificate();
     d->cert = X509_new();
-    X509_set_pubkey(d->cert, pkey);
+    d->pkey = EVP_PKEY_new();
+    EVP_PKEY_assign_RSA(d->pkey, rsa);
+    X509_set_pubkey(d->cert, d->pkey);
     /* Set names. */ {
         X509_NAME *issuer = makeX509Name_(issuerBit_TlsCertificateNameType, names);
         X509_set_issuer_name(d->cert, issuer);
@@ -228,9 +230,8 @@ iTlsCertificate *newSelfSignedRSA_TlsCertificate(
         X509_set1_notAfter(d->cert, notAfter);
         ASN1_TIME_free(notAfter);
     }
-    X509_sign(d->cert, pkey, EVP_sha256());
+    X509_sign(d->cert, d->pkey, EVP_sha256());
     checkErrors_();
-    EVP_PKEY_free(pkey);
     return d;
 }
 
@@ -337,9 +338,9 @@ iString *pem_TlsCertificate(const iTlsCertificate *d) {
 
 iString *privateKeyPem_TlsCertificate(const iTlsCertificate *d) {
     iString *pem = new_String();
-    if (d->cert) {
+    if (d->pkey) {
         BIO *buf = BIO_new(BIO_s_mem());
-        PEM_write_bio_PrivateKey(buf, X509_get0_pubkey(d->cert), NULL, NULL, 0, NULL, NULL);
+        PEM_write_bio_PrivateKey(buf, d->pkey, NULL, NULL, 0, NULL, NULL);
         readAllFromBIO_(buf, &pem->chars);
         BIO_free(buf);
     }
@@ -697,7 +698,7 @@ void submit_TlsRequest(iTlsRequest *d) {
     /* The client certificate. */
     if (d->clientCert) {
         SSL_use_certificate(d->ssl, d->clientCert->cert);
-        SSL_use_PrivateKey(d->ssl, X509_get0_pubkey(d->clientCert->cert));
+        SSL_use_PrivateKey(d->ssl, d->clientCert->pkey);
     }
     d->socket = new_Socket(cstr_String(d->hostName), d->port);
     iConnect(Socket, d->socket, connected, d, connected_TlsRequest_);
