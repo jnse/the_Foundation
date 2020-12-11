@@ -109,19 +109,19 @@ void            initCopy_String         (iString *, const iString *other);
 
 iLocalDef void initRange_String (iString *d, const iRangecc range) { initCStrN_String(d, range.start, size_Range(&range)); }
 
-const char *    cstr_String     (const iString *);
-size_t          length_String   (const iString *);
-size_t          size_String     (const iString *);
-iString *       mid_String      (const iString *, size_t charStartPos, size_t charCount);
-iString *       upper_String    (const iString *);
-iString *       lower_String    (const iString *);
-iStringList *   split_String    (const iString *, const char *separator);
-iString *       urlEncode_String(const iString *);
+const char *    cstr_String         (const iString *);
+size_t          length_String       (const iString *);
+size_t          size_String         (const iString *);
+iString *       mid_String          (const iString *, size_t charStartPos, size_t charCount);
+iString *       upper_String        (const iString *);
+iString *       lower_String        (const iString *);
+iStringList *   split_String        (const iString *, const char *separator);
+iString *       urlEncode_String    (const iString *);
 iString *       urlEncodeExclude_String(const iString *d, const char *excluded);
-iString *       urlDecode_String(const iString *);
-iChar           first_String    (const iString *);
-iBlock *        toLocal_String  (const iString *);
-iBlock *        toUtf16_String  (const iString *);
+iString *       urlDecode_String    (const iString *);
+iChar           first_String        (const iString *);
+iBlock *        toLocal_String      (const iString *);
+iBlock *        toUtf16_String      (const iString *);
 
 /**
  * Returns a pointer to the string converted to the current locale's encoding.
@@ -219,6 +219,7 @@ void            trimStart_String(iString *);
 void            trimEnd_String  (iString *);
 void            trim_String     (iString *);
 iString *       trimmed_String  (const iString *);
+void            normalize_String(iString *); /* NFC */
 
 int             toInt_String    (const iString *);
 float           toFloat_String  (const iString *);
@@ -290,6 +291,9 @@ size_t          lastIndexOfCStr_Rangecc     (iRangecc, const char *cstr);
 iBool           nextSplit_Rangecc   (iRangecc, const char *separator, iRangecc *range);
 
 const char *    findAscii_Rangecc   (iRangecc, char ch);
+
+iString *       punyEncode_Rangecc  (iRangecc); /* RFC 3492 */
+iString *       punyDecode_Rangecc  (iRangecc);
 
 iStringList *   split_CStr  (const char *cstr, const char *separator);
 

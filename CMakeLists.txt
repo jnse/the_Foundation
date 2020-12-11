@@ -174,6 +174,7 @@ set (SOURCES
     src/path.c
     src/ptrarray.c
     src/ptrset.c
+    src/punycode.c
     src/random.c
     src/rect.c
     src/queue.c

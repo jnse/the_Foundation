@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <unicase.h>
 #include <unictype.h>
 #include <uniconv.h>
+#include <uninorm.h>
 #include <unistr.h>
 #include <ctype.h>
 
@@ -341,6 +342,19 @@ iString *trimmed_String(const iString *d) {
     iString *str = copy_String(d);
     trim_String(str);
     return str;
+}
+
+void normalize_String(iString *d) {
+    size_t len = 0;
+    unistring_uint8_t *nfc =
+        u8_normalize(UNINORM_NFC, constData_Block(&d->chars), size_Block(&d->chars), NULL, &len);
+    /* Ensure it's null-terminated. */
+    nfc = realloc(nfc, len + 1);
+    nfc[len] = 0;
+    iBlock data;
+    initPrealloc_Block(&data, nfc, len, len + 1);
+    set_Block(&d->chars, &data);
+    deinit_Block(&data);
 }
 
 const char *cstr_String(const iString *d) {

@@ -488,5 +488,11 @@ int main(int argc, char *argv[]) {
         delete_Block(compr);
     }
 #endif
+    /* Test Punycode. */ {
+        const iString domain = iStringLiteral("räksmörgås");
+        iString *puny = collect_String(punyEncode_Rangecc(range_String(&domain)));
+        iString *dec = collect_String(punyDecode_Rangecc(range_String(puny)));
+        printf("%s => %s => %s\n", cstrLocal_String(&domain), cstr_String(puny), cstrLocal_String(dec));
+    }
     return 0;
 }
