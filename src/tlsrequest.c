@@ -527,7 +527,7 @@ void deinit_TlsRequest(iTlsRequest *d) {
     deinit_Mutex(&d->mtx);
 }
 
-void setUrl_TlsRequest(iTlsRequest *d, const iString *hostName, uint16_t port) {
+void setHost_TlsRequest(iTlsRequest *d, const iString *hostName, uint16_t port) {
     set_String(d->hostName, hostName);
     d->port = port;
 }

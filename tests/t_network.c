@@ -241,9 +241,9 @@ int main(int argc, char *argv[]) {
         iCommandLineArg *tlsArgs = iClob(checkArgumentValues_CommandLine(cmdline, "t;tls", 2));
         if (tlsArgs) {
             iTlsRequest *tls = iClob(new_TlsRequest());
-            setUrl_TlsRequest(tls,
-                              value_CommandLineArg(tlsArgs, 0),
-                              toInt_String(value_CommandLineArg(tlsArgs, 1)));
+            setHost_TlsRequest(tls,
+                               value_CommandLineArg(tlsArgs, 0),
+                               toInt_String(value_CommandLineArg(tlsArgs, 1)));
             iConnect(TlsRequest, tls, readyRead, tls, printTlsRequestProgress_);
             iConnect(TlsRequest, tls, finished, tls, printTlsRequestResult_);
             iString *content = collectNew_String();
