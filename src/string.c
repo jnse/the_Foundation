@@ -346,7 +346,7 @@ iString *trimmed_String(const iString *d) {
 
 void normalize_String(iString *d) {
     size_t len = 0;
-    unistring_uint8_t *nfc =
+    uint8_t *nfc =
         u8_normalize(UNINORM_NFC, constData_Block(&d->chars), size_Block(&d->chars), NULL, &len);
     /* Ensure it's null-terminated. */
     nfc = realloc(nfc, len + 1);

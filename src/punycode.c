@@ -236,8 +236,7 @@ static enum iPunyStatus decode_(uint32_t inputLength, const char input[], uint32
 iString *punyEncode_Rangecc(const iRangecc d) {
     iString *out = new_String();
     size_t inputLength = 0;
-    unistring_uint32_t *input = u8_to_u32((const unistring_uint8_t *) d.start,
-                                          size_Range(&d), NULL, &inputLength);
+    uint32_t *input = u8_to_u32((const uint8_t *) d.start, size_Range(&d), NULL, &inputLength);
     resize_Block(&out->chars, inputLength * 2);
     for (;;) {
         uint32_t outputLength = size_Block(&out->chars);
