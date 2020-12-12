@@ -442,6 +442,7 @@ iStringList *split_String(const iString *d, const char *separator) {
 
 iString *urlEncodeExclude_String(const iString *d, const char *exclude) {
     iString *encoded = new_String();
+    /* Note: Any UTF-8 code points are encoded as multiple %NN sequences. */
     for (const char *i = constBegin_String(d), *end = constEnd_String(d); i != end; ++i) {
         char ch = *i;
         if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') ||
