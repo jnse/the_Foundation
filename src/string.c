@@ -467,23 +467,22 @@ static int fromHex_(char ch) {
     if (ch >= '0' && ch <= '9') return ch - '0';
     if (ch >= 'A' && ch <= 'F') return 10 + ch - 'A';
     if (ch >= 'a' && ch <= 'f') return 10 + ch - 'a';
-    return 0;
+    return -1;
 }
 
 iString *urlDecode_String(const iString *d) {
     iString *decoded = new_String();
     for (const char *i = constBegin_String(d), *end = constEnd_String(d); i != end; ++i) {
-        if (*i == '%') {
-            if (i + 3 <= end) {
-                const char ch = (char) ((fromHex_(i[1]) << 4) | fromHex_(i[2]));
+        if (*i == '%' && i + 3 <= end) {
+            const int values[2] = { fromHex_(i[1]), fromHex_(i[2]) };
+            if (values[0] >= 0 && values[1] >= 0) {
+                const char ch = (char) ((values[0] << 4) | values[1]);
                 appendData_Block(&decoded->chars, &ch, 1);
                 i += 2;
+                continue;
             }
-            else break;
         }
-        else {
-            appendData_Block(&decoded->chars, i, 1);
-        }
+        appendData_Block(&decoded->chars, i, 1);
     }
     return decoded;
 }
