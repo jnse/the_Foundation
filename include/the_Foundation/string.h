@@ -212,14 +212,15 @@ void            prepend_String      (iString *, const iString *other);
 void            prependChar_String  (iString *, iChar ch);
 void            prependCStr_String  (iString *, const char *cstr);
 
-void            clear_String    (iString *);
-void            truncate_String (iString *, size_t charCount);
-void            removeEnd_String(iString *, size_t charCount);
-void            trimStart_String(iString *);
-void            trimEnd_String  (iString *);
-void            trim_String     (iString *);
-iString *       trimmed_String  (const iString *);
-void            normalize_String(iString *); /* NFC */
+void            clear_String        (iString *);
+void            truncate_String     (iString *, size_t charCount);
+void            removeEnd_String    (iString *, size_t charCount);
+void            trimStart_String    (iString *);
+void            trimEnd_String      (iString *);
+void            trim_String         (iString *);
+iString *       trimmed_String      (const iString *);
+void            replace_String      (iString *, const char *src, const char *dst);
+void            normalize_String    (iString *); /* NFC */
 
 int             toInt_String    (const iString *);
 float           toFloat_String  (const iString *);

@@ -344,6 +344,17 @@ iString *trimmed_String(const iString *d) {
     return str;
 }
 
+void replace_String(iString *d, const char *src, const char *dst) {
+    const size_t srcLen = strlen(src);
+    const size_t dstLen = strlen(dst);
+    for (size_t pos = indexOfCStr_String(d, src); pos != iInvalidPos;
+         pos = indexOfCStrFrom_String(d, src, pos)) {
+        remove_Block(&d->chars, pos, srcLen);
+        insertData_Block(&d->chars, pos, dst, dstLen);
+        pos += dstLen;
+    }
+}
+
 void normalize_String(iString *d) {
     size_t len = 0;
     uint8_t *nfc =
