@@ -288,6 +288,23 @@ iBool isExpired_TlsCertificate(const iTlsCertificate *d) {
 
 iBool verifyDomain_TlsCertificate(const iTlsCertificate *d, iRangecc domain) {
     if (!d->cert) return iFalse;
+    /* Check the common name first manually. X509_check_host() seems to prioritize SAN,
+       so if it doesn't match the CN is ignored. This doesn't support wildcards, though. */ {
+        X509_NAME_ENTRY *e;
+        X509_NAME *subject = X509_get_subject_name(d->cert);
+        for (int lastpos = -1;;) {
+            lastpos = X509_NAME_get_index_by_NID(subject, NID_commonName, lastpos);
+            if (lastpos == -1) {
+                break;
+            }
+            e = X509_NAME_get_entry(subject, lastpos);
+            const unsigned char *name = ASN1_STRING_get0_data(X509_NAME_ENTRY_get_data(e));
+            if (equalCase_Rangecc(domain, (const char *) name)) {
+                return iTrue;
+            }
+        }
+    }
+    /* OpenSSL's check does wildcards, too. */
     return X509_check_host(d->cert, domain.start, size_Range(&domain), 0, NULL) > 0;
 }
 
