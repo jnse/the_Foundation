@@ -239,6 +239,10 @@ iBool isEmpty_TlsCertificate(const iTlsCertificate *d) {
     return d->cert == NULL;
 }
 
+iBool hasPrivateKey_TlsCertificate(const iTlsCertificate *d) {
+    return d->pkey != NULL;
+}
+
 iString *subject_TlsCertificate(const iTlsCertificate *d) {
     iString *sub = new_String();
     if (d->cert) {
@@ -333,6 +337,23 @@ iBlock *fingerprint_TlsCertificate(const iTlsCertificate *d) {
         /* Get the DER serialization of the certificate. */ {
             BIO *buf = BIO_new(BIO_s_mem());
             i2d_X509_bio(buf, d->cert);
+            readAllFromBIO_(buf, &der);
+            BIO_free(buf);
+        }
+        SHA256(constData_Block(&der), size_Block(&der), data_Block(sha));
+        deinit_Block(&der);
+    }
+    return sha;
+}
+
+iBlock *privateKeyFingerprint_TlsCertificate(const iTlsCertificate *d) {
+    iBlock *sha = new_Block(SHA256_DIGEST_LENGTH);
+    if (d->pkey) {
+        iBlock der;
+        init_Block(&der, 0);
+        /* Get the DER serialization of the private key. */ {
+            BIO *buf = BIO_new(BIO_s_mem());
+            i2d_PrivateKey_bio(buf, d->pkey);
             readAllFromBIO_(buf, &der);
             BIO_free(buf);
         }

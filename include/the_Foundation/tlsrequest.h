@@ -81,6 +81,7 @@ iTlsCertificate *   newSelfSignedRSA_TlsCertificate(int rsaBits, iDate validUnti
                                                     const iTlsCertificateName *namesNullTerminatedArray);
 
 iBool               isEmpty_TlsCertificate      (const iTlsCertificate *);
+iBool               hasPrivateKey_TlsCertificate(const iTlsCertificate *);
 iString *           subject_TlsCertificate      (const iTlsCertificate *);
 iString *           issuer_TlsCertificate       (const iTlsCertificate *);
 void                validUntil_TlsCertificate   (const iTlsCertificate *, iDate *untilDate_out);
@@ -91,6 +92,7 @@ iBool               equal_TlsCertificate        (const iTlsCertificate *, const 
 iString *           pem_TlsCertificate          (const iTlsCertificate *);
 iString *           privateKeyPem_TlsCertificate(const iTlsCertificate *);
 iBlock *            fingerprint_TlsCertificate  (const iTlsCertificate *);
+iBlock *            privateKeyFingerprint_TlsCertificate(const iTlsCertificate *d);
 
 /*----------------------------------------------------------------------------------------------*/
 
