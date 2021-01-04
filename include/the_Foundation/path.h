@@ -69,8 +69,9 @@ iLocalDef const char *cleanedPath_CStr(const char *cstr) {
     return cstrCollect_String(cleanedCStr_Path(cstr));
 }
 
-iRangecc    baseName_Path   (const iString *); /* returns address of last component */
-iRangecc    dirName_Path    (const iString *);
+iRangecc    baseName_Path           (const iString *); /* returns address of last component */
+iRangecc    withoutExtension_Path   (const iString *);
+iRangecc    dirName_Path            (const iString *);
 
 #if defined (iPlatformCygwin) || defined (iPlatformMsys)
 iString *   unixToWindows_Path         (const char *cstr);

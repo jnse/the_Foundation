@@ -269,6 +269,17 @@ iRangecc baseName_Path(const iString *d) {
                        constEnd_String(d) };
 }
 
+iRangecc withoutExtension_Path(const iString *d) {
+    iRangecc base = baseName_Path(d);
+    while (base.start < base.end && *base.start != '.') {
+        base.start++;
+    }
+    if (isEmpty_Range(&base)) {
+        return range_String(d);
+    }
+    return (iRangecc){ constBegin_String(d), base.start };
+}
+
 iRangecc dirName_Path(const iString *d) {
     const size_t sep = lastIndexOfCStr_String(d, iPathSeparator);
     if (sep == iInvalidSize) {
