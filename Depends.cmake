@@ -21,7 +21,7 @@ if (NOT IOS)
     # Unicode text strings
     set (UNISTRING_DIR "" CACHE PATH "Location of libunistring")
     if (UNISTRING_DIR STREQUAL "")
-        find_file (UNISTR_H unistr.h PATHS /usr/local/include)
+        find_file (UNISTR_H unistr.h PATHS /usr/local/include /opt/homebrew/include)
         if (NOT UNISTR_H)
             message (FATAL_ERROR "Not found: unistr.h from GNU libunistring (set UNISTRING_DIR)")
         endif ()
