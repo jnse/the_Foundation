@@ -6,3 +6,5 @@ doc
 build
 build-*
 .DS_Store
+*~
+
