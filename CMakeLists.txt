@@ -37,6 +37,7 @@ option (TFDN_ENABLE_SSE41 "Enable SSE 4.1 instructions" ${SSE41_FOUND})
 option (TFDN_ENABLE_TESTS "Enable test apps" ON)
 option (TFDN_ENABLE_TLSREQUEST "Enable TLS requests (w/OpenSSL)" ON)
 option (TFDN_ENABLE_WEBREQUEST "Enable HTTP(S) web requests (w/curl)" ON)
+option (TFDN_ENABLE_WIN32_FILE_API "Enable use of native Win32 file APIs on Windows" OFF)
 option (TFDN_STATIC_LIBRARY "Build a static library instead of a shared library" OFF)
 
 if (CMAKE_SYSTEM_NAME STREQUAL FreeBSD)
@@ -155,7 +156,6 @@ set (SOURCES
     src/class.c
     src/commandline.c
     src/crc32.c
-    src/file.c
     src/fileinfo.c
     src/future.c
     src/garbage.c
@@ -235,6 +235,16 @@ else () # WIN32
         src/platform/win32/process.c
         src/platform/win32/service.c
         src/platform/win32/socket.c
+    )
+endif ()
+if (ENABLE_WIN32_FILE_API AND (iPlatformWindows OR iPlatformMsys))
+    list (APPEND SOURCES
+        src/platform/win32/file.c
+        src/platform/win32/wide.h
+    )
+else ()
+    list (APPEND SOURCES
+        src/file.c
     )
 endif ()
 if (PCRE_FOUND)

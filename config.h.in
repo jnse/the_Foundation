@@ -51,6 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #cmakedefine iHaveStrnstr
 #cmakedefine iHaveTlsRequest
 #cmakedefine iHaveWebRequest
+#cmakedefine iHaveWin32FileAPI
 #cmakedefine iHaveZlib
 
 #if !defined (iHavePThreadTimedMutex) && !defined (C11THREADS_NO_TIMED_MUTEX)

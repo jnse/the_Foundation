@@ -32,9 +32,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 #if defined (iPlatformWindows) || defined (iPlatformMsys)
+#   define iHaveMsdirent 1
+#   include "platform/win32/wide.h"
 #   include "platform/win32/msdirent.h"
-
-#define R_OK 0
+#   define R_OK 0
 
 static int access(const char *path, int mode) {
     const iString str = iStringLiteral(path);
@@ -62,15 +63,15 @@ static int access(const char *path, int mode) {
 #endif
 
 enum FileInfoFlags {
-    exists_FileInfoFlag     = 1,
-    directory_FileInfoFlag  = 2,
+    exists_FileInfoFlag     = iBit(1),
+    directory_FileInfoFlag  = iBit(2),
 };
 
 struct Impl_FileInfo {
     iObject object;
     iString *path;
     iTime lastModified;
-    long size;
+    size_t size;
     uint32_t flags;
 };
 
@@ -89,18 +90,18 @@ void init_FileInfo(iFileInfo *d, const iString *path) {
     d->flags = 0;
     struct stat st;
     if (!stat(cstr_String(d->path), &st)) {
-        #if defined (iPlatformWindows)
-            d->lastModified.ts = (struct timespec){ .tv_sec = st.st_mtime };
-        #else
-            d->lastModified.ts = st.st_mtimespec;
-        #endif
+#if defined (iPlatformWindows)
+        d->lastModified.ts = (struct timespec){ .tv_sec = st.st_mtime };
+#else
+        d->lastModified.ts = st.st_mtimespec;
+#endif
         d->size = st.st_size;
         d->flags |= exists_FileInfoFlag;
         if (st.st_mode & S_IFDIR) d->flags |= directory_FileInfoFlag;
     }
     else {
         iZap(d->lastModified);
-        d->size = iFileInfoUnknownSize;
+        d->size = iInvalidSize;
     }
 }
 
@@ -108,7 +109,7 @@ static iBool initDirEntry_FileInfo_(iFileInfo *d, const iString *dirPath, struct
     iString entryName;
 #if defined (iPlatformApple)
     initLocalCStrN_String(&entryName, ent->d_name, ent->d_namlen);
-#elif defined (iPlatformWindows) || defined (iPlatformMsys)
+#elif defined (iHaveMsdirent)
     initCStrN_String(&entryName, ent->d_name, ent->d_namlen); /* UTF-8 name */
 #else
     initLocalCStr_String(&entryName, ent->d_name);
@@ -125,8 +126,11 @@ static iBool initDirEntry_FileInfo_(iFileInfo *d, const iString *dirPath, struct
     d->flags = exists_FileInfoFlag;
     if (ent->d_type == DT_DIR) {
         d->flags |= directory_FileInfoFlag;
+        d->size = 0;
     }
-    d->size = iFileInfoUnknownSize; // Unknown at this time.
+    else {
+        d->size = iInvalidSize; // Unknown at this time.
+    }
     return iTrue;
 }
 
@@ -142,8 +146,8 @@ const iString *path_FileInfo(const iFileInfo *d) {
     return d->path;
 }
 
-long size_FileInfo(const iFileInfo *d) {
-    if (d->size < 0) {
+size_t size_FileInfo(const iFileInfo *d) {
+    if (d->size == iInvalidSize) {
         iConstCast(iFileInfo *, d)->size = fileSize_FileInfo(d->path);
     }
     return d->size;
@@ -157,12 +161,12 @@ iTime lastModified_FileInfo(const iFileInfo *d) {
     if (!isValid_Time(&d->lastModified)) {
         struct stat st;
         if (!stat(cstr_String(d->path), &st)) {
-            #if defined (iPlatformWindows)
-                iConstCast(iFileInfo *, d)->lastModified.ts = (struct timespec){ 
-                    .tv_sec = st.st_mtime };
-            #else
-                iConstCast(iFileInfo *, d)->lastModified.ts = st.st_mtimespec;
-            #endif
+#if defined (iPlatformWindows)
+            iConstCast(iFileInfo *, d)->lastModified.ts = (struct timespec){ 
+                .tv_sec = st.st_mtime };
+#else
+            iConstCast(iFileInfo *, d)->lastModified.ts = st.st_mtimespec;
+#endif
         }
     }
     return d->lastModified;
@@ -188,16 +192,41 @@ iBool fileExistsCStr_FileInfo(const char *path) {
     return !access(path, R_OK);
 }
 
-long fileSize_FileInfo(const iString *path) {
+size_t fileSize_FileInfo(const iString *path) {
     return fileSizeCStr_FileInfo(cstr_String(path));
 }
 
-long fileSizeCStr_FileInfo(const char *path) {
+size_t fileSizeCStr_FileInfo(const char *path) {
+    size_t size = iInvalidSize;
+#if defined (iHaveMsdirent)
+    iBeginCollect();
+    const wchar_t *wpath = toWide_CStr_(path);
+    HANDLE f = CreateFileW(wpath,
+                           FILE_READ_ATTRIBUTES,
+                           FILE_SHARE_READ,
+                           NULL,
+                           OPEN_EXISTING,
+                           0,
+                           NULL);
+    if (f != INVALID_HANDLE_VALUE) {
+        BY_HANDLE_FILE_INFORMATION info;
+        GetFileInformationByHandle(f, &info);
+        size = (size_t) info.nFileSizeLow | (((size_t) info.nFileSizeHigh) << 32);
+        CloseHandle(f);
+    }
+    else {
+        if (GetFileAttributesW(wpath) & FILE_ATTRIBUTE_DIRECTORY) {
+            size = 0;
+        }
+    }
+    iEndCollect();
+#else
     struct stat st;
     if (!stat(path, &st)) {
-        return st.st_size;
+        size = (size_t) st.st_size;
     }
-    return iFileInfoUnknownSize;
+#endif
+    return size;
 }
 
 /*-------------------------------------------------------------------------------------*/

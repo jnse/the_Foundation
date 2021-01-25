@@ -202,13 +202,6 @@ static void rewinddir(DIR* dirp);
 #define DIRENT_SET_ERRNO(x) (errno = (x))
 #endif
 
-static const wchar_t *toWide_CStr(const char *u8) {
-    const iString str = iStringLiteral(u8);
-    iBlock *u16 = toUtf16_String(&str);
-    return (wchar_t *) data_Block(collect_Block(u16));
-}
-
-
 /*****************************************************************************
  * Open directory stream DIRNAME for read and return a pointer to the
  * internal working area that is used to retrieve individual directory
@@ -238,7 +231,7 @@ static DIR *opendir(const char *dirname)
        * allows rewinddir() to function correctly when the current working
        * directory is changed between opendir() and rewinddir().
        */
-      if (GetFullPathNameW (toWide_CStr(dirname), MAX_PATH, dirp->patt, NULL)) {
+      if (GetFullPathNameW (toWide_CStr_(dirname), MAX_PATH, dirp->patt, NULL)) {
          wchar_t *p;
 
          /* append the search pattern "\\*\0" to the directory name */

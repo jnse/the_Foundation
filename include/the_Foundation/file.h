@@ -53,7 +53,7 @@ struct Impl_File {
     iStream stream;
     iString *path;
     int flags;
-    FILE *file;
+    void *file; /* native handle */
 };
 
 iDeclareObjectConstructionArgs(File, const iString *path)

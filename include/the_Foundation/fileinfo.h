@@ -39,22 +39,20 @@ iDeclareClass(DirFileInfo)
 iDeclareType(File)
 iDeclareType(Time)
 
-#define iFileInfoUnknownSize ((long) -1)
-
 iDeclareObjectConstructionArgs(FileInfo, const iString *path)
 
 iFileInfo * newCStr_FileInfo(const char *path);
 
 iBool       exists_FileInfo         (const iFileInfo *);
 const iString * path_FileInfo       (const iFileInfo *);
-long        size_FileInfo           (const iFileInfo *);
+size_t      size_FileInfo           (const iFileInfo *);
 iBool       isDirectory_FileInfo    (const iFileInfo *);
 iTime       lastModified_FileInfo   (const iFileInfo *);
 
 iBool       fileExists_FileInfo     (const iString *path);
 iBool       fileExistsCStr_FileInfo (const char *path);
-long        fileSize_FileInfo       (const iString *path);
-long        fileSizeCStr_FileInfo   (const char *path);
+size_t      fileSize_FileInfo       (const iString *path);
+size_t      fileSizeCStr_FileInfo   (const char *path);
 
 iDirFileInfo *  directoryContents_FileInfo  (const iFileInfo *);
 
