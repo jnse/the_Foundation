@@ -31,8 +31,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/path.h"
 
 #include <stdlib.h>
-#if defined (iPlatformWindows)
+#if defined (iPlatformWindows) || defined (iPlatformMsys)
 #   include "platform/win32/msdirent.h"
+
+#define R_OK 0
+
+static int access(const char *path, int mode) {
+    const iString str = iStringLiteral(path);
+    iBlock *wpath = toUtf16_String(&str);
+    const DWORD attr = GetFileAttributesW(data_Block(wpath));
+    delete_Block(wpath);
+    iUnused(mode);
+    return (attr == INVALID_FILE_ATTRIBUTES ? -1 : 0);
+}
+
 #else
 #   include <sys/stat.h>
 #   include <sys/types.h>
@@ -96,6 +108,8 @@ static iBool initDirEntry_FileInfo_(iFileInfo *d, const iString *dirPath, struct
     iString entryName;
 #if defined (iPlatformApple)
     initLocalCStrN_String(&entryName, ent->d_name, ent->d_namlen);
+#elif defined (iPlatformWindows) || defined (iPlatformMsys)
+    initCStrN_String(&entryName, ent->d_name, ent->d_namlen); /* UTF-8 name */
 #else
     initLocalCStr_String(&entryName, ent->d_name);
 #endif

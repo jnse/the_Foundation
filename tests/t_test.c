@@ -193,6 +193,7 @@ int main(int argc, char *argv[]) {
                 delete_String(clean);
                 iString *abso = makeAbsolute_Path(k.value);
                 printf("\n  absolute: %s", cstrLocal_String(abso));
+                printf("\n  file exists: %s\n", fileExists_FileInfo(abso) ? "yes" : "no");
                 delete_String(abso);
             }
             puts("");

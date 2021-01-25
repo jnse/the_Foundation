@@ -1,5 +1,5 @@
 /*****************************************************************************
- * dirent.h - dirent API for Microsoft Visual Studio
+ * dirent.h - dirent API using Win32
  *
  * Copyright (C) 2006 Toni Ronkko
  *
@@ -21,6 +21,9 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Jan 25, 2021, Jaakko Keränen
+ * Use Windows Unicode APIs, convert from/to UTF-8.
  *
  * Mar 15, 2011, Toni Ronkko
  * Defined FILE_ATTRIBUTE_DEVICE for MSVC 6.0.
@@ -85,6 +88,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <wchar.h>
 
 /* Entries missing from MSVC 6.0 */
 #if !defined(FILE_ATTRIBUTE_DEVICE)
@@ -168,10 +172,10 @@ typedef struct dirent
 typedef struct DIR
 {
    dirent           curentry;                  /* Current directory entry */
-   WIN32_FIND_DATAA find_data;                 /* Private file data */
+   WIN32_FIND_DATAW find_data;                 /* Private file data */
    int              cached;                    /* True if data is valid */
    HANDLE           search_handle;             /* Win32 search handle */
-   char             patt[MAX_PATH + 3];        /* Initial directory name */
+   wchar_t          patt[MAX_PATH + 3];        /* Initial directory name */
 } DIR;
 
 
@@ -197,6 +201,12 @@ static void rewinddir(DIR* dirp);
 #else
 #define DIRENT_SET_ERRNO(x) (errno = (x))
 #endif
+
+static const wchar_t *toWide_CStr(const char *u8) {
+    const iString str = iStringLiteral(u8);
+    iBlock *u16 = toUtf16_String(&str);
+    return (wchar_t *) data_Block(collect_Block(u16));
+}
 
 
 /*****************************************************************************
@@ -228,11 +238,11 @@ static DIR *opendir(const char *dirname)
        * allows rewinddir() to function correctly when the current working
        * directory is changed between opendir() and rewinddir().
        */
-      if (GetFullPathNameA (dirname, MAX_PATH, dirp->patt, NULL)) {
-         char *p;
+      if (GetFullPathNameW (toWide_CStr(dirname), MAX_PATH, dirp->patt, NULL)) {
+         wchar_t *p;
 
          /* append the search pattern "\\*\0" to the directory name */
-         p = strchr (dirp->patt, '\0');
+         p = wcschr (dirp->patt, '\0');
          if (dirp->patt < p  &&  *(p-1) != '\\'  &&  *(p-1) != ':') {
            *p++ = '\\';
          }
@@ -240,7 +250,7 @@ static DIR *opendir(const char *dirname)
          *p = '\0';
 
          /* open directory stream and retrieve the first entry */
-         dirp->search_handle = FindFirstFileA (dirp->patt, &dirp->find_data);
+         dirp->search_handle = FindFirstFileW (dirp->patt, &dirp->find_data);
          if (dirp->search_handle != INVALID_HANDLE_VALUE) {
             /* a directory entry is now waiting in memory */
             dirp->cached = 1;
@@ -291,7 +301,7 @@ static struct dirent *readdir(DIR *dirp)
       if (dirp->search_handle == INVALID_HANDLE_VALUE) {
          return NULL;
       }
-      if (FindNextFileA (dirp->search_handle, &dirp->find_data) == FALSE) {
+      if (FindNextFileW (dirp->search_handle, &dirp->find_data) == FALSE) {
          /* the very last entry has been processed or an error occured */
          FindClose (dirp->search_handle);
          dirp->search_handle = INVALID_HANDLE_VALUE;
@@ -299,11 +309,15 @@ static struct dirent *readdir(DIR *dirp)
       }
    }
 
-   /* copy as a multibyte character string */
-   DIRENT_STRNCPY ( dirp->curentry.d_name,
-             dirp->find_data.cFileName,
-             sizeof(dirp->curentry.d_name) );
+   /* convert from UTF-16 to UTF-8 */
+   iString fname;
+   initUtf16_String(&fname, dirp->find_data.cFileName);
+   DIRENT_STRNCPY(dirp->curentry.d_name,
+                  cstr_String(&fname),
+                  sizeof(dirp->curentry.d_name));
    dirp->curentry.d_name[MAX_PATH] = '\0';
+
+   deinit_String(&fname);
 
    /* compute the length of name */
    dirp->curentry.d_namlen = strlen (dirp->curentry.d_name);
