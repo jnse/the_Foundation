@@ -326,6 +326,12 @@ int main(int argc, char *argv[]) {
         puts("");
         iRelease(olist);
     }
+    /* Test a character range. */ {
+        const char *space = { "\t\r\xff\xff\xff\xff\n\v" }; /* bad UTF-8 in the middle */
+        iRangecc spaceRange = { space, space + strlen(space) };
+        trimEnd_Rangecc(&spaceRange);
+        printf("Trimmed Rangecc: [%s]\n", cstr_Rangecc(spaceRange));
+    }
     /* Test a string hash. */ {
         iStringHash *h = new_StringHash();
         insertValuesCStr_StringHash(h,

@@ -314,13 +314,21 @@ void trimEnd_String(iString *d) {
 
 void trimEnd_Rangecc(iRangecc *d) {
     while (d->end != d->start) {
+        iAssert(d->end > d->start);
+        /* Skip over any extra NULL characters. */
         if (d->end[-1] == 0) {
             d->end--;
         }
         else {
-            iChar ch;
+            iChar ch = 0;
             const uint8_t *pos = u8_prev(&ch, (const uint8_t *) d->end, (const uint8_t *) d->start);
-            if (isSpace_Char(ch)) {
+            if (!pos) {
+                /* `pos` is NULL when beginning of the string is reached (but we're already
+                   checking for that so the loop ends before that happens), or if there's
+                   an invalid codepoint. We'll trim the invalid ones, too. */
+                d->end--;
+            }
+            else if (isSpace_Char(ch)) {
                 d->end = (const char *) pos;
             }
             else break;
