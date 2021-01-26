@@ -435,6 +435,29 @@ int main(int argc, char *argv[]) {
         iAssert(result_Thread(worker) == 12345);
         iRelease(worker);
     }
+    /* Test a file. */ {
+        remove("test.txt");
+        iFile *f = newCStr_File("test.txt");
+        if (open_File(f, writeOnly_FileMode | text_FileMode)) {
+            const char *ln = "line 1\nline 2\n";
+            writeData_File(f, ln, strlen(ln));
+            close_File(f);
+        }
+        if (open_File(f, readOnly_FileMode | text_FileMode)) {
+            printf("Contents of \"test.txt\" (size %zu):\n", size_File(f));
+            size_t n = 30;
+            while (!atEnd_File(f)) {
+                size_t fpos = pos_File(f);
+                int ch = read8_File(f);
+                printf("%4zu: %02X", fpos, ch);
+                if (ch > ' ' && ch < 128) printf(" [%c]", ch);
+                printf("\n");
+                if (!--n) break;
+            }
+            close_File(f);
+        }
+        iRelease(f);
+    }
     /* Test a buffer. */ {
         iBuffer *buf = new_Buffer();
         iStream *strm = (iStream *) buf;
