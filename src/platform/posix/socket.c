@@ -558,7 +558,7 @@ const iAddress *address_Socket(const iSocket *d) {
     return d->address;
 }
 
-static long seek_Socket_(iStream *d, long pos) {
+static size_t seek_Socket_(iStream *d, size_t pos) {
     iUnused(d, pos);
     iAssert(false); // not allowed
     return 0;

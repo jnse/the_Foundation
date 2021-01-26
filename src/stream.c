@@ -102,7 +102,7 @@ void setVersion_Stream(iStream *d, int version) {
     d->flags |= (version << versionShift_StreamFlag) & versionMask_StreamFlag;
 }
 
-void setSize_Stream(iStream *d, long size) {
+void setSize_Stream(iStream *d, size_t size) {
     iGuardMutex(d->mtx, {
         d->size = size;
         d->pos = iMin(d->pos, size);
@@ -118,7 +118,7 @@ int version_Stream(const iStream *d) {
     return (d->flags & versionMask_StreamFlag) >> versionShift_StreamFlag;
 }
 
-void seek_Stream(iStream *d, long offset) {
+void seek_Stream(iStream *d, size_t offset) {
     iGuardMutex(d->mtx, d->pos = class_Stream(d)->seek(d, offset));
 }
 
@@ -195,7 +195,7 @@ iString *readString_Stream(iStream *d) {
 
 size_t writeObject_Stream(iStream *d, const iAnyObject *object) {
     iAssert(class_Object(object)->serialize != NULL);
-    const long start = d->pos;
+    const size_t start = d->pos;
     class_Object(object)->serialize(object, d);
     iAssert(d->pos >= start);
     return d->pos - start;

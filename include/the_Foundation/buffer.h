@@ -66,15 +66,15 @@ iLocalDef iStream *     stream_Buffer   (iBuffer *d) { return &d->stream; }
 
 void        clear_Buffer    (iBuffer *);
 
-iLocalDef iBool isOpen_Buffer (const iBuffer *d) { return d->data != NULL; }
-iLocalDef int   mode_Buffer   (const iBuffer *d) { return d->mode ;}
-iLocalDef long  pos_Buffer    (const iBuffer *d) { return pos_Stream(&d->stream); }
-iLocalDef long  size_Buffer   (const iBuffer *d) { return size_Stream(&d->stream); }
-iLocalDef iBool isEmpty_Buffer(const iBuffer *d) { return size_Buffer(d) == 0; }
-iLocalDef iBool atEnd_Buffer  (const iBuffer *d) { return atEnd_Stream(&(d)->stream); }
+iLocalDef iBool  isOpen_Buffer (const iBuffer *d) { return d->data != NULL; }
+iLocalDef int    mode_Buffer   (const iBuffer *d) { return d->mode ;}
+iLocalDef size_t pos_Buffer    (const iBuffer *d) { return pos_Stream(&d->stream); }
+iLocalDef size_t size_Buffer   (const iBuffer *d) { return size_Stream(&d->stream); }
+iLocalDef iBool  isEmpty_Buffer(const iBuffer *d) { return size_Buffer(d) == 0; }
+iLocalDef iBool  atEnd_Buffer  (const iBuffer *d) { return atEnd_Stream(&(d)->stream); }
 
 iLocalDef void          rewind_Buffer       (iBuffer *d) { seek_Stream(&d->stream, 0); }
-iLocalDef void          seek_Buffer         (iBuffer *d, long offset) { seek_Stream(&d->stream, offset); }
+iLocalDef void          seek_Buffer         (iBuffer *d, size_t offset) { seek_Stream(&d->stream, offset); }
 iLocalDef void          write32_Buffer      (iBuffer *d, int32_t value) { write32_Stream(&d->stream, value); }
 iLocalDef size_t        writeData_Buffer    (iBuffer *d, const void *data, size_t size) { return writeData_Stream(&d->stream, data, size); }
 

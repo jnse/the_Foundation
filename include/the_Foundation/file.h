@@ -62,16 +62,16 @@ iFile *     newCStr_File    (const char *path);
 
 iBool       open_File       (iFile *, int mode);
 void        close_File      (iFile *);
+iBool       isOpen_File     (const iFile *);
 
-iLocalDef iBool isOpen_File (const iFile *d) { return d->file != NULL; }
-iLocalDef int   mode_File   (const iFile *d) { return d->flags ;}
-iLocalDef long  pos_File    (const iFile *d) { return pos_Stream(&d->stream); }
-iLocalDef long  size_File   (const iFile *d) { return size_Stream(&d->stream); }
-iLocalDef iBool atEnd_File  (const iFile *d) { return atEnd_Stream(&(d)->stream); }
-iLocalDef const iString *path_File(const iFile *d) { return d->path; }
+iLocalDef int    mode_File   (const iFile *d) { return d->flags ;}
+iLocalDef size_t pos_File    (const iFile *d) { return pos_Stream(&d->stream); }
+iLocalDef size_t size_File   (const iFile *d) { return size_Stream(&d->stream); }
+iLocalDef iBool  atEnd_File  (const iFile *d) { return atEnd_Stream(&(d)->stream); }
+iLocalDef const  iString *path_File(const iFile *d) { return d->path; }
 
 iLocalDef iStream *     stream_File     (iFile *d) { return &d->stream; }
-iLocalDef void          seek_File       (iFile *d, long offset) { seek_Stream(&d->stream, offset); }
+iLocalDef void          seek_File       (iFile *d, size_t offset) { seek_Stream(&d->stream, offset); }
 iLocalDef iBlock *      read_File       (iFile *d, size_t size) { return read_Stream(&d->stream, size); }
 iLocalDef size_t        readData_File   (iFile *d, size_t size, void *data_out) { return readData_Stream(&d->stream, size, data_out); }
 iLocalDef iBlock *      readAll_File    (iFile *d) { return readAll_Stream(&d->stream); }

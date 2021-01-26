@@ -34,7 +34,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-static iFileClass Class_File;
+static iFileClass Class_File; /* Note: alternative implementation, cf. src/file.c */
+
+enum iFileFlag {
+    readEndedAtCarriageReturn_FileFlag = iBit(17),
+};
 
 iFile *new_File(const iString *path) {
     iFile *d = new_Object(&Class_File);
@@ -57,7 +61,7 @@ void init_File(iFile *d, const iString *path) {
     d->path = copy_String(path);
     clean_Path(d->path);
     d->flags = readOnly_FileMode;
-    d->file = NULL;
+    d->file = INVALID_HANDLE_VALUE;
 }
 
 void deinit_File(iFile *d) {
@@ -74,65 +78,138 @@ iBool open_File(iFile *d, int modeFlags) {
         /* Default to read. */
         d->flags |= read_FileMode;
     }
-    if (d->flags & (read_FileMode | append_FileMode)) {
-        setSize_Stream(&d->stream, fileSize_FileInfo(d->path));
+    DWORD desiredAccess = 0;
+    DWORD creation      = OPEN_EXISTING;
+    DWORD shareMode     = FILE_SHARE_READ;
+    DWORD flagsAttribs  = FILE_ATTRIBUTE_NORMAL;
+    if (d->flags & (write_FileMode | append_FileMode)) {
+        desiredAccess = GENERIC_WRITE;
+        creation      = OPEN_ALWAYS;
     }
-    char mode[4], *m = mode;
-    if (d->flags & append_FileMode) {
-        *m++ = 'a';
-        d->stream.pos = d->stream.size;
-        if (d->flags & read_FileMode) { *m++ = '+'; }
+    if (d->flags & read_FileMode) {
+        desiredAccess |= GENERIC_READ;
     }
-    else {
-        if (d->flags & read_FileMode) { *m++ = 'r'; }
-        if (d->flags & write_FileMode) {
-            if (d->flags & read_FileMode) { *m++ = '+'; }
-            else { *m++ = 'w'; }
+    d->file = CreateFileW(toWide_CStr_(cstr_String(d->path)),
+                          desiredAccess,
+                          shareMode,
+                          NULL,
+                          creation,
+                          flagsAttribs,
+                          NULL);
+    if (isOpen_File(d) && d->flags & (read_FileMode | append_FileMode)) {
+        SetFilePointer(d->file, 0, NULL, FILE_END);
+        LARGE_INTEGER endPos;
+        LARGE_INTEGER zero;
+        iZap(zero);
+        SetFilePointerEx(d->file, zero, &endPos, FILE_CURRENT);
+        d->stream.size = (size_t) endPos.QuadPart;
+        if (d->flags & append_FileMode) {
+            d->stream.pos = d->stream.size;
+        }
+        else {
+            d->stream.pos = 0;
+            SetFilePointer(d->file, 0, NULL, FILE_BEGIN);
         }
     }
-    if (d->flags & text_FileMode) { *m++ = 't'; } else { *m++ = 'b'; }
-    *m = 0;
-    d->file = fopen(cstr_String(d->path), mode);
     return isOpen_File(d);
 }
 
 void close_File(iFile *d) {
     if (isOpen_File(d)) {
-        fclose(d->file);
-        d->file = NULL;
+        CloseHandle(d->file);
+        d->file = INVALID_HANDLE_VALUE;
     }
 }
 
-static long seek_File_(iFile *d, long offset) {
+iBool isOpen_File(const iFile *d) {
+    return d->file != INVALID_HANDLE_VALUE;
+}
+
+static size_t seek_File_(iFile *d, size_t offset) {
     if (isOpen_File(d)) {
-        fseek(d->file, offset, SEEK_SET);
-        return ftell(d->file);
+        LARGE_INTEGER newPos;
+        SetFilePointerEx(d->file, (LARGE_INTEGER){ .QuadPart = offset }, &newPos, FILE_BEGIN);
+        return (size_t) newPos.QuadPart;
     }
     return pos_Stream(&d->stream);
 }
 
 static size_t read_File_(iFile *d, size_t size, void *data_out) {
-    if (isOpen_File(d)) {
-        return fread(data_out, 1, size, d->file);
+    if (isOpen_File(d) && size > 0) {
+        DWORD numRead = 0;
+        if (~d->flags & text_FileMode) {
+            ReadFile(d->file, data_out, size, &numRead, NULL);
+            return numRead;
+        }
+        /* Read to a temporary buffer first and convert newlines. */
+        char         buf[1024];
+        const size_t bufLen = sizeof(buf) - 1;
+        size_t       avail  = size;
+        char *       outBuf = data_out;
+        DWORD        numSkipped = 0;
+        while (avail) {
+            ReadFile(d->file, buf, iMin(avail, bufLen), &numRead, NULL);
+            if (!numRead) break;           
+            char *end = buf + numRead;
+            if (end[-1] == '\r') {
+                /* Need to know if the following character is a newline. */
+                DWORD extra = 0;
+                ReadFile(d->file, end, 1, &extra, NULL);
+                if (extra) {
+                    SetFilePointer(d->file, -1, NULL, FILE_CURRENT);
+                }
+            }
+            for (const char *ch = buf; ch != end; ch++) {
+                if (ch[0] == '\r' && ch[1] == '\n') {
+                    numSkipped++;
+                }
+                else {
+                    *outBuf++ = *ch;
+                    iAssert(avail != 0);
+                    avail--;
+                }
+            }
+        }
+        /* Stream position must reflect all bytes in the file. */
+        d->stream.pos += numSkipped;
+        return size - avail;
     }
     return 0;
 }
 
 static size_t write_File_(iFile *d, const void *data, size_t size) {
     if (isOpen_File(d)) {
-        return fwrite(data, 1, size, d->file);
+        DWORD numWritten = 0;
+        iBlock buf;
+        if (d->flags & text_FileMode) {
+            /* Must convert any line endings. */
+            init_Block(&buf, 0);
+            for (const char *ch = data; ch != (const char *) data + size; ch++) {
+                if (*ch == '\n') {
+                    pushBack_Block(&buf, '\r');
+                }
+                pushBack_Block(&buf, *ch);
+            }
+            WriteFile(d->file, data_Block(&buf), size_Block(&buf), 
+                      &numWritten, NULL);
+            deinit_Block(&buf);
+        }
+        else {
+            WriteFile(d->file, data, size, &numWritten, NULL);
+        }
+        return numWritten;
     }
     return 0;
 }
 
 static void flush_File_(iFile *d) {
     if (isOpen_File(d)) {
-        fflush(d->file);
+        FlushFileBuffers(d->file);
     }
 }
 
 static iBeginDefineSubclass(File, Stream)
-    .seek   = (long   (*)(iStream *, long))                 seek_File_,
+    .seek   = (size_t (*)(iStream *, size_t))               seek_File_,
     .read   = (size_t (*)(iStream *, size_t, void *))       read_File_,
     .write  = (size_t (*)(iStream *, const void *, size_t)) write_File_,
     .flush  = (void   (*)(iStream *))                       flush_File_,

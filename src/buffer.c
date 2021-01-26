@@ -86,9 +86,9 @@ void clear_Buffer(iBuffer *d) {
     }
 }
 
-static long seek_Buffer_(iBuffer *d, long offset) {
+static size_t seek_Buffer_(iBuffer *d, size_t offset) {
     if (isOpen_Buffer(d)) {
-        return iMin(offset, (long) size_Block(d->data));
+        return iMin(offset, size_Block(d->data));
     }
     return pos_Stream(&d->stream);
 }
@@ -145,7 +145,7 @@ iBlock *consumeAll_Buffer(iBuffer *d) {
 }
 
 static iBeginDefineSubclass(Buffer, Stream)
-    .seek   = (long   (*)(iStream *, long))                 seek_Buffer_,
+    .seek   = (size_t (*)(iStream *, size_t))               seek_Buffer_,
     .read   = (size_t (*)(iStream *, size_t, void *))       read_Buffer_,
     .write  = (size_t (*)(iStream *, const void *, size_t)) write_Buffer_,
     .flush  = (void   (*)(iStream *))                       flush_Buffer_,

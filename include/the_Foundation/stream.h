@@ -47,7 +47,7 @@ iDeclareType(String)
 iDeclareType(StringList)
 
 iBeginDeclareClass(Stream)
-    long        (*seek) (iStream *, long offset);
+    size_t      (*seek) (iStream *, size_t offset);
     size_t      (*read) (iStream *, size_t size, void *data_out);
     size_t      (*write)(iStream *, const void *data, size_t size);
     void        (*flush)(iStream *);
@@ -61,8 +61,8 @@ enum iStreamByteOrder {
 struct Impl_Stream {
     iObject object;
     iMutex *mtx; /* for size, pos */
-    long size;
-    long pos;
+    size_t size;
+    size_t pos;
     int flags;
 };
 
@@ -71,12 +71,12 @@ void        deinit_Stream       (iStream *);
 
 void        setByteOrder_Stream (iStream *, enum iStreamByteOrder byteOrder);
 void        setVersion_Stream   (iStream *, int version); /* metadata for user, not included in stream */
-void        setSize_Stream      (iStream *, long size);
+void        setSize_Stream      (iStream *, size_t size);
 
 enum iStreamByteOrder byteOrder_Stream(const iStream *);
 int         version_Stream      (const iStream *);
 
-void        seek_Stream         (iStream *, long offset);
+void        seek_Stream         (iStream *, size_t offset);
 iBlock *    read_Stream         (iStream *, size_t size);
 size_t      readData_Stream     (iStream *, size_t size, void *data_out);
 size_t      readBlock_Stream    (iStream *, size_t size, iBlock *data_out);
@@ -120,8 +120,8 @@ iStringList *   readLines_Stream    (iStream *);
 size_t          writeObject_Stream  (iStream *, const iAnyObject *object);
 iAnyObject *    readObject_Stream   (iStream *, const iAnyClass *);
 
-iLocalDef long  size_Stream     (const iStream *d) { return d->size; }
-iLocalDef long  pos_Stream      (const iStream *d) { return d->pos; }
-iLocalDef iBool atEnd_Stream    (const iStream *d) { return d->pos == d->size; }
+iLocalDef size_t size_Stream     (const iStream *d) { return d->size; }
+iLocalDef size_t pos_Stream      (const iStream *d) { return d->pos; }
+iLocalDef iBool  atEnd_Stream    (const iStream *d) { return d->pos == d->size; }
 
 iEndPublic

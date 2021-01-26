@@ -65,6 +65,7 @@ void deinit_File(iFile *d) {
 
 iBool open_File(iFile *d, int modeFlags) {
     if (isOpen_File(d)) return iFalse;
+    d->stream.pos = 0;
     d->flags = modeFlags;
     if ((d->flags & (readWrite_FileMode | append_FileMode)) == 0) {
         /* Default to read. */
@@ -99,7 +100,11 @@ void close_File(iFile *d) {
     }
 }
 
-static long seek_File_(iFile *d, long offset) {
+iBool isOpen_File(const iFile *d) {
+    return d->file != NULL;
+}
+
+static size_t seek_File_(iFile *d, size_t offset) {
     if (isOpen_File(d)) {
         fseek(d->file, offset, SEEK_SET);
         return ftell(d->file);
@@ -109,7 +114,18 @@ static long seek_File_(iFile *d, long offset) {
 
 static size_t read_File_(iFile *d, size_t size, void *data_out) {
     if (isOpen_File(d)) {
-        return fread(data_out, 1, size, d->file);
+        const size_t oldPos = d->stream.pos;
+        size_t numRead = fread(data_out, 1, size, d->file);
+#if defined (iPlatformWindows) || defined (iPlatformMsys)
+        if (d->flags & text_FileMode) {
+            /* We may have skipped over some carriage returns. */
+            const size_t numActualRead = ftell(d->file) - oldPos;
+            d->stream.pos += numActualRead - numRead;
+        }
+#else
+        iUnused(oldPos);
+#endif
+        return numRead;
     }
     return 0;
 }
@@ -128,7 +144,7 @@ static void flush_File_(iFile *d) {
 }
 
 static iBeginDefineSubclass(File, Stream)
-    .seek   = (long   (*)(iStream *, long))                 seek_File_,
+    .seek   = (size_t (*)(iStream *, size_t))               seek_File_,
     .read   = (size_t (*)(iStream *, size_t, void *))       read_File_,
     .write  = (size_t (*)(iStream *, const void *, size_t)) write_File_,
     .flush  = (void   (*)(iStream *))                       flush_File_,

@@ -237,7 +237,7 @@ else () # WIN32
         src/platform/win32/socket.c
     )
 endif ()
-if (ENABLE_WIN32_FILE_API AND (iPlatformWindows OR iPlatformMsys))
+if (TFDN_ENABLE_WIN32_FILE_API AND (iPlatformWindows OR iPlatformMsys))
     list (APPEND SOURCES
         src/platform/win32/file.c
         src/platform/win32/wide.h
