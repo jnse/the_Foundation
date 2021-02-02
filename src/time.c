@@ -31,12 +31,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <math.h>
 
 static time_t initStdTime_(const iDate *date, struct tm *tm) {
-    tm->tm_year = date->year - 1900;
-    tm->tm_mon = date->month - 1;
-    tm->tm_mday = date->day;
-    tm->tm_hour = date->hour;
-    tm->tm_min = date->minute;
-    tm->tm_sec = date->second;
+    tm->tm_year  = date->year - 1900;
+    tm->tm_mon   = date->month - 1;
+    tm->tm_mday  = date->day;
+    tm->tm_hour  = date->hour;
+    tm->tm_min   = date->minute;
+    tm->tm_sec   = date->second;
+    tm->tm_isdst = date->isDST ? 1 : 0;
 #if !defined (iPlatformWindows) // we only know about daylight savings time 
     tm->tm_gmtoff = date->gmtOffsetSeconds;
 #endif
@@ -124,6 +125,7 @@ void initStdTime_Date(iDate *d, const struct tm *t) {
     d->minute           = t->tm_min;
     d->second           = t->tm_sec;
     d->nsecs            = 0;
+    d->isDST            = t->tm_isdst == 1;
 #if !defined (iPlatformWindows)
     d->gmtOffsetSeconds = t->tm_gmtoff;
 #else
@@ -147,11 +149,13 @@ void initCurrent_Date(iDate *d) {
     init_Date(d, &now);
 }
 
+static const uint16_t dstBit_Date_ = 0x8000;
+
 void serialize_Date(const iDate *d, iStream *outs) {
     writeU16_Stream(outs, d->year);
     writeU8_Stream(outs, d->month);
     writeU8_Stream(outs, d->day);
-    writeU16_Stream(outs, d->dayOfYear);
+    writeU16_Stream(outs, d->dayOfYear | (d->isDST ? dstBit_Date_ : 0));
     writeU8_Stream(outs, d->dayOfWeek);
     writeU8_Stream(outs, d->hour);
     writeU8_Stream(outs, d->minute);
@@ -164,7 +168,9 @@ void deserialize_Date(iDate *d, iStream *ins) {
     d->year = readU16_Stream(ins);
     d->month = readU8_Stream(ins);
     d->day = readU8_Stream(ins);
-    d->dayOfYear = readU16_Stream(ins);
+    uint16_t dayOfYear = readU16_Stream(ins);
+    d->dayOfYear = dayOfYear & 0x1ff;
+    d->isDST = (dayOfYear & dstBit_Date_) != 0;
     d->dayOfWeek = readU8_Stream(ins);
     d->hour = readU8_Stream(ins);
     d->minute = readU8_Stream(ins);

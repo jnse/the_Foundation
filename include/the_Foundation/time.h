@@ -61,6 +61,7 @@ struct Impl_Date {
     short second;
     long nsecs;
     long gmtOffsetSeconds;
+    iBool isDST;
     enum iDateWeekday dayOfWeek;
 };
 
