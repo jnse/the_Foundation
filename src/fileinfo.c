@@ -277,6 +277,9 @@ void deinit_DirFileInfo(iDirFileInfo *d) {
 
 static iBool readNextEntry_DirFileInfo_(iDirFileInfo *d) {
     deinit_FileInfo(&d->entry);
+    if (!d->fd) {
+        return iFalse;
+    }
     for (;;) {
         struct dirent *result = NULL;
 #if defined (iPlatformApple)

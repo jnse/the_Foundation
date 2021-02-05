@@ -54,11 +54,17 @@ struct Impl_Context {
 };
 
 void init_Context(iContext *d) {
+#if OPENSSL_API_COMPAT >= 0x10100000L
+    OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL);
+    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS | OPENSSL_INIT_ADD_ALL_DIGESTS, NULL);
+    OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL);
+#else
     SSL_library_init();
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
-    ERR_load_BIO_strings();
     ERR_load_crypto_strings();
+#endif
+    ERR_load_BIO_strings();
     d->ctx = SSL_CTX_new(TLS_client_method());
     if (!d->ctx) {
         iDebug("[TlsRequest] Failed to initialize OpenSSL\n");
