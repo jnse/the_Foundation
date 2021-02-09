@@ -42,11 +42,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 static const int connectionTimeoutSeconds_Socket_ = 6;
 
 /* address.c */
-void getSockAddr_Address(const iAddress *  d,
-                         struct sockaddr **addr_out,
-                         socklen_t *       addrSize_out,
-                         int               family,
-                         int               index);
+int getSockAddr_Address(const iAddress *  d,
+                        struct sockaddr **addr_out,
+                        socklen_t *       addrSize_out,
+                        int               family,
+                        int               indexInFamily);
 
 iDeclareType(SocketThread)
 
@@ -342,18 +342,22 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
     /* Try each known address until one works. */
     int rc = -1;
     for (int proto = 0; rc && proto < 2; proto++) {
-        for (int addrIndex = 0; rc && addrIndex < count_Address(d->address); addrIndex++) {
-            getSockAddr_Address(
-                d->address, &addr, &addrSize, proto == 0 ? AF_INET : AF_INET6, addrIndex);
-            if (!addrSize) break;
+        for (int indexInFamily = 0; rc && indexInFamily < count_Address(d->address); indexInFamily++) {
+            const int addrIndex = getSockAddr_Address(
+                d->address, &addr, &addrSize, proto == 0 ? AF_INET : AF_INET6, indexInFamily);
+            if (!addrSize) {
+                /* Ran out of addresses. */
+                break;
+            }
             iDebug("[Socket] connecting async to %s (addrSize:%u index:%d)\n",
                    cstrCollect_String(toString_SockAddr(addr)),
-                   addrSize, addrIndex);
+                   addrSize, indexInFamily);
             const iSocketParameters sp = socketParametersIndex_Address(d->address, addrIndex);
             if (d->fd != -1) {
                 close(d->fd);
                 d->fd = -1;
             }
+            iDebug("[Socket] family:%d type:%d protocol:%d\n", sp.family, sp.type, sp.protocol);
             d->fd = socket(sp.family, sp.type, sp.protocol);
             if (!setNonBlocking_Socket_(d, iTrue)) {
                 /* Wait indefinitely. */
@@ -363,6 +367,10 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
                 /* Give up after a timeout. */
                 rc = connect(d->fd, addr, addrSize);
                 if (rc && errno != EINPROGRESS) {
+                    iDebug("[Socket] result from connect: rc=%d errno=%d (%s)\n",
+                           rc,
+                           errno,
+                           strerror(errno));
                     continue;
                 }
                 const int stopFd = output_Pipe(d->stopConnect);

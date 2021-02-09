@@ -39,11 +39,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <unistd.h>
 
 /* address.c */
-void getSockAddr_Address(const iAddress *  d,
-                         struct sockaddr **addr_out,
-                         socklen_t *       addrSize_out,
-                         int               family,
-                         int               index);
+int getSockAddr_Address(const iAddress *  d,
+                        struct sockaddr **addr_out,
+                        socklen_t *       addrSize_out,
+                        int               family,
+                        int               indexInFamily);
 
 iDeclareClass(Message)
 

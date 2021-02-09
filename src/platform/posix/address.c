@@ -313,19 +313,17 @@ void waitForFinished_Address(const iAddress *d) {
 }
 
 /* internal use only */
-void getSockAddr_Address(const iAddress *  d,
-                         struct sockaddr **addr_out,
-                         socklen_t *       addrSize_out,
-                         int               family,
-                         int               index) {
-    const iBool byIndex = index >= 0;
+int getSockAddr_Address(const iAddress *d, struct sockaddr **addr_out, socklen_t *addrSize_out,
+                        int family, int indexInFamily) {
+    const iBool byIndex = indexInFamily >= 0;
     waitForFinished_Address(d);
     *addr_out = NULL;
     *addrSize_out = 0;
+    int resultIndex = 0;
     iGuardMutex(d->mutex, {
-        for (const struct addrinfo *i = d->info; i; i = i->ai_next) {
+        for (const struct addrinfo *i = d->info; i; i = i->ai_next, resultIndex++) {
             if (family == AF_UNSPEC || i->ai_family == family) {
-                if (!byIndex || index-- == 0) {
+                if (!byIndex || indexInFamily-- == 0) {
                     *addr_out = i->ai_addr;
                     *addrSize_out = i->ai_addrlen;
                     break;
@@ -333,6 +331,7 @@ void getSockAddr_Address(const iAddress *  d,
             }
         }
     });
+    return resultIndex;
 }
 
 /* internal use only */
