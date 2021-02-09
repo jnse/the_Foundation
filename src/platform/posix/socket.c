@@ -349,6 +349,12 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
             iDebug("[Socket] connecting async to %s (addrSize:%u index:%d)\n",
                    cstrCollect_String(toString_SockAddr(addr)),
                    addrSize, addrIndex);
+            const iSocketParameters sp = socketParametersIndex_Address(d->address, addrIndex);
+            if (d->fd != -1) {
+                close(d->fd);
+                d->fd = -1;
+            }
+            d->fd = socket(sp.family, sp.type, sp.protocol);
             if (!setNonBlocking_Socket_(d, iTrue)) {
                 /* Wait indefinitely. */
                 rc = connect(d->fd, addr, addrSize);
@@ -435,8 +441,7 @@ static iBool open_Socket_(iSocket *d) {
         return iFalse;
     }
     else {
-        const iSocketParameters sp = socketParameters_Address(d->address, AF_UNSPEC);
-        d->fd = socket(sp.family, sp.type, sp.protocol);        
+        iAssert(d->fd == -1);
         d->connecting = new_Thread(connectAsync_Socket_);
         setStatus_Socket_(d, connecting_SocketStatus);
         setUserData_Thread(d->connecting, d);

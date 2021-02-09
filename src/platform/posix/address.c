@@ -220,7 +220,22 @@ int count_Address(const iAddress *d) {
     return count;
 }
 
-iSocketParameters socketParameters_Address(const iAddress *d, int family) {
+iSocketParameters socketParametersIndex_Address(const iAddress *d, int index) {
+    iSocketParameters sp = { .family = 0 };
+    iGuardMutex(d->mutex, {
+        for (const struct addrinfo *i = d->info; i; i = i->ai_next, index--) {
+            if (index == 0) {
+                sp.family   = i->ai_family;
+                sp.type     = i->ai_socktype;
+                sp.protocol = i->ai_protocol;
+                break;
+            }
+        }
+    });
+    return sp;
+}
+
+iSocketParameters socketParametersFamily_Address(const iAddress *d, int family) {
     iSocketParameters sp = { .family = 0 };
     iGuardMutex(d->mutex, {
         for (const struct addrinfo *i = d->info; i; i = i->ai_next) {

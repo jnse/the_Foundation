@@ -294,7 +294,7 @@ iBool open_Datagram(iDatagram *d, uint16_t port) {
     /* Create and bind a socket for listening to incoming messages. */ {
         socklen_t sockLen;
         struct sockaddr *sockAddr;
-        iSocketParameters sp = socketParameters_Address(d->address, AF_INET);
+        iSocketParameters sp = socketParametersFamily_Address(d->address, AF_INET);
         d->fd = socket(sp.family, sp.type, sp.protocol);
         if (d->fd == -1) {
             iWarning("[Datagram] error creating socket\n");

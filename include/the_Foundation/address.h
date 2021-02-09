@@ -70,7 +70,8 @@ enum iSocketStringFlags {
     noPort_SocketStringFlag = 0x1,
 };
 
-iSocketParameters   socketParameters_Address(const iAddress *, int family);
+iSocketParameters   socketParametersIndex_Address   (const iAddress *d, int index);
+iSocketParameters   socketParametersFamily_Address  (const iAddress *, int family);
 iString *           toString_Address        (const iAddress *);
 iString *           toStringFlags_Address   (const iAddress *, int flags, int family); /* `family`==0: unspecified */
 const iString *     hostName_Address        (const iAddress *);
