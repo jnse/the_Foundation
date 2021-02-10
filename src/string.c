@@ -459,13 +459,13 @@ iStringList *split_String(const iString *d, const char *separator) {
     return split_Rangecc(range, separator);
 }
 
-iString *urlEncodeExclude_String(const iString *d, const char *exclude) {
+iString *urlEncodeExclude_String(const iString *d, const char *excluded) {
     iString *encoded = new_String();
     /* Note: Any UTF-8 code points are encoded as multiple %NN sequences. */
     for (const char *i = constBegin_String(d), *end = constEnd_String(d); i != end; ++i) {
         char ch = *i;
         if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') ||
-             ch == '-' || ch == '_' || ch == '.' || ch == '~' || strchr(exclude, ch)) {
+             ch == '-' || ch == '_' || ch == '.' || ch == '~' || strchr(excluded, ch)) {
             appendData_Block(&encoded->chars, i, 1);
         }
         else {
@@ -490,15 +490,21 @@ static int fromHex_(char ch) {
 }
 
 iString *urlDecode_String(const iString *d) {
+    return urlDecodeExclude_String(d, "");
+}
+
+iString *urlDecodeExclude_String(const iString *d, const char *excluded) {
     iString *decoded = new_String();
     for (const char *i = constBegin_String(d), *end = constEnd_String(d); i != end; ++i) {
         if (*i == '%' && i + 3 <= end) {
             const int values[2] = { fromHex_(i[1]), fromHex_(i[2]) };
             if (values[0] >= 0 && values[1] >= 0) {
                 const char ch = (char) ((values[0] << 4) | values[1]);
-                appendData_Block(&decoded->chars, &ch, 1);
-                i += 2;
-                continue;
+                if (!strchr(excluded, ch)) {
+                    appendData_Block(&decoded->chars, &ch, 1);
+                    i += 2;
+                    continue;
+                }
             }
         }
         appendData_Block(&decoded->chars, i, 1);
