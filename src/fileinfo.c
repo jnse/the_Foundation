@@ -35,7 +35,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #   define iHaveMsdirent 1
 #   include "platform/win32/wide.h"
 #   include "platform/win32/msdirent.h"
-#   define R_OK 0
+
+#   if defined (iPlatformMsys)
+#       define R_OK 0
 
 static int access(const char *path, int mode) {
     const iString str = iStringLiteral(path);
@@ -45,6 +47,7 @@ static int access(const char *path, int mode) {
     iUnused(mode);
     return (attr == INVALID_FILE_ATTRIBUTES ? -1 : 0);
 }
+#   endif /* defined (iPlatformMsys) */
 
 #else
 #   include <sys/stat.h>

@@ -149,14 +149,22 @@ void waitForFinished_Process(iProcess *d) {
 //     return readChars;
 // }
 
-iString *readOutput_Process(iProcess *d) {
-    // return readFromPipe_(output_Pipe(&d->pout), new_String());
-    return new_String();
+size_t writeInput_Process(iProcess *d, const iBlock *data) {
+    return 0;
 }
 
-iString *readError_Process(iProcess *d) {
+iBlock *readOutput_Process(iProcess *d) {
+    // return readFromPipe_(output_Pipe(&d->pout), new_String());
+    return new_Block(0);
+}
+
+iBlock *readError_Process(iProcess *d) {
     // return readFromPipe_(output_Pipe(&d->perr), new_String());
-    return new_String();
+    return new_Block(0);
+}
+
+iBlock *readOutputUntilClosed_Process(iProcess *d) {
+    return new_Block(0);
 }
 
 void kill_Process(iProcess *d) {

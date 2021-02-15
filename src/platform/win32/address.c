@@ -60,6 +60,10 @@ struct Impl_Address {
 
 iDefineAudienceGetter(Address, lookupFinished)
 
+void deinit_Address_(void) {
+    /* TODO: should run a thread for lookups on MinGW? */
+}
+
 static iThreadResult runLookup_Address_(iThread *thd) {
     iAddress *d = userData_Thread(thd);
     // const int hintFlags = AI_V4MAPPED_CFG | AI_ADDRCONFIG | (isEmpty_String(&d->hostName) ? AI_PASSIVE : 0);
@@ -276,10 +280,10 @@ void waitForFinished_Address(const iAddress *d) {
 // }
 
 iString *toString_Address(const iAddress *d) {
-    return toStringFamily_Address(d, AF_UNSPEC);
+    return toStringFlags_Address(d, 0, AF_UNSPEC);
 }
 
-iString *toStringFamily_Address(const iAddress *d, int family) {
+iString *toStringFlags_Address(const iAddress *d, int flags, int family) {
     waitForFinished_Address(d);
     iString *str = new_String();
     if (!d) return str;
