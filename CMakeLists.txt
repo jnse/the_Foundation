@@ -242,6 +242,7 @@ if (TFDN_ENABLE_WIN32_FILE_API AND (iPlatformWindows OR iPlatformMsys))
         src/platform/win32/file.c
         src/platform/win32/wide.h
     )
+    set (iHaveWin32FileAPI YES)
 else ()
     list (APPEND SOURCES
         src/file.c
