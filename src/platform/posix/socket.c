@@ -406,8 +406,6 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
                 }
             }
             lock_Mutex(&d->mutex);
-            delete_Pipe(d->stopConnect);
-            d->stopConnect = NULL;
             if (d->status == connecting_SocketStatus) {
                 if (rc == 0) {
                     setStatus_Socket_(d, connected_SocketStatus);
@@ -422,6 +420,8 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
             unlock_Mutex(&d->mutex);
         }
     }
+    delete_Pipe(d->stopConnect);
+    d->stopConnect = NULL;
     if (rc) {
         int errNum;
         char *msg;
