@@ -326,9 +326,34 @@ iBool parse_XmlDocument(iXmlDocument *d, const iString *source) {
     if (par.tokenType != headerOpen_XmlToken) {
         return iFalse;
     }
+    nextToken_XmlParser_(&par);
+    if (par.tokenType != name_XmlToken || !equal_Rangecc(par.token, "xml")) {
+        return iFalse;
+    }
     while (par.tokenType != headerClose_XmlToken) {
-        /* TODO: Check what the header says; we'll just assume it's version 1.0 and UTF-8. */
+        /* Header must say version 1.0 and UTF-8. */
         nextToken_XmlParser_(&par);
+        if (par.tokenType == name_XmlToken) {
+            if (equal_Rangecc(par.token, "version")) {
+                nextToken_XmlParser_(&par);
+                if (!expect_XmlParser_(&par, assignment_XmlToken)) {
+                    return iFalse;
+                }
+                if (par.tokenType != stringLiteral_XmlToken || !equal_Rangecc(par.token, "1.0")) {
+                    return iFalse;
+                }
+            }
+            else if (equal_Rangecc(par.token, "encoding")) {
+                nextToken_XmlParser_(&par);
+                if (!expect_XmlParser_(&par, assignment_XmlToken)) {
+                    return iFalse;
+                }
+                if (par.tokenType != stringLiteral_XmlToken ||
+                    !equalCase_Rangecc(par.token, "UTF-8")) {
+                    return iFalse;
+                }
+            }
+        }
     }
     nextToken_XmlParser_(&par);
     /* This should now be the root element. */

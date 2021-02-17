@@ -219,7 +219,8 @@ int main(int argc, char *argv[]) {
             iFile *f = new_File(value_CommandLineArg(arg, 0));
             open_File(f, readOnly_FileMode | text_FileMode);
             iString *src = collect_String(readString_File(f));
-            parse_XmlDocument(doc, src);
+            iBool ok = parse_XmlDocument(doc, src);
+            printf("parsing %s\n", ok ? "succeeded" : "failed!");
             delete_XmlDocument(doc);
             iRelease(f);
             return 0;
