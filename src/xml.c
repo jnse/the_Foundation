@@ -111,7 +111,7 @@ static iBool isFirstNameChar_(iChar c) {
 }
 
 static iBool isNameChar_(iChar c) {
-    return isAlphaNumeric_Char(c);
+    return isAlphaNumeric_Char(c) || c == ':';
 }
 
 static iBool nextToken_XmlParser_(iXmlParser *d) {
