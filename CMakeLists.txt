@@ -146,6 +146,7 @@ set (HEADERS
     include/the_Foundation/time.h
     include/the_Foundation/vec2.h
     include/the_Foundation/version.h
+    include/the_Foundation/xml.h
 )
 set (SOURCES
     src/the_foundation.c
@@ -190,6 +191,7 @@ set (SOURCES
     src/threadpool.c
     src/time.c
     src/version.c
+    src/xml.c
 )
 if (NOT iHaveC11Threads)
     list (APPEND SOURCES src/c11threads.c)

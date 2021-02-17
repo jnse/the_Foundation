@@ -49,6 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <the_Foundation/stringhash.h>
 #include <the_Foundation/time.h>
 #include <the_Foundation/thread.h>
+#include <the_Foundation/xml.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -210,6 +211,18 @@ int main(int argc, char *argv[]) {
         }
         if (contains_CommandLine(cmdline, "d")) {
             puts("d option");
+        }
+        arg = iClob(checkArgumentValues_CommandLine(cmdline, "xml", 1));
+        if (arg) {
+            puts("xml option:");
+            iXmlDocument *doc = new_XmlDocument();
+            iFile *f = new_File(value_CommandLineArg(arg, 0));
+            open_File(f, readOnly_FileMode | text_FileMode);
+            iString *src = collect_String(readString_File(f));
+            parse_XmlDocument(doc, src);
+            delete_XmlDocument(doc);
+            iRelease(f);
+            return 0;
         }
     }
     /* Test time and date. */ {
