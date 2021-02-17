@@ -6,6 +6,7 @@ include (CheckCSourceCompiles)
 include (CheckFunctionExists)
 include (TestBigEndian)
 include (CheckSSE.cmake)
+find_package (Git)
 
 macro (tfdn_set_compile_options target)
     set_property (TARGET ${target} PROPERTY C_STANDARD 11)
@@ -262,6 +263,20 @@ if (OPENSSL_FOUND)
     set (iHaveTlsRequest YES)
     list (APPEND SOURCES src/tlsrequest.c)
     list (APPEND HEADERS include/the_Foundation/tlsrequest.h)
+endif ()
+# Check source revision.
+if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/GIT_TAG")
+    file (READ ${CMAKE_CURRENT_LIST_DIR}/GIT_TAG iFoundationLibraryGitTag)
+    string (STRIP ${iFoundationLibraryGitTag} iFoundationLibraryGitTag)
+endif ()
+if (GIT_FOUND AND EXISTS "${CMAKE_CURRENT_LIST_DIR}/.git")
+    execute_process (
+        COMMAND ${GIT_EXECUTABLE} describe --tags --always --long
+        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+        ERROR_QUIET
+        OUTPUT_VARIABLE iFoundationLibraryGitTag
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
 endif ()
 configure_file (config.h.in config.h)
 

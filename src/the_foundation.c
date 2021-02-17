@@ -48,8 +48,9 @@ void init_Threads(void);             /* thread.c */
 void init_Foundation(void) {
     init_Threads();
     init_Garbage();
-    printf("[the_Foundation] version: %i.%i.%i cstd:%li\n",
+    iDebug("[the_Foundation] version: %i.%i.%i%s cstd:%li\n",
            version_Foundation.major, version_Foundation.minor, version_Foundation.patch,
+           strlen(iFoundationLibraryGitTag) ? format_CStr("-%s", iFoundationLibraryGitTag) : "",
            __STDC_VERSION__);
     /* Locale. */ {
         setLocale_Foundation();

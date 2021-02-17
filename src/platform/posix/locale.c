@@ -40,7 +40,7 @@ void init_Locale(void) {
         setlocale(LC_CTYPE, "en_US.UTF-8");
         setlc = setlocale(LC_CTYPE, NULL);
     }
-    printf("[the_Foundation] locale: %s\n", setlc);
+    iDebug("[the_Foundation] locale: %s\n", setlc);
     /* Expect to have non-localized number representation. */
     setlocale(LC_NUMERIC, "C");
 }
