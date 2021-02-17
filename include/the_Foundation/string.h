@@ -122,6 +122,7 @@ iString *       urlEncodeExclude_String(const iString *d, const char *excluded);
 iString *       urlDecode_String    (const iString *);
 iString *       urlDecodeExclude_String(const iString *, const char *excluded);
 iChar           first_String        (const iString *);
+iChar           last_String         (const iString *);
 iBlock *        toLocal_String      (const iString *);
 iBlock *        toUtf16_String      (const iString *);
 

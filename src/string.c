@@ -518,6 +518,12 @@ iChar first_String(const iString *d) {
     return iter.value;
 }
 
+iChar last_String(const iString *d) {
+    iStringReverseConstIterator iter;
+    init_StringReverseConstIterator(&iter, d);
+    return iter.value;
+}
+
 iBlock *toLocal_String(const iString *d) {
     size_t len = 0;
     char * str = u8_conv_to_encoding(localeCharSet_,
