@@ -54,4 +54,8 @@ struct Impl_XmlDocument {
 iDeclareTypeConstruction(XmlElement)
 iDeclareTypeConstruction(XmlDocument)
 
-iBool   parse_XmlDocument   (iXmlDocument *, const iString *source);
+iBool       parse_XmlDocument   (iXmlDocument *, const iString *source);
+
+const iXmlElement * child_XmlElement            (const iXmlElement *, const char *name);
+iRangecc            attribute_XmlElement        (const iXmlElement *, const char *name);
+iString *           decodedContent_XmlElement   (const iXmlElement *);

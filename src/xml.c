@@ -247,6 +247,7 @@ static iBool parseTree_XmlParser_(iXmlParser *d, iXmlElement *elem) {
         nextToken_XmlParser_(d);
         if (!expect_XmlParser_(d, assignment_XmlToken)) return iFalse;
         attr.value = d->token;
+        pushBack_Array(&elem->attribs, &attr);
         //printf("%s.%s = %s\n", cstr_Rangecc(elem->name), cstr_Rangecc(attr.name),
         //       cstr_Rangecc(attr.value)); fflush(stdout);
         nextToken_XmlParser_(d);
@@ -304,6 +305,95 @@ void deinit_XmlElement(iXmlElement *d) {
         delete_XmlElement(i.ptr);
     }
     deinit_PtrArray(&d->children);
+}
+
+const iXmlElement *child_XmlElement(const iXmlElement *d, const char *name) {
+    iConstForEach(PtrArray, i, &d->children) {
+        const iXmlElement *child = i.ptr;
+        if (equal_Rangecc(child->name, name)) {
+            return child;
+        }
+    }
+    return NULL;
+}
+
+iRangecc attribute_XmlElement(const iXmlElement *d, const char *name) {
+    iConstForEach(Array, i, &d->attribs) {
+        const iXmlAttribute *attr = i.value;
+        if (equal_Rangecc(attr->name, name)) {
+            return attr->value;
+        }
+    }
+    return iNullRange;
+}
+
+iString *decodedContent_XmlElement(const iXmlElement *d) {
+    iString *str = new_String();
+    if (!d) return str;
+    iBool isCData = iFalse;
+    iBool wasSpace = iFalse;
+    for (const char *pos = d->content.start; pos < d->content.end; ) {
+        if (!isCData && *pos == '&') {
+            if (!iCmpStrN(pos, "quot;", 5)) {
+                appendChar_String(str, '"');
+                wasSpace = iFalse;
+                pos += 5;
+            }
+            else if (!iCmpStrN(pos, "apos;", 5)) {
+                appendChar_String(str, '\'');
+                wasSpace = iFalse;
+                pos += 5;
+            }
+            else if (!iCmpStrN(pos, "amp;", 4)) {
+                appendChar_String(str, '&');
+                wasSpace = iFalse;
+                pos += 4;
+            }
+            else if (!iCmpStrN(pos, "lt;", 3)) {
+                appendChar_String(str, '<');
+                wasSpace = iFalse;
+                pos += 3;
+            }
+            else if (!iCmpStrN(pos, "gt;", 3)) {
+                appendChar_String(str, '>');
+                wasSpace = iFalse;
+                pos += 3;
+            }
+        }
+        else if (!isCData && !iCmpStrN(pos, "<!--", 4)) {
+            pos += 4;
+            while (pos <= d->content.end - 3 && iCmpStrN(pos, "-->", 3)) {
+                pos++;
+            }
+            pos += 3;
+        }
+        else if (!isCData && !iCmpStrN(pos, "<![CDATA[", 9)) {
+            pos += 9;
+            isCData = iTrue;
+        }
+        else {
+            if (isCData && !iCmpStrN(pos, "]]>", 3)) {
+                isCData = iFalse;
+                pos += 3;
+                continue;
+            }
+            iChar ch = 0;
+            int n = decodeBytes_MultibyteChar(pos, d->content.end - pos, &ch);
+            if (n <= 0) {
+                return str;
+            }
+            pos += n;
+            /* Normalize whitespace. */
+            const iBool isSpace = isSpace_Char(ch);
+            if (isSpace) {
+                ch = ' ';
+                if (wasSpace) continue;
+            }
+            appendChar_String(str, ch);
+            wasSpace = isSpace;
+        }
+    }
+    return str;
 }
 
 /*----------------------------------------------------------------------------------------------*/
