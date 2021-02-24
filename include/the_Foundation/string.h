@@ -263,6 +263,10 @@ iLocalDef iBool equalRange_Rangecc(const iRangecc d, const iRangecc other) {
     return size_Range(&d) == size_Range(&other) &&
            cmpCStrNSc_Rangecc(d, other.start, size_Range(&d), &iCaseSensitive) == 0;
 }
+iLocalDef iBool equalRangeCase_Rangecc(const iRangecc d, const iRangecc other) {
+    return size_Range(&d) == size_Range(&other) &&
+           cmpCStrNSc_Rangecc(d, other.start, size_Range(&d), &iCaseInsensitive) == 0;
+}
 iLocalDef iBool startsWith_Rangecc(const iRangecc d, const char *cstr) {
     return startsWithSc_Rangecc(d, cstr, &iCaseSensitive);
 }
