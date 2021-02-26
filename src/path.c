@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/string.h"
 
 #include <unistd.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -297,7 +298,9 @@ void makeDirs_Path(const iString *path) {
         makeDirs_Path(dir);
     }
     delete_String(dir);
-    mkdir_Path(clean);
+    if (!mkdir_Path(clean)) {
+        iDebug("[Path] failed to create directory: %s\n", strerror(errno));
+    }
     delete_String(clean);
 }
 
