@@ -334,30 +334,30 @@ iString *decodedContent_XmlElement(const iXmlElement *d) {
     iBool wasSpace = iFalse;
     for (const char *pos = d->content.start; pos < d->content.end; ) {
         if (!isCData && *pos == '&') {
-            if (!iCmpStrN(pos, "quot;", 5)) {
+            if (!iCmpStrN(pos, "&quot;", 6)) {
                 appendChar_String(str, '"');
                 wasSpace = iFalse;
-                pos += 5;
+                pos += 6;
             }
-            else if (!iCmpStrN(pos, "apos;", 5)) {
+            else if (!iCmpStrN(pos, "&apos;", 6)) {
                 appendChar_String(str, '\'');
+                wasSpace = iFalse;
+                pos += 6;
+            }
+            else if (!iCmpStrN(pos, "&amp;", 5)) {
+                appendChar_String(str, '&');
                 wasSpace = iFalse;
                 pos += 5;
             }
-            else if (!iCmpStrN(pos, "amp;", 4)) {
-                appendChar_String(str, '&');
+            else if (!iCmpStrN(pos, "&lt;", 4)) {
+                appendChar_String(str, '<');
                 wasSpace = iFalse;
                 pos += 4;
             }
-            else if (!iCmpStrN(pos, "lt;", 3)) {
-                appendChar_String(str, '<');
-                wasSpace = iFalse;
-                pos += 3;
-            }
-            else if (!iCmpStrN(pos, "gt;", 3)) {
+            else if (!iCmpStrN(pos, "&gt;", 4)) {
                 appendChar_String(str, '>');
                 wasSpace = iFalse;
-                pos += 3;
+                pos += 4;
             }
         }
         else if (!isCData && !iCmpStrN(pos, "<!--", 4)) {
