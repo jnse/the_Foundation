@@ -127,4 +127,6 @@ enum iTlsRequestStatus  status_TlsRequest           (const iTlsRequest *);
 const iString *         errorMessage_TlsRequest     (const iTlsRequest *);
 const iTlsCertificate * serverCertificate_TlsRequest(const iTlsRequest *);
 
+void        setCiphers_TlsRequest   (const char *cipherList);
+
 iEndPublic

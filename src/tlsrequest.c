@@ -513,11 +513,20 @@ static iBool encrypt_TlsRequest_(iTlsRequest *d) {
     return iTrue;
 }
 
-void init_TlsRequest(iTlsRequest *d) {
+static void initContext_(void) {
     if (!context_) {
         context_ = new_Context();
         atexit(globalCleanup_TlsRequest_);
     }
+}
+
+void setCiphers_TlsRequest(const char *cipherList) {
+    initContext_();
+    SSL_CTX_set_cipher_list(context_->ctx, cipherList);
+}
+
+void init_TlsRequest(iTlsRequest *d) {
+    initContext_();
     init_Mutex(&d->mtx);
     d->hostName = new_String();
     d->port = 0;
