@@ -168,7 +168,7 @@ void init_CommandLine(iCommandLine *d, int argc, char **argv) {
     }
 #else
     /* TODO: This does not work if the executable was started via PATH. It
-       would be more reliable to use platform-specific means to determine the 
+       would be more reliable to use platform-specific means to determine the
        path. See: https://stackoverflow.com/a/1024937 */
     d->execPath = makeAbsolute_Path(constFront_StringList(&d->args));
 #endif
@@ -181,7 +181,7 @@ void deinit_CommandLine(iCommandLine *d) {
 }
 
 void defineValues_CommandLine(iCommandLine *d, const char *arg, int valueCount) {
-    defineValuesN_CommandLine(d, arg, valueCount == unlimitedValues_CommandLine? 0 : valueCount, valueCount);
+    defineValuesN_CommandLine(d, arg, valueCount == unlimitedValues_CommandLine ? 0 : valueCount, valueCount);
 }
 
 void defineValuesN_CommandLine(iCommandLine *d, const char *arg, int minCount, int maxCount) {
@@ -197,6 +197,17 @@ void defineValuesN_CommandLine(iCommandLine *d, const char *arg, int minCount, i
     iRelease(def);
 }
 
+iBool isDefined_CommandLine(const iCommandLine *d, const iString *arg) {
+    if (!d->defined) {
+        return iFalse;
+    }
+    iRangecc key = range_String(arg);
+    /* Ignore one or two dashes in the beginning. */
+    if (*key.start == '-') key.start++;
+    if (*key.start == '-') key.start++;
+    return constValueRange_StringHash(d->defined, key) != NULL;
+}
+
 iBool contains_CommandLine(const iCommandLine *d, const char *arg) {
     const iRangecc args = range_CStr(arg);
     iRangecc range = iNullRange;
@@ -207,8 +218,8 @@ iBool contains_CommandLine(const iCommandLine *d, const char *arg) {
     return iFalse;
 }
 
-static iCommandLineArg *checkArgumentPosValuesN_CommandLine_
-(const iCommandLine *d, size_t pos, size_t minCount, size_t maxCount) {
+static iCommandLineArg *checkArgumentPosValuesN_CommandLine_(const iCommandLine *d, size_t pos,
+                                                             size_t minCount, size_t maxCount) {
     const iString *lineEntry = constAt_StringList(&d->args, pos);
     size_t equalPos;
     if ((equalPos = indexOf_String(lineEntry, '=')) != iInvalidPos) {
@@ -341,7 +352,7 @@ void next_CommandLineConstIterator(iCommandLineConstIterator *d) {
         }
     }
     /* Advance to the next entry. */
-    d->value += d->valueCount + 1 + (d->isAssignedValue? -1 : 0);
+    d->value += d->valueCount + 1 + (d->isAssignedValue ? -1 : 0);
     if (d->value >= size_StringList(&d->cmdLine->args)) { // Done?
         d->value = 0;
         return;
@@ -386,6 +397,17 @@ const iString *value_CommandLineConstIterator(iCommandLineConstIterator *d) {
         return at_CommandLine(d->cmdLine, d->value);
     }
     return NULL;
+}
+
+iBool equal_CommandLineConstIterator(const iCommandLineConstIterator *d, const char *arg) {
+    iRangecc entry = iNullRange;
+    const iRangecc args = range_CStr(arg);
+    while (nextSplit_Rangecc(args, ";", &entry)) {
+        if (equalRange_Rangecc(d->entry, entry)) {
+            return iTrue;
+        }
+    }
+    return iFalse;
 }
 
 /*-------------------------------------------------------------------------------------*/

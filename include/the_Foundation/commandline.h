@@ -51,6 +51,7 @@ void        deinit_CommandLine      (iCommandLine *);
 
 void        defineValues_CommandLine  (iCommandLine *, const char *arg, int valueCount);
 void        defineValuesN_CommandLine (iCommandLine *, const char *arg, int minCount, int maxCount);
+iBool       isDefined_CommandLine     (const iCommandLine *, const iString *arg);
 
 /**
  * Checks if the command line contains a specific argument.
@@ -122,6 +123,7 @@ struct ConstIteratorImpl_CommandLine {
 
 iCommandLineArg *   argument_CommandLineConstIterator   (iCommandLineConstIterator *);
 const iString *     value_CommandLineConstIterator      (iCommandLineConstIterator *);
+iBool               equal_CommandLineConstIterator      (const iCommandLineConstIterator *, const char *arg);
 
 /*-------------------------------------------------------------------------------------*/
 
