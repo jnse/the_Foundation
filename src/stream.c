@@ -182,6 +182,18 @@ iStringList *readLines_Stream(iStream *d) {
     return lines;
 }
 
+size_t printf_Stream(iStream *d, const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    iBlock str;
+    init_Block(&str, 0);
+    vprintf_Block(&str, format, args);
+    const size_t len = write_Stream(d, &str);
+    deinit_Block(&str);
+    va_end(args);
+    return len;
+}
+
 void flush_Stream(iStream *d) {
     class_Stream(d)->flush(d);
 }

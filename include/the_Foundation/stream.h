@@ -116,6 +116,7 @@ void            flush_Stream        (iStream *);
 
 iString *       readString_Stream   (iStream *);
 iStringList *   readLines_Stream    (iStream *);
+size_t          printf_Stream       (iStream *, const char *format, ...);
 
 size_t          writeObject_Stream  (iStream *, const iAnyObject *object);
 iAnyObject *    readObject_Stream   (iStream *, const iAnyClass *);
