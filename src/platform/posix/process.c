@@ -150,13 +150,11 @@ iProcessId pid_Process(const iProcess *d) {
 
 iBool isRunning_Process(const iProcess *d) {
     if (!d->pid) return iFalse;
-    int status = 0;
-    pid_t res = wait4(d->pid, &status, WNOHANG, NULL);
-    if (res == 0) {
-        return iTrue;
+    if (!exists_Process(d->pid)) {
+        iConstCast(iProcess *, d)->pid = 0;
+        return iFalse;
     }
-    iConstCast(iProcess *, d)->pid = 0;
-    return iFalse;
+    return iTrue;
 }
 
 void waitForFinished_Process(iProcess *d) {
@@ -243,4 +241,9 @@ iBlock *readOutputUntilClosed_Process(iProcess *d) {
         else break;
     }
     return output;
+}
+
+iBool exists_Process(iProcessId pid) {
+    if (!pid) return iFalse;
+    return kill(pid, 0) == 0;
 }

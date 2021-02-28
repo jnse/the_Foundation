@@ -49,10 +49,9 @@ void        setArguments_Process        (iProcess *, const iStringList *args);
 void        setEnvironment_Process      (iProcess *, const iStringList *env); /* additions to environ; "name=value" */
 void        setWorkingDirectory_Process (iProcess *, const iString *cwd);
 
-iBool       start_Process   (iProcess *);
-void        kill_Process    (iProcess *);
-
-iProcessId  pid_Process             (const iProcess *);
+iBool       start_Process           (iProcess *);
+void        kill_Process            (iProcess *);
+iProcessId  pid_Process             (const iProcess *); /* NULL for current process */
 iBool       isRunning_Process       (const iProcess *);
 void        waitForFinished_Process (iProcess *);
 size_t      writeInput_Process      (iProcess *, const iBlock *data);
@@ -60,5 +59,11 @@ iBlock *    readOutput_Process      (iProcess *);
 iBlock *    readError_Process       (iProcess *);
 
 iBlock *    readOutputUntilClosed_Process   (iProcess *); /* blocking */
+
+iLocalDef iProcessId currentId_Process(void) {
+    return pid_Process(NULL);
+}
+
+iBool       exists_Process          (iProcessId pid);
 
 iEndPublic
