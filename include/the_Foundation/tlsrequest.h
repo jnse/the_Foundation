@@ -71,6 +71,12 @@ struct Impl_TlsCertificateName {
     const iString *text;
 };
 
+enum iTlsCertificateVerifyStatus {
+    unverified_TlsCertificateVerifyStatus,
+    selfSigned_TlsCertificateVerifyStatus,
+    authority_TlsCertificateVerifyStatus,
+};
+
 iDeclareType(TlsCertificate)
 iDeclareTypeConstruction(TlsCertificate)
 
@@ -86,6 +92,8 @@ iString *           subject_TlsCertificate      (const iTlsCertificate *);
 iString *           issuer_TlsCertificate       (const iTlsCertificate *);
 void                validUntil_TlsCertificate   (const iTlsCertificate *, iDate *untilDate_out);
 iBool               isExpired_TlsCertificate    (const iTlsCertificate *);
+enum iTlsCertificateVerifyStatus
+                    verify_TlsCertificate       (const iTlsCertificate *);
 iBool               verifyDomain_TlsCertificate (const iTlsCertificate *, iRangecc domain); /* supports wildcards */
 iBool               verifyIp_TlsCertificate     (const iTlsCertificate *, const iString *ipAddress);
 iBool               equal_TlsCertificate        (const iTlsCertificate *, const iTlsCertificate *);
@@ -127,6 +135,7 @@ enum iTlsRequestStatus  status_TlsRequest           (const iTlsRequest *);
 const iString *         errorMessage_TlsRequest     (const iTlsRequest *);
 const iTlsCertificate * serverCertificate_TlsRequest(const iTlsRequest *);
 
-void        setCiphers_TlsRequest   (const char *cipherList);
+void        setCACertificates_TlsRequest(const iString *caFile, const iString *caPath);
+void        setCiphers_TlsRequest       (const char *cipherList);
 
 iEndPublic

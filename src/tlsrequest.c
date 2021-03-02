@@ -51,6 +51,7 @@ static iBool isPrngSeeded_;
 
 struct Impl_Context {
     SSL_CTX *ctx;
+    X509_STORE *certStore;
 };
 
 void init_Context(iContext *d) {
@@ -73,6 +74,7 @@ void init_Context(iContext *d) {
     SSL_CTX_set_verify(d->ctx, SSL_VERIFY_NONE, NULL); /* allow manual verification */
     /* Bug workarounds: https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_options.html */
     SSL_CTX_set_options(d->ctx, SSL_OP_ALL);
+    d->certStore = NULL;
 }
 
 void deinit_Context(iContext *d) {
@@ -81,6 +83,19 @@ void deinit_Context(iContext *d) {
 
 iBool isValid_Context(iContext *d) {
     return d->ctx != NULL;
+}
+
+void setCACertificates_TlsRequest(const iString *caFile, const iString *caPath) {
+    iContext *d = context_;
+    if (d->certStore) {
+        X509_STORE_free(d->certStore);
+    }
+    d->certStore = X509_STORE_new();
+    if (!X509_STORE_load_locations(d->certStore,
+                                   isEmpty_String(caFile) ? NULL : cstr_String(caFile),
+                                   isEmpty_String(caPath) ? NULL : cstr_String(caPath))) {
+        iWarning("[TlsRequest] OpenSSL failed to load CA certificates\n");
+    }
 }
 
 iDefineTypeConstruction(Context)
@@ -104,28 +119,40 @@ static iBool readAllFromBIO_(BIO *bio, iBlock *out) {
 
 struct Impl_TlsCertificate {
     X509 *cert;
+    STACK_OF(X509) *chain;
     EVP_PKEY *pkey;
 };
 
 iDefineTypeConstruction(TlsCertificate)
 
 void init_TlsCertificate(iTlsCertificate *d) {
-    d->cert = NULL;
-    d->pkey = NULL;
+    d->cert  = NULL;
+    d->chain = NULL;
+    d->pkey  = NULL;
 }
 
 void deinit_TlsCertificate(iTlsCertificate *d) {
     if (d->cert) {
         X509_free(d->cert);
     }
+    if (d->chain) {
+        sk_X509_free(d->chain);
+    }
     if (d->pkey) {
         EVP_PKEY_free(d->pkey);
     }
 }
 
-static iTlsCertificate *newX509_TlsCertificate_(X509 *cert) {
+//static iTlsCertificate *newX509_TlsCertificate_(X509 *cert) {
+//    iTlsCertificate *d = new_TlsCertificate();
+//    d->cert = cert;
+//    return d;
+//}
+
+static iTlsCertificate *newX509Chain_TlsCertificate_(X509 *cert, STACK_OF(X509) *chain) {
     iTlsCertificate *d = new_TlsCertificate();
-    d->cert = cert;
+    d->cert  = cert;
+    d->chain = chain;
     return d;
 }
 
@@ -294,6 +321,29 @@ void validUntil_TlsCertificate(const iTlsCertificate *d, iDate *untilDate_out) {
 iBool isExpired_TlsCertificate(const iTlsCertificate *d) {
     if (!d->cert) return iTrue;
     return X509_cmp_current_time(X509_get0_notAfter(d->cert)) < 0;
+}
+
+enum iTlsCertificateVerifyStatus verify_TlsCertificate(const iTlsCertificate *d) {
+    enum iTlsCertificateVerifyStatus status = unverified_TlsCertificateVerifyStatus;
+    if (!d->cert) {
+        return status;
+    }
+    X509_STORE_CTX *store = X509_STORE_CTX_new();
+    X509_STORE_CTX_init(store, context_->certStore, d->cert, d->chain);
+    const int result = X509_verify_cert(store);
+    const int err    = X509_STORE_CTX_get_error(store);
+    if (err == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) {
+        status = selfSigned_TlsCertificateVerifyStatus;
+    }
+    else if (result) {
+        status = authority_TlsCertificateVerifyStatus;
+    }
+    iDebug("[TlsCertificate] result:%d %s (error:%d)\n",
+           result,
+           X509_verify_cert_error_string(err),
+           err);
+    X509_STORE_CTX_free(store);
+    return status;
 }
 
 iBool verifyDomain_TlsCertificate(const iTlsCertificate *d, iRangecc domain) {
@@ -627,7 +677,9 @@ static int processIncoming_TlsRequest_(iTlsRequest *d, const char *src, size_t l
             }
         }
         if (!d->cert) {
-            d->cert = newX509_TlsCertificate_(SSL_get_peer_certificate(d->ssl));
+            const STACK_OF(X509) *chain = SSL_get_peer_cert_chain(d->ssl);
+            d->cert = newX509Chain_TlsCertificate_(SSL_get_peer_certificate(d->ssl),
+                                                   sk_X509_dup(chain));
         }
         /* The encrypted data is now in the input bio so now we can perform actual
            read of unencrypted data. */
