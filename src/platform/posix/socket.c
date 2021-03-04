@@ -258,6 +258,7 @@ static void init_Socket_(iSocket *d) {
     d->error = NULL;
     d->readyRead = NULL;
     d->writeFinished = NULL;
+    d->status = initialized_SocketStatus;
 }
 
 void deinit_Socket(iSocket *d) {
