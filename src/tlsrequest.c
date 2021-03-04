@@ -736,6 +736,8 @@ static iBool readIncoming_TlsRequest_(iTlsRequest *d) {
 }
 
 static iThreadResult run_TlsRequest_(iThread *thread) {
+    /* TODO: This thread seems unnecessary. The Socket already runs a thread -- we could execute
+       this via its observers, and block to encrypt outgoing data. */
     iTlsRequest *d = userData_Thread(thread);
     doHandshake_TlsRequest_(d);
     for (;;) {
