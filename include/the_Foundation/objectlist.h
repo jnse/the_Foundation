@@ -59,8 +59,8 @@ iDeclareObjectConstruction(ObjectList)
 
 iObjectList *       copy_ObjectList     (const iObjectList *);
 
-iLocalDef iBool     isEmpty_ObjectList  (const iObjectList *d) { return isEmpty_List(&d->list); }
-iLocalDef size_t    size_ObjectList     (const iObjectList *d) { return size_List(&d->list); }
+iLocalDef iBool     isEmpty_ObjectList  (const iObjectList *d) { return d == NULL || isEmpty_List(&d->list); }
+iLocalDef size_t    size_ObjectList     (const iObjectList *d) { return d ? size_List(&d->list) : 0; }
 #define             list_ObjectList(d)  (&(d)->list)
 
 iObject *       front_ObjectList        (const iObjectList *);

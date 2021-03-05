@@ -53,7 +53,7 @@ void deinit_List(iList *d) {
 }
 
 size_t size_List(const iList *d) {
-    return d? d->size : 0;
+    return d ? d->size : 0;
 }
 
 void *front_List(const iList *d) {
