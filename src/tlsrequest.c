@@ -825,6 +825,9 @@ void cancel_TlsRequest(iTlsRequest *d) {
         unlock_Mutex(&d->mtx);
         close_Socket(d->socket);
     }
+    else {
+        unlock_Mutex(&d->mtx);
+    }
     signal_Condition(&d->gotIncoming);
     join_Thread(d->thread);
 }
