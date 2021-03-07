@@ -506,13 +506,20 @@ static enum iSSLResult sslResult_TlsRequest_(iTlsRequest *d, int code) {
 }
 
 static void setStatus_TlsRequest_(iTlsRequest *d, enum iTlsRequestStatus st) {
-    iGuardMutex(&d->mtx, if (d->status != st) {
+    lock_Mutex(&d->mtx);
+    if (d->status != st) {
         d->status = st;
-        signal_Condition(&d->gotIncoming); /* wake up if sleeping */
         if (st == finished_TlsRequestStatus || st == error_TlsRequestStatus) {
             signalAll_Condition(&d->requestDone);
         }
-    });
+        unlock_Mutex(&d->mtx);
+        lock_Mutex(&d->incomingMtx);
+        signal_Condition(&d->gotIncoming); /* wake up if sleeping */
+        unlock_Mutex(&d->incomingMtx);
+    }
+    else {
+        unlock_Mutex(&d->mtx);
+    }
 }
 
 static void flushToSocket_TlsRequest_(iTlsRequest *d) {
@@ -607,8 +614,8 @@ void init_TlsRequest(iTlsRequest *d) {
 }
 
 void deinit_TlsRequest(iTlsRequest *d) {
-    signal_Condition(&d->gotIncoming);
-    d->status = finished_TlsRequestStatus;
+    iGuardMutex(&d->incomingMtx, signal_Condition(&d->gotIncoming));
+    iGuardMutex(&d->mtx, d->status = finished_TlsRequestStatus);
     if (d->thread) {
         join_Thread(d->thread);
         iRelease(d->thread);
@@ -745,14 +752,17 @@ static iThreadResult run_TlsRequest_(iThread *thread) {
         if (!readIncoming_TlsRequest_(d)) {
             lock_Mutex(&d->mtx);
             if (d->status == submitted_TlsRequestStatus) {
-                wait_Condition(&d->gotIncoming, &d->mtx);
+                unlock_Mutex(&d->mtx);
+                /* Wait for incoming data. */
+                lock_Mutex(&d->incomingMtx);
+                wait_Condition(&d->gotIncoming, &d->incomingMtx);
+                unlock_Mutex(&d->incomingMtx);
             }
             else {
 //                fprintf(stderr, "[TlsRequest] run loop exiting, status %d\n", d->status);
                 unlock_Mutex(&d->mtx);
                 break;
             }
-            unlock_Mutex(&d->mtx);
         }
     }
     readIncoming_TlsRequest_(d);

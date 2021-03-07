@@ -266,8 +266,9 @@ void deinit_Socket(iSocket *d) {
     iGuardMutex(&d->mutex, {
         iReleasePtr(&d->output);
         iReleasePtr(&d->input);
-        iReleasePtr(&d->address);
     });
+    waitForFinished_Address(d->address);
+    iReleasePtr(&d->address);
     deinit_Mutex(&d->mutex);
     delete_Pipe(d->stopConnect);
     deinit_Condition(&d->allSent);

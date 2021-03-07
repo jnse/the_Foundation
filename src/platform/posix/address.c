@@ -182,8 +182,8 @@ void deinit_Address(iAddress *d) {
     if (d->info) freeaddrinfo(d->info);
     deinit_String(&d->service);
     deinit_String(&d->hostName);
-    delete_Audience(d->lookupFinished);
     unlock_Mutex(d->mutex);
+    delete_Audience(d->lookupFinished);
     delete_Mutex(d->mutex);
 }
 

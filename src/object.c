@@ -44,7 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 static iAtomicInt totalCount_;
 
 int totalCount_Object(void) {
-    return totalCount_;
+    return value_Atomic(&totalCount_);
 }
 
 void checkSignature_Object(const iAnyObject *d) {
@@ -71,7 +71,7 @@ static void free_Object_(iObject *d) {
     iObjectDebug("[Object] deleting %s %p\n", d->class->name, d);
 #if !defined (NDEBUG)
     d->__sig = 0xdeadbeef;
-    totalCount_--;
+    add_Atomic(&totalCount_, -1);
 #endif
     free(d);
 }
@@ -80,12 +80,12 @@ iAnyObject *new_Object(const iAnyClass *class) {
     iAssert(class != NULL);
     iAssert(((const iClass *) class)->size >= sizeof(iObject));
     iObject *d = malloc(((const iClass *) class)->size);
+    set_Atomic(&d->refCount, 1);
     d->classObj = class;
-    d->refCount = 1;
     d->memberOf = NULL;
 #if !defined (NDEBUG)
     d->__sig = iObjectSignature;
-    totalCount_++;
+    add_Atomic(&totalCount_, 1);
 #endif
     iObjectDebug("[Object] constructed %s %p\n", d->class->name, d);
     return d;
@@ -105,7 +105,7 @@ iAnyObject *ref_Object(const iAnyObject *any) {
     if (any) {
         iObject *d = iConstCast(iObject *, any);
         iAssertIsObject(d);
-        d->refCount++;
+        add_Atomic(&d->refCount, 1);
         return d;
     }
     return NULL;
@@ -116,7 +116,7 @@ void deref_Object(const iAnyObject *any) {
         iObject *d = iConstCast(iObject *, any);
         iAssertIsObject(d);
         iAssert(d->refCount > 0);
-        if (--d->refCount == 0) {
+        if (add_Atomic(&d->refCount, -1) == 1) {
             free_Object_(d);
         }
     }

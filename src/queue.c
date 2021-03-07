@@ -45,8 +45,10 @@ void deinit_Queue(iQueue *d) {
 void put_Queue(iQueue *d, iQueueItem *item) {
     iAssert(item != NULL);
     iAssertIsObject(item);
-    iGuardMutex(&d->mutex, pushBack_ObjectList(&d->items, item));
-    signal_Condition(&d->cond);
+    iGuardMutex(&d->mutex, {
+        pushBack_ObjectList(&d->items, item);
+        signal_Condition(&d->cond);
+    });
 }
 
 iQueueItem *take_Queue(iQueue *d) {
