@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/garbage.h"
 #include "the_Foundation/list.h"
 #include "the_Foundation/stdthreads.h"
+#include "the_Foundation/object.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -140,8 +141,11 @@ static void push_Collected_(iCollected *d, iCollectedPtr colptr) {
     if (!node || isFull_GarbageNode_(node)) {
         pushBack_List(&d->collected, node = new_GarbageNode_());
     }
-    /* In debug builds, try to catch recent duplicate collections. */
-    if (colptr.ptr) { /* NULL would be a scope marker */
+#if !defined (NDEBUG)
+    /* In debug builds, try to catch recent duplicate collections.
+       NULL pointers are used as scope markers, and objects are allowed
+       to be released multiple times. */
+    if (colptr.ptr && colptr.del != (iDeleteFunc) deref_Object) {
         iAssert(previous_Collected_(d, 1) != colptr.ptr);
         iAssert(previous_Collected_(d, 2) != colptr.ptr);
         iAssert(previous_Collected_(d, 3) != colptr.ptr);
@@ -151,6 +155,7 @@ static void push_Collected_(iCollected *d, iCollectedPtr colptr) {
         iAssert(previous_Collected_(d, 7) != colptr.ptr);
         iAssert(previous_Collected_(d, 8) != colptr.ptr);
     }
+#endif
     node->allocs[node->count++] = colptr;
 }
 
