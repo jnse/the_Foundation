@@ -359,6 +359,25 @@ iString *decodedContent_XmlElement(const iXmlElement *d) {
                 wasSpace = iFalse;
                 pos += 4;
             }
+            else if (!iCmpStrN(pos, "&#", 2)) {
+                pos += 2;
+                iBool isHex = iFalse;
+                if (*pos == 'x') {
+                    isHex = iTrue;
+                    pos++;
+                }
+                char digits[5];
+                iZap(digits);
+                for (size_t idx = 0; idx < 4; idx++) {
+                    if (*pos == ';') break;
+                    digits[idx] = *pos++;
+                }
+                pos++;
+                const iChar codepoint = strtoul(digits, NULL, isHex ? 16 : 10);
+                if (codepoint) {
+                    appendChar_String(str, codepoint);
+                }
+            }
         }
         else if (!isCData && !iCmpStrN(pos, "<!--", 4)) {
             pos += 4;
