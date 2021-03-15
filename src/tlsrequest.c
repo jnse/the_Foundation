@@ -49,6 +49,8 @@ iDeclareType(Context)
 static iContext *context_;
 static iBool isPrngSeeded_;
 
+static void initContext_(void);
+
 struct Impl_Context {
     SSL_CTX *ctx;
     X509_STORE *certStore;
@@ -86,6 +88,7 @@ iBool isValid_Context(iContext *d) {
 }
 
 void setCACertificates_TlsRequest(const iString *caFile, const iString *caPath) {
+    initContext_();
     iContext *d = context_;
     if (d->certStore) {
         X509_STORE_free(d->certStore);
@@ -99,6 +102,19 @@ void setCACertificates_TlsRequest(const iString *caFile, const iString *caPath) 
 }
 
 iDefineTypeConstruction(Context)
+
+static void globalCleanup_TlsRequest_(void) {
+    if (context_) {
+        delete_Context(context_);
+    }
+}
+
+static void initContext_(void) {
+    if (!context_) {
+        context_ = new_Context();
+        atexit(globalCleanup_TlsRequest_);
+    }
+}
 
 static iBool readAllFromBIO_(BIO *bio, iBlock *out) {
     char buf[DEFAULT_BUF_SIZE];
@@ -479,12 +495,6 @@ iDefineAudienceGetter(TlsRequest, finished)
 
 static void setError_TlsRequest_(iTlsRequest *d, const char *msg);
 
-static void globalCleanup_TlsRequest_(void) {
-    if (context_) {
-        delete_Context(context_);
-    }
-}
-
 enum iSSLResult { ok_SSLResult, wantIO_SSLResult, closed_SSLResult, fail_SSLResult };
 
 static enum iSSLResult sslResult_TlsRequest_(iTlsRequest *d, int code) {
@@ -568,13 +578,6 @@ static iBool encrypt_TlsRequest_(iTlsRequest *d) {
         }
     }
     return iTrue;
-}
-
-static void initContext_(void) {
-    if (!context_) {
-        context_ = new_Context();
-        atexit(globalCleanup_TlsRequest_);
-    }
 }
 
 void setCiphers_TlsRequest(const char *cipherList) {
