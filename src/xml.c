@@ -378,6 +378,10 @@ iString *decodedContent_XmlElement(const iXmlElement *d) {
                     appendChar_String(str, codepoint);
                 }
             }
+            else {
+                /* Just skip it, maybe the document is not well-formed. Must not hang! */
+                pos++;
+            }
         }
         else if (!isCData && !iCmpStrN(pos, "<!--", 4)) {
             pos += 4;
