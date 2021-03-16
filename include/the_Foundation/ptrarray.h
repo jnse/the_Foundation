@@ -95,7 +95,7 @@ struct IteratorImpl_PtrArray {
 };
 struct ConstIteratorImpl_PtrArray {
     union {
-        const void * const *value; // pointer to array element
+        void * const *value; // pointer to array element
         iArrayConstIterator iter;
     };
     const void *ptr; // array element
@@ -109,7 +109,7 @@ struct ReverseIteratorImpl_PtrArray {
 };
 struct ReverseConstIteratorImpl_PtrArray {
     union {
-        const void * const *value; // pointer to array element
+        void * const *value; // pointer to array element
         iArrayReverseConstIterator iter;
     };
     const void *ptr; // array element
