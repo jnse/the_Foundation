@@ -285,6 +285,11 @@ void            trimStart_Rangecc   (iRangecc *);
 void            trimEnd_Rangecc     (iRangecc *);
 void            trim_Rangecc        (iRangecc *);
 
+iLocalDef iRangecc trimmed_Rangecc(iRangecc d) {
+    trim_Rangecc(&d);
+    return d;
+}
+
 size_t          lastIndexOfCStr_Rangecc     (iRangecc, const char *cstr);
 
 /**
