@@ -45,6 +45,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL FreeBSD)
     message (STATUS "Detected FreeBSD")
     set (FREEBSD YES)
 endif ()
+if (CMAKE_SYSTEM_NAME STREQUAL NetBSD)
+    message (STATUS "Detected NetBSD")
+    set (NETBSD YES)
+endif ()
 
 include (Depends.cmake)
 if (TFDN_ENABLE_DEBUG_OUTPUT)
@@ -60,7 +64,9 @@ check_include_file (sys/dirent.h iHaveSysDirent)
 # C11 threads
 check_include_file (pthread.h iHavePThread)
 check_include_file (threads.h iHaveC11Threads)
-if (FREEBSD)
+if (FREEBSD OR NETBSD)
+    # The platform's implementation does not behave as we expect.
+    # TODO: Investigate behavior differences and/or misuse of the API.
     set (iHaveC11Threads NO)
 endif ()
 if (NOT iHaveC11Threads)

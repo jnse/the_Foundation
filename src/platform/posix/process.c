@@ -39,6 +39,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
+#if defined (iPlatformOther)
+#   include <sys/select.h>
+#endif
 
 struct Impl_Process {
     iObject object;
