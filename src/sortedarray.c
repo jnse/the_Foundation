@@ -137,7 +137,6 @@ iBool insertIf_SortedArray(iSortedArray *d, const void *value, iSortedArrayCompa
     }
     insert_Array(&d->values, pos, value);
     return iTrue;
-
 }
 
 iBool remove_SortedArray(iSortedArray *d, const void *value) {
