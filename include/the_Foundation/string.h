@@ -333,8 +333,9 @@ struct Impl_MultibyteChar {
     char bytes[8]; // UTF-8 encoding
 };
 
-void    init_MultibyteChar          (iMultibyteChar *d, iChar ch);
-int     decodeBytes_MultibyteChar   (const char *bytes, size_t n, iChar *ch_out);
+void    init_MultibyteChar                  (iMultibyteChar *d, iChar ch);
+int     decodeBytes_MultibyteChar           (const char *bytes, const char *end, iChar *ch_out);
+int     decodePrecedingBytes_MultibyteChar  (const char *bytes, const char *start, iChar *ch_out);
 
 const char *    cstrLocal_Char  (iChar ch); // locale-encoding
 

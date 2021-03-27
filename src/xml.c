@@ -401,7 +401,7 @@ iString *decodedContent_XmlElement(const iXmlElement *d) {
                 continue;
             }
             iChar ch = 0;
-            int n = decodeBytes_MultibyteChar(pos, d->content.end - pos, &ch);
+            int n = decodeBytes_MultibyteChar(pos, d->content.end, &ch);
             if (n <= 0) {
                 return str;
             }

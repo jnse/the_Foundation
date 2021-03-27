@@ -824,7 +824,7 @@ static void decodePrecedingMultibyte_StringConstIterator_(iStringConstIterator *
         &d->value, (const uint8_t *) d->next, constData_Block(&d->str->chars));
 }
 
-void init_StringConstIterator(iStringConstIterator *d, const iString *str) {    
+void init_StringConstIterator(iStringConstIterator *d, const iString *str) {
     d->str = str;
     d->value = 0;
     if (str) {
@@ -862,12 +862,22 @@ void init_MultibyteChar(iMultibyteChar *d, iChar ch) {
     d->bytes[iMax(0, len)] = 0;
 }
 
-int decodeBytes_MultibyteChar(const char *bytes, size_t n, iChar *ch_out) {
-    int rc = u8_mbtouc(ch_out, (const uint8_t *) bytes, n);
+int decodeBytes_MultibyteChar(const char *bytes, const char *end, iChar *ch_out) {
+    int rc = u8_mbtouc(ch_out, (const uint8_t *) bytes, end - bytes);
     if (*ch_out == 0xfffd) {
         rc = -1; /* Decode failed. */
     }
     return rc;
+}
+
+int decodePrecedingBytes_MultibyteChar(const char *bytes, const char *start, iChar *ch_out) {
+    *ch_out = 0;
+    const char *precPos =
+        (const char *) u8_prev(ch_out, (const uint8_t *) bytes, (const uint8_t *) start);
+    if (!precPos) {
+        return 0;
+    }
+    return bytes - precPos;
 }
 
 static char *threadLocalCharBuffer_(void) {
