@@ -291,8 +291,10 @@ configure_file (config.h.in config.h)
 set (TFDN_LIB the_Foundation)
 if (TFDN_STATIC_LIBRARY)
     set (TFDN_LIBTYPE STATIC)
+    set (TFDN_DEPENDS_LINK_MODE PUBLIC)
 else ()
-    set (TFDN_LIBTYPE SHARED)    
+    set (TFDN_LIBTYPE SHARED)
+    set (TFDN_DEPENDS_LINK_MODE PRIVATE)
 endif ()
 
 add_library (${TFDN_LIB} ${TFDN_LIBTYPE} ${SOURCES} ${HEADERS})
@@ -328,7 +330,7 @@ if (IOS)
 endif ()
 
 # Dependencies.
-tfdn_link_depends (${TFDN_LIB} PUBLIC)
+tfdn_link_depends (${TFDN_LIB} ${TFDN_DEPENDS_LINK_MODE})
 
 # Installation.
 if (TFDN_ENABLE_INSTALL)
