@@ -63,7 +63,8 @@ check_include_file (sys/dirent.h iHaveSysDirent)
 
 # C11 threads
 check_include_file (pthread.h iHavePThread)
-check_include_file (threads.h iHaveC11Threads)
+#check_include_file (threads.h iHaveC11Threads)
+set (iHaveC11Threads NO) # TODO: Should use either this OR pthread, not both!
 if (FREEBSD OR NETBSD)
     # The platform's implementation does not behave as we expect.
     # TODO: Investigate behavior differences and/or misuse of the API.
