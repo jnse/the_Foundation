@@ -330,6 +330,11 @@ if (IOS)
 endif ()
 
 # Dependencies.
+if (NOT iHaveC11Threads)
+    # phtread is exposed via header file usage, so it must be linked publicly.
+    target_link_libraries (${TFDN_LIB} PUBLIC pthread)
+endif ()
+target_link_libraries (${TFDN_LIB} PUBLIC m)
 tfdn_link_depends (${TFDN_LIB} ${TFDN_DEPENDS_LINK_MODE})
 
 # Installation.

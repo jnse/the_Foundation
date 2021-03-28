@@ -83,7 +83,7 @@ macro (tfdn_link_depends target mode)
         ${CURL_INCLUDE_DIRS}
         ${OPENSSL_INCLUDE_DIRS}
     )
-    target_link_libraries (${target} ${mode} ${UNISTRING_LIBRARIES} pthread m)
+    target_link_libraries (${target} ${mode} ${UNISTRING_LIBRARIES})
     if (ZLIB_FOUND)
         target_link_libraries (${target} ${mode} ${ZLIB_LIBRARIES})
     endif ()
