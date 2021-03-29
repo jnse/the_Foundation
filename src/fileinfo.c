@@ -54,14 +54,14 @@ static int access(const char *path, int mode) {
 #   include <sys/types.h>
 #   if defined (iHaveSysDirent)
 #       include <sys/dirent.h>
-#   else
+#   elif !defined (iPlatformHaiku)
 #       include <sys/dir.h>
 #   endif
 #   include <unistd.h>
 #   include <dirent.h>
 #endif
 
-#if defined (iPlatformLinux) || defined (iPlatformMsys) || defined (iPlatformCygwin)
+#if defined (iPlatformLinux) || defined (iPlatformMsys) || defined (iPlatformCygwin) || defined (iPlatformHaiku)
 #   define st_mtimespec st_mtim
 #endif
 
@@ -127,7 +127,13 @@ static iBool initDirEntry_FileInfo_(iFileInfo *d, const iString *dirPath, struct
     deinit_String(&entryName);
 
     d->flags = exists_FileInfoFlag;
+#if defined (iPlatformHaiku)
+    struct stat s;
+    stat(ent->d_name, &s);
+    if (S_ISDIR(s.st_mode)) {
+#else
     if (ent->d_type == DT_DIR) {
+#endif
         d->flags |= directory_FileInfoFlag;
         d->size = 0;
     }
