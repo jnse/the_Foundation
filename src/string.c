@@ -759,7 +759,7 @@ const iString *string_Rangecc(iRangecc range) {
 }
 
 iLocalDef int cmpNullRange_(const char *cstr) {
-    return (cstr == NULL ? 0 : -1);
+    return (cstr == NULL || *cstr == 0 ? 0 : -1);
 }
 
 int cmpCStrSc_Rangecc(const iRangecc d, const char *cstr, const iStringComparison *sc) {
