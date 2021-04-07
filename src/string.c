@@ -758,11 +758,21 @@ const iString *string_Rangecc(iRangecc range) {
     return collect_String(newRange_String(range));
 }
 
+iLocalDef int cmpNullRange_(const char *cstr) {
+    return (cstr == NULL ? 0 : -1);
+}
+
 int cmpCStrSc_Rangecc(const iRangecc d, const char *cstr, const iStringComparison *sc) {
+    if (isNull_Rangecc(d)) {
+        return cmpNullRange_(cstr);
+    }
     return cmpCStrNSc_Rangecc(d, cstr, strlen(cstr), sc);
 }
 
 int cmpCStrNSc_Rangecc(const iRangecc d, const char *cstr, size_t n, const iStringComparison *sc) {
+    if (isNull_Rangecc(d)) {
+        return cmpNullRange_(cstr);
+    }
     const size_t size = size_Range(&d);
     int cmp = sc->cmpN(d.start, cstr, iMin(n, size));
     if (cmp == 0) {

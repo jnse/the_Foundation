@@ -271,6 +271,10 @@ iLocalDef iRangecc range_CStr(const char *cstr) {
 const char *    cstr_Rangecc        (iRangecc range); /* returns NULL-terminated collected copy */
 const iString * string_Rangecc      (iRangecc range); /* returns a collected String */
 
+iLocalDef iBool isNull_Rangecc(const iRangecc d) {
+    return d.start == NULL;
+}
+
 #define         cmp_Rangecc(d, cstr) cmpCStrSc_Rangecc((d), (cstr), &iCaseSensitive)
 int             cmpCStrSc_Rangecc   (iRangecc, const char *cstr, const iStringComparison *);
 int             cmpCStrNSc_Rangecc  (iRangecc, const char *cstr, size_t n, const iStringComparison *);
