@@ -388,7 +388,7 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
                 struct timeval timeout = { .tv_sec = connectionTimeoutSeconds_Socket_ };
                 rc = select(iMax(stopFd, d->fd) + 1, &stopSet, &connSet, &errSet, &timeout);
                 if (rc > 0) {
-                    if (FD_ISSET(stopFd, &stopSet) || FD_ISSET(d->fd, &errSet)) {
+                    if (FD_ISSET(stopFd, &stopSet)) {
                         setError_Socket_(d, ECONNABORTED, "Connection aborted");
                         return ECONNABORTED;
                     }
@@ -396,8 +396,11 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
                     int sockError = 0;
                     getsockopt(d->fd, SOL_SOCKET, SO_ERROR, &sockError, &argLen);
                     if (sockError) {
-                        setError_Socket_(d, sockError, strerror(sockError));
-                        return sockError; /* problem with the socket */
+                        errno = sockError;
+                        iDebug("[Socket] socket error: errno=%d (%s)\n",
+                               errno,
+                               strerror(errno));
+                        continue;
                     }
                     rc = 0; /* Success. */
                     setNonBlocking_Socket_(d, iFalse);
