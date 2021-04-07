@@ -299,7 +299,9 @@ void trimStart_Rangecc(iRangecc *d) {
     while (pos != (const uint8_t *) d->end) {
         iChar ch;
         pos = u8_next(&ch, pos);
-        if (!isSpace_Char(ch)) break;
+        /* Variation selectors follow the main codepoint, so if one is found at the beginning
+           it should be ignored. */
+        if (!isSpace_Char(ch) && !isVariationSelector_Char(ch)) break;
         d->start = (const char *) pos;
     }
 }

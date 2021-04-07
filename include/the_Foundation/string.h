@@ -52,6 +52,30 @@ iBool   isAlpha_Char        (iChar);
 iBool   isNumeric_Char      (iChar);
 iBool   isAlphaNumeric_Char (iChar);
 
+iLocalDef iBool isVariationSelector_Char(iChar c) {
+    return (c >= 0xfe00 && c <= 0xfe0f) || (c >= 0xe0100 && c <= 0xe0121);
+}
+iLocalDef iBool isFitzpatrickType_Char(iChar c) {
+    return c >= 0x1f3fb && c <= 0x1f3ff;
+}
+iLocalDef iBool isDefaultIgnorable_Char(iChar c) {
+    return c == 0x115f || (c >= 0x200b && c <= 0x200e) || c == 0x2060 || c == 0x2061 ||
+           c == 0xfeff;
+}
+iLocalDef iBool isEmoji_Char(iChar c) {
+    return (c >= 0x1f300 && c < 0x1f700) || (c >= 0x1f7e0 && c <= 0x1f7eb) ||
+           (c >= 0x1f900 && c <= 0x1f9ff) || (c >= 0x1fa70 && c <= 0x1faff);
+}
+iLocalDef iBool isDingbats_Char(iChar c) {
+    return c >= 0x2702 && c <= 0x27b0;
+}
+iLocalDef iBool isPictograph_Char(iChar c) {
+    return (c == 0x21a9) ||
+           (c == 0x2218 || c == 0x2219) ||
+           (c >= 0x2300 && c <= 0x27bf) ||
+           (c >= 0x1f680 && c <= 0x1f6c0);
+}
+
 iDeclareType(String)
 iDeclareType(StringList)
 iDeclareType(StringComparison)
