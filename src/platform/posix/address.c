@@ -58,7 +58,7 @@ struct Impl_Address {
 
 iDefineAudienceGetter(Address, lookupFinished)
 
-#if defined (iPlatformOther)
+#if defined (iPlatformHaiku) || defined (iPlatformOther)
 #   if defined (AI_V4MAPPED_CFG)
 #       undef AI_V4MAPPED_CFG
 #   endif
