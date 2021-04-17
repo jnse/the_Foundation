@@ -814,7 +814,9 @@ void submit_TlsRequest(iTlsRequest *d) {
     iRelease(d->socket);
     SSL_set1_host(d->ssl, cstr_String(d->hostName));
     /* Server Name Indication for the handshake. */
-    SSL_set_tlsext_host_name(d->ssl, cstr_String(d->hostName));
+    if (!contains_String(d->hostName, ':')) { /* Domain names only (not literal IPv6 addresses). */
+        SSL_set_tlsext_host_name(d->ssl, cstr_String(d->hostName));
+    }
     /* The client certificate. */
     if (d->clientCert) {
         SSL_use_certificate(d->ssl, d->clientCert->cert);
