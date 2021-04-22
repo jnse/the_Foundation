@@ -365,7 +365,7 @@ enum iTlsCertificateVerifyStatus verify_TlsCertificate(const iTlsCertificate *d)
 iBool verifyDomain_TlsCertificate(const iTlsCertificate *d, iRangecc domain) {
     if (!d->cert) return iFalse;
     /* Check the common name first manually. X509_check_host() seems to prioritize SAN,
-       so if it doesn't match the CN is ignored. This doesn't support wildcards, though. */ {
+       so if it doesn't match the CN is ignored. */ {
         X509_NAME_ENTRY *e;
         X509_NAME *subject = X509_get_subject_name(d->cert);
         for (int lastpos = -1;;) {
@@ -374,9 +374,14 @@ iBool verifyDomain_TlsCertificate(const iTlsCertificate *d, iRangecc domain) {
                 break;
             }
             e = X509_NAME_get_entry(subject, lastpos);
-            const unsigned char *name = ASN1_STRING_get0_data(X509_NAME_ENTRY_get_data(e));
-            if (equalCase_Rangecc(domain, (const char *) name)) {
+            const char *name = (const char *) ASN1_STRING_get0_data(X509_NAME_ENTRY_get_data(e));
+            if (equalCase_Rangecc(domain, name)) {
                 return iTrue;
+            }
+            if (startsWith_CStr(name, "*.")) { /* Wildcard. */
+                if (endsWithCase_Rangecc(domain, name + 1)) {
+                    return iTrue;
+                }
             }
         }
     }
