@@ -427,7 +427,7 @@ iDefineObjectConstructionArgs(DefinedArg, (int min, int max), min, max)
 
 /*-------------------------------------------------------------------------------------*/
 
-iDefineClass(CommandLineArg)
+iDefineSubclass(CommandLineArg, StringList)
 iDefineObjectConstruction(CommandLineArg)
 
 void init_CommandLineArg(iCommandLineArg *d) {
