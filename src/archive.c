@@ -419,6 +419,13 @@ size_t numEntries_Archive(const iArchive *d) {
     return size_SortedArray(d->entries);
 }
 
+size_t sourceSize_Archive(const iArchive *d) {
+    if (isOpen_Archive(d)) {
+        return size_Stream(source_Archive_(d));
+    }
+    return 0;
+}
+
 iBool isDirectory_Archive(const iArchive *d, const iString *path) {
     if (isEmpty_String(path)) {
         return iTrue; /* root */
@@ -428,7 +435,7 @@ iBool isDirectory_Archive(const iArchive *d, const iString *path) {
     initCopy_String(&entry.path, path);
     locate_SortedArray(d->entries, &entry, &pos);
     deinit_String(&entry.path);
-    if (pos != iInvalidPos) {
+    if (pos < size_SortedArray(d->entries)) {
         const iArchiveEntry *match = constAt_SortedArray(d->entries, pos);
         if (size_String(&match->path) > size_String(path)) {
             return startsWith_String(&match->path, cstr_String(path));
@@ -441,13 +448,15 @@ iStringSet *listDirectory_Archive(const iArchive *d, const iString *dirPath) {
     iStringSet *paths = new_StringSet();
     iString path;
     init_String(&path);
+    const iBool isRoot = isEmpty_String(dirPath);
     iConstForEach(Array, i, &d->entries->values) {
         const iArchiveEntry *entry = i.value;
         iRangecc entryDir = dirName_Path(&entry->path);
-        if (!isEmpty_Range(&entryDir)) {
+        if (*entryDir.end == '/') {
             entryDir.end++; /* include the slash */
         }
-        if (!cmp_Rangecc(entryDir, cstr_String(dirPath))) {
+        if (!cmp_Rangecc(entryDir, cstr_String(dirPath)) ||
+            (isRoot && equal_Rangecc(entryDir, "."))) {
             insert_StringSet(paths, &entry->path);
         }
         else if (startsWith_Rangecc(entryDir, cstr_String(dirPath))) {

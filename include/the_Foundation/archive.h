@@ -54,6 +54,7 @@ void    close_Archive       (iArchive *);
 
 iBool   isOpen_Archive      (const iArchive *);
 size_t  numEntries_Archive  (const iArchive *);
+size_t  sourceSize_Archive  (const iArchive *);
 iBool   isDirectory_Archive (const iArchive *, const iString *path);
 
 iStringSet *    listDirectory_Archive   (const iArchive *, const iString *dirPath);
