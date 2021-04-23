@@ -24,6 +24,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 #include "block.h"
 #include "string.h"
+#include "stringset.h"
 #include "time.h"
 
 #if defined (iHaveZlib)
@@ -53,6 +54,9 @@ void    close_Archive       (iArchive *);
 
 iBool   isOpen_Archive      (const iArchive *);
 size_t  numEntries_Archive  (const iArchive *);
+iBool   isDirectory_Archive (const iArchive *, const iString *path);
+
+iStringSet *    listDirectory_Archive   (const iArchive *, const iString *dirPath);
 
 const iArchiveEntry *   entry_Archive   (const iArchive *, const iString *path);
 const iArchiveEntry *   entryAt_Archive (const iArchive *, size_t index);

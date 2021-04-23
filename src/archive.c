@@ -24,6 +24,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 #include "the_Foundation/array.h"
 #include "the_Foundation/buffer.h"
 #include "the_Foundation/file.h"
+#include "the_Foundation/path.h"
 #include "the_Foundation/sortedarray.h"
 
 /* Marker signatures. */
@@ -416,6 +417,54 @@ iBool isOpen_Archive(const iArchive *d) {
 
 size_t numEntries_Archive(const iArchive *d) {
     return size_SortedArray(d->entries);
+}
+
+iBool isDirectory_Archive(const iArchive *d, const iString *path) {
+    if (isEmpty_String(path)) {
+        return iTrue; /* root */
+    }
+    size_t pos = iInvalidPos;
+    iArchiveEntry entry;
+    initCopy_String(&entry.path, path);
+    locate_SortedArray(d->entries, &entry, &pos);
+    deinit_String(&entry.path);
+    if (pos != iInvalidPos) {
+        const iArchiveEntry *match = constAt_SortedArray(d->entries, pos);
+        if (size_String(&match->path) > size_String(path)) {
+            return startsWith_String(&match->path, cstr_String(path));
+        }
+    }
+    return iFalse;
+}
+
+iStringSet *listDirectory_Archive(const iArchive *d, const iString *dirPath) {
+    iStringSet *paths = new_StringSet();
+    iString path;
+    init_String(&path);
+    iConstForEach(Array, i, &d->entries->values) {
+        const iArchiveEntry *entry = i.value;
+        iRangecc entryDir = dirName_Path(&entry->path);
+        if (!isEmpty_Range(&entryDir)) {
+            entryDir.end++; /* include the slash */
+        }
+        if (!cmp_Rangecc(entryDir, cstr_String(dirPath))) {
+            insert_StringSet(paths, &entry->path);
+        }
+        else if (startsWith_Rangecc(entryDir, cstr_String(dirPath))) {
+            /* A subdirectory. */
+            size_t nextSlash = indexOfCStrFrom_String(&entry->path, "/", size_String(dirPath));
+            if (nextSlash != iInvalidPos) {
+                set_String(&path, dirPath);
+                appendRange_String(
+                    &path,
+                    (iRangecc){ constBegin_String(&entry->path) + size_String(dirPath),
+                                constBegin_String(&entry->path) + nextSlash + 1 });
+                insert_StringSet(paths, &path);
+            }            
+        }
+    }
+    deinit_String(&path);
+    return paths;
 }
 
 const iArchiveEntry *entryAt_Archive(const iArchive *d, size_t index) {
