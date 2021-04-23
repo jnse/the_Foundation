@@ -88,6 +88,15 @@ iFileInfo *newCStr_FileInfo(const char *path) {
     return info;
 }
 
+iFileInfo *new_FileInfo_(void) {
+    iFileInfo *d = iNew(FileInfo);
+    d->path = new_String();
+    iZap(d->lastModified);
+    d->size = 0;
+    d->flags = 0;
+    return d;
+}
+
 void init_FileInfo(iFileInfo *d, const iString *path) {    
     d->path = copy_String(path);
     d->flags = 0;
@@ -122,10 +131,12 @@ static iBool initDirEntry_FileInfo_(iFileInfo *d, const iString *dirPath, struct
         deinit_String(&entryName);
         return iFalse;
     }
-    d->path = concat_Path(dirPath, &entryName);
-    clean_Path(d->path);
+    iString *full = concat_Path(dirPath, &entryName);
+    clean_Path(full);
+    set_String(d->path, full);
+    delete_String(full);
     deinit_String(&entryName);
-
+    
     d->flags = exists_FileInfoFlag;
 #if defined (iPlatformHaiku)
     struct stat s;
@@ -244,7 +255,7 @@ struct Impl_DirFileInfo {
     iObject object;
     const iFileInfo *dirInfo;
     DIR *fd;
-    iFileInfo entry;
+    iFileInfo *entry;
 };
 
 iDefineClass(DirFileInfo)
@@ -261,10 +272,10 @@ void init_DirFileInfo(iDirFileInfo *d, const iString *path) {
     iFileInfo *fileInfo = new_FileInfo(path);
     initInfo_DirFileInfo(d, fileInfo);
     iRelease(fileInfo);
+    d->entry = NULL;
 }
 
 void initInfo_DirFileInfo(iDirFileInfo *d, const iFileInfo *dir) {
-    iZap(d->entry);
     if (isDirectory_FileInfo(dir)) {
         d->fd = opendir(cstr_String(path_FileInfo(dir)));
         d->dirInfo = ref_Object(dir);
@@ -273,6 +284,7 @@ void initInfo_DirFileInfo(iDirFileInfo *d, const iFileInfo *dir) {
         d->fd = NULL;
         d->dirInfo = NULL;
     }
+    d->entry = NULL;
 }
 
 void deinit_DirFileInfo(iDirFileInfo *d) {
@@ -280,12 +292,12 @@ void deinit_DirFileInfo(iDirFileInfo *d) {
         closedir(d->fd);
         d->fd = NULL;
     }
-    deinit_FileInfo(&d->entry);
+    iRelease(d->entry);
     deref_Object(d->dirInfo);
 }
 
 static iBool readNextEntry_DirFileInfo_(iDirFileInfo *d) {
-    deinit_FileInfo(&d->entry);
+    iReleasePtr(&d->entry);
     if (!d->fd) {
         return iFalse;
     }
@@ -297,9 +309,10 @@ static iBool readNextEntry_DirFileInfo_(iDirFileInfo *d) {
 #else
         result = readdir(d->fd);
 #endif
-        iZap(d->entry);
         if (result) {
-            if (!initDirEntry_FileInfo_(&d->entry, path_FileInfo(d->dirInfo), result)) {
+            iReleasePtr(&d->entry);
+            d->entry = new_FileInfo_();
+            if (!initDirEntry_FileInfo_(d->entry, path_FileInfo(d->dirInfo), result)) {
                 continue;
             }
             return iTrue;
@@ -315,7 +328,7 @@ void init_DirFileInfoIterator(iDirFileInfoIterator *d, iDirFileInfo *info) {
 
 void next_DirFileInfoIterator(iDirFileInfoIterator *d) {
     if (readNextEntry_DirFileInfo_(d->dir)) {
-        d->value = &d->dir->entry;
+        d->value = d->dir->entry;
     }
     else {
         d->value = NULL;
