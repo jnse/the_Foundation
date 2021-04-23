@@ -422,8 +422,14 @@ size_t index_ArrayReverseIterator(const iArrayIterator *d) {
 void init_ArrayReverseConstIterator(iArrayConstIterator *d, const iArray *array) {
     if (array) {
         d->array = array;
-        d->value = (!isEmpty_Array(array) ? constBack_Array(array) : NULL);
-        d->end = element_Array_(d->array, d->array->range.start);
+        if (!isEmpty_Array(array)) {
+            d->value = constBack_Array(array);
+            d->end = element_Array_(d->array, d->array->range.start);
+        }
+        else {
+            d->value = NULL;
+            d->end = NULL;
+        }
     }
     else {
         iZap(*d);
