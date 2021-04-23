@@ -41,7 +41,7 @@ struct Impl_ArchiveEntry {
     size_t   archPos;
     size_t   archSize;
     int      compression;
-    iBlock * data;
+    iBlock * data; /* NULL until uncompressed with `data_Archive()` */
 };
 
 iDeclareClass(Archive)
@@ -54,11 +54,11 @@ void    close_Archive       (iArchive *);
 iBool   isOpen_Archive      (const iArchive *);
 size_t  numEntries_Archive  (const iArchive *);
 
-const iArchiveEntry *   at_Archive          (const iArchive *, size_t index);
-const iArchiveEntry *   atPath_Archive      (const iArchive *, const iString *path);
+const iArchiveEntry *   entry_Archive   (const iArchive *, const iString *path);
+const iArchiveEntry *   entryAt_Archive (const iArchive *, size_t index);
 
-const iBlock *          data_Archive        (const iArchive *, size_t index);
-const iBlock *          dataPath_Archive    (const iArchive *, const iString *path);
+const iBlock *          data_Archive    (const iArchive *, const iString *path);
+const iBlock *          dataAt_Archive  (const iArchive *, size_t index);
 
 /** @name Iterators */
 ///@{

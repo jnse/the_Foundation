@@ -220,6 +220,7 @@ void init_ArchiveEntry(iArchiveEntry *d) {
 }
 
 void deinit_ArchiveEntry(iArchiveEntry *d) {
+    delete_Block(d->data);
     deinit_String(&d->path);
 }
 
@@ -417,26 +418,26 @@ size_t numEntries_Archive(const iArchive *d) {
     return size_SortedArray(d->entries);
 }
 
-const iArchiveEntry *at_Archive(const iArchive *d, size_t index) {
+const iArchiveEntry *entryAt_Archive(const iArchive *d, size_t index) {
     if (index >= size_SortedArray(d->entries)) {
         return NULL;
     }
     return constAt_SortedArray(d->entries, index);
 }
 
-const iArchiveEntry *atPath_Archive(const iArchive *d, const iString *path) {
-    return at_Archive(d, findPath_Archive_(d, path));
+const iArchiveEntry *entry_Archive(const iArchive *d, const iString *path) {
+    return entryAt_Archive(d, findPath_Archive_(d, path));
 }
 
-const iBlock *data_Archive(const iArchive *d, size_t index) {
+const iBlock *dataAt_Archive(const iArchive *d, size_t index) {
     if (index >= size_SortedArray(d->entries)) {
         return NULL;
     }
     return loadEntry_Archive_(d, index)->data;
 }
 
-const iBlock *dataPath_Archive(const iArchive *d, const iString *path) {
-    return data_Archive(d, findPath_Archive_(d, path));
+const iBlock *data_Archive(const iArchive *d, const iString *path) {
+    return dataAt_Archive(d, findPath_Archive_(d, path));
 }
 
 /*----------------------------------------------------------------------------------------------*/
@@ -445,7 +446,7 @@ void init_ArchiveConstIterator(iArchiveConstIterator *d, const iArchive *archive
     if (archive) {
         d->archive = archive;
         d->index   = 0;
-        d->value   = at_Archive(archive, 0);
+        d->value   = entryAt_Archive(archive, 0);
     }
     else {
         iZap(*d);
@@ -454,7 +455,7 @@ void init_ArchiveConstIterator(iArchiveConstIterator *d, const iArchive *archive
 
 void next_ArchiveConstIterator(iArchiveConstIterator *d) {
     if (d->archive && d->value) {
-        d->value = at_Archive(d->archive, ++d->index);
+        d->value = entryAt_Archive(d->archive, ++d->index);
     }
 }
 

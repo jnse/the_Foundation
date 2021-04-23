@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
                 if (arg) {
                     const iString *entryPath = value_CommandLineArg(arg, 0);
                     printf("decompressing: %s\n", cstr_String(entryPath));
-                    const iBlock *data = dataPath_Archive(arch, entryPath);
+                    const iBlock *data = data_Archive(arch, entryPath);
                     printf("got %zu bytes\n", size_Block(data));
                     fwrite(constData_Block(data), size_Block(data), 1, stderr);
                     continue;
