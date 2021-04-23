@@ -231,12 +231,13 @@ static int cmp_ArchiveEntry_(const void *a, const void *b) {
 /*----------------------------------------------------------------------------------------------*/
 
 struct Impl_Archive {
+    iObject       object;
     iFile *       sourceFile;
     iBuffer *     sourceBuffer;
     iSortedArray *entries; /* sorted by path */
 };
 
-iDefineTypeConstruction(Archive)
+iDefineObjectConstruction(Archive)
 
 static iStream *source_Archive_(const iArchive *d) {
     if (d->sourceFile) {
@@ -372,9 +373,9 @@ static iArchiveEntry *loadEntry_Archive_(const iArchive *d, size_t index) {
 }
 
 void init_Archive(iArchive *d) {
-    d->sourceFile = NULL;
+    d->sourceFile   = NULL;
     d->sourceBuffer = NULL;
-    d->entries = new_SortedArray(sizeof(iArchiveEntry), cmp_ArchiveEntry_);
+    d->entries      = new_SortedArray(sizeof(iArchiveEntry), cmp_ArchiveEntry_);
 }
 
 void deinit_Archive(iArchive *d) {
@@ -437,3 +438,24 @@ const iBlock *data_Archive(const iArchive *d, size_t index) {
 const iBlock *dataPath_Archive(const iArchive *d, const iString *path) {
     return data_Archive(d, findPath_Archive_(d, path));
 }
+
+/*----------------------------------------------------------------------------------------------*/
+
+void init_ArchiveConstIterator(iArchiveConstIterator *d, const iArchive *archive) {
+    if (archive) {
+        d->archive = archive;
+        d->index   = 0;
+        d->value   = at_Archive(archive, 0);
+    }
+    else {
+        iZap(*d);
+    }
+}
+
+void next_ArchiveConstIterator(iArchiveConstIterator *d) {
+    if (d->archive && d->value) {
+        d->value = at_Archive(d->archive, ++d->index);
+    }
+}
+
+iDefineClass(Archive)

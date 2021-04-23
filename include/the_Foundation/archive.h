@@ -32,7 +32,7 @@ iBeginPublic
 
 iDeclareType(ArchiveEntry)
 iDeclareTypeConstruction(ArchiveEntry)
-    
+
 struct Impl_ArchiveEntry {
     iString  path;
     size_t   size;
@@ -44,9 +44,9 @@ struct Impl_ArchiveEntry {
     iBlock * data;
 };
 
-iDeclareType(Archive)    
-iDeclareTypeConstruction(Archive)
-    
+iDeclareClass(Archive)
+iDeclareObjectConstruction(Archive)
+
 iBool   openData_Archive    (iArchive *, const iBlock *data);
 iBool   openFile_Archive    (iArchive *, const iString *path);
 void    close_Archive       (iArchive *);
@@ -60,6 +60,16 @@ const iArchiveEntry *   atPath_Archive      (const iArchive *, const iString *pa
 const iBlock *          data_Archive        (const iArchive *, size_t index);
 const iBlock *          dataPath_Archive    (const iArchive *, const iString *path);
 
+/** @name Iterators */
+///@{
+iDeclareConstIterator(Archive, const iArchive *)
+struct ConstIteratorImpl_Archive {
+    const iArchiveEntry *value;
+    size_t               index;
+    const iArchive *     archive;
+};
+///@}
+
 iEndPublic
-    
+
 #endif /* defined (iHaveZlib) */
