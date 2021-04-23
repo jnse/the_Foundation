@@ -201,7 +201,7 @@ void clean_Path(iString *d) {
     /* Recompose the remaining segments. */
     if (changed) {
         if (count == 0) {
-            set_String(d, &iStringLiteral("."));
+            setCStr_String(d, ".");
             return;
         }
         iString cleaned;
