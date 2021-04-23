@@ -100,6 +100,7 @@ test_big_endian (iHaveBigEndian)
 
 set (HEADERS
     include/the_Foundation/address.h
+    include/the_Foundation/archive.h
     include/the_Foundation/argcount.h
     include/the_Foundation/array.h
     include/the_Foundation/atomic.h
@@ -202,6 +203,9 @@ set (SOURCES
 )
 if (NOT iHaveC11Threads)
     list (APPEND SOURCES src/c11threads.c)
+endif ()
+if (iHaveZlib)
+    list (APPEND SOURCES src/archive.c)
 endif ()
 if (APPLE)
     set (iPlatformApple YES)
