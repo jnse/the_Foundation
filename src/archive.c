@@ -487,6 +487,10 @@ const iArchiveEntry *entry_Archive(const iArchive *d, const iString *path) {
     return entryAt_Archive(d, findPath_Archive_(d, path));
 }
 
+const iArchiveEntry *entryCStr_Archive(const iArchive *d, const char *pathCStr) {
+    return entry_Archive(d, &iStringLiteral(pathCStr)); /* string used for lookup; not retained */
+}
+
 const iBlock *dataAt_Archive(const iArchive *d, size_t index) {
     if (index >= size_SortedArray(d->entries)) {
         return NULL;
@@ -496,6 +500,10 @@ const iBlock *dataAt_Archive(const iArchive *d, size_t index) {
 
 const iBlock *data_Archive(const iArchive *d, const iString *path) {
     return dataAt_Archive(d, findPath_Archive_(d, path));
+}
+
+const iBlock *dataCStr_Archive(const iArchive *d, const char *pathCStr) {
+    return data_Archive(d, &iStringLiteral(pathCStr)); /* string used for lookup; not retained */
 }
 
 /*----------------------------------------------------------------------------------------------*/

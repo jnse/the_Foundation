@@ -57,13 +57,15 @@ size_t  numEntries_Archive  (const iArchive *);
 size_t  sourceSize_Archive  (const iArchive *);
 iBool   isDirectory_Archive (const iArchive *, const iString *path);
 
-iStringSet *    listDirectory_Archive   (const iArchive *, const iString *dirPath);
+iStringSet *    listDirectory_Archive       (const iArchive *, const iString *dirPath);
 
-const iArchiveEntry *   entry_Archive   (const iArchive *, const iString *path);
-const iArchiveEntry *   entryAt_Archive (const iArchive *, size_t index);
+const iArchiveEntry *   entry_Archive       (const iArchive *, const iString *path);
+const iArchiveEntry *   entryCStr_Archive   (const iArchive *, const char *pathCStr);
+const iArchiveEntry *   entryAt_Archive     (const iArchive *, size_t index);
 
-const iBlock *          data_Archive    (const iArchive *, const iString *path);
-const iBlock *          dataAt_Archive  (const iArchive *, size_t index);
+const iBlock *          data_Archive        (const iArchive *, const iString *path);
+const iBlock *          dataCStr_Archive    (const iArchive *d, const char *pathCStr);
+const iBlock *          dataAt_Archive      (const iArchive *, size_t index);
 
 /** @name Iterators */
 ///@{
