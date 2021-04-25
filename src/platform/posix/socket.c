@@ -99,6 +99,11 @@ static iThreadResult run_SocketThread_(iThread *thread) {
     iSocketThread *d = (iAny *) thread;
     iMutex *smx = &d->socket->mutex;
     iBlock *inbuf = collect_Block(new_Block(0x20000));
+    iGuardMutex(smx, {
+        /* Connection has been formed. */
+        delete_Pipe(d->socket->stopConnect);
+        d->socket->stopConnect = NULL;
+    });
     while (value_Atomic(&d->mode) == run_SocketThreadMode) {
         if (bytesToSend_Socket(d->socket) > 0) {
             /* Make sure we won't block on select() when there's still data to send. */
@@ -248,7 +253,7 @@ static void init_Socket_(iSocket *d) {
     openEmpty_Buffer(d->input);
     d->fd = -1;
     d->address = NULL;
-    d->stopConnect = NULL;
+    d->stopConnect = new_Pipe(); /* used for aborting select() on user action */
     d->connecting = NULL;
     d->thread = NULL;
     init_Condition(&d->allSent);
@@ -375,6 +380,7 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
                            strerror(errno));
                     continue;
                 }
+                iAssert(d->stopConnect != NULL);
                 const int stopFd = output_Pipe(d->stopConnect);
                 fd_set stopSet;
                 fd_set connSet;
@@ -425,8 +431,6 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
             unlock_Mutex(&d->mutex);
         }
     }
-    delete_Pipe(d->stopConnect);
-    d->stopConnect = NULL;
     if (rc) {
         int errNum;
         char *msg;
@@ -458,7 +462,6 @@ static iBool open_Socket_(iSocket *d) {
         d->connecting = new_Thread(connectAsync_Socket_);
         setStatus_Socket_(d, connecting_SocketStatus);
         setUserData_Thread(d->connecting, d);
-        d->stopConnect = new_Pipe(); /* used for aborting select() on user action */
         start_Thread(d->connecting);
         return iTrue;
     }
