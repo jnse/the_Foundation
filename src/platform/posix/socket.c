@@ -285,6 +285,7 @@ void deinit_Socket(iSocket *d) {
 }
 
 static void startThread_Socket_(iSocket *d) {
+    iAssert(d->thread == NULL);
     d->thread = new_SocketThread(d, run_SocketThreadMode);
     start_SocketThread(d->thread);
 }
@@ -448,23 +449,25 @@ static iThreadResult connectAsync_Socket_(iThread *thd) {
 }
 
 static iBool open_Socket_(iSocket *d) {
-    /* The socket is assumed to be locked already. */
+    /* Note: The socket is assumed to be locked already. */
     if (isPending_Address(d->address)) {
-        /* TODO: Race -- what if Address finishes on this line? */
+        /* If Address finishes right now, addressLookedUp_Socket_() will block until the
+           mutex is available. When the address is resolved, the socket will be
+           opened via the callback. */
         setStatus_Socket_(d, connecting_SocketStatus);
-        return iTrue; // when address is resolved, the socket will be opened.
+        return iTrue;
     }
     else if (!isValid_Address(d->address)) {
         return iFalse;
     }
-    else {
+    else if (!d->connecting) {
         iAssert(d->fd == -1);
-        d->connecting = new_Thread(connectAsync_Socket_);
         setStatus_Socket_(d, connecting_SocketStatus);
+        d->connecting = new_Thread(connectAsync_Socket_);
         setUserData_Thread(d->connecting, d);
         start_Thread(d->connecting);
-        return iTrue;
     }
+    return iTrue; /* we're already connecting */
 }
 
 static void addressLookedUp_Socket_(iAny *any, const iAddress *address) {
