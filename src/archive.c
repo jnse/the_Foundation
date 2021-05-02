@@ -412,7 +412,7 @@ void close_Archive(iArchive *d) {
 }
 
 iBool isOpen_Archive(const iArchive *d) {
-    return source_Archive_(d) != NULL;
+    return d && source_Archive_(d) != NULL;
 }
 
 size_t numEntries_Archive(const iArchive *d) {
