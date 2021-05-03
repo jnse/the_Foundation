@@ -76,6 +76,11 @@ void deinit_Process(iProcess *d) {
     deinit_Pipe(&d->pin);
     deinit_Pipe(&d->pout);
     deinit_Pipe(&d->perr);
+    if (d->pid) {
+        /* Allow zombies to terminate. */
+        int status = 0;
+        waitpid(d->pid, &status, WNOHANG);
+    }
 }
 
 void setArguments_Process(iProcess *d, const iStringList *args) {
