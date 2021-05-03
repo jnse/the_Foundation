@@ -10,7 +10,10 @@ find_package (Git)
 
 macro (tfdn_set_compile_options target)
     set_property (TARGET ${target} PROPERTY C_STANDARD 11)
-    target_compile_options (${target} PRIVATE -Wall -Wpedantic -Werror)
+    target_compile_options (${target} PRIVATE -Wall -Wpedantic)
+    if (TFDN_ENABLE_WARN_ERROR)
+        target_compile_options (${target} PRIVATE -Werror)
+    endif ()
     if (CMAKE_COMPILER_IS_GNUCC)
         target_compile_options (${target} PRIVATE -Wno-format -Wno-address)
         if (iPlatformWindows)
@@ -32,6 +35,7 @@ endmacro ()
 
 #----------------------------------------------------------------------------------------
 
+option (TFDN_ENABLE_WARN_ERROR "Treat all warnings as errors" ON)
 option (TFDN_ENABLE_DEBUG_OUTPUT "Enable internal debug output to stdout/stderr" OFF)
 option (TFDN_ENABLE_INSTALL "Enable installation" ON)
 option (TFDN_ENABLE_SSE41 "Enable SSE 4.1 instructions" ${SSE41_FOUND})
