@@ -340,6 +340,7 @@ static iBool readDirectory_Archive_(iArchive *d) {
 static size_t findPath_Archive_(const iArchive *d, const iString *path) {
     iArchiveEntry entry;
     initCopy_String(&entry.path, path);
+    replace_String(&entry.path, "\\", "/"); /* in case it's a Windows-style path */
     size_t pos;
     if (!locate_SortedArray(d->entries, &entry, &pos)) {
         pos = iInvalidPos;
@@ -426,10 +427,22 @@ size_t sourceSize_Archive(const iArchive *d) {
     return 0;
 }
 
+static const iString *normalize_Path_(const iString *path) {
+#if defined (iPlatformMsys) || defined (iPlatformWindows)
+    /* Normalize separators. */
+    iString *norm = copy_String(path);
+    replace_String(norm, "\\", "/");
+    return collect_String(norm);
+#else
+    return path;
+#endif
+}
+
 iBool isDirectory_Archive(const iArchive *d, const iString *path) {
     if (isEmpty_String(path)) {
         return iTrue; /* root */
     }
+    path = normalize_Path_(path);
     size_t pos = iInvalidPos;
     iArchiveEntry entry;
     initCopy_String(&entry.path, path);
@@ -446,12 +459,13 @@ iBool isDirectory_Archive(const iArchive *d, const iString *path) {
 
 iStringSet *listDirectory_Archive(const iArchive *d, const iString *dirPath) {
     iStringSet *paths = new_StringSet();
+    dirPath = normalize_Path_(dirPath);
     iString path;
     init_String(&path);
     const iBool isRoot = isEmpty_String(dirPath);
     iConstForEach(Array, i, &d->entries->values) {
         const iArchiveEntry *entry = i.value;
-        iRangecc entryDir = dirName_Path(&entry->path);
+        iRangecc entryDir = dirNameSep_Path(&entry->path, "/");
         if (*entryDir.end == '/') {
             entryDir.end++; /* include the slash */
         }
@@ -469,7 +483,7 @@ iStringSet *listDirectory_Archive(const iArchive *d, const iString *dirPath) {
                     (iRangecc){ constBegin_String(&entry->path) + size_String(dirPath),
                                 constBegin_String(&entry->path) + nextSlash + 1 });
                 insert_StringSet(paths, &path);
-            }            
+            }
         }
     }
     deinit_String(&path);

@@ -282,7 +282,11 @@ iRangecc withoutExtension_Path(const iString *d) {
 }
 
 iRangecc dirName_Path(const iString *d) {
-    const size_t sep = lastIndexOfCStr_String(d, iPathSeparator);
+    return dirNameSep_Path(d, iPathSeparator);
+}
+
+iRangecc dirNameSep_Path(const iString *d, const char *separator) {
+    const size_t sep = lastIndexOfCStr_String(d, separator);
     if (sep == iInvalidSize) {
         static const char *dot = ".";
         return (iRangecc){ dot, dot + 1 };
