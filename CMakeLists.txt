@@ -15,7 +15,7 @@ macro (tfdn_set_compile_options target)
         target_compile_options (${target} PRIVATE -Werror)
     endif ()
     if (CMAKE_COMPILER_IS_GNUCC)
-        target_compile_options (${target} PRIVATE -Wno-format -Wno-address)
+        target_compile_options (${target} PRIVATE -Wno-format -Wno-format-security -Wno-address)
         if (iPlatformWindows)
             target_compile_options (${target} PRIVATE
                 -Wno-int-conversion
