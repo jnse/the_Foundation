@@ -462,12 +462,22 @@ iStringList *split_String(const iString *d, const char *separator) {
 }
 
 iString *urlEncodeExclude_String(const iString *d, const char *excluded) {
+    iString *enc = maybeUrlEncodeExclude_String(d, excluded);
+    return enc ? enc : copy_String(d);
+}
+
+iString *urlEncode_String(const iString *d) {
+    return urlEncodeExclude_String(d, "");
+}
+
+iString *maybeUrlEncodeExclude_String(const iString *d, const char *excluded) {
+    /* TODO: Return NULL if nothing to encode. */    
     iString *encoded = new_String();
     /* Note: Any UTF-8 code points are encoded as multiple %NN sequences. */
     for (const char *i = constBegin_String(d), *end = constEnd_String(d); i != end; ++i) {
         char ch = *i;
         if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') ||
-             ch == '-' || ch == '_' || ch == '.' || ch == '~' || strchr(excluded, ch)) {
+            ch == '-' || ch == '_' || ch == '.' || ch == '~' || strchr(excluded, ch)) {
             appendData_Block(&encoded->chars, i, 1);
         }
         else {
@@ -477,11 +487,7 @@ iString *urlEncodeExclude_String(const iString *d, const char *excluded) {
             appendCStrN_String(encoded, escaped, 3);
         }
     }
-    return encoded;
-}
-
-iString *urlEncode_String(const iString *d) {
-    return urlEncodeExclude_String(d, "");
+    return encoded;    
 }
 
 static int fromHex_(char ch) {
@@ -495,7 +501,10 @@ iString *urlDecode_String(const iString *d) {
     return urlDecodeExclude_String(d, "");
 }
 
-iString *urlDecodeExclude_String(const iString *d, const char *excluded) {
+iString *maybeUrlDecodeExclude_String(const iString *d, const char *excluded) {
+    if (indexOf_String(d, '%') == iInvalidPos) {
+        return NULL;
+    }
     iString *decoded = new_String();
     for (const char *i = constBegin_String(d), *end = constEnd_String(d); i != end; ++i) {
         if (*i == '%' && i + 3 <= end) {
@@ -511,7 +520,12 @@ iString *urlDecodeExclude_String(const iString *d, const char *excluded) {
         }
         appendData_Block(&decoded->chars, i, 1);
     }
-    return decoded;
+    return decoded;    
+}
+
+iString *urlDecodeExclude_String(const iString *d, const char *excluded) {
+    iString *dec = maybeUrlDecodeExclude_String(d, excluded);
+    return dec ? dec : copy_String(d);
 }
 
 iChar first_String(const iString *d) {

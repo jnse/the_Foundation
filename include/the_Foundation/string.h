@@ -141,14 +141,17 @@ iString *       mid_String          (const iString *, size_t charStartPos, size_
 iString *       upper_String        (const iString *);
 iString *       lower_String        (const iString *);
 iStringList *   split_String        (const iString *, const char *separator);
-iString *       urlEncode_String    (const iString *);
-iString *       urlEncodeExclude_String(const iString *d, const char *excluded);
-iString *       urlDecode_String    (const iString *);
-iString *       urlDecodeExclude_String(const iString *, const char *excluded);
 iChar           first_String        (const iString *);
 iChar           last_String         (const iString *);
 iBlock *        toLocal_String      (const iString *);
 iBlock *        toUtf16_String      (const iString *);
+
+iString *       urlEncode_String                (const iString *);
+iString *       urlDecode_String                (const iString *);
+iString *       urlEncodeExclude_String         (const iString *, const char *excluded);
+iString *       urlDecodeExclude_String         (const iString *, const char *excluded);
+iString *       maybeUrlEncodeExclude_String    (const iString *, const char *excluded); /* may return NULL */
+iString *       maybeUrlDecodeExclude_String    (const iString *, const char *excluded); /* may return NULL */
 
 /**
  * Returns a pointer to the string converted to the current locale's encoding.
