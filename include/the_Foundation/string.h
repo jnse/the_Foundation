@@ -112,8 +112,10 @@ iString *       newBlock_String     (const iBlock *utf8Data);
 iString *       newFormat_String    (const char *format, ...);
 iString *       copy_String         (const iString *);
 
-iLocalDef iString *newRange_String  (const iRangecc range) { return newCStrN_String(range.start, size_Range(&range)); }
-iLocalDef iString *newLocal_String  (const iBlock *localChars) { return newLocalCStrN_String(cstr_Block(localChars), size_Block(localChars)); }
+iLocalDef iString * newUtf32_String     (const iChar *ucs) { return newUnicode_String(ucs); }
+iLocalDef iString * newUtf32N_String    (const iChar *ucs, size_t n) { return newUnicodeN_String(ucs, n); }
+iLocalDef iString * newRange_String     (const iRangecc range) { return newCStrN_String(range.start, size_Range(&range)); }
+iLocalDef iString * newLocal_String     (const iBlock *localChars) { return newLocalCStrN_String(cstr_Block(localChars), size_Block(localChars)); }
 
 iString *           collectNewFormat_String (const char *format, ...);
 iLocalDef iString * collectNewCStr_String   (const char *cstr) { return collect_String(newCStr_String(cstr)); }
@@ -145,6 +147,9 @@ iChar           first_String        (const iString *);
 iChar           last_String         (const iString *);
 iBlock *        toLocal_String      (const iString *);
 iBlock *        toUtf16_String      (const iString *);
+iBlock *        toUnicode_String    (const iString *);
+
+iLocalDef iBlock *toUtf32_String    (const iString *d) { return toUnicode_String(d); }
 
 iString *       urlEncode_String                (const iString *);
 iString *       urlDecode_String                (const iString *);

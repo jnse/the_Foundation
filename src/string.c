@@ -560,11 +560,24 @@ iBlock *toUtf16_String(const iString *d) {
                               size_String(d),
                               NULL,
                               &len);
-    // Make it null-terminated.
+    /* Make it null-terminated. */
     const size_t bytes = 2 * len;
     u16 = realloc(u16, bytes + 2);
     u16[len] = 0;
     return newPrealloc_Block(u16, bytes, bytes + 2);
+}
+
+iBlock *toUnicode_String(const iString *d) {
+    size_t len = 0;
+    uint32_t *u32 = u8_to_u32((const uint8_t *) cstr_String(d),
+                              size_String(d),
+                              NULL,
+                              &len);
+    /* Make it null-terminated. */
+    const size_t bytes = 4 * len;
+    u32 = realloc(u32, bytes + 4);
+    u32[len] = 0;
+    return newPrealloc_Block(u32, bytes, bytes + 4);
 }
 
 int cmpSc_String(const iString *d, const char *cstr, const iStringComparison *sc) {
