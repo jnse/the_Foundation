@@ -526,6 +526,9 @@ iBool open_Socket(iSocket *d) {
 
 void close_Socket(iSocket *d) {
     iDisconnect(Address, d->address, lookupFinished, d, addressLookedUp_Socket_);
+    if (isOpen_Socket(d)) {
+        flush_Socket(d);
+    }
     stopThread_Socket_(d);
     iGuardMutex(&d->mutex, {
         if (d->status == disconnected_SocketStatus ||
@@ -540,9 +543,6 @@ void close_Socket(iSocket *d) {
                 write_Pipe(d->stopConnect, "0", 1);
             }
             shutdown(d->fd, SHUT_WR);
-        }
-        else if (d->status == connected_SocketStatus) {
-            flush_Socket(d);
         }
         setStatus_Socket_(d, disconnecting_SocketStatus);
     });
