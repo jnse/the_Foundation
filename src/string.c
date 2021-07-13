@@ -78,6 +78,10 @@ iBool isAlphaNumeric_Char(iChar d) {
     return uc_is_alnum(d) ? iTrue : iFalse;
 }
 
+iBool isPunct_Char(iChar d) {
+    return uc_is_punct(d) ? iTrue : iFalse;
+}
+
 void setLocaleCharSet_String(const char *charSet) {
     const size_t n = sizeof(localeCharSet_);
     strncpy(localeCharSet_, charSet, n);
