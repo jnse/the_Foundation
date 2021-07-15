@@ -50,11 +50,41 @@ static iContext *context_;
 static iBool isPrngSeeded_;
 
 static void initContext_(void);
+static iTlsCertificate *newX509Chain_TlsCertificate_(X509 *cert, STACK_OF(X509) *chain);
 
 struct Impl_Context {
-    SSL_CTX *ctx;
-    X509_STORE *certStore;
+    SSL_CTX *             ctx;
+    X509_STORE *          certStore;
+    iTlsRequestVerifyFunc userVerifyFunc;
+    iAny *                userVerifyContext;
 };
+
+static int verifyCallback_Context_(int preverifyOk, X509_STORE_CTX *storeCtx) {
+    iUnused(preverifyOk);
+    iAssert(context_); /* must've been initialized by now */
+    iContext *d     = context_;
+    const int depth = X509_STORE_CTX_get_error_depth(storeCtx);
+    X509 *    x509  = X509_STORE_CTX_get_current_cert(storeCtx);
+    X509_up_ref(x509); /* keep a reference */
+    iTlsCertificate *cert = newX509Chain_TlsCertificate_(x509, NULL);
+#if 0
+    /* Debugging. */ {
+        X509_NAME *name = X509_get_subject_name(x509);
+        printf("[TlsRequest] verifyCallback_Context: depth=%d\n", depth);
+        X509_NAME_print_ex_fp(stdout, name, 0, 0);
+        printf("\n");
+        iBlock *fp = publicKeyFingerprint_TlsCertificate(cert);
+        printf("key fp: %s\n", cstrCollect_String(hexEncode_Block(fp)));
+        delete_Block(fp);
+    }
+#endif
+    int result = 1; /* accept everything by default */
+    if (d->userVerifyFunc) {
+        result = d->userVerifyFunc(d->userVerifyContext, cert, depth) ? 1 : 0;   
+    } 
+    delete_TlsCertificate(cert); /* free the reference */
+    return result;
+}
 
 void init_Context(iContext *d) {
 #if OPENSSL_API_COMPAT >= 0x10100000L
@@ -73,7 +103,10 @@ void init_Context(iContext *d) {
         iDebug("[TlsRequest] Failed to initialize OpenSSL\n");
         iAssert(d->ctx);
     }
-    SSL_CTX_set_verify(d->ctx, SSL_VERIFY_NONE, NULL); /* allow manual verification */
+    d->userVerifyContext = NULL;
+    d->userVerifyFunc = NULL;
+//    SSL_CTX_set_verify(d->ctx, SSL_VERIFY_NONE, NULL); /* disable verification */
+    SSL_CTX_set_verify(d->ctx, SSL_VERIFY_PEER, verifyCallback_Context_); /* allow manual verification */
     /* Bug workarounds: https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_options.html */
     SSL_CTX_set_options(d->ctx, SSL_OP_ALL);
     d->certStore = NULL;
@@ -99,6 +132,13 @@ void setCACertificates_TlsRequest(const iString *caFile, const iString *caPath) 
                                    isEmpty_String(caPath) ? NULL : cstr_String(caPath))) {
         iWarning("[TlsRequest] OpenSSL failed to load CA certificates\n");
     }
+}
+
+void setVerifyFunc_TlsRequest(iTlsRequestVerifyFunc verifyFunc, iAny *context) {
+    initContext_();
+    iContext *d = context_;
+    d->userVerifyContext = context;
+    d->userVerifyFunc = verifyFunc;
 }
 
 iDefineTypeConstruction(Context)
@@ -159,13 +199,9 @@ void deinit_TlsCertificate(iTlsCertificate *d) {
     }
 }
 
-//static iTlsCertificate *newX509_TlsCertificate_(X509 *cert) {
-//    iTlsCertificate *d = new_TlsCertificate();
-//    d->cert = cert;
-//    return d;
-//}
-
 static iTlsCertificate *newX509Chain_TlsCertificate_(X509 *cert, STACK_OF(X509) *chain) {
+    /* Note that `chain` includes `cert`; a bit redundant. However, the chain is only
+       used when verifying the `cert` via OpenSSL's API. */
     iTlsCertificate *d = new_TlsCertificate();
     d->cert  = cert;
     d->chain = chain;
@@ -406,19 +442,39 @@ iBool equal_TlsCertificate(const iTlsCertificate *d, const iTlsCertificate *othe
     return X509_cmp(d->cert, other->cert) == 0;
 }
 
+static void calcSHA256_(BIO *src, iBlock *dst) {
+    iBlock der;
+    init_Block(&der, 0);
+    readAllFromBIO_(src, &der);
+    SHA256(constData_Block(&der), size_Block(&der), data_Block(dst));
+    deinit_Block(&der);
+}
+
 iBlock *fingerprint_TlsCertificate(const iTlsCertificate *d) {
     iBlock *sha = new_Block(SHA256_DIGEST_LENGTH);
     if (d->cert) {
-        iBlock der;
-        init_Block(&der, 0);
-        /* Get the DER serialization of the certificate. */ {
-            BIO *buf = BIO_new(BIO_s_mem());
-            i2d_X509_bio(buf, d->cert);
-            readAllFromBIO_(buf, &der);
-            BIO_free(buf);
-        }
-        SHA256(constData_Block(&der), size_Block(&der), data_Block(sha));
-        deinit_Block(&der);
+        /* Get the DER serialization of the certificate. */
+        BIO *buf = BIO_new(BIO_s_mem());
+        i2d_X509_bio(buf, d->cert);
+        calcSHA256_(buf, sha);
+        BIO_free(buf);
+    }
+    return sha;
+}
+
+iBlock *publicKeyFingerprint_TlsCertificate(const iTlsCertificate *d) {
+    iBlock *sha = new_Block(SHA256_DIGEST_LENGTH);
+    if (!d->cert) {
+        return sha;
+    }
+    EVP_PKEY *pub = X509_get_pubkey(d->cert);
+    if (pub) {
+        /* Get the DER serialization of the public key. */
+        BIO *buf = BIO_new(BIO_s_mem());
+        i2d_PUBKEY_bio(buf, pub);
+        calcSHA256_(buf, sha);
+        BIO_free(buf);
+        EVP_PKEY_free(pub);
     }
     return sha;
 }
@@ -426,16 +482,11 @@ iBlock *fingerprint_TlsCertificate(const iTlsCertificate *d) {
 iBlock *privateKeyFingerprint_TlsCertificate(const iTlsCertificate *d) {
     iBlock *sha = new_Block(SHA256_DIGEST_LENGTH);
     if (d->pkey) {
-        iBlock der;
-        init_Block(&der, 0);
-        /* Get the DER serialization of the private key. */ {
-            BIO *buf = BIO_new(BIO_s_mem());
-            i2d_PrivateKey_bio(buf, d->pkey);
-            readAllFromBIO_(buf, &der);
-            BIO_free(buf);
-        }
-        SHA256(constData_Block(&der), size_Block(&der), data_Block(sha));
-        deinit_Block(&der);
+        /* Get the DER serialization of the private key. */
+        BIO *buf = BIO_new(BIO_s_mem());
+        i2d_PrivateKey_bio(buf, d->pkey);
+        calcSHA256_(buf, sha);
+        BIO_free(buf);
     }
     return sha;
 }

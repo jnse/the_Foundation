@@ -99,8 +99,10 @@ iBool               verifyIp_TlsCertificate     (const iTlsCertificate *, const 
 iBool               equal_TlsCertificate        (const iTlsCertificate *, const iTlsCertificate *);
 iString *           pem_TlsCertificate          (const iTlsCertificate *);
 iString *           privateKeyPem_TlsCertificate(const iTlsCertificate *);
-iBlock *            fingerprint_TlsCertificate  (const iTlsCertificate *);
-iBlock *            privateKeyFingerprint_TlsCertificate(const iTlsCertificate *d);
+
+iBlock *            fingerprint_TlsCertificate          (const iTlsCertificate *);
+iBlock *            publicKeyFingerprint_TlsCertificate (const iTlsCertificate *);
+iBlock *            privateKeyFingerprint_TlsCertificate(const iTlsCertificate *);
 
 /*----------------------------------------------------------------------------------------------*/
 
@@ -135,7 +137,10 @@ enum iTlsRequestStatus  status_TlsRequest           (const iTlsRequest *);
 const iString *         errorMessage_TlsRequest     (const iTlsRequest *);
 const iTlsCertificate * serverCertificate_TlsRequest(const iTlsRequest *);
 
+typedef iBool (*iTlsRequestVerifyFunc)(iAny *, const iTlsCertificate *, int depth);
+
 void        setCACertificates_TlsRequest(const iString *caFile, const iString *caPath);
 void        setCiphers_TlsRequest       (const char *cipherList);
+void        setVerifyFunc_TlsRequest    (iTlsRequestVerifyFunc verifyFunc, iAny *context);
 
 iEndPublic
