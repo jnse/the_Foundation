@@ -51,6 +51,7 @@ static iBool isPrngSeeded_;
 
 static void initContext_(void);
 static iTlsCertificate *newX509Chain_TlsCertificate_(X509 *cert, STACK_OF(X509) *chain);
+static void certificateVerifyFailed_TlsRequest_(iTlsRequest *, const iTlsCertificate *cert);
 
 struct Impl_Context {
     SSL_CTX *             ctx;
@@ -92,7 +93,10 @@ static int verifyCallback_Context_(int preverifyOk, X509_STORE_CTX *storeCtx) {
     if (d->userVerifyFunc) {
         iTlsRequest *request = currentRequestForThread_Context_(d);
         iAssert(request != NULL);
-        result = d->userVerifyFunc(request, cert, depth) ? 1 : 0;   
+        result = d->userVerifyFunc(request, cert, depth) ? 1 : 0;
+        if (!result) {
+            certificateVerifyFailed_TlsRequest_(request, cert);
+        }
     } 
     delete_TlsCertificate(cert); /* free the reference */
     return result;
@@ -332,6 +336,20 @@ iTlsCertificate *newSelfSignedRSA_TlsCertificate(
     return d;
 }
 
+iTlsCertificate *copy_TlsCertificate(const iTlsCertificate *d) {
+    iTlsCertificate *copy = new_TlsCertificate();
+    if (d->cert) {
+        X509_up_ref(d->cert);
+        copy->cert = d->cert;
+    }
+    copy->chain = d->chain ? sk_X509_dup(d->chain) : NULL;
+    if (d->pkey) {
+        EVP_PKEY_up_ref(d->pkey);
+        copy->pkey = d->pkey;
+    }
+    return copy;
+}
+
 iBool isEmpty_TlsCertificate(const iTlsCertificate *d) {
     return d->cert == NULL;
 }
@@ -539,6 +557,7 @@ struct Impl_TlsRequest {
     iBlock           content;
     iBuffer *        result;
     iTlsCertificate *cert; /* server certificate */
+    iBool            certVerifyFailed;
     /* Internal state. */
     volatile enum iTlsRequestStatus status;
     iString *        errorMsg;
@@ -881,6 +900,7 @@ void submit_TlsRequest(iTlsRequest *d) {
     clear_String(d->errorMsg);
     set_Block(&d->sending, &d->content);
     iRelease(d->socket);
+    d->certVerifyFailed = iFalse;
     SSL_set1_host(d->ssl, cstr_String(d->hostName));
     /* Server Name Indication for the handshake. */
     if (!contains_String(d->hostName, ':')) { /* Domain names only (not literal IPv6 addresses). */
@@ -934,6 +954,16 @@ enum iTlsRequestStatus status_TlsRequest(const iTlsRequest *d) {
 
 const iString *errorMessage_TlsRequest(const iTlsRequest *d) {
     return d->errorMsg;
+}
+
+static void certificateVerifyFailed_TlsRequest_(iTlsRequest *d, const iTlsCertificate *cert) {
+    iAssert(d->cert == NULL);
+    d->cert = copy_TlsCertificate(cert);
+    d->certVerifyFailed = iTrue;
+}
+
+iBool isVerified_TlsRequest(const iTlsRequest *d) {
+    return !d->certVerifyFailed;
 }
 
 const iTlsCertificate *serverCertificate_TlsRequest(const iTlsRequest *d) {

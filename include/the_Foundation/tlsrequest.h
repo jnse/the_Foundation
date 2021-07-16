@@ -85,6 +85,7 @@ iTlsCertificate *   newPemKey_TlsCertificate    (const iString *certPem, const i
 
 iTlsCertificate *   newSelfSignedRSA_TlsCertificate(int rsaBits, iDate validUntil,
                                                     const iTlsCertificateName *namesNullTerminatedArray);
+iTlsCertificate *   copy_TlsCertificate         (const iTlsCertificate *);
 
 iBool               isEmpty_TlsCertificate      (const iTlsCertificate *);
 iBool               hasPrivateKey_TlsCertificate(const iTlsCertificate *);
@@ -119,7 +120,7 @@ enum iTlsRequestStatus {
     initialized_TlsRequestStatus,
     submitted_TlsRequestStatus,
     finished_TlsRequestStatus,
-    error_TlsRequestStatus
+    error_TlsRequestStatus,
 };
 
 void        setHost_TlsRequest          (iTlsRequest *, const iString *hostName, uint16_t port);
@@ -136,6 +137,7 @@ size_t                  receivedBytes_TlsRequest    (const iTlsRequest *);
 enum iTlsRequestStatus  status_TlsRequest           (const iTlsRequest *);
 const iString *         errorMessage_TlsRequest     (const iTlsRequest *);
 const iTlsCertificate * serverCertificate_TlsRequest(const iTlsRequest *);
+iBool                   isVerified_TlsRequest       (const iTlsRequest *);
 
 typedef iBool (*iTlsRequestVerifyFunc)(iTlsRequest *, const iTlsCertificate *, int depth);
 
