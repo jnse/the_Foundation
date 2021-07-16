@@ -56,11 +56,21 @@ struct Impl_Context {
     SSL_CTX *             ctx;
     X509_STORE *          certStore;
     iTlsRequestVerifyFunc userVerifyFunc;
-    iAny *                userVerifyContext;
+    tss_t                 tssKeyCurrentRequest;
 };
 
+static iTlsRequest *currentRequestForThread_Context_(iContext *d) {
+    return tss_get(context_->tssKeyCurrentRequest);
+}
+
+static void setCurrentRequestForThread_Context_(iContext *d, iTlsRequest *request) {
+    tss_set(context_->tssKeyCurrentRequest, request);    
+}
+
 static int verifyCallback_Context_(int preverifyOk, X509_STORE_CTX *storeCtx) {
-    iUnused(preverifyOk);
+    if (preverifyOk) {
+        return 1; /* OpenSSL says it's OK */
+    }
     iAssert(context_); /* must've been initialized by now */
     iContext *d     = context_;
     const int depth = X509_STORE_CTX_get_error_depth(storeCtx);
@@ -80,13 +90,17 @@ static int verifyCallback_Context_(int preverifyOk, X509_STORE_CTX *storeCtx) {
 #endif
     int result = 1; /* accept everything by default */
     if (d->userVerifyFunc) {
-        result = d->userVerifyFunc(d->userVerifyContext, cert, depth) ? 1 : 0;   
+        iTlsRequest *request = currentRequestForThread_Context_(d);
+        iAssert(request != NULL);
+        result = d->userVerifyFunc(request, cert, depth) ? 1 : 0;   
     } 
     delete_TlsCertificate(cert); /* free the reference */
     return result;
 }
 
 void init_Context(iContext *d) {
+    d->tssKeyCurrentRequest = 0;
+    tss_create(&d->tssKeyCurrentRequest, NULL);
 #if OPENSSL_API_COMPAT >= 0x10100000L
     OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL);
     OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS | OPENSSL_INIT_ADD_ALL_DIGESTS, NULL);
@@ -103,10 +117,8 @@ void init_Context(iContext *d) {
         iDebug("[TlsRequest] Failed to initialize OpenSSL\n");
         iAssert(d->ctx);
     }
-    d->userVerifyContext = NULL;
     d->userVerifyFunc = NULL;
-//    SSL_CTX_set_verify(d->ctx, SSL_VERIFY_NONE, NULL); /* disable verification */
-    SSL_CTX_set_verify(d->ctx, SSL_VERIFY_PEER, verifyCallback_Context_); /* allow manual verification */
+    SSL_CTX_set_verify(d->ctx, SSL_VERIFY_PEER, verifyCallback_Context_);
     /* Bug workarounds: https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_options.html */
     SSL_CTX_set_options(d->ctx, SSL_OP_ALL);
     d->certStore = NULL;
@@ -114,6 +126,7 @@ void init_Context(iContext *d) {
 
 void deinit_Context(iContext *d) {
     SSL_CTX_free(d->ctx);
+    tss_delete(d->tssKeyCurrentRequest);
 }
 
 iBool isValid_Context(iContext *d) {
@@ -134,10 +147,9 @@ void setCACertificates_TlsRequest(const iString *caFile, const iString *caPath) 
     }
 }
 
-void setVerifyFunc_TlsRequest(iTlsRequestVerifyFunc verifyFunc, iAny *context) {
+void setVerifyFunc_TlsRequest(iTlsRequestVerifyFunc verifyFunc) {
     initContext_();
     iContext *d = context_;
-    d->userVerifyContext = context;
     d->userVerifyFunc = verifyFunc;
 }
 
@@ -802,9 +814,10 @@ static iBool readIncoming_TlsRequest_(iTlsRequest *d) {
 }
 
 static iThreadResult run_TlsRequest_(iThread *thread) {
-    /* TODO: This thread seems unnecessary. The Socket already runs a thread -- we could execute
-       this via its observers, and block to encrypt outgoing data. */
     iTlsRequest *d = userData_Thread(thread);
+    /* Thread-local pointer to the current request so it can be accessed in the 
+       verify callback. */
+    setCurrentRequestForThread_Context_(context_, d);
     doHandshake_TlsRequest_(d);
     for (;;) {
         encrypt_TlsRequest_(d);

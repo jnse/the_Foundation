@@ -137,10 +137,10 @@ enum iTlsRequestStatus  status_TlsRequest           (const iTlsRequest *);
 const iString *         errorMessage_TlsRequest     (const iTlsRequest *);
 const iTlsCertificate * serverCertificate_TlsRequest(const iTlsRequest *);
 
-typedef iBool (*iTlsRequestVerifyFunc)(iAny *, const iTlsCertificate *, int depth);
+typedef iBool (*iTlsRequestVerifyFunc)(iTlsRequest *, const iTlsCertificate *, int depth);
 
 void        setCACertificates_TlsRequest(const iString *caFile, const iString *caPath);
 void        setCiphers_TlsRequest       (const char *cipherList);
-void        setVerifyFunc_TlsRequest    (iTlsRequestVerifyFunc verifyFunc, iAny *context);
+void        setVerifyFunc_TlsRequest    (iTlsRequestVerifyFunc verifyFunc);
 
 iEndPublic
