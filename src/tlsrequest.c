@@ -44,7 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 iDeclareType(Context)
 
-#define DEFAULT_BUF_SIZE 1024
+#define DEFAULT_BUF_SIZE 8192
 
 static iContext *context_;
 static iBool isPrngSeeded_;
@@ -650,6 +650,7 @@ static iBool encrypt_TlsRequest_(iTlsRequest *d) {
     }
     while (!isEmpty_Block(&d->sending)) {
         int n = SSL_write(d->ssl, constData_Block(&d->sending), size_Block(&d->sending));
+        iDebug("[TlsRequest] encrypted data to send: %d bytes\n", n);
         enum iSSLResult status = sslResult_TlsRequest_(d, n);
         if (n > 0) {
             remove_Block(&d->sending, 0, n);
@@ -836,6 +837,7 @@ static iThreadResult run_TlsRequest_(iThread *thread) {
     iTlsRequest *d = userData_Thread(thread);
     /* Thread-local pointer to the current request so it can be accessed in the 
        verify callback. */
+    iDebug("[TlsRequest] run_TlsRequest_: %zu bytes to send\n", size_Block(&d->sending));
     setCurrentRequestForThread_Context_(context_, d);
     doHandshake_TlsRequest_(d);
     for (;;) {
