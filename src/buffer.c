@@ -121,26 +121,33 @@ const iBlock *data_Buffer(const iBuffer *d) {
 
 size_t consume_Buffer(iBuffer *d, size_t size, void *data_out) {
     iAssert(~d->mode & readOnly_BufferMode);
-    rewind_Buffer(d);
-    const size_t consumedSize = readData_Buffer(d, size, data_out);
-    remove_Block(d->data, 0, consumedSize);
-    setSize_Stream(&d->stream, size_Block(d->data));
-    rewind_Buffer(d);
+    size_t consumedSize;
+    iGuardMutex(d->stream.mtx, {
+        size_t spos = pos_Stream(&d->stream);
+        rewind_Buffer(d);
+        consumedSize = readData_Buffer(d, size, data_out);
+        remove_Block(d->data, 0, consumedSize);
+        setSize_Stream(&d->stream, size_Block(d->data));
+        d->stream.pos = spos - consumedSize;
+    });
     return consumedSize;
 }
 
 iBlock *consumeBlock_Buffer(iBuffer *d, size_t size) {
-    iBlock *data = new_Block(size);
-    size_t count = consume_Buffer(d, size, data_Block(data));
-    truncate_Block(data, count);
-    return data;
+    iBlock *consumed = new_Block(size);
+    const size_t count = consume_Buffer(d, size, data_Block(consumed));
+    truncate_Block(consumed, count);
+    return consumed;
 }
 
 iBlock *consumeAll_Buffer(iBuffer *d) {
     iAssert(~d->mode & readOnly_BufferMode);
-    rewind_Buffer(d);
-    iBlock *data = readAll_Buffer(d);
-    clear_Buffer(d);
+    iBlock *data;
+    iGuardMutex(d->stream.mtx, {
+        rewind_Buffer(d);
+        data = readAll_Buffer(d);
+        clear_Buffer(d);
+    });
     return data;
 }
 
