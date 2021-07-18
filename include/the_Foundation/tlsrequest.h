@@ -111,9 +111,11 @@ iDeclareClass(TlsRequest)
 iDeclareObjectConstruction(TlsRequest)
 
 iDeclareNotifyFunc    (TlsRequest, ReadyRead)
+iDeclareNotifyFuncArgs(TlsRequest, Sent, size_t sent, size_t toSend)
 iDeclareNotifyFunc    (TlsRequest, Finished)
 
 iDeclareAudienceGetter(TlsRequest, readyRead)
+iDeclareAudienceGetter(TlsRequest, sent)
 iDeclareAudienceGetter(TlsRequest, finished)
 
 enum iTlsRequestStatus {

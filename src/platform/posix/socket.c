@@ -67,6 +67,7 @@ struct Impl_Socket {
     iAudience *disconnected;
     iAudience *error;
     iAudience *readyRead;
+    iAudience *bytesWritten;
     iAudience *writeFinished;
 };
 
@@ -77,6 +78,7 @@ iDefineAudienceGetter(Socket, connected)
 iDefineAudienceGetter(Socket, disconnected)
 iDefineAudienceGetter(Socket, error)
 iDefineAudienceGetter(Socket, readyRead)
+iDefineAudienceGetter(Socket, bytesWritten)
 iDefineAudienceGetter(Socket, writeFinished)
 
 /*-------------------------------------------------------------------------------------*/
@@ -146,8 +148,8 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                 }
             });
             if (data) {
-                const char *ptr = constData_Block(data);
-                remaining = size_Block(data);
+                const char * ptr         = constData_Block(data);
+                const size_t totalToSend = remaining = size_Block(data);
                 while (remaining > 0) {
                     ssize_t sent = send(d->socket->fd, ptr, remaining, 0);
                     if (sent == -1) {
@@ -160,6 +162,7 @@ static iThreadResult run_SocketThread_(iThread *thread) {
                     ptr += sent;
                 }
                 delete_Block(data);
+                iNotifyAudienceArgs(d->socket, bytesWritten, SocketBytesWritten, totalToSend);
                 iGuardMutex(smx, {
                     if (isEmpty_Buffer(d->socket->output)) {
                         signal_Condition(&d->socket->allSent);
@@ -262,6 +265,7 @@ static void init_Socket_(iSocket *d) {
     d->disconnected = NULL;
     d->error = NULL;
     d->readyRead = NULL;
+    d->bytesWritten = NULL;
     d->writeFinished = NULL;
     d->status = initialized_SocketStatus;
 }
@@ -281,6 +285,7 @@ void deinit_Socket(iSocket *d) {
     delete_Audience(d->disconnected);
     delete_Audience(d->error);
     delete_Audience(d->readyRead);
+    delete_Audience(d->bytesWritten);
     delete_Audience(d->writeFinished);
 }
 

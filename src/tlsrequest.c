@@ -563,11 +563,14 @@ struct Impl_TlsRequest {
     iString *        errorMsg;
     iThread *        thread;
     iBool            notifyReady;
+    size_t           totalBytesToSend;
+    size_t           totalBytesSent;
     iBlock  *        incoming;
     iCondition       gotIncoming;
     iMutex           incomingMtx;
     iCondition       requestDone;
     iAudience *      readyRead;
+    iAudience *      sent;
     iAudience *      finished;
     /* OpenSSL state. */
     SSL *            ssl;
@@ -578,6 +581,7 @@ struct Impl_TlsRequest {
 
 iDefineObjectConstruction(TlsRequest)
 iDefineAudienceGetter(TlsRequest, readyRead)
+iDefineAudienceGetter(TlsRequest, sent)
 iDefineAudienceGetter(TlsRequest, finished)
 
 static void setError_TlsRequest_(iTlsRequest *d, const char *msg);
@@ -625,6 +629,7 @@ static void flushToSocket_TlsRequest_(iTlsRequest *d) {
     do {
         n = BIO_read(d->wbio, buf, sizeof(buf));
         if (n > 0) {
+            d->totalBytesToSend += n;
             writeData_Socket(d->socket, buf, n);
         }
         else if (!BIO_should_retry(d->wbio)) {
@@ -650,7 +655,6 @@ static iBool encrypt_TlsRequest_(iTlsRequest *d) {
     }
     while (!isEmpty_Block(&d->sending)) {
         int n = SSL_write(d->ssl, constData_Block(&d->sending), size_Block(&d->sending));
-        iDebug("[TlsRequest] encrypted data to send: %d bytes\n", n);
         enum iSSLResult status = sslResult_TlsRequest_(d, n);
         if (n > 0) {
             remove_Block(&d->sending, 0, n);
@@ -688,11 +692,14 @@ void init_TlsRequest(iTlsRequest *d) {
     d->status = initialized_TlsRequestStatus;
     d->thread = NULL;
     d->notifyReady = iFalse;
+    d->totalBytesToSend = 0;
+    d->totalBytesSent = 0;
     d->incoming = new_Block(0);
     init_Mutex(&d->incomingMtx);
     init_Condition(&d->gotIncoming);
     init_Condition(&d->requestDone);
     d->readyRead = NULL;
+    d->sent = NULL;
     d->finished = NULL;
     d->ssl = SSL_new(context_->ctx);
     /* We could also try BIO_s_socket() but all BSD socket related code should be encapsulated
@@ -718,6 +725,7 @@ void deinit_TlsRequest(iTlsRequest *d) {
     deinit_Mutex(&d->incomingMtx);
     delete_Block(d->incoming);
     delete_Audience(d->finished);
+    delete_Audience(d->sent);
     delete_Audience(d->readyRead);
     delete_String(d->errorMsg);
     delete_TlsCertificate(d->cert);
@@ -880,6 +888,11 @@ static void disconnected_TlsRequest_(iTlsRequest *d, iSocket *sock) {
     setStatus_TlsRequest_(d, finished_TlsRequestStatus);
 }
 
+static void bytesWritten_TlsRequest_(iTlsRequest *d, iSocket *sock, size_t num) {
+    d->totalBytesSent += num;
+    iNotifyAudienceArgs(d, sent, TlsRequestSent, d->totalBytesSent, d->totalBytesToSend);
+}
+
 static void setError_TlsRequest_(iTlsRequest *d, const char *msg) {
     setCStr_String(d->errorMsg, msg);
     setStatus_TlsRequest_(d, error_TlsRequestStatus);
@@ -917,6 +930,7 @@ void submit_TlsRequest(iTlsRequest *d) {
     iConnect(Socket, d->socket, connected, d, connected_TlsRequest_);
     iConnect(Socket, d->socket, disconnected, d, disconnected_TlsRequest_);
     iConnect(Socket, d->socket, readyRead, d, gotIncoming_TlsRequest_);
+    iConnect(Socket, d->socket, bytesWritten, d, bytesWritten_TlsRequest_);
     iConnect(Socket, d->socket, error, d, handleError_TlsRequest_);
     d->status = submitted_TlsRequestStatus;
     if (!open_Socket(d->socket)) {

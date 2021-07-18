@@ -50,15 +50,18 @@ typedef iStreamClass iSocketClass;
 iDeclareType(Socket)
 iDeclareType(Mutex)
 
-iDeclareNotifyFunc(Socket, Connected)
-iDeclareNotifyFunc(Socket, Disconnected)
+iDeclareNotifyFunc    (Socket, Connected)
+iDeclareNotifyFunc    (Socket, Disconnected)
 iDeclareNotifyFuncArgs(Socket, Error, int error, const char *msg)
-iDeclareNotifyFunc(Socket, ReadyRead)
-iDeclareNotifyFunc(Socket, WriteFinished)
+iDeclareNotifyFunc    (Socket, ReadyRead)
+iDeclareNotifyFuncArgs(Socket, BytesWritten, size_t numBytes)
+iDeclareNotifyFunc    (Socket, WriteFinished)
+    
 iDeclareAudienceGetter(Socket, connected)
 iDeclareAudienceGetter(Socket, disconnected)
 iDeclareAudienceGetter(Socket, error)
 iDeclareAudienceGetter(Socket, readyRead)
+iDeclareAudienceGetter(Socket, bytesWritten)
 iDeclareAudienceGetter(Socket, writeFinished)
 
 enum iSocketStatus {
