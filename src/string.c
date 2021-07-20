@@ -390,6 +390,20 @@ size_t length_String(const iString *d) {
     return u8_mbsnlen((const uint8_t *) cstr_String(d), size_String(d));
 }
 
+size_t length_Rangecc(const iRangecc d) {
+    /*
+    size_t n = 0;
+    for (const char *i = d.start; i < d.end; ) {
+        iChar ch;
+        const int chLen = decodeBytes_MultibyteChar(i, d.end, &ch);
+        if (chLen <= 0) break;
+        i += chLen;
+        n++;
+    }
+    return n;*/
+    return u8_mbsnlen((const uint8_t *) d.start, size_Range(&d));
+}
+
 size_t size_String(const iString *d) {
     return d ? size_Block(&d->chars) : 0;
 }
