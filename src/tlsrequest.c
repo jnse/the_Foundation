@@ -241,7 +241,7 @@ iTlsCertificate *newPemKey_TlsCertificate(const iString *certPem, const iString 
 }
 
 static const iString *findName_(const iTlsCertificateName *names, enum iTlsCertificateNameType type) {
-    for (; names->text && names->type; names++) {
+    for (; names->type; names++) {
         if (names->type == type) {
             return names->text;
         }
