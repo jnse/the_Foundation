@@ -1,11 +1,9 @@
 /* This is based on https://gist.github.com/hi2p-perim/7855506 */
 
 #include <stdio.h>
-#if defined (_MSC_VER)
+#if defined (_MSC_VER) || defined (__MINGW64__)
 #  include <intrin.h>
-#endif
-
-#ifdef __GNUC__
+#else  
 void __cpuid(int *cpuinfo, int info) {
     __asm__ __volatile__(
         "xchg %%ebx, %%edi;"
