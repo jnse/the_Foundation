@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
                     printf("%s\n%8zu %s [%08X] (%s, at %zu:%zu)\n\n",
                            cstr_String(&entry->path),
                            entry->size,
-                           cstrCollect_String(format_Time(&entry->timestamp, "%v %T")),
+                           cstrCollect_String(format_Time(&entry->timestamp, "%Y-%m-%d %H:%M:%S")),
                            entry->crc32,
                            entry->compression == 0 ? "not compressed" : "compressed",
                            entry->archPos,
