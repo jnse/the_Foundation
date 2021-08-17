@@ -65,7 +65,7 @@ static iTlsRequest *currentRequestForThread_Context_(iContext *d) {
 }
 
 static void setCurrentRequestForThread_Context_(iContext *d, iTlsRequest *request) {
-    tss_set(context_->tssKeyCurrentRequest, request);    
+    tss_set(context_->tssKeyCurrentRequest, request);
 }
 
 static int verifyCallback_Context_(int preverifyOk, X509_STORE_CTX *storeCtx) {
@@ -97,7 +97,7 @@ static int verifyCallback_Context_(int preverifyOk, X509_STORE_CTX *storeCtx) {
         if (!result) {
             certificateVerifyFailed_TlsRequest_(request, cert);
         }
-    } 
+    }
     delete_TlsCertificate(cert); /* free the reference */
     return result;
 }
@@ -854,13 +854,15 @@ static iThreadResult run_TlsRequest_(iThread *thread) {
             lock_Mutex(&d->mtx);
             if (d->status == submitted_TlsRequestStatus) {
                 unlock_Mutex(&d->mtx);
-                /* Wait for incoming data. */
+                /* Wait for incoming data if there isn't some available. */
                 lock_Mutex(&d->incomingMtx);
-                wait_Condition(&d->gotIncoming, &d->incomingMtx);
+                if (isEmpty_Block(d->incoming)) {
+                    wait_Condition(&d->gotIncoming, &d->incomingMtx);
+                }
                 unlock_Mutex(&d->incomingMtx);
             }
             else {
-//                fprintf(stderr, "[TlsRequest] run loop exiting, status %d\n", d->status);
+                //fprintf(stderr, "[TlsRequest] run loop exiting, status %d\n", d->status);
                 unlock_Mutex(&d->mtx);
                 break;
             }
