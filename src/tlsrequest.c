@@ -950,6 +950,7 @@ void cancel_TlsRequest(iTlsRequest *d) {
     }
     signal_Condition(&d->gotIncoming);
     join_Thread(d->thread);
+    iReleasePtr(&d->thread);
 }
 
 void waitForFinished_TlsRequest(iTlsRequest *d) {
