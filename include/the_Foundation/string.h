@@ -280,6 +280,7 @@ iLocalDef iRangecc range_CStr(const char *cstr) {
 const char *    cstr_Rangecc        (iRangecc); /* returns NULL-terminated collected copy */
 const iString * string_Rangecc      (iRangecc); /* returns a collected String */
 
+iBool           isUtf8_Rangecc      (iRangecc); /* checks if the range is well-formed UTF-8 */
 size_t          length_Rangecc      (iRangecc); /* returns number of characters in the range */
 
 #define         cmp_Rangecc(d, cstr) cmpCStrSc_Rangecc((d), (cstr), &iCaseSensitive)

@@ -390,6 +390,10 @@ size_t length_String(const iString *d) {
     return u8_mbsnlen((const uint8_t *) cstr_String(d), size_String(d));
 }
 
+iBool isUtf8_Rangecc(iRangecc d) {
+    return u8_check((const uint8_t *) d.start, size_Range(&d)) == NULL;
+}
+
 size_t length_Rangecc(const iRangecc d) {
     /*
     size_t n = 0;
