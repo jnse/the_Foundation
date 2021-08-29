@@ -311,6 +311,17 @@ iTlsCertificate *newSelfSignedRSA_TlsCertificate(
     d->pkey = EVP_PKEY_new();
     EVP_PKEY_assign_RSA(d->pkey, rsa);
     X509_set_pubkey(d->cert, d->pkey);
+    /* Random serial number. */ {
+        BIGNUM *big = BN_new();
+        if (BN_rand(big, 64, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY)) {
+            ASN1_INTEGER *num = ASN1_INTEGER_new();
+            if (num && BN_to_ASN1_INTEGER(big, num)) {
+                X509_set_serialNumber(d->cert, num);
+            }
+            ASN1_INTEGER_free(num);
+        }
+        BN_free(big);
+    }
     /* Set names. */ {
         X509_NAME *issuer = makeX509Name_(issuerBit_TlsCertificateNameType, names);
         X509_set_issuer_name(d->cert, issuer);
