@@ -11,7 +11,7 @@ if (NOT IOS)
     endif ()
     if (TFDN_ENABLE_TLSREQUEST)
         pkg_check_modules (OPENSSL eopenssl11)  # BSD
-	if (NOT OPENSSL_FOUND)
+        if (NOT OPENSSL_FOUND)
             pkg_check_modules (OPENSSL openssl)
         endif ()
     else ()

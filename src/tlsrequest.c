@@ -311,6 +311,7 @@ iTlsCertificate *newSelfSignedRSA_TlsCertificate(
     d->pkey = EVP_PKEY_new();
     EVP_PKEY_assign_RSA(d->pkey, rsa);
     X509_set_pubkey(d->cert, d->pkey);
+#if !defined (LIBRESSL_VERSION_NUMBER)
     /* Random serial number. */ {
         BIGNUM *big = BN_new();
         if (BN_rand(big, 64, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY)) {
@@ -322,6 +323,7 @@ iTlsCertificate *newSelfSignedRSA_TlsCertificate(
         }
         BN_free(big);
     }
+#endif
     /* Set names. */ {
         X509_NAME *issuer = makeX509Name_(issuerBit_TlsCertificateNameType, names);
         X509_set_issuer_name(d->cert, issuer);
