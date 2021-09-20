@@ -82,21 +82,25 @@ iDeclareType(Collected)
 
 struct Impl_Collected { // Thread-specific.
     iList collected;
+    iBool isRecycling;
 };
 
 static iCollected *new_Collected_(void) {
     iCollected *d = iMalloc(Collected);
     init_List(&d->collected);
+    d->isRecycling = iFalse;
     return d;
 }
 
 static void recycle_Collected_(iCollected *d) {
-    if (!isEmpty_List(&d->collected)) {
+    if (!d->isRecycling && !isEmpty_List(&d->collected)) {
+        d->isRecycling = iTrue; /* avoid re-entrant recycling */
         iDebug("[Garbage] recycling %zu allocations\n", size_List(&d->collected));
         iReverseForEach(List, i, &d->collected) {
             delete_GarbageNode_((iGarbageNode *) i.value);
         }
         clear_List(&d->collected);
+        d->isRecycling = iFalse;
     }
 }
 
@@ -205,7 +209,7 @@ void endScope_Garbage(void) {
 }
 
 void recycle_Garbage(void) {
-    iCollected * d = tss_get(threadLocal_Garbage_);
+    iCollected *d = tss_get(threadLocal_Garbage_);
     if (d) {
         recycle_Collected_(d);
     }
