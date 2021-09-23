@@ -857,6 +857,105 @@ double toDouble_String(const iString *d) {
     return strtod(cstr_String(d), NULL);
 }
 
+iString *quote_String(const iString *d, iBool numericUnicode) {
+    iString *quot = new_String();
+    iConstForEach(String, i, d) {
+        const iChar ch = i.value;
+        if (ch == '"') {
+            appendCStr_String(quot, "\\\"");
+        }
+        else if (ch == '\\') {
+            appendCStr_String(quot, "\\\\");
+        }
+        else if (ch == '\n') {
+            appendCStr_String(quot, "\\n");
+        }
+        else if (ch == '\r') {
+            appendCStr_String(quot, "\\r");
+        }
+        else if (ch == '\t') {
+            appendCStr_String(quot, "\\t");
+        }
+        else if (numericUnicode && ch >= 0x80) {
+            if ((ch >= 0xD800 && ch < 0xE000) || ch >= 0x10000) {
+                /* TODO: Add a helper function? */
+                /* UTF-16 surrogate pair */
+                iString *chs = newUnicodeN_String(&ch, 1);
+                iBlock *u16 = toUtf16_String(chs);
+                delete_String(chs);
+                const uint16_t *ch16 = constData_Block(u16);
+                appendFormat_String(quot, "\\u%04x\\u%04x", ch16[0], ch16[1]);
+            }
+            else {
+                appendFormat_String(quot, "\\u%04x", ch);
+            }
+        }
+        else {
+            appendChar_String(quot, ch);
+        }
+    }
+    return quot;
+}
+
+iString *unquote_String(const iString *d) {
+    iString *unquot = new_String();
+    iConstForEach(String, i, d) {
+        const iChar ch = i.value;
+        if (ch == '\\') {
+            next_StringConstIterator(&i);
+            const iChar esc = i.value;
+            if (esc == '\\') {
+                appendChar_String(unquot, esc);
+            }
+            else if (esc == 'n') {
+                appendChar_String(unquot, '\n');
+            }
+            else if (esc == 'r') {
+                appendChar_String(unquot, '\r');
+            }
+            else if (esc == 't') {
+                appendChar_String(unquot, '\t');
+            }
+            else if (esc == '"') {
+                appendChar_String(unquot, '"');
+            }
+            else if (esc == 'u') {
+                char digits[5];
+                iZap(digits);
+                for (size_t j = 0; j < 4; j++) {
+                    next_StringConstIterator(&i);
+                    digits[j] = *i.pos;
+                }
+                uint16_t ch16[2] = { strtoul(digits, NULL, 16), 0 };
+                if (ch16[0] < 0xD800 || ch16[0] >= 0xE000) {
+                    appendChar_String(unquot, ch16[0]);
+                }
+                else {
+                    /* UTF-16 surrogate pair */
+                    next_StringConstIterator(&i);
+                    next_StringConstIterator(&i);
+                    iZap(digits);
+                    for (size_t j = 0; j < 4; j++) {
+                        next_StringConstIterator(&i);
+                        digits[j] = *i.pos;
+                    }
+                    ch16[1] = strtoul(digits, NULL, 16);
+                    iString *u16 = newUtf16N_String(ch16, 2);
+                    append_String(unquot, u16);
+                    delete_String(u16);
+                }
+            }
+            else {
+                iAssert(0);
+            }
+        }
+        else {
+            appendChar_String(unquot, ch);
+        }
+    }
+    return unquot;
+}
+
 const char *skipSpace_CStr(const char *cstr) {
     while (*cstr && isspace((int) *cstr)) {
         cstr++;

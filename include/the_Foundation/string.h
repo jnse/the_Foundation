@@ -262,6 +262,9 @@ int             toInt_String    (const iString *);
 float           toFloat_String  (const iString *);
 double          toDouble_String (const iString *);
 
+iString *       quote_String    (const iString *, iBool numericUnicode);
+iString *       unquote_String  (const iString *);
+
 const char *    format_CStr     (const char *format, ...);
 const char *    skipSpace_CStr  (const char *);
 
