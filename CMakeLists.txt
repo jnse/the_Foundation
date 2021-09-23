@@ -156,6 +156,7 @@ set (HEADERS
     include/the_Foundation/thread.h
     include/the_Foundation/threadpool.h
     include/the_Foundation/time.h
+    include/the_Foundation/toml.h
     include/the_Foundation/vec2.h
     include/the_Foundation/version.h
     include/the_Foundation/xml.h
@@ -202,6 +203,7 @@ set (SOURCES
     src/thread.c
     src/threadpool.c
     src/time.c
+    src/toml.c
     src/version.c
     src/xml.c
 )
