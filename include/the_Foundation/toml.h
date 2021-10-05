@@ -35,6 +35,8 @@ iDeclareTypeConstruction(TomlParser)
 enum iTomlType {
     string_TomlType,
     int64_TomlType,
+    float64_TomlType,
+    boolean_TomlType,
 };
 
 iDeclareType(TomlValue)
@@ -44,8 +46,17 @@ struct Impl_TomlValue {
     union {
         const iString *string;
         int64_t        int64;
-    } value;    
+        double         float64;
+        iBool          boolean;
+    } value;
 };
+
+iLocalDef double number_TomlValue(const iTomlValue *d) {
+    return d->type == float64_TomlType   ? d->value.float64
+           : d->type == int64_TomlType   ? d->value.int64
+           : d->type == boolean_TomlType ? (d->value.boolean ? 1.0 : 0.0)
+                                         : 0;
+}
 
 typedef void (*iTomlTableFunc)(void *context, const iString *table, iBool isStart);
 typedef void (*iTomlKeyValueFunc)(void *context, const iString *table, const iString *key,

@@ -70,7 +70,14 @@ static iBool parseNumber_(iRangecc value, int base, iTomlValue *tv_out) {
     char *endp = NULL;
     tv_out->value.int64 = strtoll(cstr_String(&str), &endp, base);
     tv_out->type = int64_TomlType;
-    const iBool ok = !*endp;
+    iBool ok = !*endp;
+    if (!ok && (*endp == '.' || *endp == ',')) {
+        tv_out->value.float64 = strtod(cstr_String(&str), &endp);
+        if (!*endp) {
+            tv_out->type = float64_TomlType;
+            ok = iTrue;
+        }
+    }
     deinit_String(&str);
     return ok;
 }
