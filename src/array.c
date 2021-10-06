@@ -137,6 +137,10 @@ const void *constAt_Array(const iArray *d, size_t pos) {
     return element_Array_(d, d->range.start + pos);
 }
 
+void *end_Array(iArray *d) {
+    return element_Array_(d, d->range.end);
+}
+
 const void *constEnd_Array(const iArray *d) {
     return element_Array_(d, d->range.end);
 }
