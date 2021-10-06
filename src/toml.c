@@ -160,6 +160,17 @@ iBool parse_TomlParser(iTomlParser *d, const iString *toml) {
             }
             delete_String(value);
         }
+        /* Boolean. */
+        else if (equal_Rangecc(rgValue, "true") || equal_Rangecc(rgValue, "false")) {
+            if (d->keyValueFunc) {
+                d->keyValueFunc(
+                    d->context,
+                    &table,
+                    &key,
+                    &(iTomlValue){ .type  = boolean_TomlType,
+                                   .value = { .boolean = equal_Rangecc(rgValue, "true") } });
+            }
+        }
         /* Hexadecimal value. */
         else if (size_Range(&rgValue) >= 3 && rgValue.start[0] == '0' && rgValue.start[1] == 'x') {
             iTomlValue tv;
