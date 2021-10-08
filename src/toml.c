@@ -184,7 +184,7 @@ iBool parse_TomlParser(iTomlParser *d, const iString *toml) {
             }
         }
         /* Decimal value. */
-        else if (isNumeric_Char(*rgValue.start)) {
+        else if (isNumeric_Char(*rgValue.start) || *rgValue.start == '-' || *rgValue.start == '+') {
             iTomlValue tv;
             if (parseNumber_(rgValue, 10, &tv)) {
                 if (d->keyValueFunc) {
