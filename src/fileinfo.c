@@ -68,6 +68,7 @@ static int access(const char *path, int mode) {
 enum FileInfoFlags {
     exists_FileInfoFlag     = iBit(1),
     directory_FileInfoFlag  = iBit(2),
+    writable_FileInfoFlag   = iBit(3),
 };
 
 struct Impl_FileInfo {
@@ -136,8 +137,10 @@ static iBool initDirEntry_FileInfo_(iFileInfo *d, const iString *dirPath, struct
     set_String(d->path, full);
     delete_String(full);
     deinit_String(&entryName);
-    
     d->flags = exists_FileInfoFlag;
+    if (access(cstr_String(d->path), W_OK) == 0) {
+        d->flags |= writable_FileInfoFlag;
+    }
 #if defined (iPlatformHaiku)
     struct stat s;
     stat(ent->d_name, &s);
@@ -175,6 +178,10 @@ size_t size_FileInfo(const iFileInfo *d) {
 
 iBool isDirectory_FileInfo(const iFileInfo *d) {
     return (d->flags & directory_FileInfoFlag) != 0;
+}
+    
+iBool isWritable_FileInfo(const iFileInfo *d) {
+    return (d->flags & writable_FileInfoFlag) != 0;
 }
 
 iTime lastModified_FileInfo(const iFileInfo *d) {

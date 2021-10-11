@@ -47,6 +47,7 @@ iBool       exists_FileInfo         (const iFileInfo *);
 const iString * path_FileInfo       (const iFileInfo *);
 size_t      size_FileInfo           (const iFileInfo *);
 iBool       isDirectory_FileInfo    (const iFileInfo *);
+iBool       isWritable_FileInfo     (const iFileInfo *);
 iTime       lastModified_FileInfo   (const iFileInfo *);
 
 iBool       fileExists_FileInfo     (const iString *path);
