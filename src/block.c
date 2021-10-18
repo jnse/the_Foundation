@@ -66,7 +66,10 @@ static iBlockData *newPrealloc_BlockData_(void *data, size_t size, size_t allocS
     return d;
 }
 
-static iBlockData *duplicate_BlockData_(const iBlockData *d, size_t allocSize) { 
+static iBlockData *duplicate_BlockData_(const iBlockData *d, size_t allocSize) {
+    if (d->size > 1024*1024) {
+        iDebug("[BlockData] duplicating %p (size:%zu)\n", d, d->size);
+    }
     iBlockData *dupl = new_BlockData_(d->size, allocSize);
     memcpy(dupl->data, d->data, iMin(d->allocSize, dupl->size + 1));
     return dupl;
@@ -81,13 +84,28 @@ static void deref_BlockData_(iBlockData *d) {
     }
 }
 
+iLocalDef size_t allocSize_(size_t contentSize) {
+    const size_t required = contentSize + 1; /* always null-terminated */
+    size_t s = 8;
+    while (s < required) {
+        s <<= 1;
+    }
+    return s;
+}
+
 static void reserve_BlockData_(iBlockData *d, size_t size) {
-    size++;
-    if (d->allocSize >= size) return;
+    if (d->allocSize >= size + 1) return;
     iAssert(value_Atomic(&d->refCount) == 1);
     iAssert(d->allocSize > 0);
     /* Reserve increased amount of memory in powers-of-two. */
-    for (d->allocSize = 8; d->allocSize < size; d->allocSize <<= 1) {}
+#if defined (iHaveDebugOutput)
+    const size_t old = d->allocSize;
+#endif
+    d->allocSize = allocSize_(size);
+    if (d->allocSize > 4000000) {
+        /* Large reallocs should be minized. */
+        iDebug("[BlockData] reallocating %p from %zu to %zu bytes\n", d->data, old, d->allocSize);
+    }
     d->data = realloc(d->data, d->allocSize);
 }
 
@@ -248,7 +266,9 @@ void clear_Block(iBlock *d) {
 }
 
 void reserve_Block(iBlock *d, size_t reservedSize) {
-    detach_Block_(d, reservedSize + 1);
+    /* If we need to detach, allocate memory with the intended headroom already included.
+       Otherwise an immediate realloc() would follow. */
+    detach_Block_(d, allocSize_(reservedSize));
     reserve_BlockData_(d->i, reservedSize);
 }
 
@@ -322,7 +342,7 @@ void popBack_Block(iBlock *d) {
 }
 
 void set_Block(iBlock *d, const iBlock *other) {
-    if (d != other) {
+    if (d->i != other->i) {
         addRelaxed_Atomic(&other->i->refCount, 1);
         deref_BlockData_(d->i);
         d->i = other->i;
