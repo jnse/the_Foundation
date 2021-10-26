@@ -176,7 +176,10 @@ iLocalDef const char *cstrCollect_String(iString *d) {
 }
 
 iLocalDef iRangecc range_String(const iString *d) {
-    const iRangecc r = { constBegin_Block(&(d)->chars), constEnd_Block(&(d)->chars) };
+    const iRangecc r = {
+        d ? constBegin_Block(&(d)->chars) : NULL,
+        d ? constEnd_Block(&(d)->chars) : NULL
+    };
     return r;
 }
 
