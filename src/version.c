@@ -1,6 +1,6 @@
 /** @file version.c  Version numbers.
 
-@authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
+@authors Copyright (c) 2017-2021 Jaakko Keränen <jaakko.keranen@iki.fi>
 
 @par License
 
@@ -28,6 +28,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/version.h"
 
 const iVersion version_Foundation = iFoundationLibraryVersion;
+
+iBool init_Version(iVersion *d, iRangecc text) {
+    iZap(*d);
+    int      i   = 0;
+    int     *dst = &d->major;
+    iRangecc seg = iNullRange;
+    iString  segStr;
+    iBool    ok = iTrue;
+    init_String(&segStr);
+    while (nextSplit_Rangecc(text, ".", &seg)) {
+        if (i < 3) {
+            setRange_String(&segStr, seg);
+            dst[i] = toInt_String(&segStr);
+            if (dst[i] < 0) {
+                dst[i] = 0;
+                ok = iFalse;
+            }
+        }
+        i++;
+    }
+    deinit_String(&segStr);
+    return ok && i > 0 && i <= 3;
+}
 
 int cmp_Version(const iVersion *d, const iVersion *other) {
     for (int i = 0; i < 3; ++i) {

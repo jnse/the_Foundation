@@ -2,7 +2,7 @@
 
 /** @file the_Foundation/version.h  Version numbers.
 
-@authors Copyright (c) 2017 Jaakko Keränen <jaakko.keranen@iki.fi>
+@authors Copyright (c) 2017-2021 Jaakko Keränen <jaakko.keranen@iki.fi>
 
 @par License
 
@@ -27,7 +27,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 */
 
-#include "defs.h"
+#include "string.h"
 
 iBeginPublic
 
@@ -39,7 +39,8 @@ struct Impl_Version {
     int patch;
 };
 
-int cmp_Version(const iVersion *, const iVersion *other);
+iBool   init_Version    (iVersion *, iRangecc text); /* "x.y.z" */
+int     cmp_Version     (const iVersion *, const iVersion *other);
 
 extern const iVersion version_Foundation;
 
