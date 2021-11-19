@@ -37,7 +37,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#if !defined (__sgi)
 #include <ifaddrs.h>
+#endif
 
 enum iAddressFlag {
     finished_AddressFlag = 0x1,
@@ -391,6 +393,7 @@ iString *toStringFlags_Address(const iAddress *d, int flags, int family) {
 
 iObjectList *networkInterfaces_Address(void) {
     iObjectList *list = new_ObjectList();
+#if !defined (__sgi)
     struct ifaddrs *addrs = NULL;
     if (!getifaddrs(&addrs)) {
         for (struct ifaddrs *i = addrs; i; i = i->ifa_next) {
@@ -411,6 +414,7 @@ iObjectList *networkInterfaces_Address(void) {
         }
         freeifaddrs(addrs);
     }
+#endif    
     return list;
 }
 

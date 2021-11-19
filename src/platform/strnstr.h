@@ -28,6 +28,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "the_Foundation/defs.h"
 #include <string.h>
 
+#if defined (__sgi)
+    size_t strnlen(const char *s, size_t len) {
+        size_t i = 0;
+        for ( ; i < len && s[i] != '\0'; ++i);
+        return i;
+    }
+#endif
+
 static char *strnstr(const char *haystack, const char *needle, size_t len) {
     size_t needleLen = strnlen(needle, len);
     if (needleLen == 0) {

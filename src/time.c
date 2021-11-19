@@ -38,7 +38,7 @@ static time_t initStdTime_(const iDate *date, struct tm *tm) {
     tm->tm_min   = date->minute;
     tm->tm_sec   = date->second;
     tm->tm_isdst = date->isDST ? 1 : 0;
-#if !defined (iPlatformWindows) // we only know about daylight savings time 
+#if !(defined (iPlatformWindows) || defined (__sgi))  // we only know about daylight savings time 
     tm->tm_gmtoff = date->gmtOffsetSeconds;
 #endif
     return mktime(tm);
@@ -126,7 +126,7 @@ void initStdTime_Date(iDate *d, const struct tm *t) {
     d->second           = t->tm_sec;
     d->nsecs            = 0;
     d->isDST            = t->tm_isdst == 1;
-#if !defined (iPlatformWindows)
+#if !(defined (iPlatformWindows) || defined (__sgi))
     d->gmtOffsetSeconds = t->tm_gmtoff;
 #else
     d->gmtOffsetSeconds = 0;

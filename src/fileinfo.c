@@ -105,6 +105,8 @@ void init_FileInfo(iFileInfo *d, const iString *path) {
     if (!stat(cstr_String(d->path), &st)) {
 #if defined (iPlatformWindows)
         d->lastModified.ts = (struct timespec){ .tv_sec = st.st_mtime };
+#elif defined (__sgi)
+        d->lastModified.ts = st.st_mtim;  
 #else
         d->lastModified.ts = st.st_mtimespec;
 #endif
@@ -141,7 +143,7 @@ static iBool initDirEntry_FileInfo_(iFileInfo *d, const iString *dirPath, struct
     if (access(cstr_String(d->path), W_OK) == 0) {
         d->flags |= writable_FileInfoFlag;
     }
-#if defined (iPlatformHaiku)
+#if defined (iPlatformHaiku) || defined(__sgi)
     struct stat s;
     stat(ent->d_name, &s);
     if (S_ISDIR(s.st_mode)) {
@@ -188,7 +190,7 @@ iTime lastModified_FileInfo(const iFileInfo *d) {
     if (!isValid_Time(&d->lastModified)) {
         struct stat st;
         if (!stat(cstr_String(d->path), &st)) {
-#if defined (iPlatformWindows)
+#if defined (iPlatformWindows) || defined (__sgi)
             iConstCast(iFileInfo *, d)->lastModified.ts = (struct timespec){ 
                 .tv_sec = st.st_mtime };
 #else

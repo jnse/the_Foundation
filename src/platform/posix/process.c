@@ -34,7 +34,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include "pipe.h"
 
 #include <fcntl.h>
+#if defined (__sgi)
+#include <sys/types.h>
+#else
 #include <spawn.h>
+#endif
 #include <poll.h>
 #include <unistd.h>
 #include <signal.h>
@@ -102,16 +106,19 @@ void setWorkingDirectory_Process(iProcess *d, const iString *cwd) {
 }
 
 iBool start_Process(iProcess *d) {
-    posix_spawn_file_actions_t facts;
     int rc;
     const char **argv;
     iString *oldCwd = cwd_Path();
     setCwd_Path(&d->workDir);
-    argv = malloc(sizeof(char *) * (size_StringList(d->args) + 1));
-    for (size_t i = 0; i < size_StringList(d->args); ++i) {
+    const size_t argc = size_StringList(d->args);
+    argv = malloc(sizeof(char *) * (argc + 1));
+    for (size_t i = 0; i < argc; ++i) {
         argv[i] = cstr_String(at_StringList(d->args, i));
     }
-    argv[size_StringList(d->args)] = NULL;
+    argv[argc] = NULL;
+#if defined (__sgi)
+#else    
+    posix_spawn_file_actions_t facts;
     /* Use pipes to redirect the child's stdout/stderr to us. */
     posix_spawn_file_actions_init(&facts);
     posix_spawn_file_actions_addclose(&facts, input_Pipe(&d->pin)); /* these are used by parent */
@@ -123,6 +130,7 @@ iBool start_Process(iProcess *d) {
     posix_spawn_file_actions_addclose(&facts, input_Pipe(&d->pout));
     posix_spawn_file_actions_adddup2 (&facts, input_Pipe(&d->perr), 2); /* child's stderr */
     posix_spawn_file_actions_addclose(&facts, input_Pipe(&d->perr));
+#endif
     char **envs = environ;
     /* The environment. */
     if (!isEmpty_StringList(d->envMods)) {
@@ -138,11 +146,26 @@ iBool start_Process(iProcess *d) {
         envs = data_Array(env);
     }
     /* Start the child process. */
+#if defined (__sgi)
+    
+    const pid_t childPid = fork();
+    
+    if (childPid == 0){
+        // child
+        rc = execle( argv[0], argv[0], argc, NULL, envs);
+    }
+    // parent
+    d->pid = childPid;
+
+#else
     rc = posix_spawn(&d->pid, argv[0], &facts, NULL, iConstCast(char **, argv), envs);
+#endif
     free(argv);
     setCwd_Path(oldCwd);
     delete_String(oldCwd);
+#if !defined (__sgi)
     posix_spawn_file_actions_destroy(&facts);
+#endif
     close(output_Pipe(&d->pin));
     close(input_Pipe(&d->pout));
     close(input_Pipe(&d->perr));

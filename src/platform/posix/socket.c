@@ -37,6 +37,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 #include <fcntl.h>
 #include <sys/select.h>
 #include <sys/socket.h>
+#if defined (__sgi)
+#include <sys/time.h>
+#endif
 #include <sys/types.h>
 
 static const int connectionTimeoutSeconds_Socket_ = 6;

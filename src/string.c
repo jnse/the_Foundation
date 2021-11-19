@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</small>
 
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include <strings.h>
 #include <unicase.h>
 #include <unictype.h>
