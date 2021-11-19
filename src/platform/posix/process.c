@@ -116,8 +116,7 @@ iBool start_Process(iProcess *d) {
         argv[i] = cstr_String(at_StringList(d->args, i));
     }
     argv[argc] = NULL;
-#if defined (__sgi)
-#else    
+#if !defined (__sgi)
     posix_spawn_file_actions_t facts;
     /* Use pipes to redirect the child's stdout/stderr to us. */
     posix_spawn_file_actions_init(&facts);
@@ -149,13 +148,14 @@ iBool start_Process(iProcess *d) {
 #if defined (__sgi)
     
     const pid_t childPid = fork();
-    
     if (childPid == 0){
         // child
+	dup2(output_Pipe(&d->pin), 0);  // stdin 
+	dup2(input_Pipe(&d->pout), 1); // stdout
+	dup2(input_Pipe(&d->perr), 2); // stderr
         rc = execle( argv[0], argv[0], argc, NULL, envs);
     }
     // parent
-    d->pid = childPid;
 
 #else
     rc = posix_spawn(&d->pid, argv[0], &facts, NULL, iConstCast(char **, argv), envs);
